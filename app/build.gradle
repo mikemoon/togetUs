@@ -1,0 +1,109 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    id 'kotlinx-serialization'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'dagger.hilt.android.plugin'
+    id("com.google.devtools.ksp")
+    id 'com.google.gms.google-services'
+    id("com.google.firebase.crashlytics")
+}
+
+android {
+    namespace = "sky.kr.co.newtogetusa"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "sky.kr.co.newtogetusa"
+        minSdk = 26
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+    viewBinding {
+        enable = true
+    }
+    dataBinding {
+        enable = true
+    }
+}
+
+dependencies {
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation libs.androidx.navigation.fragment
+    implementation libs.navigation.ui.ktx
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation libs.firebase.core
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation libs.androidx.databinding.runtime
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.easypermissions)
+    implementation(libs.glide)
+    ksp("com.github.bumptech.glide:ksp:$rootProject.glide_version")
+
+    implementation libs.hilt.android
+    kapt "com.google.dagger:hilt-android-compiler:$rootProject.hilt_version"
+
+    implementation libs.retrofit
+    implementation libs.converter.gson
+    implementation libs.okhttp
+    implementation libs.logging.interceptor
+
+    implementation libs.androidx.paging.runtime.ktx
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:$rootProject.kotlinx_serialize_version"){
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
+    }
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation libs.firebase.messaging.ktx
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.config.ktx
+
+    implementation libs.play.services.location
+
+    implementation libs.androidx.datastore.preferences
+    implementation libs.androidx.datastore.core
+
+    implementation libs.timber
+
+    implementation libs.lottie
+
+    //Crypto
+    implementation libs.androidx.security.crypto
+
+    implementation libs.tedpermission.coroutine
+}

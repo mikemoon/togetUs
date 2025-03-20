@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "714408641644",
+    "firebase_url": "https://togetus-99c59.firebaseio.com",
+    "project_id": "togetus-99c59",
+    "storage_bucket": "togetus-99c59.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714408641644:android:20b221564d210b03908449",
+        "android_client_info": {
+          "package_name": "sky.kr.co.newtogetusa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "714408641644-cp6cn4agugu64ft6c9hkviju4vgss34s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBknul01Nz_nmMZn3boCtnp1UmFvMLnPYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "714408641644-cp6cn4agugu64ft6c9hkviju4vgss34s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "714408641644-a6rvkv3f0bviarj51jlvr07qpj7qld0v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.kr.TogetUsI"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

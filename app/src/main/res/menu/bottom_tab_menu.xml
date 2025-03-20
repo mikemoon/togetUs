@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/home"
+        android:enabled="true"
+        android:title="1"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/notify"
+        android:enabled="true"
+        android:title="2"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/setting"
+        android:enabled="true"
+        android:title="3"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/four"
+        android:enabled="true"
+        android:title="채팅"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/five"
+        android:enabled="true"
+        android:title="5"
+        app:showAsAction="always"
+        />
+</menu>
