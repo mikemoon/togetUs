@@ -10,6 +10,7 @@ import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.chat.MqttChatClientImpl
 import javax.inject.Singleton
 
+/*
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class BindModule {
@@ -24,4 +25,4 @@ abstract class BindModule {
     abstract fun bindChatClient(
         mqttChatClientImpl: MqttChatClientImpl
     ): ChatClient
-}
+}*/
