@@ -10,10 +10,12 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.chat.ChatClient
 import sky.kr.co.newtogetusa.databinding.ActivityMainBinding
 import sky.kr.co.newtogetusa.ui.base.BaseActivity
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
@@ -24,6 +26,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     private lateinit var navController: NavController
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var appBarConfiguration: AppBarConfiguration
+
+    @Inject
+    lateinit var chatClient: ChatClient
 
     private var backKeyPressedTime: Long = 0
     private val finishDelayTime = 2000
@@ -69,6 +74,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         appBarConfiguration = AppBarConfiguration(
             setOf(R.id.home, R.id.notify, R.id.setting)
         )
+
+        chatClient.connect()
     }
 
     override fun initObserver() {
@@ -78,6 +85,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
             //dataBinding.bottomNavigation.isVisible = destination.id in mainTabFragments
         }
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        chatClient.disconnect()
+    }
+
+    private fun sendChatMessage(message: String){
+        chatClient.sendMessage(message)
     }
 
 }
