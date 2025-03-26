@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.chat
 
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentChattingBinding
@@ -13,20 +14,33 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
         get() = R.layout.fragment_chatting
     override val viewModel: ChattingTabViewModel by viewModels()
 
-    private lateinit var adapter: ChatMessageAdapter
+
 
     override fun init() {
         super.init()
-        viewModel.connect()
-    }
 
-    private fun setupRecyclerView() {
-        adapter = ChatMessageAdapter()
-        dataBinding.recyclerViewMessages.apply {
-            adapter = this@ChattingTabFragment.adapter
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                stackFromEnd = true // 아래에서부터 쌓기
+        with(dataBinding.vPager){
+            adapter = ChatViewPagerAdapter(this@ChattingTabFragment)
+        }
+
+        TabLayoutMediator(dataBinding.tab, dataBinding.vPager){ tab, position ->
+            tab.text = when(position){
+                0 -> {
+                    getString(R.string.player)
+                }
+                1 ->{
+                    getString(R.string.user)
+                }
+                else -> {
+                    ""
+                }
             }
+        }.attach()
+
+        for(i in 0 until dataBinding.tab.tabCount){
+            dataBinding.tab.getTabAt(i)?.view?.setOnLongClickListener { true }
         }
     }
+
+
 }

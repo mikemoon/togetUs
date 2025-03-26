@@ -5,6 +5,5 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ChattingTabViewModel @Inject constructor() : BaseViewModel() {
-
+class ChattingUserViewModel @Inject constructor() : BaseViewModel() {
 }

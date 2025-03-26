@@ -27,8 +27,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-    @Inject
-    lateinit var chatClient: ChatClient
+    //@Inject
+    //lateinit var chatClient: ChatClient
 
     private var backKeyPressedTime: Long = 0
     private val finishDelayTime = 2000
@@ -72,10 +72,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         }
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.home, R.id.notify, R.id.setting)
+            setOf(R.id.home, R.id.notify, R.id.setting, R.id.four, R.id.five)
         )
 
-        chatClient.connect()
+        //chatClient.connect()
     }
 
     override fun initObserver() {
@@ -89,11 +89,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     override fun onDestroy() {
         super.onDestroy()
-        chatClient.disconnect()
+        //chatClient.disconnect()
     }
 
     private fun sendChatMessage(message: String){
-        chatClient.sendMessage(message)
+        //chatClient.sendMessage(message)
     }
 
 }
