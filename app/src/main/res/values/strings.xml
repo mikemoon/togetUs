@@ -3,4 +3,7 @@
     <string name="chatting">채팅</string>
     <string name="player">플레이어</string>
     <string name="user">유저</string>
+    <string name="all">전체</string>
+    <string name="deal_processing">거래진행</string>
+    <string name="deal_end">거래종료</string>
 </resources>
