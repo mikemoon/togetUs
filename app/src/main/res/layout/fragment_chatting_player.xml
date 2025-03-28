@@ -52,6 +52,7 @@
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/llType"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

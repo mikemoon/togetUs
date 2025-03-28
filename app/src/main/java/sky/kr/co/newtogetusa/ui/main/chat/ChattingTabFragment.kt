@@ -21,9 +21,10 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
 
         with(dataBinding.vPager){
             adapter = ChatViewPagerAdapter(this@ChattingTabFragment)
+            isUserInputEnabled = false
         }
 
-        TabLayoutMediator(dataBinding.tab, dataBinding.vPager){ tab, position ->
+        TabLayoutMediator(dataBinding.tab, dataBinding.vPager, false, false){ tab, position ->
             tab.text = when(position){
                 0 -> {
                     getString(R.string.player)

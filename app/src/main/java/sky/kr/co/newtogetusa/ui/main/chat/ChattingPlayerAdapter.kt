@@ -5,9 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.databinding.ItemChatPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
+import sky.kr.co.newtogetusa.ui.main.chat.data.ChatListItem
 
 class ChattingPlayerAdapter :RecyclerView.Adapter<BaseViewHolder>(){
-    var items = mutableListOf<Any>()
+    var items = mutableListOf<ChatListItem>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return ViewHolder(ItemChatPlayerBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
@@ -20,6 +21,8 @@ class ChattingPlayerAdapter :RecyclerView.Adapter<BaseViewHolder>(){
     inner class ViewHolder(private val binding: ItemChatPlayerBinding) : BaseViewHolder(binding.root){
         override fun onBindViewHolder(data: Any?, position: Int) {
             super.onBindViewHolder(data, position)
+            if(data !is ChatListItem)return
+            binding.item = data
         }
     }
 }

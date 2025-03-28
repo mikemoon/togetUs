@@ -29,6 +29,7 @@
             app:tabIndicatorColor="@color/black_80"
             app:tabIndicatorFullWidth="false"
             app:tabIndicatorHeight="2dp"
+            app:tabRippleColor="@null"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
             app:tabTextAppearance="@style/tab_text"
             app:tabSelectedTextColor="@color/black_80"
