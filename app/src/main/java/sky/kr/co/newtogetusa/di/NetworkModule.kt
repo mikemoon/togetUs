@@ -4,7 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import sky.kr.co.newtogetusa.data.remote.api.AuthService
 import javax.inject.Qualifier
+import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -37,4 +40,11 @@ class NetworkModule {
     }else{
         ""
     }*/
+
+    @ApiServer
+    @Singleton
+    @Provides
+    fun provideAuthService(@ApiServer retrofit: Retrofit): AuthService{
+        return  retrofit.create(AuthService::class.java)
+    }
 }
