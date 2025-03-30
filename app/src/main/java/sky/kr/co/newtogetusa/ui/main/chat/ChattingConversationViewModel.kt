@@ -5,14 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.chat.ChatClient
 import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
+import sky.kr.co.newtogetusa.ui.main.chat.ChattingPlayerViewModel.Event
 import javax.inject.Inject
 
 @HiltViewModel
@@ -114,5 +117,26 @@ class ChattingConversationViewModel @Inject constructor(
 
     override fun onDeliveryComplete(token: IMqttDeliveryToken?) {
         TODO("Not yet implemented")
+    }
+
+    val sendMessageEnable = MutableStateFlow(false)
+    fun onChattingMessage(s: CharSequence, start: Int, before: Int, count: Int) {
+        sendMessageEnable.value = s.isNotEmpty()
+    }
+
+    private val _event = SingleLiveEvent<Event>()
+    val event: LiveData<Event> get() = _event
+    fun onEventClick(event: Event) {
+        _event.value = event
+    }
+
+    sealed class Event {
+        object Back : Event()
+        object More : Event()
+        object InputMore : Event()
+        object InputSend : Event()
+        object InputCamera : Event()
+        object InputAlbum : Event()
+        object InputMovie : Event()
     }
 }

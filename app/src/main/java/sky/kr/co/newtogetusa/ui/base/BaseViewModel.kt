@@ -6,4 +6,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class BaseViewModel @Inject constructor() : ViewModel() {
+
+    open fun init() {}
 }

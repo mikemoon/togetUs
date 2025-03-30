@@ -7,7 +7,7 @@ import sky.kr.co.newtogetusa.databinding.ItemChatPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 import sky.kr.co.newtogetusa.ui.main.chat.data.ChatListItem
 
-class ChattingPlayerAdapter :RecyclerView.Adapter<BaseViewHolder>(){
+class ChattingPlayerAdapter(private val viewModel: ChattingPlayerViewModel) :RecyclerView.Adapter<BaseViewHolder>(){
     var items = mutableListOf<ChatListItem>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return ViewHolder(ItemChatPlayerBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -23,6 +23,7 @@ class ChattingPlayerAdapter :RecyclerView.Adapter<BaseViewHolder>(){
             super.onBindViewHolder(data, position)
             if(data !is ChatListItem)return
             binding.item = data
+            binding.viewModel = viewModel
         }
     }
 }

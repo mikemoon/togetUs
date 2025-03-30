@@ -5,6 +5,10 @@
 
     <data>
 
+        <import type="sky.kr.co.newtogetusa.ui.main.chat.ChattingPlayerViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.chat.ChattingPlayerViewModel" />
         <variable
             name="item"
             type="sky.kr.co.newtogetusa.ui.main.chat.data.ChatListItem" />
@@ -12,7 +16,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp">
+        android:layout_height="80dp"
+        android:onClick="@{()-> viewModel.onChatItemClick(item)}"
+        >
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivProfile"
@@ -63,6 +69,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black_60"
                 android:textSize="14dp"
+                android:text="안녕하세요"
                 tools:text="안녕하세요." />
         </LinearLayout>
 

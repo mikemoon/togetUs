@@ -4,6 +4,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.view.forEach
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -34,7 +35,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     private val finishDelayTime = 2000
 
     private val mainTabFragments = setOf(
-        R.id.four
+        R.id.chattingTabFragment
     )
 
     private val backPressedCallback = object : OnBackPressedCallback(true) {
@@ -82,7 +83,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         super.initObserver()
         navController.addOnDestinationChangedListener { _, destination, _ ->
             Timber.d("onDestion  ${destination.label} , ${destination.route}")
-            //dataBinding.bottomNavigation.isVisible = destination.id in mainTabFragments
+            dataBinding.bottomNavigation.isVisible = destination.id in mainTabFragments
         }
 
     }

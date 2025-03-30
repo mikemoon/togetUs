@@ -11,5 +11,7 @@
     <color name="black_60">#666666</color>
     <color name="black_40">#999999</color>
     <color name="black_10">#E5E5E5</color>
+    <color name="black_5">#F2F2F2</color>
+    <color name="red_100">#EC3034</color>
     <color name="primary_100">#27256D</color>
 </resources>

@@ -6,4 +6,13 @@
     <string name="all">전체</string>
     <string name="deal_processing">거래진행</string>
     <string name="deal_end">거래종료</string>
+    <string name="home">홈</string>
+    <string name="option">옵션</string>
+    <string name="alarm_off">알람끄기</string>
+    <string name="get_block">차단하기</string>
+    <string name="get_report">신고하기</string>
+    <string name="chatting_room_exit">채팅방 나가기</string>
+    <string name="camera">카메라</string>
+    <string name="album">앨범</string>
+    <string name="video">동영상</string>
 </resources>

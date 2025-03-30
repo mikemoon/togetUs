@@ -1,78 +1,346 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="채팅" />
+        android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewMessages"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="8dp"
-        android:clipToPadding="false"
-        app:layout_constraintBottom_toTopOf="@+id/layoutInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:background="@android:color/white"
-        android:elevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttonSend"
-            app:layout_constraintStart_toStartOf="parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextMessage"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/left"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Back.INSTANCE)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black_80"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:text="홍길동"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="홍길동" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/call"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/ivMore"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivMore"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/more_vertical"
+                android:onClick="@{()-> viewModel.onEventClick(Event.More.INSTANCE)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clProductInfo"
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            app:layout_constraintTop_toBottomOf="@id/clTop">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivProduct"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/background_s_b5_r4"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textColor="@color/black_60"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                android:text="진행중"
+                app:layout_constraintStart_toEndOf="@id/ivProduct"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="상태값" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black_80"
+                android:textSize="14dp"
+                android:text="반찬통 배달해주세요."
+                app:layout_constraintStart_toEndOf="@id/tvState"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="반찬통 배달해주세요." />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/black_80"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:text="8000원"
+                app:layout_constraintStart_toEndOf="@id/ivProduct"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                tools:text="8000원" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginTop="26dp"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/right_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/vDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black_5"
+            app:layout_constraintTop_toBottomOf="@id/clProductInfo" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewMessages"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:padding="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/clInputGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vDivider" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clInputGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:padding="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivPlus"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/plus"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.InputMore.INSTANCE)}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/background_s_b5_r4"
+                    app:boxBackgroundMode="none"
+                    app:hintEnabled="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/buttonSend"
+                    app:layout_constraintStart_toEndOf="@id/ivPlus"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="메시지 입력"
+                        android:inputType="textMultiLine"
+                        android:maxLines="4"
+                        android:paddingTop="10dp"
+                        android:textColor="@color/black_80"
+                        android:textColorHint="@color/black_40"
+                        android:textSize="14dp"
+                        android:onTextChanged="@{viewModel::onChattingMessage}"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        tools:text="" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/buttonSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:src="@{viewModel.sendMessageEnable? @drawable/send : @drawable/send_dim}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@color/black_5"
+                />
+
+            <View
+                android:id="@+id/vToolDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                app:layout_constraintTop_toBottomOf="@id/layoutInput"
+                android:background="@color/black_5"
+                />
+            
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clInputTools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="메시지 입력"
-                android:inputType="textMultiLine"
-                android:maxLines="4" />
-        </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@id/vToolDivider"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:paddingBottom="132dp"
+                android:visibility="gone"
+                >
+                <LinearLayout
+                    android:id="@+id/llCamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="20dp"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.InputCamera.INSTANCE)}"
+                    >
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/input_camera"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="14dp"
+                        android:textColor="@color/black_80"
+                        android:text="@string/camera"
+                        tools:text="카메라"
+                        />
+                    
+                </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonSend"
-            android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/llAlbum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/llCamera"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="28dp"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.InputAlbum.INSTANCE)}"
+                    >
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/input_album"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="14dp"
+                        android:textColor="@color/black_80"
+                        android:text="@string/album"
+                        tools:text="앨범"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llMovie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/llAlbum"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="28dp"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.InputMovie.INSTANCE)}"
+                    >
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/input_movie"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="14dp"
+                        android:textColor="@color/black_80"
+                        android:text="@string/video"
+                        tools:text="동영상"
+                        />
+
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="전송"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/vDivider" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

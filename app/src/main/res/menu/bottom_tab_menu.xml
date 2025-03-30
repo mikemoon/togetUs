@@ -4,7 +4,8 @@
     <item
         android:id="@+id/home"
         android:enabled="true"
-        android:title="1"
+        android:title="@string/home"
+        android:icon="@drawable/bottom_tab_home"
         app:showAsAction="always"
         />
 
@@ -24,7 +25,8 @@
     <item
         android:id="@+id/four"
         android:enabled="true"
-        android:title="채팅"
+        android:title="@string/chatting"
+        android:icon="@drawable/bottom_tab_chat_selected"
         app:showAsAction="always"
         />
     <item

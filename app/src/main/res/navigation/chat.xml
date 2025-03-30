@@ -7,5 +7,16 @@
     <fragment
         android:id="@+id/chattingTabFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.chat.ChattingTabFragment"
-        android:label="ChattingTabFragment" />
+        android:label="ChattingTabFragment" >
+        <action
+            android:id="@+id/action_chattingTabFragment_to_chattingConversationFragment"
+            app:destination="@id/chattingConversationFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/chattingConversationFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationFragment"
+        android:label="ChattingConversationFragment" />
+
 </navigation>
