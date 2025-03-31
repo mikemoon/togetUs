@@ -6,6 +6,17 @@
     android:layout_height="wrap_content"
     android:paddingTop="8dp">
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivSender"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/profile"
+        />
+
     <TextView
         android:id="@+id/textViewSender"
         android:layout_width="wrap_content"
@@ -14,34 +25,40 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/cardViewMessage"
         app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
         tools:text="사용자" />
 
     <TextView
-        android:id="@+id/textViewTime"
+        android:id="@+id/tvTimeSender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewSender"
-        app:layout_constraintStart_toEndOf="@+id/textViewSender"
-        app:layout_constraintTop_toTopOf="@+id/textViewSender"
+        app:layout_constraintBottom_toBottomOf="@+id/cardViewMessage"
+        app:layout_constraintStart_toEndOf="@+id/cardViewMessage"
+        tools:text="10:30" />
+
+    <TextView
+        android:id="@+id/tvTimeMy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toStartOf="@+id/cardViewMessage"
+        app:layout_constraintBottom_toBottomOf="@+id/cardViewMessage"
         tools:text="10:30" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardViewMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        app:cardBackgroundColor="#EAEAEA"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="0dp"
         app:cardPreventCornerOverlap="true"
-        app:cardUseCompatPadding="true"
         app:layout_constrainedWidth="true"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivSender"
         app:layout_constraintTop_toBottomOf="@+id/textViewSender"
+        android:layout_marginStart="12dp"
         app:layout_constraintWidth_max="300dp">
 
         <TextView
@@ -49,9 +66,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/black_80"
             android:textSize="14sp"
             tools:text="안녕하세요! MQTT 채팅 메시지입니다." />
     </com.google.android.material.card.MaterialCardView>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivMessageImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivSender"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSender"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        app:layout_constraintWidth_max="250dp"
+        app:layout_constraintHeight_max="350dp"
+        android:layout_marginStart="12dp"
+        android:src="@drawable/profile"
+        android:background="@drawable/chat_message_sender_bg"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

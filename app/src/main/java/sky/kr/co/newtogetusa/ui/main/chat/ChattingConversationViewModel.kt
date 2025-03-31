@@ -133,6 +133,7 @@ class ChattingConversationViewModel @Inject constructor(
     sealed class Event {
         object Back : Event()
         object More : Event()
+        data class MessageImageSelect(val url:String) : Event()
         object InputMore : Event()
         object InputSend : Event()
         object InputCamera : Event()

@@ -17,6 +17,18 @@
     <fragment
         android:id="@+id/chattingConversationFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationFragment"
-        android:label="ChattingConversationFragment" />
+        android:label="ChattingConversationFragment" >
+        <action
+            android:id="@+id/action_chattingConversationFragment_to_chattingImageDetailFragment"
+            app:destination="@id/chattingImageDetailFragment" >
+            <argument android:name="imageUrl" app:argType="string" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/chattingImageDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingImageDetailFragment"
+        android:label="ChattingImageDetailFragment" >
+        <argument android:name="imageUrl" app:argType="string" />
+    </fragment>
 
 </navigation>

@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreDialog
@@ -101,11 +102,22 @@ class ChattingConversationFragment :
                 "https://img.danawa.com/prod_img/500000/065/932/img/19932065_1.jpg?shrink=330:*&_v=20230425180255"
             )
         }
+
+        setupRecyclerView()
     }
 
 
     override fun initObserver() {
         super.initObserver()
+
+        adapter.setMessages(
+            listOf(
+                ChatMessage("", "안녕하세요", isMyMessage = true, timestamp = 123029, messageType = 0),
+                ChatMessage("", "배달은요?", isMyMessage = false, timestamp = 123132, messageType = 0),
+                ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 0),
+                ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg")
+            )
+        )
 
         viewModel.event.observe(viewLifecycleOwner) { event ->
             Timber.d("event $event")
@@ -119,6 +131,9 @@ class ChattingConversationFragment :
                         childFragmentManager,
                         BottomChatMoreDialog()
                     )
+                }
+                is ChattingConversationViewModel.Event.MessageImageSelect ->{
+                    findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingImageDetailFragment(event.url))
                 }
 
                 ChattingConversationViewModel.Event.InputMore -> {
@@ -151,7 +166,7 @@ class ChattingConversationFragment :
     }
 
     private fun setupRecyclerView() {
-        adapter = ChatMessageAdapter()
+        adapter = ChatMessageAdapter(viewModel)
         dataBinding.recyclerViewMessages.apply {
             adapter = this@ChattingConversationFragment.adapter
             layoutManager = LinearLayoutManager(requireContext()).apply {
