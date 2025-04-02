@@ -110,5 +110,8 @@ dependencies {
 
     implementation libs.tedpermission.coroutine
 
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'\
+
+    implementation 'androidx.media3:media3-exoplayer:1.2.0'
+    implementation 'androidx.media3:media3-ui:1.2.0'
 }

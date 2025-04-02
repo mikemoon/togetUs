@@ -47,6 +47,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/call"
+                android:onClick="@{()-> viewModel.onEventClick(Event.PhoneCall.INSTANCE)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/ivMore"
                 app:layout_constraintTop_toTopOf="parent" />

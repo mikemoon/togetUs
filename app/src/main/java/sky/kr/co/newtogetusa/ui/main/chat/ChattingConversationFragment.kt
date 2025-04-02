@@ -24,6 +24,7 @@ import sky.kr.co.newtogetusa.utils.loadImage
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class ChattingConversationFragment :
@@ -85,9 +86,9 @@ class ChattingConversationFragment :
         // Callback is invoked after the user selects a media item or closes the
         // photo picker.
         if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
+            Timber.tag("PhotoPicker").d("Selected URI: $uri")
         } else {
-            Log.d("PhotoPicker", "No media selected")
+            Timber.tag("PhotoPicker").d("No media selected")
         }
     }
 
@@ -115,6 +116,8 @@ class ChattingConversationFragment :
                 ChatMessage("", "안녕하세요", isMyMessage = true, timestamp = 123029, messageType = 0),
                 ChatMessage("", "배달은요?", isMyMessage = false, timestamp = 123132, messageType = 0),
                 ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 0),
+                ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 2, messageImageUrl = "https://cdn.pixabay.com/photo/2017/03/19/21/21/luwak-2157626_1280.jpg",
+                    messageVieoUrl = "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"),
                 ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg")
             )
         )
@@ -126,6 +129,12 @@ class ChattingConversationFragment :
                     findNavController().popBackStack()
                 }
 
+                ChattingConversationViewModel.Event.PhoneCall ->{
+                    val phoneNumber = "tel:114"  // 전화번호 설정
+                    val intent = Intent(Intent.ACTION_DIAL, phoneNumber.toUri())
+                    startActivity(intent)
+                }
+
                 ChattingConversationViewModel.Event.More -> {
                     dialogFragmentShow(
                         childFragmentManager,
@@ -134,6 +143,9 @@ class ChattingConversationFragment :
                 }
                 is ChattingConversationViewModel.Event.MessageImageSelect ->{
                     findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingImageDetailFragment(event.url))
+                }
+                is ChattingConversationViewModel.Event .MessageVideoSelect ->{
+                    findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingVideoDetailFragment(event.url))
                 }
 
                 ChattingConversationViewModel.Event.InputMore -> {

@@ -23,6 +23,12 @@
             app:destination="@id/chattingImageDetailFragment" >
             <argument android:name="imageUrl" app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_chattingConversationFragment_to_chattingVideoDetailFragment"
+            app:destination="@id/chattingVideoDetailFragment" >
+            <argument android:name="videoUrl" app:argType="string" />
+        </action>
+
     </fragment>
     <fragment
         android:id="@+id/chattingImageDetailFragment"
@@ -30,5 +36,12 @@
         android:label="ChattingImageDetailFragment" >
         <argument android:name="imageUrl" app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/chattingVideoDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingVideoDetailFragment"
+        android:label="ChattingVideoDetailFragment" >
+        <argument android:name="videoUrl" app:argType="string" />
+    </fragment>
+
 
 </navigation>

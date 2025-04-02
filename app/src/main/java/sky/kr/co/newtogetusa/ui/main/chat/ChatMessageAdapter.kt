@@ -55,18 +55,25 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
                 textViewSender.text = message.sender
                 textViewMessage.text = message.content
 
+                cardViewMessage.isVisible = message.messageType == 0
+                ivMessageImage.isVisible = message.messageType == 1
+                clVideo.isVisible = message.messageType == 2
                 if(message.messageType == 1){
-                    ivMessageImage.visibility = View.VISIBLE
                     ivMessageImage.apply {
                         loadImage(message.messageImageUrl)
                         setOnClickListener {
                             viewModel.onEventClick(ChattingConversationViewModel.Event.MessageImageSelect(message.messageImageUrl!!))
                         }
                     }
-                    cardViewMessage.visibility = View.GONE
-                }else{
-                    ivMessageImage.visibility = View.GONE
-                    cardViewMessage.visibility = View.VISIBLE
+                }
+
+                if(message.messageType == 2){
+                    ivVideoThumnail.apply {
+                        loadImage(message.messageImageUrl)
+                        setOnClickListener {
+                            viewModel.onEventClick(ChattingConversationViewModel.Event.MessageVideoSelect(message.messageVieoUrl!!))
+                        }
+                    }
                 }
 
                 val isSameMinuteMessage = previousMessage != null && !previousMessage.isMyMessage && !message.isMyMessage && isSameMinute(previousMessage.timestamp, message.timestamp)
