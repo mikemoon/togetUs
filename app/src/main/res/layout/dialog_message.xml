@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <import type="androidx.core.content.ContextCompat"/>
+        <variable
+            name="msg"
+            type="String" />
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.dialog.message.MessageDialogViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_dialog_radius"
+        android:paddingTop="16dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivTop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:src="@{viewModel.imageResId}"
+            tools:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:visibility="@{viewModel.imageResId > 0 ? View.VISIBLE : View.GONE}" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            app:layout_constraintBottom_toTopOf="@id/tvMessage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivTop"
+            app:layout_goneMarginTop="9dp"
+            tools:text="초기 비밀번호로 재설정하겠습니까?"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="@color/color_333333"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvMessage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_goneMarginTop="8dp"
+            tools:text="초기 비밀번호로 재설정하겠습니까?"
+            tools:visibility="visible"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:gravity="center"
+            android:text="@{msg}"
+            android:textSize="14dp"
+            android:textColor="@color/color_333333" />
+
+        <View
+            android:id="@+id/vw_dialog_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMessage"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="48dp"
+            android:background="@color/black_10" />
+
+        <View
+            android:id="@+id/vw_dialog_middle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/vw_dialog_bottom"
+            app:layout_constraintStart_toStartOf="@id/vw_dialog_bottom"
+            app:layout_constraintTop_toBottomOf="@id/vw_dialog_bottom"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/black_10" />
+
+        <TextView
+            android:id="@+id/txt_dialog_left"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/txt_dialog_right"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/vw_dialog_bottom"
+            tools:text="아니요"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:onClick="@{()->viewModel.onLeftClick()}"
+            android:textSize="16dp"
+            android:text="취소"
+            android:textStyle="bold"
+            android:textColor="@color/color_999999" />
+
+        <TextView
+            android:id="@+id/txt_dialog_right"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/txt_dialog_left"
+            app:layout_constraintTop_toTopOf="@id/vw_dialog_bottom"
+            tools:text="아니요"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:textColor="@color/color_333333"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:onClick="@{()->viewModel.onRightClick()}"
+            android:text="취소" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_btn_one"
+            app:constraint_referenced_ids="txt_dialog_left,vw_dialog_middle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

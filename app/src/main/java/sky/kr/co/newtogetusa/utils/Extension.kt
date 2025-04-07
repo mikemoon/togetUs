@@ -2,12 +2,16 @@ package sky.kr.co.newtogetusa.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 
@@ -15,8 +19,20 @@ fun Context.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
 }
 
+fun DialogFragment.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(requireContext(), message, duration).show()
+}
+
 fun dialogFragmentShow(fm: FragmentManager, fragment: Fragment) {
     fm.beginTransaction().add(fragment, "").commitAllowingStateLoss()
+}
+
+fun Int.dpToPx(): Int {
+    return (this * Resources.getSystem().displayMetrics.density).toInt()
+}
+
+fun Float.dpToPx(): Float{
+    return (this * Resources.getSystem().displayMetrics.density)
 }
 
 @SuppressLint("CheckResult")
@@ -32,7 +48,7 @@ fun ImageView.loadImage(
         .load(url)
         .apply {
             roundedCorner?.let {
-                transform(RoundedCorners(roundedCorner))
+                transform(MultiTransformation(FitCenter(), RoundedCorners(roundedCorner)))
             }
             placeholder?.let { placeholderId ->
                 placeholder(placeholderId)

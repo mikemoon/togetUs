@@ -25,6 +25,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import androidx.core.net.toUri
+import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
 class ChattingConversationFragment :
@@ -113,12 +114,15 @@ class ChattingConversationFragment :
 
         adapter.setMessages(
             listOf(
-                ChatMessage("", "안녕하세요", isMyMessage = true, timestamp = 123029, messageType = 0),
-                ChatMessage("", "배달은요?", isMyMessage = false, timestamp = 123132, messageType = 0),
-                ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 0),
-                ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 2, messageImageUrl = "https://cdn.pixabay.com/photo/2017/03/19/21/21/luwak-2157626_1280.jpg",
+                ChatMessage(id = 1, sender = "", "안녕하세요", isMyMessage = true, timestamp = 123029, messageType = 0),
+                ChatMessage(id = 2, sender = "", "배달은요?", isMyMessage = false, timestamp = 123132, messageType = 0),
+                ChatMessage(id = 3, sender = "", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 0),
+                ChatMessage(id = 4, sender = "", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 2, messageImageUrl = "https://cdn.pixabay.com/photo/2017/03/19/21/21/luwak-2157626_1280.jpg",
                     messageVieoUrl = "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"),
-                ChatMessage("", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg")
+                ChatMessage(id = 5, sender = "", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg"),
+                        ChatMessage(id = 6, sender = "", "배달은요??", isMyMessage = true, timestamp = 123132, messageType = 2, messageImageUrl = "https://cdn.pixabay.com/photo/2017/03/19/21/21/luwak-2157626_1280.jpg",
+                messageVieoUrl = "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"),
+            ChatMessage(id= 6, sender = "", "배달은요??", isMyMessage = true, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg")
             )
         )
 
@@ -138,7 +142,14 @@ class ChattingConversationFragment :
                 ChattingConversationViewModel.Event.More -> {
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomChatMoreDialog()
+                        BottomChatMoreDialog().apply {
+                            reportAction = {
+                                this@ChattingConversationFragment.findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingReportFragment())
+                            }
+                            exitAction = {
+                                this@ChattingConversationFragment.findNavController().popBackStack()
+                            }
+                        }
                     )
                 }
                 is ChattingConversationViewModel.Event.MessageImageSelect ->{
@@ -147,6 +158,8 @@ class ChattingConversationFragment :
                 is ChattingConversationViewModel.Event .MessageVideoSelect ->{
                     findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingVideoDetailFragment(event.url))
                 }
+                is ChattingConversationViewModel.Event.MessageResend ->{}
+                is ChattingConversationViewModel.Event.MessageDelete ->{}
 
                 ChattingConversationViewModel.Event.InputMore -> {
                     dataBinding.clInputTools.isVisible = !dataBinding.clInputTools.isVisible

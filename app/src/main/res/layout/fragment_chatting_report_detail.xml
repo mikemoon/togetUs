@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportDetailViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportDetailViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:layout_constraintTop_toTopOf="parent">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/left"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="82dp"
+            app:layout_constraintTop_toBottomOf="@id/clTop"
+            android:text="거래 중 분쟁"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/black_80"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            />
+
+        <TextView
+            android:id="@+id/tvDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            android:layout_marginHorizontal="20dp"
+            android:textSize="14dp"
+            android:textColor="@color/black_40"
+            android:text="신고를 접수하면 차단과 함께 서로 상대의 게시글이 보이지 않고, 더 이상 채팅을 보낼 수 없어요."
+            />
+
+        <TextView
+            android:id="@+id/tvDesc2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvDesc"
+            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="20dp"
+            android:textSize="14dp"
+            android:textColor="@color/black_40"
+            android:text="({메뉴명} > {메뉴명} > {메뉴명}에서 차단을 취소할 수 있어요.) "
+            />
+
+        <EditText
+            android:id="@+id/etContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvDesc2"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="28dp"
+            android:minHeight="160dp"
+            android:padding="8dp"
+            android:hint="신고 내용을 입력해 주세요."
+            android:textColorHint="@color/black_40"
+            android:textSize="14dp"
+            android:textColor="@color/black_80"
+            android:gravity="top"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/etContent"
+            app:layout_constraintEnd_toEndOf="@id/etContent"
+            android:layout_marginTop="8dp"
+            android:textSize="10dp"
+            android:textColor="@color/black_40"
+            tools:text="0/300"
+            />
+        
+        <TextView
+            android:id="@+id/tvRequest"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:text="접수하기"
+            android:textColor="@color/selector_wopa40_wopa100"
+            android:gravity="center"
+            android:background="@drawable/selector_b20_b80_r4"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

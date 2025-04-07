@@ -15,14 +15,16 @@ import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
+import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.chat.ChattingPlayerViewModel.Event
 import javax.inject.Inject
 
 @HiltViewModel
 class ChattingConversationViewModel @Inject constructor(
     private val chatClient: ChatClient,
-    private val callbackManager: MessageCallbackManager
-) : BaseViewModel(), MessageHandler {
+    private val callbackManager: MessageCallbackManager,
+    baseViewModelFactory: BaseViewModelDependenciesFactory
+) : BaseViewModel(baseViewModelFactory.create()), MessageHandler {
 
     init {
         callbackManager.registerCallback(this)
@@ -136,6 +138,8 @@ class ChattingConversationViewModel @Inject constructor(
         object More : Event()
         data class MessageImageSelect(val url:String) : Event()
         data class MessageVideoSelect(val url:String) : Event()
+        data class MessageResend(val id:Long):Event()
+        data class MessageDelete(val id:Long):Event()
         object InputMore : Event()
         object InputSend : Event()
         object InputCamera : Event()

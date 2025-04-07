@@ -7,6 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white_opa_40">#66FFFFFF</color>
     <color name="white_opa_60">#99FFFFFF</color>
     <color name="black_80">#333333</color>
     <color name="black_60">#666666</color>
@@ -16,4 +17,6 @@
     <color name="black_5">#F2F2F2</color>
     <color name="red_100">#EC3034</color>
     <color name="primary_100">#27256D</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_999999">#999999</color>
 </resources>

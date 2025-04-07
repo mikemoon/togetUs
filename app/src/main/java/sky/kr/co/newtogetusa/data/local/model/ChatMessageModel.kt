@@ -1,7 +1,11 @@
-package sky.kr.co.newtogetusa.data.remote
+package sky.kr.co.newtogetusa.data.local.model
 
-data class ChatMessage(
-    val id: Long,
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "tb_chat_message")
+class ChatMessageModel(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val sender: String,
     val content: String,
     val messageType: Int,

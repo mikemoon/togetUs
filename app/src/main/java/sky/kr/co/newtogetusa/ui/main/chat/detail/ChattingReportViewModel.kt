@@ -8,13 +8,14 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class ChattingImageDetailViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDependenciesFactory):BaseViewModel(baseViewModelFactory.create()) {
+class ChattingReportViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDependenciesFactory): BaseViewModel(baseViewModelFactory.create()) {
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event){
         _event.value = event
     }
+
     sealed class Event {
         object Back : Event()
     }

@@ -6,17 +6,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import sky.kr.co.newtogetusa.repository.DataStoreRepository
-import sky.kr.co.newtogetusa.repository.DataStoreRepositoryImpl
+import sky.kr.co.newtogetusa.data.AppDatabase
 import javax.inject.Singleton
-
 
 @InstallIn(SingletonComponent::class)
 @Module
-class RepositoryModule {
+class DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideDataStoreRepository(@ApplicationContext app: Context): DataStoreRepository =
-        DataStoreRepositoryImpl(app)
+    fun provideAppDatabase(@ApplicationContext context: Context) = AppDatabase.getInstance(context)
 }
