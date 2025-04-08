@@ -18,5 +18,6 @@ class ChattingReportViewModel @Inject constructor(baseViewModelFactory: BaseView
 
     sealed class Event {
         object Back : Event()
+        data class Reason(val reasonType:Int, val reason:String): Event()
     }
 }

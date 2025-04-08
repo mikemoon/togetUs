@@ -3,7 +3,10 @@
     <data>
         <variable
             name="item"
-            type="String" />
+            type="sky.kr.co.newtogetusa.ui.main.chat.detail.ReportReasonModel" />
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -15,7 +18,7 @@
             android:paddingStart="20dp"
             android:textColor="@color/black_80"
             android:textSize="14dp"
-            android:text="@{item}"
+            android:text="@{item.reason}"
             android:gravity="center_vertical"
             tools:text="123"
             />

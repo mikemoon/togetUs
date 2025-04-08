@@ -21,8 +21,10 @@ class ChattingReportFragment : BaseFragment<FragmentChattingReportBinding, Chatt
         super.init()
         dataBinding.viewModel = viewModel
         dataBinding.rvReason.apply {
-            adapter = ChattingReportAdapter().apply {
-                items = listOf("거래 중 분쟁","욕설/비방/혐오", "음란/성적 행위", "사기/사칭", "스팸", "기타").toMutableList()
+            adapter = ChattingReportAdapter(viewModel).apply {
+                items = listOf(ReportReasonModel(1,"거래 중 분쟁"),
+                    ReportReasonModel(2,"음란/성적 행위"),ReportReasonModel(3,"욕설/비방/혐오"),
+                    ReportReasonModel(4, "사기/사칭"), ReportReasonModel(5, "스팸"), ReportReasonModel(6,"기타")).toMutableList()
             }
             addItemDecoration(CustomItemDecoration(context, ContextCompat.getDrawable(context, R.drawable.list_divider)))
         }
@@ -35,6 +37,9 @@ class ChattingReportFragment : BaseFragment<FragmentChattingReportBinding, Chatt
             when(event){
                 ChattingReportViewModel.Event.Back -> {
                     findNavController().popBackStack()
+                }
+                is ChattingReportViewModel.Event.Reason -> {
+                    findNavController().navigate(ChattingReportFragmentDirections.actionChattingReportFragmentToChattingReportDetailFragment(event.reasonType, event.reason))
                 }
             }
         }

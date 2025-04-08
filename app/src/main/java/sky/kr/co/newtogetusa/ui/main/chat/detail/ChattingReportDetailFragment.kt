@@ -21,6 +21,8 @@ class ChattingReportDetailFragment : BaseFragment<FragmentChattingReportDetailBi
     override fun init() {
         super.init()
         dataBinding.tvRequest.isSelected = false
+        dataBinding.viewModel = viewModel
+        dataBinding.tvTitle.text = arguments?.getString("title")
     }
 
     override fun initObserver() {

@@ -48,7 +48,21 @@
     <fragment
         android:id="@+id/chattingReportFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportFragment"
-        android:label="ChattingReportFragment" />
+        android:label="ChattingReportFragment" >
+        <action
+            android:id="@+id/action_chattingReportFragment_to_chattingReportDetailFragment"
+            app:destination="@id/chattingReportDetailFragment" >
+            <argument android:name="reasonType" app:argType="integer" />
+            <argument android:name="reason" app:argType="string" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/chattingReportDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportDetailFragment"
+        android:label="ChattingReportDetailFragment" >
+        <argument android:name="reasonType" app:argType="integer" />
+        <argument android:name="reason" app:argType="string" />
+    </fragment>
 
 
 </navigation>

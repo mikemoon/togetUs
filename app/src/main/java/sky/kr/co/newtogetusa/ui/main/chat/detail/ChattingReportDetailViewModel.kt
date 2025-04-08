@@ -12,6 +12,7 @@ import javax.inject.Inject
 class ChattingReportDetailViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDependenciesFactory) : BaseViewModel(baseViewModelFactory.create()) {
 
 
+    val titleFlow = MutableStateFlow("")
     val inputTextCountFlow = MutableStateFlow("0/300")
 
     val editTextChangedFlow = MutableStateFlow("")

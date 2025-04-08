@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import sky.kr.co.newtogetusa.data.local.model.ChatMessageModel
 
-@Database(entities = [ChatMessageModel::class], version = 1)
+@Database(entities = [ChatMessageModel::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase(){
 
     companion object{
