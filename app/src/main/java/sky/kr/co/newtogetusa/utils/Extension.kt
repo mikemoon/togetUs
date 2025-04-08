@@ -1,11 +1,18 @@
 package sky.kr.co.newtogetusa.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.DownloadManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -33,6 +40,39 @@ fun Int.dpToPx(): Int {
 
 fun Float.dpToPx(): Float{
     return (this * Resources.getSystem().displayMetrics.density)
+}
+
+fun Fragment.isStorageWritePermissionsGranted(): Boolean {
+    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        ContextCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
+}
+
+fun Context.downloadUrlWithDownloadManager(url: String, fileName: String) {
+    try {
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val uri = Uri.parse(url)
+        val request = DownloadManager.Request(uri).apply {
+            setTitle("파일 다운로드")
+            setDescription("다운로드 : $fileName")
+            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            setAllowedNetworkTypes(
+                DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE
+            )
+        }
+
+        downloadManager.enqueue(request)
+
+        toast("파일 다운로드가 시작되었습니다.")
+    }catch (e: Exception){
+        e.printStackTrace()
+    }
 }
 
 @SuppressLint("CheckResult")

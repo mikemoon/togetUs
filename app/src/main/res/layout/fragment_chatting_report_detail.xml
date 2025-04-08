@@ -80,6 +80,7 @@
             android:textColor="@color/black_80"
             android:gravity="top"
             android:background="@drawable/background_st_b10_s_w_r4"
+            android:onTextChanged="@{viewModel::onTextChanged}"
             />
 
         <TextView
@@ -90,6 +91,7 @@
             android:layout_marginTop="8dp"
             android:textSize="10dp"
             android:textColor="@color/black_40"
+            android:text="@{viewModel.inputTextCountFlow}"
             tools:text="0/300"
             />
         

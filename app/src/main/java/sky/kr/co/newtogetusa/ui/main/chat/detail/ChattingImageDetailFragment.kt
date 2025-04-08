@@ -21,6 +21,13 @@ class ChattingImageDetailFragment : BaseFragment<FragmentChattingImageDetailBind
         dataBinding.ivMessageImage.apply {
             loadImage(args.imageUrl)
         }
+    }
 
+    override fun initObserver() {
+        super.initObserver()
+
+        viewModel.event.observe(viewLifecycleOwner) { event ->
+
+        }
     }
 }
