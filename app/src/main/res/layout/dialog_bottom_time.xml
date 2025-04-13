@@ -37,6 +37,7 @@
                 android:textColor="@color/black_80"
                 />
             <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchTime"
                 android:layout_width="wrap_content"
                 android:layout_height="31dp"
                 app:layout_constraintTop_toTopOf="parent"
@@ -48,6 +49,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TimePicker
+            android:id="@+id/timePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:timePickerMode="spinner"/>

@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.dialog.bottom
 
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
@@ -10,4 +11,12 @@ class BottomTimeDialog : BottomBaseDialog<DialogBottomTimeBinding, BottomTimeVie
     override val layoutId: Int
         get() = R.layout.dialog_bottom_time
     override val viewModel: BottomTimeViewModel by viewModels()
+
+    override fun initObserver() {
+        super.initObserver()
+
+        dataBinding.switchTime.setOnCheckedChangeListener { _, isChecked ->
+            dataBinding.timePicker.isVisible = !isChecked
+        }
+    }
 }

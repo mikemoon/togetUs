@@ -8,6 +8,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryPickupBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomCalendarDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomTimeDialog
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 
 @AndroidEntryPoint
@@ -61,7 +62,9 @@ class DeliveryPickupFragment : BaseFragment<FragmentDeliveryPickupBinding, Deliv
                         )
                 }
                 DeliveryPickupViewModel.Event.SelectTime ->{
-
+                    dialogFragmentShow(childFragmentManager,
+                        BottomTimeDialog()
+                    )
                 }
             }
         }

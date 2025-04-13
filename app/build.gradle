@@ -1,11 +1,13 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'kotlinx-serialization'
     id("androidx.navigation.safeargs.kotlin")
-    id 'dagger.hilt.android.plugin'
+    //id 'dagger.hilt.android.plugin'
+    id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     id 'com.google.gms.google-services'
     id("com.google.firebase.crashlytics")
@@ -128,6 +130,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:19.1.0'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
 
+    //coreLibraryDesugaring libs.desugar.jdk.libs
+    //implementation(libs.view)
     coreLibraryDesugaring libs.desugar.jdk.libs
     implementation(libs.view)
+
 }

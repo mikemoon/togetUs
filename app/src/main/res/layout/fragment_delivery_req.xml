@@ -22,7 +22,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/left"
+                android:src="@drawable/left_l"
                 android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>

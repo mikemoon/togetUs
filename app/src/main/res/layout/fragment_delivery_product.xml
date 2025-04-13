@@ -27,7 +27,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="20dp"
                 android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
-                android:src="@drawable/left" />
+                android:src="@drawable/left_l" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"

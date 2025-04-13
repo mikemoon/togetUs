@@ -38,6 +38,14 @@
     <fragment
         android:id="@+id/deliveryMapFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryMapFragment"
-        android:label="DeliveryMapFragment" />
+        android:label="DeliveryMapFragment" >
+        <action
+            android:id="@+id/action_deliveryMapFragment_to_deliveryStartFragment2"
+            app:destination="@id/deliveryStartFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/deliveryStartFragment2"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartFragment"
+        android:label="DeliveryStartFragment" />
 
 </navigation>
