@@ -23,6 +23,7 @@ buildscript {
         // hilt
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinx_serialize_version"
+        classpath("com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1")
     }
 }
 
@@ -37,5 +38,5 @@ plugins {
 }
 
 tasks.register('clean', Delete) {
-    delete rootProject.buildDir
+    delete rootProject.buildDirectory
 }

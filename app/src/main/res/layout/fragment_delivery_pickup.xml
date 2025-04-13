@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryPickupViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryPickupViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/left"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:textSize="16dp"
+                android:textColor="@color/black_80"
+                android:textStyle="bold"
+                android:text="픽업일 선택"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:background="@drawable/background_s_b5_r40"
+            android:padding="4dp"
+            >
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReservation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="일정예약"
+                android:textColor="@color/selector_b80_w"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:background="@drawable/background_s_b80_r24"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvImmediate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="즉시요청"
+                android:textColor="@color/selector_b80_w"
+                android:textSize="12dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="픽업 희망일을 선택하세요."
+            android:textColor="@color/black_80"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="20dp"
+            android:paddingHorizontal="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:onClick="@{()-> viewModel.onEventClick(Event.SelectDate.INSTANCE)}"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/calendar"
+                />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:focusable="false"
+                android:hint="날짜 선택"
+                android:background="@null"
+                android:textColorHint="@color/black_40"
+                android:textSize="14dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:paddingHorizontal="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:onClick="@{()-> viewModel.onEventClick(Event.SelectTime.INSTANCE)}"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/time"
+                />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:background="@null"
+                android:focusable="false"
+                android:hint="시간 선택"
+                android:textColorHint="@color/black_40"
+                android:textSize="14dp"
+                />
+        </LinearLayout>
+        
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_margin="20dp"
+                android:background="@drawable/selector_b20_b80_r4"
+                android:text="선택 완료"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/selector_wopa40_wopa100"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</layout>

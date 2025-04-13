@@ -28,6 +28,6 @@ class ChattingReportDetailViewModel @Inject constructor(baseViewModelFactory: Ba
     }
     sealed class Event{
         object Back : Event()
-
+        object Send : Event()
     }
 }

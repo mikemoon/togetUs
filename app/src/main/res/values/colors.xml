@@ -15,8 +15,12 @@
     <color name="black_20">#CCCCCC</color>
     <color name="black_10">#E5E5E5</color>
     <color name="black_5">#F2F2F2</color>
+    <color name="black_2">#FAFAFA</color>
     <color name="red_100">#EC3034</color>
     <color name="primary_100">#27256D</color>
+    <color name="primary_60">#7D7CA7</color>
+    <color name="primary_20">#D4D3E2</color>
+    <color name="primary_10">#E9E9F0</color>
     <color name="color_333333">#333333</color>
     <color name="color_999999">#999999</color>
 </resources>

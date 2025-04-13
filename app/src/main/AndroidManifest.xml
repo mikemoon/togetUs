@@ -36,6 +36,10 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout"
             android:launchMode="singleTask"
             />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="" />
     </application>
 
 </manifest>

@@ -9,6 +9,35 @@
         android:label="HomeTabFragment"
         >
 
+        <action
+            android:id="@+id/action_homeTabFragment_to_deliveryReqFragment"
+            app:destination="@id/deliveryReqFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/deliveryReqFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryReqFragment"
+        android:label="DeliveryReqFragment" >
+        <action
+            android:id="@+id/action_deliveryReqFragment_to_deliveryProductFragment"
+            app:destination="@id/deliveryProductFragment" />
+        <action
+            android:id="@+id/action_deliveryReqFragment_to_deliveryPickupFragment"
+            app:destination="@id/deliveryPickupFragment" />
+        <action
+            android:id="@+id/action_deliveryReqFragment_to_deliveryMapFragment"
+            app:destination="@id/deliveryMapFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/deliveryProductFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryProductFragment"
+        android:label="DeliveryProductFragment" />
+    <fragment
+        android:id="@+id/deliveryPickupFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryPickupFragment"
+        android:label="DeliveryPickupFragment" />
+    <fragment
+        android:id="@+id/deliveryMapFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryMapFragment"
+        android:label="DeliveryMapFragment" />
 
 </navigation>

@@ -23,7 +23,7 @@
         app:showAsAction="always"
         />
     <item
-        android:id="@+id/four"
+        android:id="@+id/chat"
         android:enabled="true"
         android:title="@string/chatting"
         android:icon="@drawable/bottom_tab_chat_selected"

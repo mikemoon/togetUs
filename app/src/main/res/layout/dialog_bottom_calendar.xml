@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="16dp"
+            android:paddingStart="20dp"
+            android:text="날짜 선택"
+            android:textColor="@color/black_80"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black_10"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <!--<com.kizitonwose.calendar.view.CalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cv_dayViewResource="@layout/calendar_day_layout"
+                app:cv_monthHeaderResource="@layout/calendar_day_title_container"
+                app:cv_outDateStyle="endOfGrid"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />-->
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_margin="20dp"
+            android:background="@drawable/background_s_b80_r4"
+            android:text="선택 완료"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/white"
+            />
+    </LinearLayout>
+</layout>

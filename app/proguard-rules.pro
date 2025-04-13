@@ -19,3 +19,18 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class * extends com.google.gson.TypeAdapter
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.*
+-dontwarn org.openjsse.**
+-keepclassmembers class * implements android.os.Parcelable {
+    static ** CREATOR;
+}
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}

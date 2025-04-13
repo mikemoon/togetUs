@@ -23,7 +23,7 @@ abstract class BaseFragment <T:ViewDataBinding, E : BaseViewModel> : Fragment() 
     ): View? {
         dataBinding = DataBindingUtil.inflate(inflater, layoutId, container, false)
         dataBinding.lifecycleOwner = viewLifecycleOwner
-        //dataBinding.setVariable(BR.viewModel, viewModel)
+        dataBinding.setVariable(BR.viewModel, viewModel)
         return dataBinding.root
     }
 

@@ -9,6 +9,7 @@ plugins {
     id("com.google.devtools.ksp")
     id 'com.google.gms.google-services'
     id("com.google.firebase.crashlytics")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -23,6 +24,7 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //multiDexEnabled true
     }
 
     buildTypes {
@@ -34,6 +36,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -110,7 +113,7 @@ dependencies {
 
     implementation libs.tedpermission.coroutine
 
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'\
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
 
     implementation 'androidx.media3:media3-exoplayer:1.2.0'
     implementation 'androidx.media3:media3-ui:1.2.0'
@@ -119,4 +122,12 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation "androidx.room:room-ktx:2.6.1"
     kapt "androidx.room:room-compiler:2.6.1"
+
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
+    implementation 'com.google.android.gms:play-services-maps:19.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
+
+    coreLibraryDesugaring libs.desugar.jdk.libs
+    implementation(libs.view)
 }

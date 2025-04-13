@@ -35,7 +35,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     private val finishDelayTime = 2000
 
     private val mainTabFragments = setOf(
-        R.id.chattingTabFragment
+        R.id.homeTabFragment, R.id.chattingTabFragment
     )
 
     private val backPressedCallback = object : OnBackPressedCallback(true) {
@@ -73,7 +73,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         }
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.home, R.id.notify, R.id.setting, R.id.four, R.id.five)
+            setOf(R.id.home, R.id.notify, R.id.setting, R.id.chat, R.id.five)
         )
 
         //chatClient.connect()

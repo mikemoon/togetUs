@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentChattingReportDetailBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 
 @AndroidEntryPoint
 class ChattingReportDetailFragment : BaseFragment<FragmentChattingReportDetailBinding, ChattingReportDetailViewModel>() {
@@ -22,7 +24,7 @@ class ChattingReportDetailFragment : BaseFragment<FragmentChattingReportDetailBi
         super.init()
         dataBinding.tvRequest.isSelected = false
         dataBinding.viewModel = viewModel
-        dataBinding.tvTitle.text = arguments?.getString("title")
+        dataBinding.tvTitle.text = arguments?.getString("reason")
     }
 
     override fun initObserver() {
@@ -42,6 +44,19 @@ class ChattingReportDetailFragment : BaseFragment<FragmentChattingReportDetailBi
             when (event) {
                 ChattingReportDetailViewModel.Event.Back -> {
                     findNavController().popBackStack()
+                }
+                ChattingReportDetailViewModel.Event.Send ->{
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        MessageDialog.newInstance(
+                            msgTitle = "신고를 접수하겠어요?",
+                            msg = "거래 중 분쟁 사유로 신고 접수가 이루어져요.",
+                            leftBtn = "취소",
+                            rightBtn = "접수하기"
+                        ).onRightBtn {
+
+                        }
+                    )
                 }
             }
         }
