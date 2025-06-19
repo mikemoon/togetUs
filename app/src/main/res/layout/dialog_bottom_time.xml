@@ -36,6 +36,15 @@
                 android:textSize="14dp"
                 android:textColor="@color/black_80"
                 />
+            <!--<androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchTime"
+                android:layout_width="wrap_content"
+                android:layout_height="31dp"
+                android:thumb="@drawable/custom_switch_thumb"
+                app:track="@drawable/custom_switch_track"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>-->
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switchTime"
                 android:layout_width="wrap_content"
@@ -43,16 +52,30 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:track="@drawable/selector_track"
-                android:thumb="@drawable/switch_thumb"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TimePicker
-            android:id="@+id/timePicker"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:timePickerMode="spinner"/>
+            >
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/black_5"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginHorizontal="30dp"
+                />
+            <TimePicker
+                android:id="@+id/timePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/CustomTimePickerStyle"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:timePickerMode="spinner"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"

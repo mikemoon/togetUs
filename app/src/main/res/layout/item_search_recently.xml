@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -14,6 +15,7 @@
             android:layout_marginStart="20dp"
             android:textColor="@color/black_80"
             android:textSize="14dp"
+            tools:text="염창역"
             />
         
         <androidx.appcompat.widget.AppCompatImageView

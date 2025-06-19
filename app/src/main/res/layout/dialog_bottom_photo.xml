@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPhotoViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPhotoViewModel" />
+    </data>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:text="사진 촬영"
+            android:onClick="@{()->viewModel.onEventClick(Event.TakePhoto.INSTANCE)}"
+            android:textColor="@color/black_80" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:text="사진 불러오기"
+            android:onClick="@{()->viewModel.onEventClick(Event.TakeGallery.INSTANCE)}"
+            android:textColor="@color/black_80" />
+    </LinearLayout>
+</layout>

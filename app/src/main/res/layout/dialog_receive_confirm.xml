@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_dialog_radius"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="수령 확인"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph16B"
+            android:layout_marginTop="20dp"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="플레이어에게 물품을 수령하셨나요?"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14B"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="12dp"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="경유지를 포함하여 모든 물품에 이상이 없으면 ‘확인’ 버튼을 클릭하여 거래를 완료해 주세요."
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/background_s_b5_r4"
+            android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="※ ‘확인' 선택 시 플레이어에게 비용이 정산되기 때문에 번복할 수 없습니다.\n\n※ 문제 발생 시 반드시 ‘고객센터’ 선택 후 문의해주세요. (24시간 내 접수하지 않으면 자동으로 거래 완료로 처리됩니다.)"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph12R"
+                />
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="start|center_vertical">
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:button="@null"
+                android:background="@drawable/checkbox_selector"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="내용을 확인하였습니다."
+                android:textColor="@color/black_80"
+                style="@style/Paragraph14R"
+                />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black_10"
+            android:layout_marginTop="20dp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            >
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="고객센터"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph14B"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/black_10"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="확인"
+                android:textColor="@color/black_20"
+                style="@style/Paragraph14B"
+                android:gravity="center"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

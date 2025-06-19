@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 체크됐을 때 배경 -->
+    <item android:state_checked="true"
+        android:drawable="@drawable/checkbox_checked" />
+
+    <!-- 체크 안됐을 때 배경 -->
+    <item android:state_checked="false"
+        android:drawable="@drawable/checkbox_unchecked" />
+
+</selector>

@@ -2,11 +2,11 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/chat">
+    app:startDestination="@id/home">
 
     <include app:graph="@navigation/home"/>
-    <include app:graph="@navigation/home"/>
-    <include app:graph="@navigation/home"/>
+    <include app:graph="@navigation/search"/>
+    <include app:graph="@navigation/history"/>
     <include app:graph="@navigation/chat"/>
     <include app:graph="@navigation/home"/>
 </navigation>

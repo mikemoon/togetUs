@@ -24,6 +24,7 @@ abstract class BaseFragment <T:ViewDataBinding, E : BaseViewModel> : Fragment() 
         dataBinding = DataBindingUtil.inflate(inflater, layoutId, container, false)
         dataBinding.lifecycleOwner = viewLifecycleOwner
         dataBinding.setVariable(BR.viewModel, viewModel)
+        onCreateView(savedInstanceState)
         return dataBinding.root
     }
 
@@ -34,6 +35,7 @@ abstract class BaseFragment <T:ViewDataBinding, E : BaseViewModel> : Fragment() 
         initObserver()
     }
 
+    open fun onCreateView(savedInstanceState: Bundle?){}
     open fun init(){}
     open fun initObserver(){}
 }

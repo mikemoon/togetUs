@@ -5,28 +5,30 @@
         android:id="@+id/home"
         android:enabled="true"
         android:title="@string/home"
-        android:icon="@drawable/bottom_tab_home"
+        android:icon="@drawable/selector_bottom_home"
         app:showAsAction="always"
         />
 
     <item
-        android:id="@+id/notify"
+        android:id="@+id/search"
         android:enabled="true"
-        android:title="2"
+        android:title="검색"
+        android:icon="@drawable/selector_bottom_search"
         app:showAsAction="always"
         />
 
     <item
-        android:id="@+id/setting"
+        android:id="@+id/history"
         android:enabled="true"
-        android:title="3"
+        android:title="이용내역"
+        android:icon="@drawable/selector_bottom_history"
         app:showAsAction="always"
         />
     <item
         android:id="@+id/chat"
         android:enabled="true"
         android:title="@string/chatting"
-        android:icon="@drawable/bottom_tab_chat_selected"
+        android:icon="@drawable/selector_bottom_chat"
         app:showAsAction="always"
         />
     <item

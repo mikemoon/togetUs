@@ -59,9 +59,12 @@
                     android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
                     android:layout_marginTop="12dp"
+                    android:paddingStart="20dp"
+                    android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -69,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:background="@drawable/selector_bg_st_b10_b80_s_w_r4"
                     android:gravity="top"
                     android:hint="물품에 대한 소개와 배송 요청사항을 남겨주세요."
                     android:minHeight="160dp"

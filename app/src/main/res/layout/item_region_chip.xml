@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/chipRegion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:background="@drawable/selector_bg_st_b10_primary100_s_w_primary10_r4"
+            android:gravity="center"
+            android:minWidth="101dp"
+            android:minHeight="56dp"
+            android:text="전체"
+            android:textColor="@color/selector_black_p100" />
+    </FrameLayout>
+</layout>

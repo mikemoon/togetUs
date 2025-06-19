@@ -1,5 +1,8 @@
 package sky.kr.co.newtogetusa.ui.dialog.bottom
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.widget.NumberPicker
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,8 +18,9 @@ class BottomTimeDialog : BottomBaseDialog<DialogBottomTimeBinding, BottomTimeVie
     override fun initObserver() {
         super.initObserver()
 
-        dataBinding.switchTime.setOnCheckedChangeListener { _, isChecked ->
+        /*dataBinding.switchTime.setOnCheckedChangeListener { _, isChecked ->
             dataBinding.timePicker.isVisible = !isChecked
-        }
+        }*/
     }
+
 }

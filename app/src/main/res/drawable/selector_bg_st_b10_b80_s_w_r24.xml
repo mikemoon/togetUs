@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true" android:drawable="@drawable/background_s_b80_r24" />
+    <item android:state_focused="true" android:drawable="@drawable/background_s_b80_r24" />
+    <item android:state_focused="false" android:drawable="@drawable/background_st_b10_s_w_r24" />
+</selector>

@@ -6,9 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.databinding.ItemSearchResultBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 
-class DeliveryStartSearchResultAdapter : RecyclerView.Adapter<DeliveryStartSearchResultAdapter.ViewHolder>() {
+class DeliveryStartSearchResultAdapter(private val viewModel: DeliveryStartViewModel) : RecyclerView.Adapter<DeliveryStartSearchResultAdapter.ViewHolder>() {
 
-    val items = mutableListOf<SearchResultModel>()
+    val items =  mutableListOf<SearchResultModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ItemSearchResultBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -20,9 +20,19 @@ class DeliveryStartSearchResultAdapter : RecyclerView.Adapter<DeliveryStartSearc
         holder.onBindViewHolder(items[position], position)
     }
 
+    fun updateList(newList: List<SearchResultModel>) {
+        items.clear()
+        items.addAll(newList)
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(val binding: ItemSearchResultBinding) : BaseViewHolder(binding.root){
         override fun onBindViewHolder(data: Any?, position: Int) {
             super.onBindViewHolder(data, position)
+            binding.tvSearchAddress.text = (data as SearchResultModel).placeName
+            binding.root.setOnClickListener {
+                viewModel.onAddressClick(data)
+            }
         }
     }
 }

@@ -1,14 +1,63 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.dto.DirectionsResponse
+import sky.kr.co.newtogetusa.repository.DirectionsRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory):BaseViewModel(baseViewModelDependenciesFactory.create()) {
+class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+                                               private val directionsRepository: DirectionsRepository
+    ):BaseViewModel(baseViewModelDependenciesFactory.create()) {
+
+    private val _route = MutableLiveData<List<LatLng>>()
+    val route: LiveData<List<LatLng>> = _route
+
+    fun fetchRoute(origin: LatLng, destination: LatLng, waypoints: List<LatLng> = emptyList()) {
+        viewModelScope.launch {
+            Timber.d("RouteFetch origin: $origin , destination :  $destination")
+            val result = directionsRepository.getRoutePoints(origin, destination, waypoints, "AIzaSyA9ZdMta--H5FgxapDt2AyHV6ZooYBht54")
+            result.onSuccess {
+                _route.postValue(it)
+            }.onFailure {
+                Timber.e("RouteFetch Error: ${it.message}")
+            }
+        }
+    }
+
+    private val _routeByPlaceIds = SingleLiveEvent<DirectionsResponse>()
+    val routeByPlaceIds: LiveData<DirectionsResponse> = _routeByPlaceIds
+    fun getRouteByPlaceIds(originPlaceId: String, destinationPlaceId: String, waypointsPlaceIds: List<String>? = null) {
+        viewModelScope.launch {
+            Timber.d("RouteFetch originPlaceId: $originPlaceId , destinationPlaceId :  $destinationPlaceId")
+            val response = directionsRepository.getRouteByPlaceIds(originPlaceId, destinationPlaceId, waypointsPlaceIds)
+            Timber.d("RouteFetch Response: $response")
+            _routeByPlaceIds.value = response
+        }
+    }
+
+    private val _latLng = MutableLiveData<LatLng>()
+    val latLng: LiveData<LatLng> = _latLng
+
+    fun fetchLatLng(placeId: String, callback: (LatLng?) -> Unit) {
+        viewModelScope.launch {
+            val result = directionsRepository.getLatLngByPlaceId(placeId)
+            Timber.d("fetchLatLng result: $result")
+            result?.let {
+                _latLng.value = it
+                callback(it)
+            }
+        }
+    }
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event

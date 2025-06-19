@@ -11,6 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import sky.kr.co.newtogetusa.BuildConfig
 import sky.kr.co.newtogetusa.data.remote.api.AddressSearchService
 import sky.kr.co.newtogetusa.data.remote.api.AuthService
+import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -72,6 +73,15 @@ class NetworkModule {
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    fun provideDirectionsApi(): DirectionsApiService {
+        return Retrofit.Builder()
+            .baseUrl("https://maps.googleapis.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(DirectionsApiService::class.java)
     }
 
     /*@ApiServer

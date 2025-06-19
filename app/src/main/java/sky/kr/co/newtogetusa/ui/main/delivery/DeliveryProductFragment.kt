@@ -1,17 +1,29 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryProductBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.main.delivery.product.HorizontalSpaceItemDecoration
+import sky.kr.co.newtogetusa.ui.main.delivery.product.ItemMoveCallback
+import sky.kr.co.newtogetusa.ui.main.delivery.product.ProductPickImageAdapter
 import sky.kr.co.newtogetusa.utils.dpToPx
+import timber.log.Timber
 
 @AndroidEntryPoint
 class DeliveryProductFragment : BaseFragment<FragmentDeliveryProductBinding, DeliveryProductViewModel>() {
@@ -19,8 +31,62 @@ class DeliveryProductFragment : BaseFragment<FragmentDeliveryProductBinding, Del
         get() = R.layout.fragment_delivery_product
     override val viewModel: DeliveryProductViewModel by viewModels()
 
+    private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var itemTouchHelper: ItemTouchHelper
+    private lateinit var rvAdapter: ProductPickImageAdapter
+    private val selectedUris = mutableListOf<Uri>()
+
     override fun init() {
         super.init()
+
+        imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val uris = mutableListOf<Uri>()
+
+                data?.clipData?.let { clipData ->
+                    for (i in 0 until clipData.itemCount) {
+                        uris.add(clipData.getItemAt(i).uri)
+                    }
+                }
+
+                data?.data?.let { uri ->
+                    requireContext().contentResolver.takePersistableUriPermission(
+                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                    uris.add(uri)
+                }
+
+                selectedUris.clear()
+                selectedUris.addAll(uris)
+                Timber.d("selectedUris : $selectedUris")
+                (dataBinding.rv.adapter as ProductPickImageAdapter).addItems(selectedUris.toList())
+            }
+        }
+
+        rvAdapter = ProductPickImageAdapter(requireContext()){ removeUri, position ->
+            selectedUris.remove(removeUri)
+            rvAdapter.removeItem(position)
+        }.apply {
+            setGalleryClickListener(object : ProductPickImageAdapter.OnGalleryClickListener {
+                override fun onGalleryClick() {
+                    openImagePicker()
+                }
+            })
+            setDragListener(object : ProductPickImageAdapter.OnStartDragListener {
+                override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
+                    itemTouchHelper.startDrag(viewHolder)
+                }
+            }
+            )
+        }
+        dataBinding.rv.apply {
+            adapter = rvAdapter
+            addItemDecoration(HorizontalSpaceItemDecoration(8.dpToPx()))
+        }
+        val callback = ItemMoveCallback(rvAdapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(dataBinding.rv)
 
         val categories = listOf("서류/문서", "전자기기", "음식/식품", "생활/잡화", "귀중품", "기타/다중")
         categories.forEach { category ->
@@ -92,5 +158,26 @@ class DeliveryProductFragment : BaseFragment<FragmentDeliveryProductBinding, Del
             }
             dataBinding.flProductSize.addView(itemTv)
         }
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+
+        viewModel.event.observe(viewLifecycleOwner){ event ->
+            when(event){
+                DeliveryProductViewModel.Event.Back ->{
+                    findNavController().popBackStack()
+                }
+            }
+        }
+    }
+
+    private fun openImagePicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        imagePickerLauncher.launch(intent)
     }
 }
