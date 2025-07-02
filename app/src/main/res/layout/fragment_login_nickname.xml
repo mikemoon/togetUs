@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.login.LoginNicknameViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.login.LoginNicknameViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="투겟어스에서 사용할\n닉네임을 입력해주세요."
+            android:textColor="@color/black_80"
+            style="@style/HeadLine20B"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etNickname"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:hint="닉네임 입력"
+            android:textColorHint="@color/black_40"
+            android:text="@{viewModel.nickname}"
+            android:padding="16dp"
+            style="@style/Paragraph14R"
+            android:textColor="@color/black_80"
+            app:drawableEndCompat="@{viewModel.showClearIcon ? @drawable/fillcircle_close_gray : null}"
+            app:drawableEndClickListener="@{()->viewModel.onClearClick()}"
+            android:onTextChanged="@{viewModel::onTextChanged}"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="20dp"
+            android:textColor="@color/black_40"
+            android:text="닉네임은 한글, 영문, 숫자만 가능해요. (10자 이하)"
+            style="@style/Description10R"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="확인"
+                android:textColor="@color/selector_wopa40_wopa100"
+                android:gravity="center"
+                style="@style/HeadLine20B"
+                android:enabled="false"
+                android:background="@drawable/selector_b20_b80_r4"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Confirm.INSTANCE)}"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</layout>

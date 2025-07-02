@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <import type="android.view.View"/>
+        <import type="sky.kr.co.newtogetusa.ui.login.LoginJoinEmailViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.login.LoginJoinEmailViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/HeadLine20B"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@{viewModel.verifyLayoutMode ? `이메일로 받은 인증번호를 입력해 주세요`:`로그인에 사용할 이메일을 입력해 주세요`}"
+            android:textColor="@color/black_80" />
+
+        <LinearLayout
+            android:id="@+id/llEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.verifyLayoutMode?View.GONE : View.VISIBLE}"
+            >
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="이메일(아이디)"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/background_st_b10_s_w_r4"
+                android:drawableEnd="@drawable/fillcircle_close_gray"
+                android:hint="이메일 입력"
+                android:padding="16dp"
+                android:text="@{viewModel.emailText}"
+                android:textColor="@color/black_80"
+                android:textColorHint="@color/black_40"
+                app:drawableEndCompat="@{viewModel.showClearIcon ? @drawable/fillcircle_close_gray : null}"
+                app:drawableEndClickListener="@{()->viewModel.onClearClick()}"
+                android:onTextChanged="@{viewModel::onTextChanged}"
+                />
+        </LinearLayout>
+
+
+        <!-- 인증번호 -->
+        <LinearLayout
+            android:id="@+id/llVerify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.verifyLayoutMode? View.VISIBLE : View.GONE}">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="인증번호"
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etVerify"
+                    style="@style/Paragraph14R"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:hint="6자리 입력"
+                    android:maxLength="6"
+                    android:padding="16dp"
+                    android:textColor="@color/black_80"
+                    android:textColorHint="@color/black_40"
+                    android:onTextChanged="@{viewModel::onVerifyCodeTextChanged}"
+                    app:layout_constraintEnd_toStartOf="@id/tvResend"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="center_vertical"
+                    android:text="@{viewModel.timeoutText}"
+                    android:textColor="@color/primary_100"
+                    app:layout_constraintEnd_toEndOf="@id/etVerify" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvResend"
+                    android:layout_width="77dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/background_s_b80_r4"
+                    android:gravity="center"
+                    android:text="재요청"
+                    android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="28dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/fillcircle_question_gray" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph16B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="이메일이 오지 않나요?"
+                    android:textColor="@color/black_60" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/black_40"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph12R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ㆍ 이메일 수신까지 최대 몇 분 정도 소요될 수 있어요."
+                    android:textColor="@color/white" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph12R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ㆍ 스팸함을 확인해 주세요."
+                    android:textColor="@color/white" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph12R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ㆍ 입력한 이메일 주소가 정확한지 다시 확인해 주세요."
+                    android:textColor="@color/white" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph12R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ㆍ 그래도 받지 못한 경우, 다시 요청해 주세요."
+                    android:textColor="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:visibility="@{viewModel.verifyLayoutMode? View.GONE:View.VISIBLE}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine20B"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/selector_b20_b80_r4"
+                android:enabled="@{viewModel.requestVerifyCodeButtonEnable}"
+                android:gravity="center"
+                android:text="인증번호 요청하기"
+                android:onClick="@{()-> viewModel.onEventClick(Event.RequestVerifyCode.INSTANCE)}"
+                android:textColor="@color/selector_wopa40_wopa100"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</layout>

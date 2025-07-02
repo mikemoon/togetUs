@@ -1,0 +1,190 @@
+package sky.kr.co.newtogetusa.ui.login
+
+import android.app.AlertDialog
+import android.widget.Toast
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.PasswordCredential
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.OAuthLoginCallback
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.databinding.FragmentLoginBinding
+import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import timber.log.Timber
+
+@AndroidEntryPoint
+class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
+    override val layoutId: Int
+        get() = R.layout.fragment_login
+    override val viewModel: LoginViewModel by activityViewModels()
+
+
+    override fun initObserver() {
+        super.initObserver()
+
+        viewModel.event.observe(this){
+            when(it){
+                is LoginViewModel.Event.NaverLogin -> {
+                    NaverIdLoginSDK.authenticate(requireContext(), object : OAuthLoginCallback {
+                        override fun onError(errorCode: Int, message: String) {
+                            val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                            val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                            Toast.makeText(requireContext(),"errorCode:$errorCode, errorDesc:$errorDescription",
+                                Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onFailure(httpStatus: Int, message: String) {
+                            Timber.e("errorCode:$httpStatus, errorDesc:$message")
+                        }
+
+                        override fun onSuccess() {
+                            val accessToken = NaverIdLoginSDK.getAccessToken()
+                            val refreshToken = NaverIdLoginSDK.getRefreshToken()
+                            val expiresAt = NaverIdLoginSDK.getExpiresAt().toString()
+                            val tokenType = NaverIdLoginSDK.getTokenType()
+                            val state = NaverIdLoginSDK.getState().toString()
+                        }
+
+                    })
+                }
+                is LoginViewModel.Event.GoogleLogin -> {
+                    Timber.d("=== Google Login Debug ===")
+
+                    // Google Play Services 상태 확인
+                    val googleApiAvailability = GoogleApiAvailability.getInstance()
+                    val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(requireContext())
+
+                    if (resultCode != ConnectionResult.SUCCESS) {
+                        Timber.e("Google Play Services unavailable: $resultCode")
+                        if (googleApiAvailability.isUserResolvableError(resultCode)) {
+                            googleApiAvailability.getErrorDialog(this, resultCode, 9000)?.show()
+                        }
+                        return@observe
+                    }
+
+                    val credentialManager = CredentialManager.create(requireContext())
+                    val webClientId = "714408641644-k2ovfqon2a2psm9en15mfnidjspse88n.apps.googleusercontent.com"
+                    Timber.d("Using Web Client ID: $webClientId")
+
+                    // 관대한 설정으로 시작
+                    val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)  // 모든 계정 허용
+                        .setServerClientId(webClientId)        // 웹 클라이언트 ID 사용
+                        .setAutoSelectEnabled(false)           // 수동 선택
+                        .setNonce(null)
+                        .build()
+
+                    val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                        .addCredentialOption(googleIdOption)
+                        .build()
+
+                    lifecycleScope.launch {
+                        try {
+                            Timber.d("Starting credential request...")
+                            val result = credentialManager.getCredential(
+                                request = request,
+                                context = requireContext(),
+                            )
+                            Timber.d("Login successful!")
+                            handleSignIn(result)
+                        } catch (e: GetCredentialCancellationException) {
+                            Timber.d("User cancelled: ${e.message}")
+                            // 사용자가 실제로 취소한 경우
+                        } catch (e: GetCredentialException) {
+                            Timber.e("Login failed: ${e.type} - ${e.localizedMessage}")
+                            showDetailedError(e)
+                        }
+                    }
+                }
+                is LoginViewModel.Event.EmailLogin -> {
+                    findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginEmailFragment())
+                }
+            }
+        }
+    }
+
+    fun handleSignIn(result: GetCredentialResponse) {
+        Timber.d("handleSignIn $result")
+        // Handle the successfully returned credential.
+        val credential = result.credential
+
+        when (credential) {
+
+            // Passkey credential
+            //is PublicKeyCredential -> {
+            // Share responseJson such as a GetCredentialResponse on your server to
+            // validate and authenticate
+            //responseJson = credential.authenticationResponseJson
+            //}
+
+            // Password credential
+            is PasswordCredential -> {
+                // Send ID and password to your server to validate and authenticate.
+                val username = credential.id
+                val password = credential.password
+            }
+
+            // GoogleIdToken credential
+            is CustomCredential -> {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential
+                            .createFrom(credential.data)
+                        Timber.d("data.type : ${googleIdTokenCredential.id}")
+                        Timber.d("data.type : ${googleIdTokenCredential.displayName}")
+                        Timber.d("data.type : ${googleIdTokenCredential.profilePictureUri.toString()}")
+
+                        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                    } catch (e: GoogleIdTokenParsingException) {
+
+                    }
+                } else {
+                    // Catch any unrecognized custom credential type here.
+                }
+            }
+
+            else -> {
+                // Catch any unrecognized credential type here.
+            }
+        }
+    }
+
+    private fun showDetailedError(exception: GetCredentialException) {
+        val message = when {
+            exception.localizedMessage?.contains("cancelled by the user") == true -> {
+                """
+            Google 로그인이 취소되었습니다.
+            
+            해결 방법:
+            1. Google Cloud Console에서 Android 클라이언트 ID 생성 확인
+            2. OAuth 동의 화면에 테스트 사용자 추가
+            3. SHA-1 인증서 올바른 등록 확인
+            """.trimIndent()
+            }
+            exception.localizedMessage?.contains("Cannot find a matching credential") == true -> {
+                "Google 계정을 기기에 추가하거나 Google Play 서비스를 업데이트해주세요."
+            }
+            else -> "Google 로그인 오류: ${exception.localizedMessage}"
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Google 로그인 문제")
+            .setMessage(message)
+            .setPositiveButton("확인", null)
+            .show()
+    }
+}

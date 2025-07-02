@@ -3,7 +3,7 @@
     "project_number": "714408641644",
     "firebase_url": "https://togetus-99c59.firebaseio.com",
     "project_id": "togetus-99c59",
-    "storage_bucket": "togetus-99c59.appspot.com"
+    "storage_bucket": "togetus-99c59.firebasestorage.app"
   },
   "client": [
     {
@@ -15,8 +15,20 @@
       },
       "oauth_client": [
         {
-          "client_id": "714408641644-cp6cn4agugu64ft6c9hkviju4vgss34s.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "714408641644-238dlsvko359m120sh5p6tg06ocfp711.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "sky.kr.co.newtogetusa",
+            "certificate_hash": "e74fd7ada0b7ce69b9e33d40b86cd9cbf767a142"
+          }
+        },
+        {
+          "client_id": "714408641644-vl4r3v545qifrc7i82e2mdq9aah93jb5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "sky.kr.co.newtogetusa",
+            "certificate_hash": "933ef16bc1478cca6b2cd72f918dc4875456c963"
+          }
         }
       ],
       "api_key": [
@@ -26,19 +38,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "714408641644-cp6cn4agugu64ft6c9hkviju4vgss34s.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "714408641644-a6rvkv3f0bviarj51jlvr07qpj7qld0v.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "co.kr.TogetUsI"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

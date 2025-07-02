@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/login"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginFragment"
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_loginTermAgreeFragment"
+            app:destination="@id/loginTermAgreeFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_loginEmailFragment"
+            app:destination="@id/loginEmailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginTermAgreeFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginTermAgreeFragment"
+        android:label="LoginTermAgreeFragment" >
+        <action
+            android:id="@+id/action_loginTermAgreeFragment_to_loginNicknameFragment"
+            app:destination="@id/loginNicknameFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginNicknameFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginNicknameFragment"
+        android:label="LoginNicknameFragment" >
+        <action
+            android:id="@+id/action_loginNicknameFragment_to_loginStartFragment"
+            app:destination="@id/loginStartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginStartFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginStartFragment"
+        android:label="LoginStartFragment" />
+    <fragment
+        android:id="@+id/loginEmailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginEmailFragment"
+        android:label="LoginEmailFragment" >
+        <action
+            android:id="@+id/action_loginEmailFragment_to_loginJoinEmailFragment"
+            app:destination="@id/loginJoinEmailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginJoinEmailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginJoinEmailFragment"
+        android:label="LoginJoinEmailFragment" >
+        <action
+            android:id="@+id/action_loginJoinEmailFragment_to_loginPasswordSetFragment"
+            app:destination="@id/loginPasswordSetFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginPasswordSetFragment"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginPasswordSetFragment"
+        android:label="LoginPasswordSetFragment" />
+
+</navigation>

@@ -28,9 +28,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //multiDexEnabled true
     }
-
+    signingConfigs {
+        release{
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword 'togetus2580!@'
+            keyAlias 'key0'
+            keyPassword 'togetus2580!@'
+        }
+        customDebug {
+            storeFile file("C:\\Users\\Joy\\.android\\debug.keystore") // 🔁 Replace with real path
+            storePassword "togetus2580!@"             // 🔁 Replace with real password
+            keyAlias "AndroidDebugKey"                       // 🔁 Replace with real alias
+            keyPassword "togetus2580!@"                 // 🔁 Replace with real password
+        }
+    }
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
         release {
+            signingConfig signingConfigs.release
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -67,7 +85,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation libs.firebase.core
+    //implementation libs.firebase.core
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.activity.ktx)
@@ -135,5 +153,30 @@ dependencies {
     //implementation(libs.view)
     coreLibraryDesugaring libs.desugar.jdk.libs
     implementation(libs.view)
+
+    implementation("com.navercorp.nid:oauth:5.10.0"){
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
+        exclude group: 'org.jetbrains.kotlinx', module: 'kotlinx-coroutines-android'
+        exclude group: 'androidx.appcompat', module: 'appcompat'
+        exclude group: 'androidx.legacy', module: 'legacy-support-core-utils'
+        exclude group: 'androidx.browser', module: 'browser'
+        exclude group: 'androidx.constraintlayout', module: 'constraintlayout'
+        exclude group: 'androidx.security', module: 'security-crypto'
+        exclude group: 'androidx.core', module: 'core-ktx'
+        exclude group: 'androidx.fragment', module: 'fragment-ktx'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
+        exclude group: 'com.squareup.retrofit2', module: 'retrofit'
+        exclude group: 'com.squareup.retrofit2', module: 'converter-gson'
+        exclude group: 'com.squareup.moshi', module: 'moshi-kotlin'
+        exclude group: 'com.squareup.okhttp3', module: 'logging-interceptor'
+        exclude group: 'com.airbnb.android', module: 'lottie'
+    }
+    //implementation(files("libs/oauth-5.10.0.aar"))
+    /*implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+    implementation("com.google.firebase:firebase-auth")*/
+
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
 }
