@@ -80,6 +80,7 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/background_st_b10_s_w_r4"
             android:hint="비밀번호 입력"
+            android:inputType="textPassword"
             android:text="@{viewModel.password}"
             android:textColorHint="@color/black_40"
             android:onTextChanged="@{viewModel::onPasswordTextChanged}"
@@ -135,6 +136,7 @@
                 android:text="비밀번호 찾기"
                 android:textColor="@color/black_60"
                 style="@style/Paragraph16B"
+                android:onClick="@{()-> viewModel.onEventClick(Event.FindPassword.INSTANCE)}"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

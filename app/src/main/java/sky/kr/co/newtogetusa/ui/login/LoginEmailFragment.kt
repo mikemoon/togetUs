@@ -31,6 +31,9 @@ class LoginEmailFragment : BaseFragment<FragmentLoginEmailBinding, LoginEmailVie
                     startActivity(Intent(requireContext(), MainActivity::class.java))
                     requireActivity().finish()
                 }
+                is LoginEmailViewModel.Event.FindPassword -> {
+                    findNavController().navigate(LoginEmailFragmentDirections.actionLoginEmailFragmentToLoginJoinEmailFragment())
+                }
                 else ->{
 
                 }

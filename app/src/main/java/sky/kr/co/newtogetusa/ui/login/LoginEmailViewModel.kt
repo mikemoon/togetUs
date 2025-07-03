@@ -66,6 +66,6 @@ class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: 
         object Back : Event()
         object Login : Event()
         object JoinByEmail : Event()
-
+        object FindPassword : Event()
     }
 }
