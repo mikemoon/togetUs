@@ -99,5 +99,13 @@
         <item name="android:textSize">10dp</item>
         <item name="android:fontFamily">@font/pretendard_bold</item>
     </style>
+    <style name="Description9R" parent="TextViewStyle">
+        <item name="android:textSize">9dp</item>
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+    </style>
+    <style name="Description9B" parent="TextViewStyle">
+        <item name="android:textSize">9dp</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+    </style>
 
 </resources>

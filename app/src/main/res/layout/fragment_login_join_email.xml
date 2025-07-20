@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
-            android:text="@{viewModel.verifyLayoutMode ? `이메일로 받은 인증번호를 입력해 주세요`:`로그인에 사용할 이메일을 입력해 주세요`}"
+            android:text="@{viewModel.titleText}"
             android:textColor="@color/black_80" />
 
         <LinearLayout

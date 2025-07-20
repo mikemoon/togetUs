@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View"/>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.WithDrawViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.WithDrawViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!-- Topbar start-->
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="탈퇴하기"
+                android:textColor="@color/black_80"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+        <!-- Topbar end-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.withDrawStep == 1? View.VISIBLE : View.GONE}"
+            >
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine20B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:text="탈퇴 전 꼭 확인하세요!"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="28dp"
+                android:text="탈퇴 시 삭제/유지되는 정보를 확인하세요!\n삭제된 정보는 재가입하더라도 복구되지 않습니다."
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="28dp"
+                android:text="삭제되는 정보"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:text=" · 계정 및 프로필 정보\n · 닉네임: 탈퇴 후 30일 간 사용 제한\n · 내 배송 이력 전체\n · 결제 및 정산 내역 좋아요한 정보 (배송요청/플레이어)"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="28dp"
+                android:text="유지되는 정보"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:text=" · 상대방의 거래 이력에는 유지됨\n · 상대방에게 ‘탈퇴한 사용자’로 닉네임 표시"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="28dp"
+                android:text="탈퇴후 재가입 안내"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:text=" · 일반 유저 계정: 탈퇴 후 7일 뒤부터 재가입 가능\n · 플레이어 계정: 탈퇴 후 30일 뒤부터 신청 가능"
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/background_s_fee500_r4"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="24dp"
+                            android:layout_height="22.4dp"
+                            android:layout_marginStart="20dp"
+                            android:src="@drawable/login_kakao" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine20B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:text="카카오로 인증하기"
+                            android:textColor="@color/black_80"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                    </LinearLayout>
+
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/HeadLine20B"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/background_s_b5_r4"
+                        android:gravity="center"
+                        android:text="계정 인증하기"
+                        android:textColor="@color/black_80"
+                        android:visibility="gone" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/HeadLine20B"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:background="@drawable/selector_b20_b80_r4"
+                        android:gravity="center"
+                        android:text="탈퇴하기"
+                        android:textColor="@color/selector_wopa40_wopa100"
+                        android:onClick="@{()-> viewModel.onEventClick(Event.WithDraw.INSTANCE)}"
+                        />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.withDrawStep == 2 ? View.VISIBLE : View.GONE}"
+            >
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine20B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:text="계정 인증하기"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="28dp"
+                android:text="비밀번호를 입력하여 투겟어스 계정을 인증해주세요."
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:padding="16dp"
+                android:layout_marginTop="8dp"
+                android:maxLines="1"
+                android:singleLine="true"
+                style="@style/Paragraph14R"
+                android:layout_marginHorizontal="20dp"
+                android:textColor="@color/black_80"
+                android:text=""
+                android:hint="비밀번호 입력"
+                android:textColorHint="@color/black_40"
+                android:background="@drawable/background_st_b10_s_w_r4"
+                />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/HeadLine20B"
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:enabled="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:background="@drawable/selector_b20_b80_r4"
+                    android:gravity="center"
+                    android:text="다음"
+                    android:textColor="@color/selector_wopa40_wopa100" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

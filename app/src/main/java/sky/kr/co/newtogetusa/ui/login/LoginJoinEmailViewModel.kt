@@ -17,6 +17,18 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
 
         val requestVerifyCodeButtonEnable = MutableLiveData<Boolean>(false)
 
+    val titleText = MutableStateFlow("로그인에 사용할 이메일을 입력해 주세요")
+    val isPasswordFindModeStateFlow = MutableStateFlow(false)
+
+    fun setIsPasswordMode(isPasswordFindMode: Boolean) {
+        isPasswordFindModeStateFlow.value = isPasswordFindMode
+        if (isPasswordFindMode) {
+            titleText.value = "이메일을 입력해 주세요"
+        } else {
+            titleText.value = "로그인에 사용할 이메일을 입력해 주세요"
+        }
+    }
+
     val verifyLayoutMode = MutableStateFlow(false)
 
     // 타이머 관련

@@ -48,6 +48,7 @@
             android:layout_height="48dp"
             android:background="@drawable/background_s_fee500_r4"
             android:layout_marginTop="131dp"
+            android:onClick="@{()-> viewModel.onEventClick(Event.KakaoLogin.INSTANCE)}"
             >
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="20dp"

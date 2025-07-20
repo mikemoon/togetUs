@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.MyViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.MyViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:text="My"
+                android:textColor="@color/black_80"
+                style="@style/HeadLine20B"
+                />
+            
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/ic_setting"
+                android:onClick="@{()-> viewModel.onEventClick(Event.MySetting.INSTANCE)}"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clProfile"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            app:layout_constraintTop_toBottomOf="@id/clTop"
+            android:onClick="@{()-> viewModel.onEventClick(Event.ProfileManage.INSTANCE)}"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivProfile"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/profile"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/ivProfile"
+                app:layout_constraintBottom_toBottomOf="@id/ivProfile"
+                app:layout_constraintStart_toEndOf="@id/ivProfile"
+                android:layout_marginStart="16dp"
+                android:text="홍길동"
+                android:textColor="@color/black_80"
+                style="@style/HeadLine18B"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/right_gray"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/vProfileDiv"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            app:layout_constraintTop_toBottomOf="@id/clProfile"
+            android:background="@color/black_2"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvService"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/vProfileDiv"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="서비스"
+            android:textColor="@color/black_40"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvServiceHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            app:layout_constraintTop_toBottomOf="@id/tvService"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:text="정산내역"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            />
+        <View
+            android:id="@+id/vHistoryDiv"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@id/tvServiceHistory"
+            android:background="@color/black_5"
+            android:layout_marginHorizontal="20dp"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFavoriteReq"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            app:layout_constraintTop_toBottomOf="@id/vHistoryDiv"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:gravity="center_vertical"
+            android:text="좋아요 한 배송 내역"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            />
+
+        <View
+            android:id="@+id/vServiceDiv"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tvFavoriteReq"
+            android:layout_marginTop="20dp"
+            android:background="@color/black_2"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSupport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/vServiceDiv"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="고객지원"
+            android:textColor="@color/black_40"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNotice"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            app:layout_constraintTop_toBottomOf="@id/tvSupport"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:text="공지사항"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            android:onClick="@{()-> viewModel.onEventClick(Event.Notice.INSTANCE)}"
+            />
+        <View
+            android:id="@+id/vNoticeDiv"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@id/tvNotice"
+            android:background="@color/black_5"
+            android:layout_marginHorizontal="20dp"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFaq"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            app:layout_constraintTop_toBottomOf="@id/vNoticeDiv"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:gravity="center_vertical"
+            android:text="자주하는 질문"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            />
+        <View
+            android:id="@+id/vFaqDiv"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toBottomOf="@id/tvFaq"
+            android:background="@color/black_5"
+            android:layout_marginHorizontal="20dp"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTerm"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            app:layout_constraintTop_toBottomOf="@id/vFaqDiv"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:gravity="center_vertical"
+            android:text="이용약관"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            />
+
+        <View
+            android:id="@+id/vSupportDiv"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTerm"
+            android:layout_marginTop="20dp"
+            android:background="@color/black_2"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clVersion"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            app:layout_constraintTop_toBottomOf="@id/vSupportDiv"
+            >
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvVersionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:text="현재 버전"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph14R"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvVersionTitle"
+                android:layout_marginStart="8dp"
+                android:text="V1.0.0"
+                android:textColor="@color/black_80"
+                style="@style/Paragraph14B"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp"
+                android:text="업데이트"
+                android:textColor="@color/white"
+                android:background="@drawable/background_s_b80_r4"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                style="@style/Paragraph12B"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/vVersionDiv"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            app:layout_constraintTop_toBottomOf="@id/clVersion"
+            android:layout_marginTop="20dp"
+            android:background="@color/black_2"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/vVersionDiv"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/black_2"
+            >
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCompany"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:text="티에이치케이컴퍼니 사업자 정보"
+                android:textColor="@color/black_80"
+                style="@style/Paragraph14B"
+                android:drawableEnd="@drawable/ic_down"
+                android:drawablePadding="4dp"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCompanyInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/tvCompany"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:text="사업자정보확인"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph14R"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTermDocument"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/tvCompanyInfo"
+                app:layout_constraintStart_toEndOf="@id/tvCompanyInfo"
+                android:layout_marginStart="20dp"
+                android:text="이용약관"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph14R"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPrivacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/tvCompanyInfo"
+                app:layout_constraintStart_toEndOf="@id/tvTermDocument"
+                android:layout_marginStart="20dp"
+                android:text="개인정보처리방침"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph14R"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/tvCompanyInfo"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:text="Copyright ⓒTHKCompany Inc.All rights reserved"
+                android:textColor="@color/black_40"
+                style="@style/Description10R"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="20dp"
+            android:padding="12dp"
+            android:background="@drawable/background_st_b10_s_w_r40"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/refresh"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:text="유저모드 전환"
+                android:textColor="@color/black_80"
+                android:gravity="center_vertical"
+                style="@style/Paragraph14R"
+                />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

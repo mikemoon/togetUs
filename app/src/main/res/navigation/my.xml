@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/my"
+    app:startDestination="@id/myFragment">
+
+    <fragment
+        android:id="@+id/myFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.MyFragment"
+        android:label="MyFragment" >
+        <action
+            android:id="@+id/action_myFragment_to_profileManagementFragment"
+            app:destination="@id/profileManagementFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_mySettingFragment"
+            app:destination="@id/mySettingFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_noticeFragment"
+            app:destination="@id/noticeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileManagementFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementFragment"
+        android:label="ProfileManagementFragment" >
+        <action
+            android:id="@+id/action_profileManagementFragment_to_modifyProfileFragment"
+            app:destination="@id/modifyProfileFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_passwordSetFragment"
+            app:destination="@id/passwordSetFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/modifyProfileFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ModifyProfileFragment"
+        android:label="ModifyProfileFragment" />
+    <fragment
+        android:id="@+id/passwordSetFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.PasswordSetFragment"
+        android:label="PasswordSetFragment" />
+    <fragment
+        android:id="@+id/mySettingFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.MySettingFragment"
+        android:label="MySettingFragment" >
+        <action
+            android:id="@+id/action_mySettingFragment_to_withDrawFragment"
+            app:destination="@id/withDrawFragment" />
+        <action
+            android:id="@+id/action_mySettingFragment_to_profileManagementFragment"
+            app:destination="@id/profileManagementFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/withDrawFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.WithDrawFragment"
+        android:label="WithDrawFragment" />
+    <fragment
+        android:id="@+id/noticeFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.NoticeFragment"
+        android:label="NoticeFragment" >
+        <action
+            android:id="@+id/action_noticeFragment_to_noticeDetailFragment"
+            app:destination="@id/noticeDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/noticeDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.NoticeDetailFragment"
+        android:label="NoticeDetailFragment" />
+</navigation>

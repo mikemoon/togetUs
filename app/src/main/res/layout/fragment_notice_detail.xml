@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.NoticeDetailViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.NoticeDetailViewModel" />
+    </data>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Topbar start-->
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/left_l"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text=""
+                android:textColor="@color/black_80"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                />
+        </LinearLayout>
+        <!-- Topbar end-->
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/HeadLine18B"
+            android:textColor="@color/black_80"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            android:text="투겟어스 공지사항입니다."
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            style="@style/Paragraph12R"
+            android:textColor="@color/black_40"
+            android:text="2025.08.20"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            style="@style/Paragraph14R"
+            android:textColor="@color/black_80"
+            android:text="안녕하세요. 투겟어스 공지사항입니다. 안녕하세요. 투겟어스 공지사항입니다. 안녕하세요. 투겟어스 공지사항입니다. 안녕하세요. 투겟어스 공지사항입니다. "
+            />
+
+    </LinearLayout>
+</layout>

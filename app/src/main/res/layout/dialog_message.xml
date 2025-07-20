@@ -31,6 +31,7 @@
             android:layout_marginTop="9dp"
             android:visibility="@{viewModel.imageResId > 0 ? View.VISIBLE : View.GONE}" />
 
+
         <TextView
             android:id="@+id/tvTitle"
             app:layout_constraintBottom_toTopOf="@id/tvMessage"
@@ -45,8 +46,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:gravity="center"
-            android:textSize="16dp"
-            android:textStyle="bold"
+            style="@style/Paragraph16B"
             android:textColor="@color/color_333333"
             android:visibility="gone" />
 

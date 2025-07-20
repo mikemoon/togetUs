@@ -18,6 +18,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
     }
 
     sealed class Event{
+        object KakaoLogin: Event()
         object NaverLogin: Event()
         object GoogleLogin: Event()
         object EmailLogin: Event()

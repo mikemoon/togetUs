@@ -32,7 +32,7 @@ class LoginEmailFragment : BaseFragment<FragmentLoginEmailBinding, LoginEmailVie
                     requireActivity().finish()
                 }
                 is LoginEmailViewModel.Event.FindPassword -> {
-                    findNavController().navigate(LoginEmailFragmentDirections.actionLoginEmailFragmentToLoginJoinEmailFragment())
+                    findNavController().navigate(LoginEmailFragmentDirections.actionLoginEmailFragmentToLoginJoinEmailFragment(true))
                 }
                 else ->{
 

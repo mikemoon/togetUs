@@ -8,5 +8,5 @@
     <include app:graph="@navigation/search"/>
     <include app:graph="@navigation/history"/>
     <include app:graph="@navigation/chat"/>
-    <include app:graph="@navigation/home"/>
+    <include app:graph="@navigation/my"/>
 </navigation>

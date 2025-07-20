@@ -1,0 +1,109 @@
+package sky.kr.co.newtogetusa.ui.main.my
+
+import android.content.Intent
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
+import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.databinding.FragmentMySettingBinding
+import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.login.LoginActivity
+import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+@AndroidEntryPoint
+class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewModel>() {
+    override val layoutId: Int
+        get() = R.layout.fragment_my_setting
+    override val viewModel: MySettingViewModel by viewModels()
+
+    override fun initObserver() {
+        super.initObserver()
+
+        dataBinding.swDelivery.setOnCheckedChangeListener { _, isChecked ->
+            if(!isChecked){
+                viewModel.onEventClick(MySettingViewModel.Event.DeliveryAlarm)
+            }
+        }
+
+        dataBinding.swChatting.setOnCheckedChangeListener { _, isChecked ->
+            if(!isChecked){
+                viewModel.onEventClick(MySettingViewModel.Event.ChattingAlarm)
+            }
+        }
+
+        dataBinding.swMarketing.setOnCheckedChangeListener { _, isChecked ->
+            if(!isChecked){
+                viewModel.onEventClick(MySettingViewModel.Event.MarkettingAlarm)
+            }
+        }
+
+        dataBinding.swNight.setOnCheckedChangeListener { _, isChecked ->
+            if(!isChecked){
+                viewModel.onEventClick(MySettingViewModel.Event.NightAlarm)
+            }
+        }
+
+
+        viewModel.event.observe(viewLifecycleOwner){
+            when(it){
+                MySettingViewModel.Event.Back ->{
+                    findNavController().popBackStack()
+                }
+                MySettingViewModel.Event.ManageProfile ->{
+                    findNavController().navigate(R.id.action_mySettingFragment_to_profileManagementFragment)
+                }
+                MySettingViewModel.Event.DeliveryAlarm ->{
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        MessageDialog.newInstance(
+                            msgTitle = "배송알림",
+                            msg = "배송 알림을 끄면 배송 관련 정보를 확인하기 어려울 수 있어요. (단, 배송이 시작되면 알림 설정과 무관하게 발송됩니다.)",
+                            rightBtn = "알림끄기",
+                            leftBtn = "취소",
+                        )
+                    )
+                }
+                MySettingViewModel.Event.ChattingAlarm ->{
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        MessageDialog.newInstance(
+                            msgTitle = "채팅알림",
+                            msg = "채팅 알림을 끄면 유저/플레이어와의 소통에 어려움이 있을 수 있어요.",
+                            rightBtn = "알림끄기",
+                            leftBtn = "취소",
+                        )
+                    )
+
+                }
+                MySettingViewModel.Event.MarkettingAlarm ->{
+                    val current = LocalDateTime.now()
+                    val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")
+                    val formatted = current.format(formatter)
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        MessageDialog.newInstance(
+                            msgTitle = "마켓팅정보 앱 푸시 알림 동의 안내",
+                            msg = "전송자: 투겟어스\n" +
+                                    "수신동의 일시: ${formatted}\n" +
+                                    "처리내용: 수신동의 처리완료",
+                            rightBtn = "확인",
+                        )
+                    )
+                }
+                MySettingViewModel.Event.NightAlarm ->{
+
+                }
+                MySettingViewModel.Event.Logout ->{
+                    requireContext().startActivity(Intent(requireContext(), LoginActivity::class.java))
+                    requireActivity().finish()
+                }
+                MySettingViewModel.Event.WithDraw ->{
+                    findNavController().navigate(R.id.action_mySettingFragment_to_withDrawFragment)
+                }
+            }
+        }
+    }
+}

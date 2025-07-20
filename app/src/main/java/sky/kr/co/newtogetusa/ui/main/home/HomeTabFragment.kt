@@ -6,6 +6,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter
+import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeRegisteredAdapter
 
 @AndroidEntryPoint
 class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
@@ -13,17 +15,29 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         get() = R.layout.fragment_home
     override val viewModel: HomeTabViewModel by viewModels()
 
+    private var prgAdapter: HomeProgressAdapter? = null
+    private var regAdapter: HomeRegisteredAdapter? = null
+
     override fun init() {
         super.init()
 
-
+        prgAdapter = HomeProgressAdapter()
+        dataBinding.rvProgress.apply {
+            adapter = prgAdapter
+        }
+        regAdapter = HomeRegisteredAdapter().apply {
+            setItems(listOf("1", "2","3"))
+        }
+        dataBinding.rvRegistered.apply {
+            adapter = regAdapter
+        }
     }
 
     override fun initObserver() {
         super.initObserver()
 
-        dataBinding.tvDelivery.setOnClickListener {
+        /*dataBinding.tvDelivery.setOnClickListener {
             findNavController().navigate(R.id.action_homeTabFragment_to_deliveryReqFragment)
-        }
+        }*/
     }
 }

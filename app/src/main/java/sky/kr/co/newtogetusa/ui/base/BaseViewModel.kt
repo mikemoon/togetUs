@@ -27,3 +27,4 @@ class BaseViewModelDependenciesFactory @Inject constructor(
 class BaseViewModelDependencies @Inject constructor(
     val dataStoreRepository: DataStoreRepository,
 )
+

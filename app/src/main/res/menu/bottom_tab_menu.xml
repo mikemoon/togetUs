@@ -32,9 +32,10 @@
         app:showAsAction="always"
         />
     <item
-        android:id="@+id/five"
+        android:id="@+id/my"
         android:enabled="true"
-        android:title="5"
+        android:title="My"
+        android:icon="@drawable/selector_bottom_my"
         app:showAsAction="always"
         />
 </menu>

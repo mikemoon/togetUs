@@ -40,9 +40,27 @@
             android:launchMode="singleTask"
             />
 
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
+                <data android:host="oauth"
+                    android:scheme="kakao1988aea67c089f06776b08aae6192b7b" />
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA9ZdMta--H5FgxapDt2AyHV6ZooYBht54" />
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="1988aea67c089f06776b08aae6192b7b" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

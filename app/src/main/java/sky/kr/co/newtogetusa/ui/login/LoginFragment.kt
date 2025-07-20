@@ -17,6 +17,9 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.kakao.sdk.common.KakaoSdk
+import com.kakao.sdk.common.util.Utility
+import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,8 +39,30 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
     override fun initObserver() {
         super.initObserver()
 
+        Timber.d(Utility.getKeyHash(requireContext()))
+
         viewModel.event.observe(this){
             when(it){
+                is LoginViewModel.Event.KakaoLogin -> {
+                    val kakaoUserApiClient = UserApiClient.instance
+                    if(kakaoUserApiClient.isKakaoTalkLoginAvailable(requireContext())){
+                        kakaoUserApiClient.loginWithKakaoTalk(requireContext()){ token, error ->
+                            if(error != null){
+                                Timber.d("kakaoTalkLogin Error : ${error}")
+                            }else if(token != null){
+                                Timber.d("kakaoTalkLogin Success : ${token.accessToken}")
+                            }
+                        }
+                    }else{
+                        kakaoUserApiClient.loginWithKakaoAccount(requireContext()){ token, error ->
+                            if(error != null){
+                                Timber.d("kakaoAccountLogin Error : ${error}")
+                            }else if(token != null){
+                                Timber.d("kakaoAccountLogin Success : ${token.accessToken}")
+                            }
+                        }
+                    }
+                }
                 is LoginViewModel.Event.NaverLogin -> {
                     NaverIdLoginSDK.authenticate(requireContext(), object : OAuthLoginCallback {
                         override fun onError(errorCode: Int, message: String) {

@@ -41,12 +41,15 @@
         android:label="LoginEmailFragment" >
         <action
             android:id="@+id/action_loginEmailFragment_to_loginJoinEmailFragment"
-            app:destination="@id/loginJoinEmailFragment" />
+            app:destination="@id/loginJoinEmailFragment" >
+            <argument android:name="isFindPassword" app:argType="boolean" android:defaultValue="false"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/loginJoinEmailFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginJoinEmailFragment"
         android:label="LoginJoinEmailFragment" >
+        <argument android:name="isFindPassword" app:argType="boolean" android:defaultValue="false"/>
         <action
             android:id="@+id/action_loginJoinEmailFragment_to_loginPasswordSetFragment"
             app:destination="@id/loginPasswordSetFragment" />
