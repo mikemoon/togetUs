@@ -110,7 +110,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="카카오로 시작하기"
+                android:text="네이버로 시작하기"
                 android:textColor="@color/white"
                 android:gravity="center"
                 app:layout_constraintStart_toStartOf="parent"

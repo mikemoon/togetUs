@@ -1,16 +1,16 @@
-package sky.kr.co.newtogetusa.ui.main.my
+package sky.kr.co.newtogetusa.ui.main.my.faq
 
 import androidx.lifecycle.LiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
-import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartViewModel.Event
 import javax.inject.Inject
 
 @HiltViewModel
-class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory) :
-    BaseViewModel(baseViewModelDependenciesFactory.create()) {
+class FAQViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+    :BaseViewModel(baseViewModelDependenciesFactory.create()){
+
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
@@ -19,9 +19,8 @@ class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseView
     }
 
     sealed class Event {
-        object MySetting : Event()
-        object ProfileManage : Event()
-        object Notice : Event()
-        object FAQ : Event()
+        object Back : Event()
+        data class FAQDetail(val id:Int) : Event()
+        object Ask : Event()
     }
 }

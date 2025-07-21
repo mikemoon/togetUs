@@ -1,25 +1,23 @@
-package sky.kr.co.newtogetusa.ui.main.my
+package sky.kr.co.newtogetusa.ui.main.my.faq
 
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
-import sky.kr.co.newtogetusa.databinding.FragmentFaqBinding
+import sky.kr.co.newtogetusa.databinding.FragmentFaqDetailBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
+class FAQDetailFragment : BaseFragment<FragmentFaqDetailBinding, FAQDetailViewModel>() {
     override val layoutId: Int
-        get() = R.layout.fragment_faq
-    override val viewModel: FAQViewModel by viewModels()
+        get() = R.layout.fragment_faq_detail
+    override val viewModel: FAQDetailViewModel by viewModels()
 
     override fun initObserver() {
         super.initObserver()
-
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
-                is FAQViewModel.Event.Back -> {
+                is FAQDetailViewModel.Event.Back -> {
                     findNavController().popBackStack()
                 }
             }

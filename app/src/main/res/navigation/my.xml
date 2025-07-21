@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_myFragment_to_noticeFragment"
             app:destination="@id/noticeFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_FAQFragment"
+            app:destination="@id/FAQFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileManagementFragment"
@@ -64,4 +67,23 @@
         android:id="@+id/noticeDetailFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.NoticeDetailFragment"
         android:label="NoticeDetailFragment" />
+    <fragment
+        android:id="@+id/FAQFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.faq.FAQFragment"
+        android:label="FAQFragment" >
+        <action
+            android:id="@+id/action_FAQFragment_to_FAQDetailFragment"
+            app:destination="@id/FAQDetailFragment" />
+        <action
+            android:id="@+id/action_FAQFragment_to_askFragment"
+            app:destination="@id/askFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/FAQDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.faq.FAQDetailFragment"
+        android:label="FAQDetailFragment" />
+    <fragment
+        android:id="@+id/askFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.faq.AskFragment"
+        android:label="AskFragment" />
 </navigation>

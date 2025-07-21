@@ -31,6 +31,9 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.Notice ->{
                     findNavController().navigate(R.id.action_myFragment_to_noticeFragment)
                 }
+                MyViewModel.Event.FAQ ->{
+                    findNavController().navigate(R.id.action_myFragment_to_FAQFragment)
+                }
             }
         }
     }

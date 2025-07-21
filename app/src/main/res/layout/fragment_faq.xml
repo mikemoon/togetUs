@@ -2,10 +2,12 @@
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="sky.kr.co.newtogetusa.ui.main.my.FAQViewModel.Event"/>
+
+        <import type="sky.kr.co.newtogetusa.ui.main.my.faq.FAQViewModel.Event" />
+
         <variable
             name="viewModel"
-            type="sky.kr.co.newtogetusa.ui.main.my.FAQViewModel" />
+            type="sky.kr.co.newtogetusa.ui.main.my.faq.FAQViewModel" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -17,15 +19,15 @@
             android:id="@+id/clTop"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/left_l"
                 android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
-                />
+                android:src="@drawable/left_l" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -34,50 +36,107 @@
                 android:text="자주 묻는 질문"
                 android:textColor="@color/black_80"
                 android:textSize="16dp"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
         </LinearLayout>
         <!-- Topbar end-->
-        
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="16dp"
             android:layout_marginHorizontal="20dp"
-            >
+            android:layout_marginTop="16dp">
+
             <androidx.appcompat.widget.AppCompatEditText
+                style="@style/Paragraph14R"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp"
-                android:maxLines="1"
-                android:singleLine="true"
-                style="@style/Paragraph14R"
-                android:textColor="@color/black_80"
-                android:hint="무엇을 도와드릴까요?"
-                android:textColorHint="@color/black_40"
                 android:background="@drawable/background_st_b10_s_w_r4"
+                android:hint="무엇을 도와드릴까요?"
+                android:maxLines="1"
+                android:padding="16dp"
                 android:paddingEnd="42dp"
-                />
+                android:singleLine="true"
+                android:textColor="@color/black_80"
+                android:textColorHint="@color/black_40" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_search"
-                />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCategory"
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:layout_marginTop="12dp"
-            android:paddingStart="20dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="horizontal"
-            />
+            android:paddingStart="20dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFaq"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:padding="20dp"
+                android:background="@color/black_2"
+                >
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/llBottom"
+                    android:layout_marginBottom="12dp"
+                    android:text="도움이 필요하신가요?"
+                    android:textColor="@color/black_80"
+                    style="@style/Paragraph14R"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/llBottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph14B"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/background_s_b5_r4"
+                        android:gravity="center"
+                        android:text="문의내역"
+                        android:textColor="@color/black_80" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph14B"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/background_s_b80_r4"
+                        android:gravity="center"
+                        android:onClick="@{()-> viewModel.onEventClick(Event.Ask.INSTANCE)}"
+                        android:text="1:1 문의하기"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </layout>

@@ -1,7 +1,12 @@
 package sky.kr.co.newtogetusa.ui.login
 
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.content.Intent
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -26,7 +31,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginBinding
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -34,7 +41,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
     override val layoutId: Int
         get() = R.layout.fragment_login
     override val viewModel: LoginViewModel by activityViewModels()
-
 
     override fun initObserver() {
         super.initObserver()
@@ -51,6 +57,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                                 Timber.d("kakaoTalkLogin Error : ${error}")
                             }else if(token != null){
                                 Timber.d("kakaoTalkLogin Success : ${token.accessToken}")
+                                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
                             }
                         }
                     }else{
@@ -59,11 +66,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                                 Timber.d("kakaoAccountLogin Error : ${error}")
                             }else if(token != null){
                                 Timber.d("kakaoAccountLogin Success : ${token.accessToken}")
+                                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
                             }
                         }
                     }
                 }
                 is LoginViewModel.Event.NaverLogin -> {
+                    NaverIdLoginSDK.showDevelopersLog(true)
                     NaverIdLoginSDK.authenticate(requireContext(), object : OAuthLoginCallback {
                         override fun onError(errorCode: Int, message: String) {
                             val errorCode = NaverIdLoginSDK.getLastErrorCode().code
@@ -82,6 +91,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                             val expiresAt = NaverIdLoginSDK.getExpiresAt().toString()
                             val tokenType = NaverIdLoginSDK.getTokenType()
                             val state = NaverIdLoginSDK.getState().toString()
+                            Timber.d("naverLoginSuccess token $accessToken")
+                            requireContext().toast("naver login success token :$accessToken")
+                            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
                         }
 
                     })

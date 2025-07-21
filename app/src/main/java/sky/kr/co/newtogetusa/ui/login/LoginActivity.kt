@@ -18,6 +18,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.NidOAuthLogin
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 
 
         NaverIdLoginSDK.initialize(this, "dc6y2eYKSjjh77N8TUsu", "ewIZbsx8F_", "투겟어스")
+        //NaverIdLoginSDK.logout()
         //startActivity(Intent(this, MainActivity::class.java))
         setupNavigation()
     }
