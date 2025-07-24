@@ -121,6 +121,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/background_s_b5_r4"
                         android:gravity="center"
+                        android:onClick="@{()-> viewModel.onEventClick(Event.AskHistory.INSTANCE)}"
                         android:text="문의내역"
                         android:textColor="@color/black_80" />
 

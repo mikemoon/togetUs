@@ -188,6 +188,7 @@
                     android:text="개인정보 수집 및 활용"
                     android:textColor="@color/primary_100"
                     style="@style/Paragraph14R"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.ShowPrivacy.INSTANCE)}"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"

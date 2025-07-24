@@ -8,6 +8,8 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentFaqBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.custom.CustomItemDecoration
+import sky.kr.co.newtogetusa.utils.HorizontalItemSpacingDecoration
+import sky.kr.co.newtogetusa.utils.dpToPx
 
 @AndroidEntryPoint
 class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
@@ -24,6 +26,7 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
         faqAdapter.setItems(listOf("전체", "공통", "플레이어", "유저"))
         dataBinding.rvCategory.apply {
             adapter = faqAdapter
+            addItemDecoration(HorizontalItemSpacingDecoration(8.dpToPx()))
         }
 
         faqListAdapter = FAQListAdapter(viewModel)
@@ -51,6 +54,9 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
                 }
                 is FAQViewModel.Event.Ask -> {
                     findNavController().navigate(R.id.action_FAQFragment_to_askFragment)
+                }
+                is FAQViewModel.Event.AskHistory -> {
+                    findNavController().navigate(R.id.action_FAQFragment_to_askHistoryFragment)
                 }
             }
         }

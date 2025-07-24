@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="20dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_s_b5_r4"
+        android:text="답변완료"
+        android:textColor="@color/black_60"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        style="@style/Paragraph12B"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="정상은 언제되나요?"
+        android:textColor="@color/black_80"
+        android:layout_marginTop="8dp"
+        style="@style/Paragraph16B"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2025.08.20"
+        android:textColor="@color/black_40"
+        style="@style/Paragraph12R"
+        android:layout_marginTop="8dp"
+        />
+
+</LinearLayout>
+</layout>

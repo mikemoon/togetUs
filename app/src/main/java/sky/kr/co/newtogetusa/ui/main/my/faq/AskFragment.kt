@@ -23,6 +23,9 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
                 is AskViewModel.Event.Back -> {
                     findNavController().popBackStack()
                 }
+                is AskViewModel.Event.ShowPrivacy ->{
+                    showPrivacyDialog()
+                }
             }
         }
     }

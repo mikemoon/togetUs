@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_myFragment_to_FAQFragment"
             app:destination="@id/FAQFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_settleFragment"
+            app:destination="@id/settleFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileManagementFragment"
@@ -77,6 +80,9 @@
         <action
             android:id="@+id/action_FAQFragment_to_askFragment"
             app:destination="@id/askFragment" />
+        <action
+            android:id="@+id/action_FAQFragment_to_askHistoryFragment"
+            app:destination="@id/askHistoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/FAQDetailFragment"
@@ -86,4 +92,20 @@
         android:id="@+id/askFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.faq.AskFragment"
         android:label="AskFragment" />
+    <fragment
+        android:id="@+id/askHistoryFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.faq.AskHistoryFragment"
+        android:label="AskHistoryFragment" >
+        <action
+            android:id="@+id/action_askHistoryFragment_to_askDetailFragment"
+            app:destination="@id/askDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/askDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.faq.AskDetailFragment"
+        android:label="AskDetailFragment" />
+    <fragment
+        android:id="@+id/settleFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.settle.SettleFragment"
+        android:label="SettleFragment" />
 </navigation>

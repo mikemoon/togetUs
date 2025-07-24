@@ -34,6 +34,9 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.FAQ ->{
                     findNavController().navigate(R.id.action_myFragment_to_FAQFragment)
                 }
+                MyViewModel.Event.Settle ->{
+                    findNavController().navigate(R.id.action_myFragment_to_settleFragment)
+                }
             }
         }
     }

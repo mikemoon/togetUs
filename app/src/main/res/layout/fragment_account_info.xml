@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.settle.AccountInfoViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.settle.AccountInfoViewModel" />
+    </data>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <!-- Topbar start-->
+    <LinearLayout
+        android:id="@+id/clTop"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="20dp"
+            android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+            android:src="@drawable/left_l" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text=""
+            android:textColor="@color/black_80"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <!-- Topbar end-->
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:text="입금 계좌 정보를 입력해 주세요."
+        android:textColor="@color/black_80"
+        style="@style/HeadLine20B"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="20dp"
+        android:padding="12dp"
+        android:background="@drawable/background_s_red5_r4"
+        android:orientation="vertical"
+        >
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/error_red"
+            android:drawablePadding="8dp"
+            android:text="반드시 본인 명의의 계좌를 입력해 주세요."
+            android:textColor="@color/red_100"
+            style="@style/Paragraph14B"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="입력 정보가 정확하지 않을 경우 정산 지연 또는 실패의 원인이 될 수 있으며, 이에 따른 불이익은 사용자 본인의 책임입니다."
+            android:textColor="@color/red_100"
+            style="@style/Paragraph14R"
+            />
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/black_80"
+        android:text="은행"
+        style="@style/Paragraph16B"
+        />
+    
+    <androidx.appcompat.widget.AppCompatEditText
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/background_st_b10_s_w_r4"
+        android:padding="16dp"
+        android:hint="은행 검색"
+        android:textColorHint="@color/black_40"
+        style="@style/Paragraph14R"
+        android:textColor="@color/black_80"
+        android:onClick="@{()-> viewModel.onEventClick(Event.Bank.INSTANCE)}"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/black_80"
+        android:text="계좌번호"
+        style="@style/Paragraph16B"
+        />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/background_st_b10_s_w_r4"
+        android:padding="16dp"
+        android:hint="계좌번호 입력"
+        android:textColorHint="@color/black_40"
+        style="@style/Paragraph14R"
+        android:textColor="@color/black_80"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/black_80"
+        android:text="예금주"
+        style="@style/Paragraph16B"
+        />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/background_st_b10_s_w_r4"
+        android:padding="16dp"
+        android:hint="홍길동"
+        android:textColorHint="@color/black_40"
+        style="@style/Paragraph14R"
+        android:textColor="@color/black_80"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="20dp"
+            android:background="@drawable/selector_b20_b80_r4"
+            android:text="다음"
+            android:textColor="@color/selector_wopa40_wopa100"
+            android:gravity="center"
+            style="@style/HeadLine20B"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
+</layout>

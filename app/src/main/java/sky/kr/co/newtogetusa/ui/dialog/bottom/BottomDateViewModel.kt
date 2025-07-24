@@ -1,4 +1,4 @@
-package sky.kr.co.newtogetusa.ui.main.my.faq
+package sky.kr.co.newtogetusa.ui.dialog.bottom
 
 import androidx.lifecycle.LiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,7 +8,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class BottomDateViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
     :BaseViewModel(baseViewModelDependenciesFactory.create()){
 
 
@@ -20,6 +20,5 @@ class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
 
     sealed class Event {
         object Back : Event()
-        object ShowPrivacy : Event()
     }
 }

@@ -22,5 +22,6 @@ class FAQViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
         object Back : Event()
         data class FAQDetail(val id:Int) : Event()
         object Ask : Event()
+        object AskHistory : Event()
     }
 }

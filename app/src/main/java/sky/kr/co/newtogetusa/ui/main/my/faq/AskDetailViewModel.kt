@@ -8,8 +8,8 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
-    :BaseViewModel(baseViewModelDependenciesFactory.create()){
+class AskDetailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+    : BaseViewModel(baseViewModelDependenciesFactory.create()){
 
 
     private val _event = SingleLiveEvent<Event>()
@@ -20,6 +20,5 @@ class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
 
     sealed class Event {
         object Back : Event()
-        object ShowPrivacy : Event()
     }
 }

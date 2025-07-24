@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.faq.AskDetailViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.faq.AskDetailViewModel" />
+    </data>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Topbar start-->
+    <LinearLayout
+        android:id="@+id/clTop"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="20dp"
+            android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+            android:src="@drawable/left_l" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text=""
+            android:textColor="@color/black_80"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <!-- Topbar end-->
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_s_b5_r4"
+                android:text="답변완료"
+                android:textColor="@color/black_60"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="20dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                style="@style/Paragraph12B"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="정상은 언제되나요?"
+                android:textColor="@color/black_80"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="20dp"
+                style="@style/Paragraph16B"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2025.08.20"
+                android:textColor="@color/black_40"
+                style="@style/Paragraph12R"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="20dp"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/black_5"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                style="@style/Paragraph14R"
+                android:text="안녕하세요. 투겟어스 문의내역 입니다.\n\n 이것이 문의 입니다. 답변 부탁드립니다. 이것이 문의 입니다. 답변 부탁드립니다. "
+                android:textColor="@color/black_80"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:src="@drawable/temp_banner_area"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/black_2"
+                android:padding="20dp"
+                android:orientation="vertical">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="답변"
+                        android:textColor="@color/black_80"
+                        style="@style/HeadLine18B"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:textColor="@color/black_40"
+                        android:text="2025.08.20"
+                        style="@style/Paragraph14R"
+                        />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="224dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:text="답변 대기중입니다.\n조금만 기다려주세요."
+                    android:textColor="@color/black_40"
+                    style="@style/Paragraph14R"
+                    android:visibility="gone"
+                    />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    style="@style/Paragraph14R"
+                    android:textColor="@color/black_80"
+                    android:text="안녕하세요, 투겟어스 고객센터입니다.
+문의하신 내용은 이런저런 사유로 이래저래 된 내용입니다.\n\n
+https://play.google.com/store/apps/details?id=sky.kr.co.newtogetusahl=ko
+\n
+감사합니다."
+                    />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/temp_banner_area"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
+</layout>
