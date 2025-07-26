@@ -1,35 +1,56 @@
-package sky.kr.co.newtogetusa.ui.main.my.faq
+package sky.kr.co.newtogetusa.ui.main.home.joinPlayer
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
-import sky.kr.co.newtogetusa.databinding.FragmentAskBinding
+import sky.kr.co.newtogetusa.databinding.FragmentJoinPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
-class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
+class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinViewModel>() {
     override val layoutId: Int
-        get() = R.layout.fragment_ask
-    override val viewModel: AskViewModel by viewModels()
+        get() = R.layout.fragment_join_player
+    override val viewModel: PlayerJoinViewModel by viewModels()
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+
+    private lateinit var currentPhotoUri: Uri
+
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            // ✅ 사진이 성공적으로 찍힘
+            Timber.d("Camera", "사진 URI: $currentPhotoUri")
+        } else {
+            Timber.d("Camera", "사진 촬영 실패 또는 취소")
+        }
+    }
+
 
     override fun init() {
         super.init()
@@ -55,10 +76,6 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
                 imageUri?.let {
                     // 여기서 이미지 URI 사용
                     Timber.d("ImageSelect", "선택된 이미지 URI: $it")
-                    dataBinding.ivSelectedImage.loadImage(it.toString(), roundedCorner = 4.dpToPx())
-                    dataBinding.ivCamera.isVisible = false
-                    dataBinding.tvAddImage.isVisible = false
-                    dataBinding.clImage.background = null
                 }
             }
         }
@@ -69,20 +86,53 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
 
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
-                is AskViewModel.Event.Back -> {
-                    findNavController().popBackStack()
+                PlayerJoinViewModel.Event.Back ->{
+                    if(viewModel.step.value == 1) {
+                        findNavController().popBackStack()
+                    }else{
+                        viewModel.onClickStepNext(viewModel.step.value?.minus(1)?:1)
+                    }
                 }
-                is AskViewModel.Event.ShowPrivacy ->{
-                    showPrivacyDialog()
+                PlayerJoinViewModel.Event.AttachImage ->{
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        BottomPictureTypeDialog().apply {
+                            pictureTypeSelectCallback = { pictureType ->
+                                when(pictureType){
+                                    PictureType.TYPE_CAMERA ->{
+                                        openCamera()
+                                    }
+                                    PictureType.TYPE_GALLERY ->{
+                                        requestImagePick()
+                                    }
+                                }
+                            }
+                        }
+                    )
                 }
-                AskViewModel.Event.AttachImage ->{
-                    requestImagePick()
-                }
+                else ->{}
             }
         }
     }
 
-    fun requestImagePick() {
+    private fun openCamera() {
+        val photoFile = createImageFile(requireContext())
+        currentPhotoUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            photoFile
+        )
+        cameraLauncher.launch(currentPhotoUri)
+    }
+
+    private fun createImageFile(context: Context): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "IMG_$timeStamp.jpg"
+        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File(storageDir, imageFileName)
+    }
+
+    private fun requestImagePick() {
         val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
         } else {
@@ -98,21 +148,6 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
         } else {
             permissionLauncher.launch(requiredPermissions)
         }
-    }
-
-
-
-    private fun showPrivacyDialog(){
-        dialogFragmentShow(
-            childFragmentManager,
-            MessageDialog.newInstance(
-                msgTitle = "개인정보 수집 및 이용",
-                msg = "수집하는 개인 정보[(필수) 문의 내용, (선택) 휴대폰 번호, 첨부 파일]는 문의 내용 처리 및 고객 불만을 해결하기 위해 사용되며, 관련 법령에 따라 3년간 보관 후 삭제됩니다.\n" +
-                        "\n" +
-                        "문의 접수, 처리 및 회신을 위해 꼭 필요한 정보이기 때문에, 동의해 주셔야 서비스를 이용하실 수 있습니다.",
-                rightBtn = "확인"
-            )
-        )
     }
 
     private fun openGallery() {

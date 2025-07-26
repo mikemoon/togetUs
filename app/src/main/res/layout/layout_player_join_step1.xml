@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/HeadLine20B"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:text="플레이어 약관에 동의해 주세요."
+            android:textColor="@color/black_80" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/checkbox_selector"
+                android:button="@null" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine18B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="모두 동의"
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+
+        <!-- 19세 이용약관-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="28dp"
+            android:gravity="center_vertical"
+            android:onClick="@{()->viewModel.onAgeOverClick(!viewModel.ageOver)}"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/selector_check_round"
+                android:button="@null"
+                android:checked="@{viewModel.ageOver}"
+                android:clickable="false" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="[필수]"
+                android:textColor="@color/red_100" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="만 19세 이상입니다."
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/right_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <!-- 업무위수탁-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:onClick="@{()->viewModel.onWorkAssignClick(!viewModel.workAssign)}"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/selector_check_round"
+                android:button="@null"
+                android:checked="@{viewModel.workAssign}"
+                android:clickable="false" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="[필수]"
+                android:textColor="@color/red_100" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="업무위수탁약관"
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/right_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <!-- 위치 동의-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:onClick="@{()->viewModel.onLocationClick(!viewModel.location)}"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/selector_check_round"
+                android:button="@null"
+                android:checked="@{viewModel.location}"
+                android:clickable="false" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="[필수]"
+                android:textColor="@color/red_100" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="위치정보 이용 동의"
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/right_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <!-- 고유식별수집-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:onClick="@{()->viewModel.onUniqueInfoClick(!viewModel.uniqueInfo)}"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/selector_check_round"
+                android:button="@null"
+                android:checked="@{viewModel.uniqueInfo}"
+                android:clickable="false" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="[필수]"
+                android:textColor="@color/red_100" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="고유식별정보 수집 및 이용 동의"
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/right_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <!-- 개인정보-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:onClick="@{()->viewModel.onPersonalInfoClick(!viewModel.personalInfo)}"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/selector_check_round"
+                android:button="@null"
+                android:checked="@{viewModel.personalInfo}"
+                android:clickable="false" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="[필수]"
+                android:textColor="@color/red_100" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="개인 정보의 제3자 제공에 대한 동의"
+                android:textColor="@color/black_80" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/right_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine20B"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/selector_b20_b80_r4"
+                android:enabled="@{viewModel.agreeButtonEnable}"
+                android:gravity="center"
+                android:onClick="@{()-> viewModel.onClickStepNext(2)}"
+                android:text="약관 동의하기"
+                android:textColor="@color/selector_wopa40_wopa100"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</layout>

@@ -21,5 +21,6 @@ class AccountInfoViewModel @Inject constructor(baseViewModelDependenciesFactory:
     sealed class Event {
         object Back : Event()
         object Bank : Event()
+        object AccountNumber : Event()
     }
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel" />
+    </data>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/HeadLine20B"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:text="배송 가능지역 설정"
+            android:textColor="@color/black_80" />
+    </LinearLayout>
+</layout>

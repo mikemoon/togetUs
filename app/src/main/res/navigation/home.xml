@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_homeTabFragment_to_deliveryReqFragment"
             app:destination="@id/deliveryReqFragment" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_playerJoinFragment"
+            app:destination="@id/playerJoinFragment" />
     </fragment>
     <fragment
         android:id="@+id/deliveryReqFragment"
@@ -47,5 +50,21 @@
         android:id="@+id/deliveryStartFragment2"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartFragment"
         android:label="DeliveryStartFragment" />
+    <fragment
+        android:id="@+id/playerJoinFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinFragment"
+        android:label="PlayerJoinFragment" >
+        <action
+            android:id="@+id/action_playerJoinFragment_to_playerJoinCompleteFragment"
+            app:destination="@id/playerJoinCompleteFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/playerJoinCompleteFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinCompleteFragment"
+        android:label="PlayerJoinCompleteFragment" >
+        <action
+            android:id="@+id/action_playerJoinCompleteFragment_to_homeTabFragment"
+            app:destination="@id/homeTabFragment" />
+    </fragment>
 
 </navigation>

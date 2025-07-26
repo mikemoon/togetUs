@@ -11,4 +11,8 @@ class BottomBankDialog : BottomBaseDialog<DialogBottomBankBinding, BottomBankVie
     override val layoutId: Int
         get() = R.layout.dialog_bottom_bank
     override val viewModel: BottomBankViewModel by viewModels()
+
+    override fun initObserver() {
+        super.initObserver()
+    }
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="26dp">
+    android:layout_height="26dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
@@ -9,4 +10,30 @@
         android:textColor="@color/black_80"
         style="@style/HeadLine20B"
         />
+
+    <LinearLayout
+        android:id="@+id/llMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        >
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Paragraph16B"
+            android:textColor="@color/black_60"
+            android:text="배송 가능지역"
+            />
+        
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/right_gray"
+            />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

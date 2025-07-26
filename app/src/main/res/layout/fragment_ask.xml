@@ -113,13 +113,25 @@
                 />
             
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clImage"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginStart="20dp"
                 android:background="@drawable/background_s_b5_r4"
+                android:onClick="@{()-> viewModel.onEventClick(Event.AttachImage.INSTANCE)}"
                 >
                 <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivSelectedImage"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:clipToOutline="true"
+                    android:scaleType="fitXY"
+                    />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivCamera"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/camera"
@@ -130,6 +142,7 @@
                     />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAddImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"

@@ -21,5 +21,6 @@ class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
     sealed class Event {
         object Back : Event()
         object ShowPrivacy : Event()
+        object AttachImage : Event()
     }
 }

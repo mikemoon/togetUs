@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinCompleteViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinCompleteViewModel" />
+    </data>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    </LinearLayout>
+</layout>

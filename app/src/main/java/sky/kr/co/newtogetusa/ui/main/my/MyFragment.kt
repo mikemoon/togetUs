@@ -37,6 +37,9 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.Settle ->{
                     findNavController().navigate(R.id.action_myFragment_to_settleFragment)
                 }
+                MyViewModel.Event.Favor ->{
+                    findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
+                }
             }
         }
     }

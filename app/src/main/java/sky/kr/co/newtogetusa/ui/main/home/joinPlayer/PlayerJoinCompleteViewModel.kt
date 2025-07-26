@@ -1,4 +1,4 @@
-package sky.kr.co.newtogetusa.ui.main.my.settle
+package sky.kr.co.newtogetusa.ui.main.home.joinPlayer
 
 import androidx.lifecycle.LiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,7 +8,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class SettleViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class PlayerJoinCompleteViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
     : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
 
@@ -19,9 +19,6 @@ class SettleViewModel @Inject constructor(baseViewModelDependenciesFactory: Base
     }
 
     sealed class Event {
-        object Back : Event()
-        object SettleGuide : Event()
-        object AccountInfo :Event()
-        object Date : Event()
+        object MoveToHome : Event()
     }
 }

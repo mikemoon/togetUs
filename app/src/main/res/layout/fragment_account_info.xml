@@ -119,6 +119,7 @@
         android:textColorHint="@color/black_40"
         style="@style/Paragraph14R"
         android:textColor="@color/black_80"
+        android:onClick="@{()-> viewModel.onEventClick(Event.AccountNumber.INSTANCE)}"
         />
 
     <androidx.appcompat.widget.AppCompatTextView

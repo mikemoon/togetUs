@@ -54,6 +54,9 @@ class SettleFragment : BaseFragment<FragmentSettleBinding, SettleViewModel>() {
                         )
                     )
                 }
+                SettleViewModel.Event.AccountInfo ->{
+                    findNavController().navigate(R.id.action_settleFragment_to_accountInfoFragment)
+                }
                 SettleViewModel.Event.Date ->{
                     dialogFragmentShow(
                         childFragmentManager,

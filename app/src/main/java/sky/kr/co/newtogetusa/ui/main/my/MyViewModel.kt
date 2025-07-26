@@ -22,6 +22,7 @@ class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseView
         object MySetting : Event()
         object ProfileManage : Event()
         object Settle : Event()
+        object Favor : Event()
         object Notice : Event()
         object FAQ : Event()
     }

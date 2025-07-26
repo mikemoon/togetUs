@@ -1,4 +1,4 @@
-package sky.kr.co.newtogetusa.ui.main.home.adapter
+package sky.kr.co.newtogetusa.ui.main.home.playerAdapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,13 +7,8 @@ import sky.kr.co.newtogetusa.databinding.ItemHomeBottomButtonBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeEmptyBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeTitleBinding
-import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.BottomButtonVH
-import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.Companion
-import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.ContentsVH
-import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.EmptyVH
-import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.TitleVH
 
-class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<Any>()
 
@@ -21,7 +16,9 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return when(viewType){
             VIEW_TYPE_TITLE -> TitleVH(ItemHomeTitleBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             VIEW_TYPE_EMPTY -> EmptyVH(ItemHomeEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-            VIEW_TYPE_BOTTOM_BUTTON -> BottomButtonVH(ItemHomeBottomButtonBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            VIEW_TYPE_BOTTOM_BUTTON -> BottomButtonVH(
+                ItemHomeBottomButtonBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false))
             else -> ContentsVH(ItemHomeContentsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         }
     }
@@ -41,12 +38,6 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    fun setItems(items: List<Any>){
-        this.items.clear()
-        this.items.addAll(items)
-        notifyDataSetChanged()
-    }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(holder.itemViewType){
             VIEW_TYPE_TITLE -> (holder as TitleVH).bind("")
@@ -58,7 +49,7 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class TitleVH(private val binding: ItemHomeTitleBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: String) {
-            binding.tvTitle.text = "등록한 배송요청"
+            binding.tvTitle.text = "지원한 배송"
         }
     }
 
@@ -75,7 +66,7 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class EmptyVH(private val binding: ItemHomeEmptyBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: String) {
-            binding.tv.text = "등록한 배송요청이 없어요."
+            binding.tv.text = "지원한 배송이 없어요."
         }
     }
 

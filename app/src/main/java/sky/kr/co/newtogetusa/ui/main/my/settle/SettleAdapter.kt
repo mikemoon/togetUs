@@ -49,6 +49,7 @@ class SettleAdapter(val viewModel: SettleViewModel) : RecyclerView.Adapter<Recyc
     inner class TopViewHolder(val bind: ItemSettleTopBinding) : BaseViewHolder(bind.root){
         override fun onBindViewHolder(data: Any?, position: Int) {
             super.onBindViewHolder(data, position)
+            bind.viewModel = viewModel
         }
     }
 

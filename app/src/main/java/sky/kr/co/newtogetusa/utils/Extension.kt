@@ -21,6 +21,7 @@ import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 
 fun Context.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
@@ -84,23 +85,23 @@ fun ImageView.loadImage(
     crossFade: Boolean = false,
     isCircle: Boolean = false
 ) {
+    val requestOptions = RequestOptions().apply {
+        placeholder?.let { placeholder(it) }
+        error?.let { error(it) }
+
+        if (isCircle) {
+            circleCrop()
+        } else if (roundedCorner != null) {
+            transform(MultiTransformation(FitCenter(), RoundedCorners(roundedCorner)))
+        }
+    }
+
     Glide.with(context)
         .load(url)
-        .apply {
-            roundedCorner?.let {
-                transform(MultiTransformation(FitCenter(), RoundedCorners(roundedCorner)))
-            }
-            placeholder?.let { placeholderId ->
-                placeholder(placeholderId)
-            }
-            error?.let { errorId ->
-                error(errorId)
-            }
-            if(isCircle){
-                circleCrop()
-            }
+        .apply(requestOptions)
+        .also {
             if (crossFade) {
-                transition(DrawableTransitionOptions.withCrossFade())
+                it.transition(DrawableTransitionOptions.withCrossFade())
             }
         }
         .into(this)

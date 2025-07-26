@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/HeadLine20B"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:text="프로필 이미지"
+            android:textColor="@color/black_80" />
+        
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/background_s_green5_r4"
+            android:padding="12dp"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivCheck"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:src="@drawable/fillcircle_check_green"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toEndOf="@id/ivCheck"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="8dp"
+                android:text="실물 사진을 등록하시면 신뢰도가 상승하여, 더 많은 매칭 기회를 얻을 수 있어요."
+                android:textColor="@color/green_100"
+                style="@style/Paragraph14R"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/background_s_b5_r4"
+            android:onClick="@{()-> viewModel.onEventClick(Event.AttachImage.INSTANCE)}"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivSelectedImage"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:clipToOutline="true"
+                android:scaleType="fitXY"
+                />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivCamera"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/camera"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp"
+                />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAddImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="16dp"
+                android:textColor="@color/black_60"
+                android:text="사진 추가"
+                style="@style/Paragraph12R"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="자기소개"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph16B"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="28dp"
+            />
+        
+        <androidx.appcompat.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:padding="8dp"
+            android:textColorHint="@color/black_40"
+            android:hint="배송 업무 관련하여 본인을 소개해 주세요."
+            android:textColor="@color/black_80"
+            style="@style/Paragraph14R"
+            android:gravity="top|left"
+            android:maxLength="200"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="20dp"
+            >
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textColor="@color/black_40"
+                android:text="0/200"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="20dp"
+                android:background="@drawable/selector_b20_b80_r4"
+                android:text="다음"
+                android:textColor="@color/selector_wopa40_wopa100"
+                android:gravity="center"
+                style="@style/HeadLine20B"
+                android:onClick="@{()-> viewModel.onClickStepNext(4)}"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</layout>

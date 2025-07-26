@@ -18,7 +18,7 @@ import javax.inject.Inject
 private const val PREFERENCES_NAME = "togetus"
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 object DataStoreKey{
-
+    const val KEY_IS_MODE_PLAYER = "is_mode_player"
 }
 
 class DataStoreRepositoryImpl  @Inject constructor(private val context: Context): DataStoreRepository {

@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.settle.SettleViewModel.Event"/>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.settle.SettleViewModel" />
+    </data>
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,6 +50,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:src="@drawable/fillcircle_edit_opblack"
+                android:onClick="@{()-> viewModel.onEventClick(Event.AccountInfo.INSTANCE)}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
