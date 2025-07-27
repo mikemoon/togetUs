@@ -34,12 +34,15 @@
             android:background="@drawable/background_st_b10_s_w_r4"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:onClick="@{()-> viewModel.onAllAgreeClick(!viewModel.allAgreeStep1)}"
             android:padding="20dp">
 
             <CheckBox
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:background="@drawable/checkbox_selector"
+                android:checked="@{viewModel.allAgreeStep1}"
+                android:clickable="false"
                 android:button="@null" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -304,7 +307,7 @@
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/selector_b20_b80_r4"
-                android:enabled="@{viewModel.agreeButtonEnable}"
+                android:enabled="@{viewModel.enableStep1Next}"
                 android:gravity="center"
                 android:onClick="@{()-> viewModel.onClickStepNext(2)}"
                 android:text="약관 동의하기"

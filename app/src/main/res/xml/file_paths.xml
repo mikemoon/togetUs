@@ -2,4 +2,7 @@
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- 앱 내부 캐시 디렉토리 아래에 images 폴더 -->
     <cache-path name="camera_images" path="images/" />
+    <external-files-path
+        name="camera_photos"
+        path="Pictures/" />
 </paths>

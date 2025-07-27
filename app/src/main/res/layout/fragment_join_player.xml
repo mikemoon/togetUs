@@ -99,16 +99,27 @@
         <include
             layout="@layout/layout_player_join_step1"
             android:visibility="@{viewModel.step == 1 ? View.VISIBLE : View.GONE}"
+            viewModel="@{viewModel}"
             />
 
         <include
             layout="@layout/layout_player_join_step2"
             android:visibility="@{viewModel.step == 2 ? View.VISIBLE : View.GONE}"
+            viewModel="@{viewModel}"
             />
 
         <include
+            android:id="@+id/icStep3"
             layout="@layout/layout_player_join_step3"
             android:visibility="@{viewModel.step == 3 ? View.VISIBLE : View.GONE}"
+            viewModel="@{viewModel}"
+            />
+
+        <include
+            android:id="@+id/icStep4"
+            layout="@layout/layout_player_join_step4"
+            android:visibility="@{viewModel.step == 4 ? View.VISIBLE : View.GONE}"
+            viewModel="@{viewModel}"
             />
 
     </LinearLayout>

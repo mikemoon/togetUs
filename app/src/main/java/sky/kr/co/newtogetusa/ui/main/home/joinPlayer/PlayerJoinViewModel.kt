@@ -14,35 +14,56 @@ class PlayerJoinViewModel @Inject constructor(baseViewModelDependenciesFactory: 
 
         val step = MutableLiveData<Int>(1)
 
-        val agreeButtonEnable = MutableLiveData<Boolean>()
+        val enableStep1Next = MutableLiveData<Boolean>()
 
-        val ageOver = MutableLiveData<Boolean>()
+    val allAgreeStep1 = MutableLiveData<Boolean>(false)
+
+    fun onAllAgreeClick(isAgree: Boolean){
+        allAgreeStep1.value = isAgree
+        ageOver.value = isAgree
+        workAssign.value = isAgree
+        location.value = isAgree
+        uniqueInfo.value = isAgree
+        personalInfo.value = isAgree
+        updateStep1NextButtonState()
+    }
+
+        val ageOver = MutableLiveData<Boolean>(false)
     fun onAgeOverClick(isAgree: Boolean){
         ageOver.value = isAgree
+        updateStep1NextButtonState()
     }
 
-        val workAssign = MutableLiveData<Boolean>()
+        val workAssign = MutableLiveData<Boolean>(false)
     fun onWorkAssignClick(isAgree: Boolean){
         workAssign.value = isAgree
+        updateStep1NextButtonState()
     }
 
-    val location = MutableLiveData<Boolean>()
+    val location = MutableLiveData<Boolean>(false)
     fun onLocationClick(isAgree: Boolean){
         location.value = isAgree
+        updateStep1NextButtonState()
     }
 
-    val uniqueInfo = MutableLiveData<Boolean>()
+    val uniqueInfo = MutableLiveData<Boolean>(false)
     fun onUniqueInfoClick(isAgree: Boolean){
         uniqueInfo.value = isAgree
+        updateStep1NextButtonState()
     }
 
-    val personalInfo = MutableLiveData<Boolean>()
+    val personalInfo = MutableLiveData<Boolean>(false)
     fun onPersonalInfoClick(isAgree: Boolean){
         personalInfo.value = isAgree
+        updateStep1NextButtonState()
     }
 
     fun onClickStepNext(step: Int){
         this.step.value = step
+    }
+
+    private fun updateStep1NextButtonState() {
+        enableStep1Next.value = ageOver.value == true && workAssign.value == true && location.value == true && uniqueInfo.value == true && personalInfo.value == true
     }
 
     private val _event = SingleLiveEvent<Event>()
@@ -56,5 +77,8 @@ class PlayerJoinViewModel @Inject constructor(baseViewModelDependenciesFactory: 
         object AttachImage : Event()
         object AccountNumber : Event()
         object Bank : Event()
+        object Complete : Event()
+        object StartArea : Event()
+        object DestinaitonArea : Event()
     }
 }

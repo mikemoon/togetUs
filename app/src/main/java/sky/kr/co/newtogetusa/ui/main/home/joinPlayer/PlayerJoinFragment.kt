@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentJoinPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelect
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
@@ -38,14 +39,17 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
     override val viewModel: PlayerJoinViewModel by viewModels()
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
 
     private lateinit var currentPhotoUri: Uri
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            // ✅ 사진이 성공적으로 찍힘
             Timber.d("Camera", "사진 URI: $currentPhotoUri")
+            dataBinding.icStep3.ivSelectedImage.loadImage(currentPhotoUri.toString(), roundedCorner = 4.dpToPx())
+            dataBinding.icStep3.ivCamera.isVisible = false
+            dataBinding.icStep3.tvAddImage.isVisible = false
         } else {
             Timber.d("Camera", "사진 촬영 실패 또는 취소")
         }
@@ -67,6 +71,14 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
             }
         }
 
+        cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                openCamera()
+            } else {
+                requireContext().toast("카메라 권한이 필요합니다.")
+            }
+        }
+
         // 이미지 선택 런처
         imagePickerLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -76,6 +88,9 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 imageUri?.let {
                     // 여기서 이미지 URI 사용
                     Timber.d("ImageSelect", "선택된 이미지 URI: $it")
+                    dataBinding.icStep3.ivSelectedImage.loadImage(it.toString(), roundedCorner = 4.dpToPx())
+                    dataBinding.icStep3.ivCamera.isVisible = false
+                    dataBinding.icStep3.tvAddImage.isVisible = false
                 }
             }
         }
@@ -110,19 +125,38 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                         }
                     )
                 }
+                PlayerJoinViewModel.Event.StartArea ->{
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        BottomAreaSelect()
+                    )
+                }
+                PlayerJoinViewModel.Event.DestinaitonArea ->{
+                    dialogFragmentShow(
+                        childFragmentManager,
+                        BottomAreaSelect()
+                    )
+                }
+                PlayerJoinViewModel.Event.Complete ->{
+                    findNavController().navigate(R.id.action_playerJoinFragment_to_playerJoinCompleteFragment)
+                }
                 else ->{}
             }
         }
     }
 
     private fun openCamera() {
-        val photoFile = createImageFile(requireContext())
-        currentPhotoUri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.fileprovider",
-            photoFile
-        )
-        cameraLauncher.launch(currentPhotoUri)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            val photoFile = createImageFile(requireContext())
+            currentPhotoUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                photoFile
+            )
+            cameraLauncher.launch(currentPhotoUri)
+        }else{
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
     }
 
     private fun createImageFile(context: Context): File {
