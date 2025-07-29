@@ -13,6 +13,8 @@ import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeRegisteredAdapter
+import sky.kr.co.newtogetusa.ui.main.home.playerAdapter.ApplyAdapter
+import sky.kr.co.newtogetusa.ui.main.home.playerAdapter.AvailableAdapter
 
 @AndroidEntryPoint
 class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
@@ -22,6 +24,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     private var prgAdapter: HomeProgressAdapter? = null
     private var regAdapter: HomeRegisteredAdapter? = null
+    private var applyAdapter : ApplyAdapter? = null
+    private var availableAdapter : AvailableAdapter? = null
 
     override fun init() {
         super.init()
@@ -35,6 +39,20 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }
         dataBinding.rvRegistered.apply {
             adapter = regAdapter
+        }
+
+        applyAdapter = ApplyAdapter().apply {
+            setItems(listOf("1", "2","3"))
+        }
+        dataBinding.rvApply.apply {
+            adapter = applyAdapter
+        }
+
+        availableAdapter = AvailableAdapter().apply {
+            setItems(listOf("1", "2","3"))
+        }
+        dataBinding.rvAvailable.apply {
+            adapter = availableAdapter
         }
     }
 

@@ -2,14 +2,24 @@ package sky.kr.co.newtogetusa.ui.login
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
+import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
+import sky.kr.co.newtogetusa.repository.AuthRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import timber.log.Timber
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
-class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val authRepository: AuthRepository
+)
     :BaseViewModel(baseViewModelDependenciesFactory.create()){
 
         val confirmButtonEnable = MutableLiveData(false)
@@ -33,6 +43,53 @@ class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFac
             confirmButtonEnable.value = true
         } else {
             confirmButtonEnable.value = false
+        }
+    }
+
+    private val _passwordChangeResult = MutableLiveData<ChangeEmailPasswordResponse?>()
+    val passwordChangeResult: LiveData<ChangeEmailPasswordResponse?> = _passwordChangeResult
+    fun changePassword(email: String, password: String, verifyCode:String) = viewModelScope.launch {
+        val response =
+            authRepository.changeEmailPassword(
+                hashMapOf(
+                    "email" to email,
+                    "pw" to password,
+                    "verify_code" to verifyCode
+                )
+            )
+        Timber.d("changePw $response")
+        when(response){
+            is ResultWrapper.Success ->{
+                Timber.d("changePw success $response")
+                _passwordChangeResult.value = response.data
+            }
+            else ->{
+
+            }
+        }
+    }
+
+    private val _joinResult = MutableLiveData<JoinResponse?>()
+    val joinResult: LiveData<JoinResponse?> = _joinResult
+    fun join(userId:Int,  verifyCode: String)= viewModelScope.launch {
+        val response = authRepository.join(
+            hashMapOf(
+                "user_id" to userId,
+                "verify_code" to verifyCode,
+                "nickname" to "abcdefg",
+                "terms_cds" to listOf("use",
+                    "persional",
+                    "3-party",
+                    "location")
+            )
+        )
+        when(response) {
+            is ResultWrapper.Success -> {
+                _joinResult.value = response.data
+            }
+
+            else -> {
+            }
         }
     }
 

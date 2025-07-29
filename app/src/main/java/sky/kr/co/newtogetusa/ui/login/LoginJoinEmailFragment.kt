@@ -10,7 +10,8 @@ import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 
 @AndroidEntryPoint
-class LoginJoinEmailFragment : BaseFragment<FragmentLoginJoinEmailBinding, LoginJoinEmailViewModel>() {
+class LoginJoinEmailFragment :
+    BaseFragment<FragmentLoginJoinEmailBinding, LoginJoinEmailViewModel>() {
     override val layoutId: Int
         get() = R.layout.fragment_login_join_email
     override val viewModel: LoginJoinEmailViewModel by viewModels()
@@ -24,22 +25,36 @@ class LoginJoinEmailFragment : BaseFragment<FragmentLoginJoinEmailBinding, Login
     override fun initObserver() {
         super.initObserver()
 
-        viewModel.verifyCodeText.observe(viewLifecycleOwner){ verifyCodeText ->
-            if(verifyCodeText.length == 6){
-                findNavController().navigate(LoginJoinEmailFragmentDirections.actionLoginJoinEmailFragmentToLoginPasswordSetFragment())
+        viewModel.verifyCodeText.observe(viewLifecycleOwner) { verifyCodeText ->
+            if (verifyCodeText.length == 6) {
+                viewModel.certifyVerifyCode(verifyCodeText)
             }
         }
 
-        viewModel.event.observe(viewLifecycleOwner){
-            when(it){
+        viewModel.certCodeResult.observe(viewLifecycleOwner) {
+            if (it) {
+                findNavController().navigate(
+                    LoginJoinEmailFragmentDirections.actionLoginJoinEmailFragmentToLoginPasswordSetFragment(
+                        email = viewModel.emailText.value.toString(),
+                        verifyCode = viewModel.verifyCodeText.value.toString()
+                    )
+                )
+            }
+        }
+
+        viewModel.event.observe(viewLifecycleOwner) {
+            when (it) {
                 is LoginJoinEmailViewModel.Event.Back -> {
                     findNavController().popBackStack()
                 }
+
                 is LoginJoinEmailViewModel.Event.RequestVerifyCode -> {
                     viewModel.verifyLayoutMode.value = true
                     viewModel.titleText.value = "이메일로 받은 인증번호를 입력해 주세요"
                     viewModel.startTimeout()
+                    viewModel.requestVerifyEmail(viewModel.emailText.value.toString())
                 }
+
                 is LoginJoinEmailViewModel.Event.ReSend -> {
                     dialogFragmentShow(
                         childFragmentManager,

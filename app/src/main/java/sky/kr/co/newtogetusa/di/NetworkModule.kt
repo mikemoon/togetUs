@@ -9,8 +9,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import sky.kr.co.newtogetusa.BuildConfig
+import sky.kr.co.newtogetusa.data.remote.api.APiService
 import sky.kr.co.newtogetusa.data.remote.api.AddressSearchService
-import sky.kr.co.newtogetusa.data.remote.api.AuthService
 import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -84,19 +84,43 @@ class NetworkModule {
             .create(DirectionsApiService::class.java)
     }
 
-    /*@ApiServer
+    @ApiServer
     @Provides
     fun provideApiUrl()= if(BuildConfig.DEBUG){
-        ""
+        "http://togetus.p-e.kr/"
     }else{
-        ""
-    }*/
+        "http://togetus.p-e.kr/"
+    }
+
+    @ApiOkHttpClient
+    @Singleton
+    @Provides
+    fun provideApiOkHttpClient(): OkHttpClient {
+        val logger = HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            else HttpLoggingInterceptor.Level.NONE
+        }
+        val okHttpClientBuilder = OkHttpClient.Builder()
+            .addInterceptor(logger)
+        return  okHttpClientBuilder.build()
+    }
 
     @ApiServer
     @Singleton
     @Provides
-    fun provideAuthService(@ApiServer retrofit: Retrofit): AuthService{
-        return  retrofit.create(AuthService::class.java)
+    fun provideRetrofit(@ApiOkHttpClient client: OkHttpClient, @ApiServer url: String): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(url)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @ApiServer
+    @Singleton
+    @Provides
+    fun provideApiService(@ApiServer retrofit: Retrofit): APiService {
+        return retrofit.create(APiService::class.java)
     }
 
     @AddressApiServer

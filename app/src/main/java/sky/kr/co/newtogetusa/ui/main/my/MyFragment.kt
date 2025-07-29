@@ -40,6 +40,12 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.Favor ->{
                     findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
                 }
+                MyViewModel.Event.UseHistory ->{
+
+                }
+                MyViewModel.Event.FavorPlayer ->{
+
+                }
             }
         }
     }

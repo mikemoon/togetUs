@@ -57,6 +57,9 @@
     <fragment
         android:id="@+id/loginPasswordSetFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginPasswordSetFragment"
-        android:label="LoginPasswordSetFragment" />
+        android:label="LoginPasswordSetFragment" >
+        <argument android:name="email" app:argType="string" />
+        <argument android:name="verifyCode" app:argType="string" />
+    </fragment>
 
 </navigation>

@@ -3,16 +3,21 @@ package sky.kr.co.newtogetusa.ui.login
 import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.repository.AuthRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val authRepository: AuthRepository)
     :BaseViewModel(baseViewModelDependenciesFactory.create()){
 
         val requestVerifyCodeButtonEnable = MutableLiveData<Boolean>(false)
@@ -52,6 +57,34 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
         _emailText.value = s.toString()
         _showClearIcon.value = s.isNotEmpty()
         requestVerifyCodeButtonEnable.value = isValidEmailFormat(s.toString())
+    }
+
+    private val _verifyEmailResult = MutableLiveData<Boolean>()
+    val verifyEmailResult : LiveData<Boolean> = _verifyEmailResult
+    fun requestVerifyEmail(email: String) = viewModelScope.launch {
+        val response:ResultWrapper<Boolean> = authRepository.verifyEmail(hashMapOf("email" to email))
+        when(response){
+            is ResultWrapper.Success -> {
+                _verifyEmailResult.value = response.data == true
+            }
+            else ->{
+
+            }
+        }
+    }
+
+    private val _certCodeResult = MutableLiveData<Boolean>()
+    val certCodeResult : LiveData<Boolean> = _certCodeResult
+    fun certifyVerifyCode(code:String) = viewModelScope.launch {
+        val response:ResultWrapper<Boolean> = authRepository.cerifyVerifyCode(hashMapOf("email" to emailText.value.toString(), "verify_code" to code))
+        when(response){
+            is ResultWrapper.Success -> {
+                _certCodeResult.value = response.data == true
+            }
+            else ->{
+
+            }
+        }
     }
 
     private val _showClearIcon = MutableLiveData<Boolean>(false)

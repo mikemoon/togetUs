@@ -27,6 +27,12 @@ class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         if(items.size == 0) return 2 else return items.size + 2
     }
 
+    fun setItems(items: List<Any>){
+        this.items.clear()
+        this.items.addAll(items)
+        notifyDataSetChanged()
+    }
+
     override fun getItemViewType(position: Int): Int {
         return if(position == 0) VIEW_TYPE_TITLE else{
             if(items.size == 0){

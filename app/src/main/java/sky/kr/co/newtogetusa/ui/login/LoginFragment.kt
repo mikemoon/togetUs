@@ -3,10 +3,13 @@ package sky.kr.co.newtogetusa.ui.login
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -50,6 +53,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
         viewModel.event.observe(this){
             when(it){
                 is LoginViewModel.Event.KakaoLogin -> {
+                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                    return@observe
                     val kakaoUserApiClient = UserApiClient.instance
                     if(kakaoUserApiClient.isKakaoTalkLoginAvailable(requireContext())){
                         kakaoUserApiClient.loginWithKakaoTalk(requireContext()){ token, error ->
@@ -100,9 +105,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                 }
                 is LoginViewModel.Event.GoogleLogin -> {
                     Timber.d("=== Google Login Debug ===")
-
+                    launchGoogleLogin(requireContext())
                     // Google Play Services 상태 확인
-                    val googleApiAvailability = GoogleApiAvailability.getInstance()
+                    /*val googleApiAvailability = GoogleApiAvailability.getInstance()
                     val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(requireContext())
 
                     if (resultCode != ConnectionResult.SUCCESS) {
@@ -115,6 +120,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
 
                     val credentialManager = CredentialManager.create(requireContext())
                     val webClientId = "714408641644-k2ovfqon2a2psm9en15mfnidjspse88n.apps.googleusercontent.com"
+                        //"714408641644-k2ovfqon2a2psm9en15mfnidjspse88n.apps.googleusercontent.com"
                     Timber.d("Using Web Client ID: $webClientId")
 
                     // 관대한 설정으로 시작
@@ -145,7 +151,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                             Timber.e("Login failed: ${e.type} - ${e.localizedMessage}")
                             showDetailedError(e)
                         }
-                    }
+                    }*/
                 }
                 is LoginViewModel.Event.EmailLogin -> {
                     findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginEmailFragment())
@@ -224,4 +230,25 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
             .setPositiveButton("확인", null)
             .show()
     }
+    private fun buildGoogleLoginUrl(): String {
+        val clientId = "714408641644-vl4r3v545qifrc7i82e2mdq9aah93jb5.apps.googleusercontent.com"
+        val redirectUri = "http://togetus.p-e.kr/auths/oauth2/authorize/google"
+        val scope = "email%20profile"
+        val responseType = "code"
+
+        return "https://accounts.google.com/o/oauth2/v2/auth" +
+                "?client_id=$clientId" +
+                "&redirect_uri=$redirectUri" +
+                "&response_type=$responseType" +
+                "&scope=$scope"
+    }
+
+
+    fun launchGoogleLogin(context: Context) {
+        val url = "http://togetus.p-e.kr/auths/oauth2/authorize/google"//buildGoogleLoginUrl()
+        val builder = CustomTabsIntent.Builder()
+        val customTabsIntent = builder.build()
+        customTabsIntent.launchUrl(context, Uri.parse(url))
+    }
+
 }
