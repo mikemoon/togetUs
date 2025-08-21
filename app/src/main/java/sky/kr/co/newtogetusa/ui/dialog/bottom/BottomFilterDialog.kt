@@ -12,11 +12,12 @@ class BottomFilterDialog : BottomBaseDialog<DialogBottomFilterBinding, BottomFil
     override val viewModel: BottomFilterViewModel by viewModels()
 
     var itemSelectCallback: ((String) -> Unit)? = null
+    var filterList = listOf("거리순","별점순", "거래건순", "최근 거래순")
 
     override fun init() {
         super.init()
         dataBinding.rv.apply {
-            adapter = BottomFilterAdapter(listOf("거리순","별점순", "거래건순", "최근 거래순"), { selectedItem ->
+            adapter = BottomFilterAdapter(filterList, { selectedItem ->
                 itemSelectCallback?.invoke(selectedItem)
                 this@BottomFilterDialog.dismissAllowingStateLoss()
             })

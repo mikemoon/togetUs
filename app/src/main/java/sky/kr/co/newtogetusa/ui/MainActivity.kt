@@ -35,7 +35,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     private val finishDelayTime = 2000
 
     private val mainTabFragments = setOf(
-        R.id.homeTabFragment, R.id.searchFragment, R.id.historyFragment, R.id.chattingTabFragment, R.id.myFragment
+        R.id.homeTabFragment, R.id.searchFragment, R.id.historyFragment, R.id.chattingTabFragment, R.id.myFragment, R.id.deliveryRequestSearchFragment,
+        R.id.historyDeliveryFragment
     )
 
     private val backPressedCallback = object : OnBackPressedCallback(true) {
@@ -95,6 +96,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     private fun sendChatMessage(message: String){
         //chatClient.sendMessage(message)
+    }
+
+    fun showChangeModeAnimation(isShow:Boolean){
+        viewModel.onModeChange(isShow)
     }
 
 }

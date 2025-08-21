@@ -52,7 +52,7 @@
         android:label="DeliveryStartFragment" />
     <fragment
         android:id="@+id/playerJoinFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinFragment"
         android:label="PlayerJoinFragment" >
         <action
             android:id="@+id/action_playerJoinFragment_to_playerJoinCompleteFragment"
@@ -60,7 +60,7 @@
     </fragment>
     <fragment
         android:id="@+id/playerJoinCompleteFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinCompleteFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinCompleteFragment"
         android:label="PlayerJoinCompleteFragment" >
         <action
             android:id="@+id/action_playerJoinCompleteFragment_to_homeTabFragment"

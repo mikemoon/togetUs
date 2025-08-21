@@ -36,5 +36,6 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
 
     sealed class Event {
         object JoinPlayer : Event()
+        object RequestDelivery : Event()
     }
 }

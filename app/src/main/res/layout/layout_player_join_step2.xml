@@ -5,11 +5,11 @@
 
         <import type="android.view.View" />
 
-        <import type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel.Event" />
+        <import type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel.Event" />
 
         <variable
             name="viewModel"
-            type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel" />
+            type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

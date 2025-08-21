@@ -3,20 +3,50 @@ package sky.kr.co.newtogetusa.ui.login
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
+import sky.kr.co.newtogetusa.repository.AuthRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+                                              private val authRepository: AuthRepository
+)
     :BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
         val isEnableLoginBtn = MutableStateFlow(false)
     private val _showEmailClearIcon = MutableLiveData<Boolean>(false)
     val showEmailClearIcon: LiveData<Boolean> = _showEmailClearIcon
+
+    val failMessage = MutableLiveData<String>()
+
+    private val _loginResult = MutableLiveData<JoinResponse>()
+    val loginResult : LiveData<JoinResponse> = _loginResult
+    fun login(email:String, password:String) = viewModelScope.launch {
+        val response = authRepository.loginFromEmail(
+            hashMapOf(
+                "email" to email,
+                "pw" to password
+            )
+        )
+        when(response){
+            is ResultWrapper.Success -> {
+                _loginResult.value = response.data
+            }
+            else ->{
+                Timber.d("error : ${response.toString()}")
+                failMessage.value  = "로그인에 실패하였습니다."
+            }
+        }
+    }
 
     val onClearEmailClickListener = View.OnClickListener {
         onClearEmailClick()

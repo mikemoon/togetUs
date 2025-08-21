@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel.Event"/>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel.Event"/>
         <variable
             name="viewModel"
-            type="sky.kr.co.newtogetusa.ui.main.home.joinPlayer.PlayerJoinViewModel" />
+            type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel" />
     </data>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"

@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_searchFragment_to_searchResultFragment"
             app:destination="@id/searchResultFragment" />
+        <action
+            android:id="@+id/action_searchFragment_to_deliveryRequestSearchFragment"
+            app:destination="@id/deliveryRequestSearchFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchResultFragment"
@@ -24,4 +27,12 @@
         android:id="@+id/playerTermCompleteFragment"
         android:name="sky.kr.co.newtogetusa.ui.others.terms.PlayerTermCompleteFragment"
         android:label="PlayerTermCompleteFragment" />
+    <fragment
+        android:id="@+id/deliveryRequestSearchFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryRequestSearchFragment"
+        android:label="DeliveryRequestSearchFragment" >
+        <action
+            android:id="@+id/action_deliveryRequestSearchFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+    </fragment>
 </navigation>

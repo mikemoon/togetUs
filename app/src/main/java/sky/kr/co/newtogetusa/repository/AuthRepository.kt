@@ -27,4 +27,16 @@ class AuthRepository @Inject constructor(
     suspend fun join(requestBody: HashMap<String, Any>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
         apiService.join(requestBody)
     }
+
+    suspend fun loginFromEmail(requestBody: HashMap<String, String>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
+        apiService.loginFromEmail(requestBody)
+    }
+
+    suspend fun loginKakao(requestBody: HashMap<String, String>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
+        apiService.loginKakao(requestBody)
+    }
+
+    suspend fun loginNaver(requestBody: HashMap<String, String>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
+        apiService.loginNaver(requestBody)
+    }
 }

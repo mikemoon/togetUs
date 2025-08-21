@@ -70,14 +70,13 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
                 HomeTabViewModel.Event.JoinPlayer ->{
-                    findNavController().navigate(R.id.action_homeTabFragment_to_playerJoinFragment)
+                    //findNavController().navigate(R.id.action_homeTabFragment_to_playerJoinFragment)
+                }
+                HomeTabViewModel.Event.RequestDelivery ->{
+                    findNavController().navigate(R.id.action_homeTabFragment_to_deliveryReqFragment)
                 }
             }
         }
 
-
-        /*dataBinding.tvDelivery.setOnClickListener {
-            findNavController().navigate(R.id.action_homeTabFragment_to_deliveryReqFragment)
-        }*/
     }
 }

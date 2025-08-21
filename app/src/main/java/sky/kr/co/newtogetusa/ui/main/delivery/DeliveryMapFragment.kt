@@ -20,11 +20,15 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
+import com.kakao.vectormap.KakaoMap
+import com.kakao.vectormap.KakaoMapReadyCallback
+import com.kakao.vectormap.MapLifeCycleCallback
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryMapBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import timber.log.Timber
+import java.lang.Exception
 
 @AndroidEntryPoint
 class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMapViewModel>()  {
@@ -44,7 +48,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
     override fun onCreateView(savedInstanceState: Bundle?) {
         super.onCreateView(savedInstanceState)
-        dataBinding.map.onCreate(savedInstanceState)
+
     }
 
     override fun init() {
@@ -58,11 +62,25 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                     maybeInitMapWithLocation()
                 }
             }
-        dataBinding.map.getMapAsync { map ->
+
+        dataBinding.map.start(object : MapLifeCycleCallback(){
+            override fun onMapDestroy() {
+            }
+
+            override fun onMapError(p0: Exception?) {
+            }
+
+        }, object : KakaoMapReadyCallback(){
+            override fun onMapReady(p0: KakaoMap) {
+            }
+        })
+
+        //google map
+        /*dataBinding.map.getMapAsync { map ->
             googleMap = map
             googleMap?.uiSettings?.isZoomControlsEnabled = true
             maybeInitMapWithLocation()
-        }
+        }*/
     }
 
     private fun maybeInitMapWithLocation() {
@@ -75,32 +93,32 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
     override fun onStart() {
         super.onStart()
-        dataBinding.map.onStart()
+        //dataBinding.map.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        dataBinding.map.onResume()
+        dataBinding.map.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        dataBinding.map.onPause()
+        dataBinding.map.pause()
     }
 
     override fun onStop() {
         super.onStop()
-        dataBinding.map.onStop()
+        //dataBinding.map.onStop()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        dataBinding.map.onDestroy()
+        //dataBinding.map.onDestroy()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        dataBinding.map.onLowMemory()
+        //dataBinding.map.onLowMemory()
     }
 
     override fun initObserver() {

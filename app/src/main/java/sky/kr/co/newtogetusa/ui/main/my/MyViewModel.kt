@@ -13,6 +13,7 @@ import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartViewModel.Event
+import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,12 +35,13 @@ class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseView
 
     fun onModeChange(isPlayerMode: Boolean) {
         isModeChanging.value = true
-        viewModelScope.launch {
+        isModeChanging.value = false
+        /*viewModelScope.launch {
             delay(3000)
             dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_MODE_PLAYER, isPlayerMode)
             isPlayerModeFlow.value = isPlayerMode
             isModeChanging.value = false
-        }
+        }*/
     }
 
     private val _event = SingleLiveEvent<Event>()
@@ -57,5 +59,6 @@ class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseView
         object Favor : Event()
         object Notice : Event()
         object FAQ : Event()
+        object JoinPlayer : Event()
     }
 }

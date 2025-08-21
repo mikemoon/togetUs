@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_myFragment_to_favorPlayerFragment"
             app:destination="@id/favorPlayerFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_playerJoinFragment2"
+            app:destination="@id/playerJoinFragment2" />
     </fragment>
     <fragment
         android:id="@+id/profileManagementFragment"
@@ -123,4 +126,8 @@
         android:id="@+id/accountInfoFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.settle.AccountInfoFragment"
         android:label="AccountInfoFragment" />
+    <fragment
+        android:id="@+id/playerJoinFragment2"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinFragment"
+        android:label="PlayerJoinFragment" />
 </navigation>

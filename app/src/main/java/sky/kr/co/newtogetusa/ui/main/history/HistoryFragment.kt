@@ -6,6 +6,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,6 +20,7 @@ import sky.kr.co.newtogetusa.ui.dialog.message.ReceiveConfirmDialog
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
+import timber.log.Timber
 
 @AndroidEntryPoint
 class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>() {
@@ -45,6 +47,17 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
 
     override fun initObserver() {
         super.initObserver()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.isModePlayer.collectLatest {
+                    Timber.d("isModePlayer $it")
+                    if(it){
+                        findNavController().navigate(R.id.action_historyFragment_to_historyDeliveryFragment)
+                    }
+                }
+            }
+        }
 
         viewModel.topMenuLiveData.observe(viewLifecycleOwner){ topMenu ->
             setSelectedTopMenu(topMenu)

@@ -7,6 +7,18 @@
     <fragment
         android:id="@+id/historyFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.HistoryFragment"
-        android:label="HistoryFragment" />
+        android:label="HistoryFragment" >
+        <action
+            android:id="@+id/action_historyFragment_to_historyDeliveryFragment"
+            app:destination="@id/historyDeliveryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/historyDeliveryFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.player.HistoryDeliveryFragment"
+        android:label="HistoryDeliveryFragment" >
+        <action
+            android:id="@+id/action_historyDeliveryFragment_to_historyFragment"
+            app:destination="@id/historyFragment" />
+    </fragment>
 
 </navigation>

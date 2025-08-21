@@ -1,10 +1,18 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentMyBinding
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 
 @AndroidEntryPoint
@@ -19,6 +27,14 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
 
     override fun initObserver() {
         super.initObserver()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.isModeChanging.drop(1).filter { it }.collectLatest {
+                    (requireActivity() as MainActivity).showChangeModeAnimation(!viewModel.isPlayerModeFlow.value)
+                }
+            }
+        }
 
         viewModel.event.observe(viewLifecycleOwner) {
             when (it) {
@@ -39,6 +55,9 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
                 MyViewModel.Event.Favor ->{
                     findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
+                }
+                MyViewModel.Event.JoinPlayer ->{
+                    findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
                 }
                 MyViewModel.Event.UseHistory ->{
 

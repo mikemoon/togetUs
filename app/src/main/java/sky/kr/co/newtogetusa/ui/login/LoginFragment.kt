@@ -53,8 +53,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
         viewModel.event.observe(this){
             when(it){
                 is LoginViewModel.Event.KakaoLogin -> {
-                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                    return@observe
+                    //requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                    //return@observe
                     val kakaoUserApiClient = UserApiClient.instance
                     if(kakaoUserApiClient.isKakaoTalkLoginAvailable(requireContext())){
                         kakaoUserApiClient.loginWithKakaoTalk(requireContext()){ token, error ->
@@ -71,7 +71,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                                 Timber.d("kakaoAccountLogin Error : ${error}")
                             }else if(token != null){
                                 Timber.d("kakaoAccountLogin Success : ${token.accessToken}")
-                                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                                viewModel.loginKakao(token.accessToken)
+                                //findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
                             }
                         }
                     }
@@ -98,7 +99,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                             val state = NaverIdLoginSDK.getState().toString()
                             Timber.d("naverLoginSuccess token $accessToken")
                             requireContext().toast("naver login success token :$accessToken")
-                            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                            viewModel.loginNaver(accessToken!!)
+                        //findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
                         }
 
                     })

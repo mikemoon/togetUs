@@ -29,5 +29,20 @@ interface APiService {
         @Body body: HashMap<String, String>
     ):ChangeEmailPasswordResponse
 
+    @PATCH("/auths/email")
+    suspend fun loginFromEmail(
+        @Body body: HashMap<String, String>
+    ):JoinResponse
+
+    @POST("/auths/kakao")
+    suspend fun loginKakao(
+        @Body body: HashMap<String, String>
+    ): JoinResponse
+
+    @POST("/auths/naver")
+    suspend fun loginNaver(
+        @Body body: HashMap<String, String>
+    ): JoinResponse
+
 
 }

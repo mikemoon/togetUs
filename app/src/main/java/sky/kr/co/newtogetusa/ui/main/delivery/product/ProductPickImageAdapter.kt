@@ -71,8 +71,15 @@ class ProductPickImageAdapter(private val context: Context, private val onRemove
             return // 갤러리 뷰는 이동 불가
         }
 
-        val item = imageList.removeAt(fromPosition)
-        imageList.add(toPosition, item)
+        val fromIndex = fromPosition - 1
+        val toIndex = toPosition - 1
+
+        if (fromIndex < 0 || fromIndex >= imageList.size || toIndex < 0 || toIndex > imageList.size) {
+            return // index 범위 방어
+        }
+
+        val item = imageList.removeAt(fromIndex)
+        imageList.add(toIndex, item)
         notifyItemMoved(fromPosition, toPosition)
     }
 

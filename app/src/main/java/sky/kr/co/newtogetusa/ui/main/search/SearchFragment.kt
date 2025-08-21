@@ -13,6 +13,7 @@ import sky.kr.co.newtogetusa.databinding.FragmentSearchBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelect
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import timber.log.Timber
 
 @AndroidEntryPoint
 class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
@@ -27,6 +28,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     override fun initObserver() {
         super.initObserver()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.isModePlayer.collectLatest {
+                    Timber.d("isModePlayer $it")
+                    if(it){
+                        findNavController().navigate(R.id.action_searchFragment_to_deliveryRequestSearchFragment)
+                    }
+                }
+            }
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
