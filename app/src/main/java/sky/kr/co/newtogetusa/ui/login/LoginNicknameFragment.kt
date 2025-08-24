@@ -6,18 +6,27 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginNicknameBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
 class LoginNicknameFragment : BaseFragment<FragmentLoginNicknameBinding, LoginNicknameViewModel>() {
     override val layoutId: Int
         get() = R.layout.fragment_login_nickname
     override val viewModel: LoginNicknameViewModel by viewModels()
+    private val args : LoginNicknameFragmentArgs by navArgs()
+
+    override fun init() {
+        super.init()
+        viewModel.userId.value = args.userId
+        viewModel.verifyCode.value = args.verifyCode
+    }
 
     override fun initObserver() {
         super.initObserver()
@@ -37,13 +46,29 @@ class LoginNicknameFragment : BaseFragment<FragmentLoginNicknameBinding, LoginNi
             dataBinding.tvConfirm.isEnabled = it.length >= 2
         }
 
+        viewModel.checkingNickname.observe(viewLifecycleOwner){ checking ->
+            checking?.let {
+                if(it){
+                    requireContext().toast("중복된 닉네임입니다.")
+                }else{
+                    viewModel.join(args.termsList.toList()){ result ->
+                        if(result){
+                            findNavController().navigate(LoginNicknameFragmentDirections.actionLoginNicknameFragmentToLoginStartFragment())
+                        }else{
+                            requireContext().toast("회원가입에 실패하였습니다.")
+                        }
+                    }
+                }
+            }
+        }
+
         viewModel.event.observe(viewLifecycleOwner){ event ->
             when(event){
                 is LoginNicknameViewModel.Event.Back -> {
                     findNavController().popBackStack()
                 }
                 is LoginNicknameViewModel.Event.Confirm -> {
-                    findNavController().navigate(LoginNicknameFragmentDirections.actionLoginNicknameFragmentToLoginStartFragment())
+                    viewModel.checkNickname(viewModel.nickname.value.toString())
                 }
             }
         }

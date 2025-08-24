@@ -19,14 +19,23 @@
         android:id="@+id/loginTermAgreeFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginTermAgreeFragment"
         android:label="LoginTermAgreeFragment" >
+        <argument android:name="userId" app:argType="integer" android:defaultValue="0"/>
+        <argument android:name="verify_code" app:argType="string" android:defaultValue="" />
         <action
             android:id="@+id/action_loginTermAgreeFragment_to_loginNicknameFragment"
-            app:destination="@id/loginNicknameFragment" />
+            app:destination="@id/loginNicknameFragment" >
+            <argument android:name="userId" app:argType="integer" android:defaultValue="0"/>
+            <argument android:name="verify_code" app:argType="string" android:defaultValue="" />
+            <argument android:name="termsList" app:argType="string[]"  />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/loginNicknameFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginNicknameFragment"
         android:label="LoginNicknameFragment" >
+        <argument android:name="userId" app:argType="integer" android:defaultValue="0"/>
+        <argument android:name="verify_code" app:argType="string" android:defaultValue="" />
+        <argument android:name="termsList" app:argType="string[]"  />
         <action
             android:id="@+id/action_loginNicknameFragment_to_loginStartFragment"
             app:destination="@id/loginStartFragment" />

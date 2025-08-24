@@ -13,6 +13,9 @@ import javax.inject.Inject
 class LoginTermAgreeViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory) :
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
+        val userId = MutableStateFlow(0)
+    val verifyCode = MutableStateFlow("")
+
     val agreeTermPlus = MutableStateFlow(false)
     val agreePrivacy = MutableStateFlow(false)
     val agreeSendPrivacy = MutableStateFlow(false)

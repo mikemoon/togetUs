@@ -7,8 +7,10 @@ data class ErrorBody(
 )
 
 data class ErrorData(
-    val path: String,
-    val time: String,
-    val error: String,
-    val message: String,
+    val httpCode: Int?,
+    val type: String?,
+    val error: String?,
+    val message: String?,
+    val user_id: Int,
+    val verify_code: String?,
 )

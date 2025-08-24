@@ -5,10 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.dto.DirectionsResponse
 import sky.kr.co.newtogetusa.repository.DirectionsRepository
+import sky.kr.co.newtogetusa.repository.KakaoLocalRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import timber.log.Timber
@@ -16,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-                                               private val directionsRepository: DirectionsRepository
+                                               private val directionsRepository: DirectionsRepository,
+                                               private val kakaoRepo: KakaoLocalRepository
     ):BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
     private val _route = MutableLiveData<List<LatLng>>()
@@ -59,6 +63,29 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
         }
     }
 
+    //카카오 주소 얻기
+    private val _destinationAddress = MutableStateFlow<String?>("도착지 선택")
+    val destinationAddress: StateFlow<String?> = _destinationAddress
+
+    fun setDestinationAddress(address: String) {
+        _destinationAddress.value = address
+    }
+
+    private val _address = MutableStateFlow<String?>("출발지 선택")
+    val address: StateFlow<String?> = _address
+
+    fun setStartAddress(address: String) {
+        _address.value = address
+    }
+
+    fun fetchAddress(lat: Double, lng: Double) {
+        viewModelScope.launch {
+            runCatching { kakaoRepo.getAddressFromCoord(lat, lng) }
+                .onSuccess { _address.value = it?.roadAddress }
+                .onFailure { _address.value = null }
+        }
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event){
@@ -68,5 +95,6 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
     sealed class Event {
         object Back : Event()
         object SelectStart : Event()
+        object SelectDestination : Event()
     }
 }

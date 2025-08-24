@@ -1,8 +1,10 @@
 package sky.kr.co.newtogetusa.data.remote.api
 
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Query
 import sky.kr.co.newtogetusa.data.remote.dto.BaseResponse
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
@@ -43,6 +45,12 @@ interface APiService {
     suspend fun loginNaver(
         @Body body: HashMap<String, String>
     ): JoinResponse
+
+
+    @GET("/auths/join/check_dup")
+    suspend fun checkNickname(
+        @Query("nickname") nickname:String
+    ):Boolean
 
 
 }

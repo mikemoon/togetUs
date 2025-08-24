@@ -39,4 +39,8 @@ class AuthRepository @Inject constructor(
     suspend fun loginNaver(requestBody: HashMap<String, String>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
         apiService.loginNaver(requestBody)
     }
+
+    suspend fun checkNickname(nickname:String) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO){
+        apiService.checkNickname(nickname)
+    }
 }

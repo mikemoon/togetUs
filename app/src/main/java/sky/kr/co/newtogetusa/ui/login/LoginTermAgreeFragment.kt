@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -18,7 +19,14 @@ class LoginTermAgreeFragment :
     override val layoutId: Int
         get() = R.layout.fragment_login_term_agree
     override val viewModel: LoginTermAgreeViewModel by viewModels()
+    private val args : LoginTermAgreeFragmentArgs by navArgs()
 
+    override fun init() {
+        super.init()
+
+        viewModel.userId.value = args.userId
+        viewModel.verifyCode.value = args.verifyCode
+    }
 
     override fun initObserver() {
         super.initObserver()
@@ -28,7 +36,13 @@ class LoginTermAgreeFragment :
                     findNavController().popBackStack()
                 }
                 is LoginTermAgreeViewModel.Event.Agree -> {
-                    findNavController().navigate(LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToLoginNicknameFragment())
+                    findNavController().navigate(LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToLoginNicknameFragment(
+                        userId = viewModel.userId.value,
+                        verifyCode = viewModel.verifyCode.value,
+                        termsList = arrayOf(
+                            "use", "personal", "3-party", "location"
+                        )
+                    ))
                 }
 
             }

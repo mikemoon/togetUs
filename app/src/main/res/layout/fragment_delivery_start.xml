@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="출발지"
+                android:text="@{viewModel.isStart? `출발지` : `도착지`}"
                 android:textColor="@color/black_80"
                 android:textSize="16dp"
                 android:textStyle="bold"
@@ -103,6 +103,7 @@
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:background="@drawable/background_s_b5_r4"
+            android:onClick="@{()-> viewModel.onEventClick(Event.FindAddressFromMap.INSTANCE)}"
             >
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="20dp"

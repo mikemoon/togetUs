@@ -49,7 +49,12 @@
     <fragment
         android:id="@+id/deliveryStartFragment2"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartFragment"
-        android:label="DeliveryStartFragment" />
+        android:label="DeliveryStartFragment">
+        <argument android:name="isStart" app:argType="boolean" android:defaultValue="true" />
+        <action
+            android:id="@+id/action_deliveryStartFragment2_to_deliveryAddressMapFragment"
+            app:destination="@id/deliveryAddressMapFragment" />
+    </fragment>
     <fragment
         android:id="@+id/playerJoinFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinFragment"
@@ -66,5 +71,9 @@
             android:id="@+id/action_playerJoinCompleteFragment_to_homeTabFragment"
             app:destination="@id/homeTabFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/deliveryAddressMapFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryAddressMapFragment"
+        android:label="DeliveryAddressMapFragment" />
 
 </navigation>

@@ -26,18 +26,18 @@ abstract class BaseNetRepo {
                         try {
                             val gsonErrorBody = Gson().fromJson(
                                 errorBody,
-                                ErrorBody::class.java
+                                ErrorData::class.java
                             )
                             if(gsonErrorBody != null) {
-                                val code = gsonErrorBody.code
-                                val message = gsonErrorBody.msg
-                                val dataObj = gsonErrorBody.dataObj
+                                val code = httpCode
+                                val message = gsonErrorBody.message
+                                val dataObj = gsonErrorBody
                                 ResultWrapper.GenericError(code, message, dataObj)
                             }else{
                                 ResultWrapper.GenericError(httpCode, "", null)
                             }
                         }catch (e : JsonSyntaxException){
-                            ResultWrapper.GenericError(null, null, null)
+                            ResultWrapper.GenericError(httpCode, null, null)
                         }
                     }
                     else -> {

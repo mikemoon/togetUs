@@ -15,12 +15,13 @@
         <com.kakao.vectormap.MapView
             android:id="@+id/map"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/llBottomPanel"
             />
 
         <LinearLayout
+            android:id="@+id/llBottomPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -66,7 +67,7 @@
                     android:layout_marginEnd="4dp"
                     android:textSize="14dp"
                     android:textColor="@color/black_40"
-                    android:text="출발지 선택"
+                    android:text="@{viewModel.address}"
                     />
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -152,6 +153,7 @@
                 android:layout_height="52dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/background_st_b10_s_w_r4"
+                android:onClick="@{()->viewModel.onEventClick(Event.SelectDestination.INSTANCE)}"
                 >
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
@@ -175,7 +177,7 @@
                     android:layout_marginEnd="4dp"
                     android:textSize="14dp"
                     android:textColor="@color/black_40"
-                    android:text="도착지 선택"
+                    android:text="@{viewModel.destinationAddress}"
                     />
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -197,6 +199,7 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_marginTop="16dp"
+                android:visibility="invisible"
                 >
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"

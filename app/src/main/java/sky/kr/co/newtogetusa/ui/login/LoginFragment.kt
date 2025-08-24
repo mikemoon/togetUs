@@ -53,8 +53,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
         viewModel.event.observe(this){
             when(it){
                 is LoginViewModel.Event.KakaoLogin -> {
-                    //requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                    //return@observe
+                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                    return@observe
                     val kakaoUserApiClient = UserApiClient.instance
                     if(kakaoUserApiClient.isKakaoTalkLoginAvailable(requireContext())){
                         kakaoUserApiClient.loginWithKakaoTalk(requireContext()){ token, error ->
@@ -98,9 +98,21 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                             val tokenType = NaverIdLoginSDK.getTokenType()
                             val state = NaverIdLoginSDK.getState().toString()
                             Timber.d("naverLoginSuccess token $accessToken")
-                            requireContext().toast("naver login success token :$accessToken")
-                            viewModel.loginNaver(accessToken!!)
-                        //findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                            //requireContext().toast("naver login success token :$accessToken")
+                            viewModel.loginNaver(accessToken!!){ resultCode, errorData ->
+                                when(resultCode){
+                                    200 ->{
+                                        requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                                        requireActivity().finish()
+                                    }
+                                    404 ->{
+                                        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
+                                            userId = errorData?.user_id?:0,
+                                            verifyCode = errorData?.verify_code?:""
+                                        ))
+                                    }
+                                }
+                            }
                         }
 
                     })

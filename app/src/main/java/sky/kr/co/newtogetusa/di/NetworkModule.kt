@@ -47,6 +47,28 @@ class NetworkModule {
     @Retention(AnnotationRetention.BINARY)
     annotation class AddressOkHttpClient
 
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoLocalOkHttp
+
+    @Qualifier @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoLocalAuth
+
+    @Qualifier @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoNaviAuth
+
+    @Qualifier @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoLocalClient
+
+    @Qualifier @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoNaviClient
+
+    @Qualifier @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoLocalRetrofit
+
+    @Qualifier @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoNaviRetrofit
+
     @AddressApiServer
     @Provides
     fun provideAddressApiUrl()= "https://dapi.kakao.com/"
