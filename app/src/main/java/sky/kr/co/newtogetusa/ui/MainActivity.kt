@@ -44,7 +44,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
             if (navController.currentDestination?.id in mainTabFragments) {
                 if (System.currentTimeMillis() - backKeyPressedTime > finishDelayTime) {
                     backKeyPressedTime = System.currentTimeMillis()
-                    toast("\\'뒤로\\' 버튼 한번 더 누르시면 종료됩니다.")
+                    toast("앱을 끄려면 한 번 더 눌러주세요.")
                 } else {
                     finishAffinity()
                 }

@@ -5,6 +5,7 @@ import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.APiService
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
+import sky.kr.co.newtogetusa.data.remote.dto.auth.TermMeta
 import sky.kr.co.newtogetusa.di.NetworkModule
 import javax.inject.Inject
 
@@ -42,5 +43,9 @@ class AuthRepository @Inject constructor(
 
     suspend fun checkNickname(nickname:String) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO){
         apiService.checkNickname(nickname)
+    }
+
+    suspend fun getTerms() = safeApiCall<List<TermMeta>>(Dispatchers.IO){
+        apiService.getTerms()
     }
 }

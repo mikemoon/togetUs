@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginNicknameBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.utils.toast
+import timber.log.Timber
 
 @AndroidEntryPoint
 class LoginNicknameFragment : BaseFragment<FragmentLoginNicknameBinding, LoginNicknameViewModel>() {

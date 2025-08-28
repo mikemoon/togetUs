@@ -53,8 +53,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
         viewModel.event.observe(this){
             when(it){
                 is LoginViewModel.Event.KakaoLogin -> {
-                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                    return@observe
                     val kakaoUserApiClient = UserApiClient.instance
                     if(kakaoUserApiClient.isKakaoTalkLoginAvailable(requireContext())){
                         kakaoUserApiClient.loginWithKakaoTalk(requireContext()){ token, error ->
@@ -71,7 +69,20 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                                 Timber.d("kakaoAccountLogin Error : ${error}")
                             }else if(token != null){
                                 Timber.d("kakaoAccountLogin Success : ${token.accessToken}")
-                                viewModel.loginKakao(token.accessToken)
+                                viewModel.loginKakao(token.accessToken){ resultCode, errorData ->
+                                    when(resultCode){
+                                        200 ->{
+                                            requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                                            requireActivity().finish()
+                                        }
+                                        404 ->{
+                                            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
+                                                userId = errorData?.user_id?:0,
+                                                verifyCode = errorData?.verify_code?:""
+                                            ))
+                                        }
+                                    }
+                                }
                                 //findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
                             }
                         }
@@ -118,6 +129,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                     })
                 }
                 is LoginViewModel.Event.GoogleLogin -> {
+                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                    return@observe
                     Timber.d("=== Google Login Debug ===")
                     launchGoogleLogin(requireContext())
                     // Google Play Services 상태 확인

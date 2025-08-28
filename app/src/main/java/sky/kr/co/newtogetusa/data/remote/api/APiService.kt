@@ -8,6 +8,7 @@ import retrofit2.http.Query
 import sky.kr.co.newtogetusa.data.remote.dto.BaseResponse
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
+import sky.kr.co.newtogetusa.data.remote.dto.auth.TermMeta
 
 interface APiService {
 
@@ -51,6 +52,15 @@ interface APiService {
     suspend fun checkNickname(
         @Query("nickname") nickname:String
     ):Boolean
+
+    @POST("/auths/reissue") //토큰재발급
+    suspend fun getAccessToken(
+        @Body body: HashMap<String, String>
+    ): JoinResponse
+
+    @GET("/auths/join/terms")
+    suspend fun getTerms(
+    ): List<TermMeta>
 
 
 }

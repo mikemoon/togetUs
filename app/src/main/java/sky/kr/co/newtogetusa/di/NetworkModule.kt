@@ -9,8 +9,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import sky.kr.co.newtogetusa.BuildConfig
+import sky.kr.co.newtogetusa.data.TokenStore
+import sky.kr.co.newtogetusa.data.remote.AuthInterceptor
 import sky.kr.co.newtogetusa.data.remote.api.APiService
 import sky.kr.co.newtogetusa.data.remote.api.AddressSearchService
+import sky.kr.co.newtogetusa.data.remote.api.ConfigService
 import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -34,6 +37,10 @@ class NetworkModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class ApiServer
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ConfigApi
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
@@ -117,13 +124,14 @@ class NetworkModule {
     @ApiOkHttpClient
     @Singleton
     @Provides
-    fun provideApiOkHttpClient(): OkHttpClient {
+    fun provideApiOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
         val logger = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
             else HttpLoggingInterceptor.Level.NONE
         }
         val okHttpClientBuilder = OkHttpClient.Builder()
             .addInterceptor(logger)
+            .addInterceptor(authInterceptor)
         return  okHttpClientBuilder.build()
     }
 
@@ -150,5 +158,12 @@ class NetworkModule {
     @Provides
     fun provideAddressService(@AddressApiServer retrofit: Retrofit): AddressSearchService{
         return retrofit.create(AddressSearchService::class.java)
+    }
+
+    @ConfigApi
+    @Singleton
+    @Provides
+    fun provideConfigService(@ApiServer retrofit: Retrofit): ConfigService {
+        return retrofit.create(ConfigService::class.java)
     }
 }

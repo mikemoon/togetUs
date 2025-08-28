@@ -8,13 +8,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDependenciesFactory) : BaseViewModel(baseViewModelFactory.create()) {
+class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDependenciesFactory,
+    private val configRepository: ConfigRepository) : BaseViewModel(baseViewModelFactory.create()) {
 
     val isModePlayer = MutableStateFlow(false)
 
@@ -23,6 +25,9 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
             dataStoreRepository.getBooleanFlow(DataStoreKey.KEY_IS_MODE_PLAYER).filterNotNull().collectLatest {
                 isModePlayer.value = it
             }
+        }
+        viewModelScope.launch {
+            configRepository.getDomesticAreas()
         }
     }
 

@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginTermAgreeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class LoginTermAgreeFragment :
@@ -26,6 +27,7 @@ class LoginTermAgreeFragment :
 
         viewModel.userId.value = args.userId
         viewModel.verifyCode.value = args.verifyCode
+        viewModel.getTerms()
     }
 
     override fun initObserver() {
@@ -36,12 +38,20 @@ class LoginTermAgreeFragment :
                     findNavController().popBackStack()
                 }
                 is LoginTermAgreeViewModel.Event.Agree -> {
+                    val selectedCodes: Array<String> =
+                        viewModel.termsList.value
+                            ?.map { it.code }                 // List<String>
+                            ?.filter { it != "marketing" }    // 기본: 마케팅 제외
+                            ?.let { base ->
+                                if (viewModel.agreeMarketing.value) base + "marketing" else base
+                            }
+                            ?.distinct()                      // 혹시 중복 방지
+                            ?.toTypedArray()
+                            ?: emptyArray()
                     findNavController().navigate(LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToLoginNicknameFragment(
                         userId = viewModel.userId.value,
                         verifyCode = viewModel.verifyCode.value,
-                        termsList = arrayOf(
-                            "use", "personal", "3-party", "location"
-                        )
+                        termsList = selectedCodes
                     ))
                 }
 
