@@ -4,13 +4,14 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.data.remote.dto.search.RegionDto
 import sky.kr.co.newtogetusa.databinding.ItemRegionChipBinding
 import timber.log.Timber
 
 class BottomAreaAdapter(
-    private var regions: List<String>,
+    private var regions: List<RegionDto>,
     private var multiSelect: Boolean = false,        // 단일 / 복수 선택 모드 분기
-    private val onClick: (selected: List<String>, isDetail: Boolean) -> Unit
+    private val onClick: (selected: List<RegionDto>, isDetail: Boolean) -> Unit
 ) : RecyclerView.Adapter<BottomAreaAdapter.VH>() {
 
     //지역 상세 단계 인지
@@ -23,8 +24,8 @@ class BottomAreaAdapter(
     private val selectedPositions = mutableSetOf<Int>()
 
     inner class VH(val binding: ItemRegionChipBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(name: String, pos: Int) {
-            binding.chipRegion.text = name
+        fun bind(data: RegionDto, pos: Int) {
+            binding.chipRegion.text = data.name
 
             // isSelected 표시
             binding.chipRegion.isSelected = if (multiSelect) {
@@ -67,11 +68,17 @@ class BottomAreaAdapter(
 
     override fun getItemCount() = regions.size
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun setItems(regions: List<RegionDto>){
+        this.regions = regions
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: VH, position: Int) =
         holder.bind(regions[position], position)
 
     @SuppressLint("NotifyDataSetChanged")
-    fun update(regions: List<String>, multiSelect: Boolean, isDetail: Boolean = false) {
+    fun update(regions: List<RegionDto>, multiSelect: Boolean, isDetail: Boolean = false) {
         Timber.d("update regions: $regions")
         this.regions = regions
         this.multiSelect = multiSelect

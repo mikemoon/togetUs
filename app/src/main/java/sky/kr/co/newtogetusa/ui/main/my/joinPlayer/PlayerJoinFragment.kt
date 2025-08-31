@@ -19,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentJoinPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelect
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelectDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
@@ -128,13 +128,13 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 PlayerJoinViewModel.Event.StartArea ->{
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomAreaSelect()
+                        BottomAreaSelectDialog()
                     )
                 }
                 PlayerJoinViewModel.Event.DestinaitonArea ->{
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomAreaSelect()
+                        BottomAreaSelectDialog()
                     )
                 }
                 PlayerJoinViewModel.Event.Complete ->{

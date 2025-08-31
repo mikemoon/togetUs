@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentSearchBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelect
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelectDialog
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import timber.log.Timber
 
@@ -23,7 +23,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     override fun init() {
         super.init()
-        dataBinding.clArea.isSelected = true
     }
 
     override fun initObserver() {
@@ -40,15 +39,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.isAreaSelectState.collectLatest { isArea ->
-                    dataBinding.clArea.isSelected = isArea
-                    dataBinding.clNear.isSelected = !isArea
-                }
-            }
-        }
-
         viewModel.search.observe(viewLifecycleOwner){
 
         }
@@ -58,13 +48,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 SearchViewModel.Event.StartRegion -> {
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomAreaSelect()
+                        BottomAreaSelectDialog()
                     )
                 }
                 SearchViewModel.Event.DestinationRegion -> {
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomAreaSelect()
+                        BottomAreaSelectDialog()
                     )
                 }
                 SearchViewModel.Event.Search -> {

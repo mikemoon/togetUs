@@ -15,10 +15,9 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.DialogBottomAreaBinding
 import sky.kr.co.newtogetusa.utils.dpToPx
-import timber.log.Timber
 
 @AndroidEntryPoint
-class BottomAreaSelect : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSelectViewModel>() {
+class BottomAreaSelectDialog : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSelectViewModel>() {
     override val layoutId: Int
         get() = R.layout.dialog_bottom_area
     override val viewModel: BottomAreaSelectViewModel by viewModels()
@@ -26,18 +25,22 @@ class BottomAreaSelect : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSel
 
     override fun init() {
         super.init()
+
+        viewModel.getDomesticAddressList()
+        viewModel.getDomesticSubAddressList()
+
         areaAdapter =
-            BottomAreaAdapter(viewModel.regions, multiSelect = false) { selectRegion, isDetail ->
+            BottomAreaAdapter(viewModel.domesticAddressList.value, multiSelect = false) { selectRegion, isDetail ->
                 if (isDetail) {
-                    dataBinding.tvRegion2.text = selectRegion[0]
+                    dataBinding.tvRegion2.text = selectRegion[0].name
                 } else {
                     dataBinding.tvDetailDesc.apply {
                         isVisible = true
                         text = if (viewModel.isLocal.value)"시/군/구는 복수로 선택할 수 있어요" else "도시는 복수로 선택할 수 있어요"
                     }
-                    dataBinding.tvRegion1.text = selectRegion[0]
+                    dataBinding.tvRegion1.text = selectRegion[0].name
                     (dataBinding.rvRegions.adapter as BottomAreaAdapter).update(
-                        if (viewModel.isLocal.value) viewModel.detailRegions else viewModel.foreignDetailRegions,
+                        if (viewModel.isLocal.value) viewModel.domesticSubAddressList.value.filter { it.cate == selectRegion[0].code } else viewModel.domesticSubAddressList.value,
                         multiSelect = true,
                         isDetail = true
                     )
@@ -59,13 +62,21 @@ class BottomAreaSelect : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSel
                     dataBinding.tvLocal.isSelected = isLocal
                     dataBinding.tvForeign.isSelected = !isLocal
                     areaAdapter.update(
-                        if (isLocal) viewModel.regions else viewModel.foreignRegions,
+                        if (isLocal) viewModel.domesticSubAddressList.value else viewModel.domesticSubAddressList.value,
                         multiSelect = false,
                         isDetail = false
                     )
                     dataBinding.tvRegion1.text = if (isLocal) "시/도" else "국가"
                     dataBinding.tvRegion2.text = if (isLocal) "시/군/구" else "도시"
                     dataBinding.tvDetailDesc.isVisible = false
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.domesticAddressList.collectLatest {
+                    areaAdapter.setItems(it)
                 }
             }
         }

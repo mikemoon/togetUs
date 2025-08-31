@@ -41,6 +41,7 @@
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
                 android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+                android:visibility="invisible"
                 />
         </LinearLayout>
 

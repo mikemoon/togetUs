@@ -29,10 +29,6 @@ class SearchViewModel @Inject constructor(baseViewModelDependenciesFactory: Base
             }
         }
 
-    val isAreaSelectState = MutableStateFlow(true)
-    fun onAreaClick(isArea:Boolean){
-        isAreaSelectState.value = isArea
-    }
 
     private val _search = SingleLiveEvent<Boolean>()
     val search: LiveData<Boolean> = _search
