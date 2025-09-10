@@ -2,6 +2,7 @@
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View"/>
         <import type="sky.kr.co.newtogetusa.ui.login.LoginViewModel.Event"/>
         <variable
             name="viewModel"
@@ -85,6 +86,7 @@
                 android:text="최근 로그인"
                 android:textColor="@color/primary_100"
                 android:background="@drawable/background_s_primary5_r4"
+                android:visibility="@{viewModel.recentLoginType == 1?View.VISIBLE:View.GONE}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -132,7 +134,7 @@
                 android:text="최근 로그인"
                 android:textColor="@color/primary_100"
                 android:background="@drawable/background_s_primary5_r4"
-                android:visibility="gone"
+                android:visibility="@{viewModel.recentLoginType == 2?View.VISIBLE:View.GONE}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -180,7 +182,7 @@
                 android:text="최근 로그인"
                 android:textColor="@color/primary_100"
                 android:background="@drawable/background_s_primary5_r4"
-                android:visibility="gone"
+                android:visibility="@{viewModel.recentLoginType == 3?View.VISIBLE:View.GONE}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -267,7 +269,7 @@
                 android:text="최근 로그인"
                 android:textColor="@color/primary_100"
                 android:background="@drawable/background_s_primary5_r4"
-                android:visibility="gone"
+                android:visibility="@{viewModel.recentLoginType == 4?View.VISIBLE:View.GONE}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

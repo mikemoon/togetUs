@@ -47,16 +47,15 @@ interface APiService {
         @Body body: HashMap<String, String>
     ): JoinResponse
 
+    @POST("/auths/google")
+    suspend fun loginGoogle(
+        @Body body: HashMap<String, String>
+    ): JoinResponse
 
     @GET("/auths/join/check_dup")
     suspend fun checkNickname(
         @Query("nickname") nickname:String
     ):Boolean
-
-    @POST("/auths/reissue") //토큰재발급
-    suspend fun getAccessToken(
-        @Body body: HashMap<String, String>
-    ): JoinResponse
 
     @GET("/auths/join/terms")
     suspend fun getTerms(

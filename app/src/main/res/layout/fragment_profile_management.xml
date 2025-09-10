@@ -4,6 +4,9 @@
     <data>
         <import type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel.Event"/>
         <variable
+            name="profile"
+            type="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" />
+        <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel" />
     </data>
@@ -51,7 +54,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/profile"
+                app:loadProfile="@{profile.user.profile_image}"
+                app:loadProfileNoCache="@{true}"
                 />
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -60,7 +64,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/ivProfile"
                 app:layout_constraintStart_toEndOf="@id/ivProfile"
                 android:layout_marginStart="16dp"
-                android:text="홍길동"
+                android:text="@{profile.user.nickname}"
                 android:textColor="@color/black_80"
                 style="@style/HeadLine18B"
                 />

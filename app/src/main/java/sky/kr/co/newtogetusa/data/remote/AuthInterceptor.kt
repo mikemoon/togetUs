@@ -6,30 +6,65 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import sky.kr.co.newtogetusa.data.TokenStore
+import sky.kr.co.newtogetusa.data.remote.api.RefreshApi
+import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DataStoreRepository
 import timber.log.Timber
 import javax.inject.Inject
 
-class AuthInterceptor@Inject constructor(private val tokenStore: TokenStore
-) :
-    Interceptor {
+class AuthInterceptor @Inject constructor(
+    private val tokenStore: TokenStore,
+    private val refreshApi: RefreshApi
+) : Interceptor {
+
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
-        val token = tokenStore.get()
+        val path = original.url.encodedPath
+
+        // 1) 인증 헤더 부착 (auth 계열/재발급 호출에는 붙이지 않음)
         val builder = original.newBuilder()
-        Timber.d("interceptor token $token")
-        // 로그인/회원가입/토큰발급 API 등은 제외하고 싶다면 URL로 필터링
-        if (!original.url.encodedPath.contains("/auth")) {
-            token?.let { builder.header("Authorization", "Bearer $it") }
+        val isAuthCall = path.startsWith("/auths")
+        if (!isAuthCall) {
+            tokenStore.getAccessToken()?.let { builder.header("Authorization", "Bearer $it") }
         }
 
-        return chain.proceed(builder.build())
+        var response = chain.proceed(builder.build())
+
+        // 2) 401 → refresh 시도 (재발급/회원/로그인 API 등은 제외)
+        Timber.d("authIntercept ${response.code}")
+        if (response.code == 401 && !isAuthCall) {
+            val refreshed = refreshTokensBlocking()
+            if (refreshed != null) {
+                // 재시도할 거니까 '지금 응답' 닫고 진행
+                response.close()
+
+                tokenStore.setTokens(refreshed.accessToken, refreshed.refreshToken)
+                val retry = original.newBuilder()
+                    .removeHeader("Authorization")
+                    .apply { tokenStore.getAccessToken()?.let { header("Authorization", "Bearer $it") } }
+                    .build()
+                return chain.proceed(retry)
+            } else {
+                // 재시도 안 함: 현재 response를 '닫지 않고' 그대로 반환
+                return response
+            }
+        }
+        return response
     }
 
-    companion object{
-        const val CODE_TOKEN = "TOKEN"
-        const val CODE_AUTH = "AUTH"
+    /** Interceptor는 suspend 불가 → 동기 execute() 사용 */
+    private fun refreshTokensBlocking(): JoinResponse? {
+        val refresh = tokenStore.getRefreshToken() ?: return null
+        return try {
+            val body = hashMapOf("refreshToken" to refresh)
+            val call = refreshApi.reissue(body)
+            val resp = call.execute()
+            if (resp.isSuccessful) resp.body() else null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

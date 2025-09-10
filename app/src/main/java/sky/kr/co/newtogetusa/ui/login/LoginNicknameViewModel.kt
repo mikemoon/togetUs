@@ -58,6 +58,7 @@ class LoginNicknameViewModel @Inject constructor(baseViewModelDependenciesFactor
         when(response){
             is ResultWrapper.Success -> {
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
+                dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 callback.invoke(true)
             }
             else -> {

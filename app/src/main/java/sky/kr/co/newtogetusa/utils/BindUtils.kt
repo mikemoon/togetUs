@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.utils
 import android.annotation.SuppressLint
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.widget.EditText
@@ -12,6 +13,11 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
+import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.ui.main.history.HistoryViewModel
 import timber.log.Timber
 
@@ -25,6 +31,36 @@ object BindingUtils {
         }else{
             Glide.with(imageView.context).load(src).into(imageView)
         }
+    }
+
+    @SuppressLint("CheckResult")
+    @JvmStatic
+    @BindingAdapter(value = ["loadProfile", "loadProfileNoCache"], requireAll = false)
+    fun setProfile(imageView: ImageView, src: String?, noCache: Boolean? = false) {
+        val radiusPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 40f, imageView.resources.displayMetrics
+        ).toInt()
+
+        val options = RequestOptions()
+            .transform(CenterCrop(), RoundedCorners(radiusPx))
+
+        val req = Glide.with(imageView.context)
+            .load(src)
+            .apply(options)
+            .placeholder(R.drawable.profile)
+            .error(R.drawable.profile)
+
+        if (noCache == true) {
+            // 이번 로딩만 캐시 미사용
+            req.skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+        } else {
+            // 변경 시에만 캐시 무효화를 원하면, 버전 키를 signature로
+            // (updatedAt, revision 등 있으면 여기 넣으세요)
+            // req.signature(ObjectKey(yourVersionKey))
+        }
+
+        req.into(imageView)
     }
 
     @JvmStatic

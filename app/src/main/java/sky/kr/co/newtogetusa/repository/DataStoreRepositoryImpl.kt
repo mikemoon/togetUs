@@ -9,10 +9,13 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
+import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import javax.inject.Inject
 
 private const val PREFERENCES_NAME = "togetus"
@@ -20,9 +23,14 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 object DataStoreKey{
     const val KEY_IS_MODE_PLAYER = "is_mode_player"
     const val KEY_TOKEN = "access_token"
+    const val KEY_REFRESH_TOKEN = "refresh_token"
+    const val RECENT_LOGIN_TYPE = "recent_login_type"
+    const val KEY_PROFILE = "profile"
 }
 
 class DataStoreRepositoryImpl  @Inject constructor(private val context: Context): DataStoreRepository {
+
+    private val gson = Gson()
 
     override suspend fun putString(key: String, value: String) {
         val preferencesKey = stringPreferencesKey(key)
@@ -122,4 +130,25 @@ class DataStoreRepositoryImpl  @Inject constructor(private val context: Context)
         context.dataStore.data.map { preference ->
             preference[intPreferencesKey(key)]
         }
+
+    override suspend fun putProfile(key: String, value: ProfileDto) {
+        val json = gson.toJson(value)
+        val preferencesKey = stringPreferencesKey(key)
+        context.dataStore.edit { preferences ->
+            preferences[preferencesKey] = json
+        }
+    }
+
+    override suspend fun getProfile(key: String): ProfileDto? {
+        val preferencesKey = stringPreferencesKey(key)
+        val preferences = context.dataStore.data.first()
+        val json = preferences[preferencesKey] ?: return null
+        return try {
+            val type = object : TypeToken<ProfileDto>() {}.type
+            gson.fromJson<ProfileDto>(json, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }

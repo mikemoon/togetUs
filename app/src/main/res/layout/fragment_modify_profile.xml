@@ -4,6 +4,9 @@
     <data>
         <import type="sky.kr.co.newtogetusa.ui.main.my.ModifyProfileViewModel.Event"/>
         <variable
+            name="profile"
+            type="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" />
+        <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.my.ModifyProfileViewModel" />
     </data>
@@ -41,6 +44,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Save.INSTANCE)}"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <!-- Topbar end-->
@@ -59,7 +63,9 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/profile"
+                app:loadProfile="@{profile.user.profile_image}"
+                app:loadProfileNoCache="@{true}"
+                android:onClick="@{()-> viewModel.onEventClick(Event.ProfileImage.INSTANCE)}"
                 />
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="20dp"
@@ -80,6 +86,7 @@
             android:orientation="vertical">
             
             <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etName"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:padding="16dp"
@@ -87,7 +94,7 @@
                 android:singleLine="true"
                 style="@style/Paragraph14R"
                 android:textColor="@color/black_80"
-                android:text="홍길동"
+                android:text="@{profile.user.nickname}"
                 android:background="@drawable/background_st_b10_s_w_r4"
                 />
 

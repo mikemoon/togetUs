@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.di
 
+import com.kakao.sdk.auth.AuthApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +16,9 @@ import sky.kr.co.newtogetusa.data.remote.api.APiService
 import sky.kr.co.newtogetusa.data.remote.api.AddressSearchService
 import sky.kr.co.newtogetusa.data.remote.api.ConfigService
 import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
+import sky.kr.co.newtogetusa.data.remote.api.PlayerService
+import sky.kr.co.newtogetusa.data.remote.api.RefreshApi
+import sky.kr.co.newtogetusa.data.remote.api.UserService
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -41,6 +45,14 @@ class NetworkModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class ConfigApi
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class UserApi
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class PlayerApi
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
@@ -75,6 +87,14 @@ class NetworkModule {
 
     @Qualifier @Retention(AnnotationRetention.BINARY)
     annotation class KakaoNaviRetrofit
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class RefreshOkHttpClient
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class RefreshRetrofit
 
     @AddressApiServer
     @Provides
@@ -130,8 +150,8 @@ class NetworkModule {
             else HttpLoggingInterceptor.Level.NONE
         }
         val okHttpClientBuilder = OkHttpClient.Builder()
-            .addInterceptor(logger)
             .addInterceptor(authInterceptor)
+            .addInterceptor(logger)
         return  okHttpClientBuilder.build()
     }
 
@@ -166,4 +186,49 @@ class NetworkModule {
     fun provideConfigService(@ApiServer retrofit: Retrofit): ConfigService {
         return retrofit.create(ConfigService::class.java)
     }
+
+    @UserApi
+    @Singleton
+    @Provides
+    fun provideUserService(@ApiServer retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
+    }
+
+    @PlayerApi
+    @Singleton
+    @Provides
+    fun providePlayerService(@ApiServer retrofit: Retrofit): PlayerService {
+        return retrofit.create(PlayerService::class.java)
+    }
+
+    @Provides @Singleton
+    @RefreshOkHttpClient
+    fun provideRefreshOkHttpClient(): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            else HttpLoggingInterceptor.Level.NONE
+        }
+        return OkHttpClient.Builder()
+            .addInterceptor(logging)           // ✅ 리프레시 호출 로그가 여기서 찍힙니다
+            // 절대 AuthInterceptor 추가 금지!
+            .build()
+    }
+
+    @Provides @Singleton
+    @RefreshRetrofit
+    fun provideRefreshRetrofit(
+        @ApiServer baseUrl: String,
+        @RefreshOkHttpClient client: OkHttpClient
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)                  // "http://togetus.p-e.kr/"  (옵션 A 기준)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides @Singleton
+    fun provideRefreshApi(
+        @RefreshRetrofit retrofit: Retrofit
+    ): RefreshApi = retrofit.create(RefreshApi::class.java)
 }

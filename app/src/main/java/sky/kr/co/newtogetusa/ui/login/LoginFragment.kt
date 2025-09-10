@@ -18,7 +18,9 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -45,10 +47,26 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
         get() = R.layout.fragment_login
     override val viewModel: LoginViewModel by activityViewModels()
 
+    override fun init(){
+
+    }
+
     override fun initObserver() {
         super.initObserver()
 
         Timber.d(Utility.getKeyHash(requireContext()))
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.recentLoginType.collect{ loginType ->
+                    if(loginType != -1 && viewModel.refreshToken.value.isNotEmpty()){
+                        viewModel.refreshToken(viewModel.refreshToken.value){ result ->
+                            if(result) requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                        }
+                    }
+                }
+            }
+        }
 
         viewModel.event.observe(this){
             when(it){
@@ -60,7 +78,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                                 Timber.d("kakaoTalkLogin Error : ${error}")
                             }else if(token != null){
                                 Timber.d("kakaoTalkLogin Success : ${token.accessToken}")
-                                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                                handleKakaoToken(token.accessToken)
                             }
                         }
                     }else{
@@ -69,21 +87,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                                 Timber.d("kakaoAccountLogin Error : ${error}")
                             }else if(token != null){
                                 Timber.d("kakaoAccountLogin Success : ${token.accessToken}")
-                                viewModel.loginKakao(token.accessToken){ resultCode, errorData ->
-                                    when(resultCode){
-                                        200 ->{
-                                            requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                                            requireActivity().finish()
-                                        }
-                                        404 ->{
-                                            findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
-                                                userId = errorData?.user_id?:0,
-                                                verifyCode = errorData?.verify_code?:""
-                                            ))
-                                        }
-                                    }
-                                }
-                                //findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                                handleKakaoToken(token.accessToken)
                             }
                         }
                     }
@@ -129,12 +133,10 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                     })
                 }
                 is LoginViewModel.Event.GoogleLogin -> {
-                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                    return@observe
                     Timber.d("=== Google Login Debug ===")
-                    launchGoogleLogin(requireContext())
+                    //launchGoogleLogin(requireContext())
                     // Google Play Services 상태 확인
-                    /*val googleApiAvailability = GoogleApiAvailability.getInstance()
+                    val googleApiAvailability = GoogleApiAvailability.getInstance()
                     val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(requireContext())
 
                     if (resultCode != ConnectionResult.SUCCESS) {
@@ -178,10 +180,27 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                             Timber.e("Login failed: ${e.type} - ${e.localizedMessage}")
                             showDetailedError(e)
                         }
-                    }*/
+                    }
                 }
                 is LoginViewModel.Event.EmailLogin -> {
                     findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginEmailFragment())
+                }
+            }
+        }
+    }
+
+    fun handleKakaoToken(token:String){
+        viewModel.loginKakao(token){ resultCode, errorData ->
+            when(resultCode){
+                200 ->{
+                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                    requireActivity().finish()
+                }
+                404 ->{
+                    findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
+                        userId = errorData?.user_id?:0,
+                        verifyCode = errorData?.verify_code?:""
+                    ))
                 }
             }
         }
@@ -214,11 +233,24 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential
                             .createFrom(credential.data)
+                        Timber.d("data.type : ${googleIdTokenCredential.idToken}")
                         Timber.d("data.type : ${googleIdTokenCredential.id}")
                         Timber.d("data.type : ${googleIdTokenCredential.displayName}")
                         Timber.d("data.type : ${googleIdTokenCredential.profilePictureUri.toString()}")
-
-                        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment())
+                        viewModel.loginGoogle(googleIdTokenCredential.idToken){ resultCode, errorData ->
+                            when(resultCode){
+                                200 ->{
+                                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                                    requireActivity().finish()
+                                }
+                                404 ->{
+                                    findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
+                                        userId = errorData?.user_id?:0,
+                                        verifyCode = errorData?.verify_code?:""
+                                    ))
+                                }
+                            }
+                        }
                     } catch (e: GoogleIdTokenParsingException) {
 
                     }
@@ -268,14 +300,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                 "&redirect_uri=$redirectUri" +
                 "&response_type=$responseType" +
                 "&scope=$scope"
-    }
-
-
-    fun launchGoogleLogin(context: Context) {
-        val url = "http://togetus.p-e.kr/auths/oauth2/authorize/google"//buildGoogleLoginUrl()
-        val builder = CustomTabsIntent.Builder()
-        val customTabsIntent = builder.build()
-        customTabsIntent.launchUrl(context, Uri.parse(url))
     }
 
 }

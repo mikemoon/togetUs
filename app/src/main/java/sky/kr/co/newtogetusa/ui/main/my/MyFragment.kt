@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -23,6 +24,10 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
 
     override fun init() {
         super.init()
+
+        viewModel.getMyProfile(){
+            dataBinding.profile = it
+        }
     }
 
     override fun initObserver() {
@@ -42,7 +47,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                     findNavController().navigate(R.id.action_myFragment_to_mySettingFragment)
                 }
                 MyViewModel.Event.ProfileManage ->{
-                    findNavController().navigate(R.id.action_myFragment_to_profileManagementFragment)
+                    findNavController().navigate(MyFragmentDirections.actionMyFragmentToProfileManagementFragment(viewModel.profileDto.value))
                 }
                 MyViewModel.Event.Notice ->{
                     findNavController().navigate(R.id.action_myFragment_to_noticeFragment)
@@ -58,6 +63,9 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
                 MyViewModel.Event.JoinPlayer ->{
                     findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+                }
+                MyViewModel.Event.Term ->{
+                    findNavController().navigate(MyFragmentDirections.actionMyFragmentToTermFragment())
                 }
                 MyViewModel.Event.UseHistory ->{
 

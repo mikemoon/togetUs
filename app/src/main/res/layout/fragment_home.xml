@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="동네에서 해외까지, 전국민 물품 배송중개"
+                    android:text="동네에서 해외까지,\n전 국민의 시간과 장소를 연결합니다."
                     android:textColor="@color/black_80"
                     app:layout_constraintTop_toTopOf="parent" />
 

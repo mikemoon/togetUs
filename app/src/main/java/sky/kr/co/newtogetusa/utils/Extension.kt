@@ -6,9 +6,13 @@ import android.app.DownloadManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.util.Base64
+import android.util.TypedValue
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -18,10 +22,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
+import sky.kr.co.newtogetusa.R
+import java.io.ByteArrayOutputStream
 
 fun Context.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
@@ -77,6 +86,36 @@ fun Context.downloadUrlWithDownloadManager(url: String, fileName: String) {
 }
 
 @SuppressLint("CheckResult")
+fun ImageView.loadProfile(src: String?, radiusDp: Float = 40f, cacheKey: Any? = null,          // ex) user.updatedAt, user.revision 등
+                          noCache: Boolean = false        // 강제 캐시 미사용 옵션
+     ) {
+    val radiusPx = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, radiusDp, resources.displayMetrics
+    ).toInt()
+
+    val reqOpts = RequestOptions()
+        .transform(CenterCrop(), RoundedCorners(radiusPx))
+
+    val req = Glide.with(context)
+        .load(src)
+        .apply(reqOpts)
+        .placeholder(R.drawable.profile)
+        .error(R.drawable.profile)
+
+    if (noCache) {
+        // 정말 캐시를 완전히 끄고 싶을 때만 사용
+        req.skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+    } else if (cacheKey != null) {
+        // 캐시 버전 키 적용 (값이 바뀔 때만 새로 받아옴)
+        req.signature(ObjectKey(cacheKey))
+    }
+
+    req.into(this)
+}
+
+
+@SuppressLint("CheckResult")
 fun ImageView.loadImage(
     url: String?,
     @DrawableRes placeholder: Int? = null,
@@ -105,4 +144,21 @@ fun ImageView.loadImage(
             }
         }
         .into(this)
+}
+
+fun bitmapToBase64(bitmap: Bitmap): String {
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+    val byteArray = byteArrayOutputStream.toByteArray()
+    return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+}
+
+fun base64ToBitmap(base64Str: String): Bitmap? {
+    return try {
+        val decodedBytes = Base64.decode(base64Str, Base64.DEFAULT)
+        BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+    } catch (e: IllegalArgumentException) {
+        e.printStackTrace()
+        null
+    }
 }

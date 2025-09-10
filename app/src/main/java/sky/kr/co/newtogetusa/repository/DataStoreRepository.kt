@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.repository
 
 import kotlinx.coroutines.flow.Flow
+import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 
 interface DataStoreRepository {
     suspend fun putString(key: String, value: String)
@@ -17,4 +18,7 @@ interface DataStoreRepository {
     suspend fun getBooleanFlow(key:String): Flow<Boolean?>
     suspend fun getIntFlow(key: String): Flow<Int?>
     suspend fun getStringArray(key :String) : ArrayList<String>?
+
+    suspend fun putProfile(key: String, value: ProfileDto)
+    suspend fun getProfile(key: String): ProfileDto?
 }
