@@ -2,9 +2,13 @@ package sky.kr.co.newtogetusa.ui.main.delivery
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -36,8 +41,11 @@ import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryMapBinding
@@ -46,7 +54,9 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.utils.MapUtil.drawRouteOnKakaoMap
 import timber.log.Timber
 import java.lang.Exception
+import java.util.Locale
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 @AndroidEntryPoint
 class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMapViewModel>()  {
@@ -82,24 +92,56 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     @Inject lateinit var directionsRepo: DirectionsRepository
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
 
+    private val args: DeliveryMapFragmentArgs by navArgs()
+
     override fun onCreateView(savedInstanceState: Bundle?) {
         super.onCreateView(savedInstanceState)
+        viewModel.isInternationalDelivery.value = args.isInternational
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if(viewModel.isInternationalDelivery.value){
+            dataBinding.googleMap.onCreate(savedInstanceState)
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun init() {
         super.init()
         checkLocationPermission()
-        /*val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        if(viewModel.isInternationalDelivery.value){
+            setupGoogleMap()
+        }else{
+            setupKakaoMap()
+        }
+    }
+
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private fun setupGoogleMap(){
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
                     lastKnownLocation = location
                     maybeInitMapWithLocation()
                 }
-            }*/
+            }
 
+        //google map
+        dataBinding.googleMap.getMapAsync { map ->
+            googleMap = map
+            googleMap?.uiSettings?.isZoomControlsEnabled = true
+
+            map.setOnMapClickListener { latLng ->
+                onMapTapped(latLng)
+            }
+            maybeInitMapWithLocation()
+        }
+    }
+
+    private fun setupKakaoMap(){
         dataBinding.map.setOnTouchListener { _, ev ->
             when (ev.actionMasked) {
                 android.view.MotionEvent.ACTION_DOWN -> {
@@ -141,13 +183,6 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 applyPendingIfAny()
             }
         })
-
-        //google map
-        /*dataBinding.map.getMapAsync { map ->
-            googleMap = map
-            googleMap?.uiSettings?.isZoomControlsEnabled = true
-            maybeInitMapWithLocation()
-        }*/
     }
 
     private fun maybeInitMapWithLocation() {
@@ -155,6 +190,9 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             val latLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
             googleMap?.addMarker(MarkerOptions().position(latLng).title("내 위치"))
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+        }
+        if (lastKnownLocation == null) {//서울
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(37.5665, 126.9780), 12f))
         }
     }
 
@@ -166,6 +204,50 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             }
         }else{
             showStartLocation()
+        }
+    }
+
+    private fun onMapTapped(latLng: LatLng) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val addr = reverseGeocode(requireContext(), latLng.latitude, latLng.longitude)
+            val title = addr?.let { it.getAddressLine(0) ?: "${it.adminArea ?: ""} ${it.locality ?: ""}".trim() }
+                ?: "${latLng.latitude}, ${latLng.longitude}"
+
+            // 마커 갱신
+            googleMap?.clear()
+            googleMap?.addMarker(MarkerOptions().position(latLng).title(title))
+            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+
+            //if(viewModel.address.value.isNullOrEmpty())
+            //viewModel.setStartAddress(title)
+            // 뷰모델/UI 반영 (예: 도착지 주소에 세팅)
+
+            viewModel.setDestinationAddress(title)
+            // 필요하면 좌표도 보관
+            // viewModel.setDestinationLatLng(latLng.latitude, latLng.longitude)
+        }
+    }
+
+    suspend fun reverseGeocode(context: Context, lat: Double, lng: Double): Address? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ 비동기 API
+            suspendCancellableCoroutine { cont ->
+                val geocoder = Geocoder(context, Locale.getDefault())
+                geocoder.getFromLocation(lat, lng, 1) { list ->
+                    cont.resume(list?.firstOrNull())
+                }
+            }
+        } else {
+            // 구버전 동기 API는 IO 스레드에서
+            withContext(Dispatchers.IO) {
+                try {
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    @Suppress("DEPRECATION")
+                    geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+                } catch (e: Exception) {
+                    null
+                }
+            }
         }
     }
 
@@ -187,34 +269,51 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
     override fun onStart() {
         super.onStart()
+        if(viewModel.isInternationalDelivery.value){
+          dataBinding.googleMap.onStart()
+        }
         //dataBinding.map.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        dataBinding.map.resume()
+        if(viewModel.isInternationalDelivery.value){
+            dataBinding.googleMap.onResume()
+        }else {
+            dataBinding.map.resume()
+        }
         //showStartLocation()
     }
 
     override fun onPause() {
         super.onPause()
-        dataBinding.map.pause()
+        if(viewModel.isInternationalDelivery.value){
+            dataBinding.googleMap.onPause()
+        }else {
+            dataBinding.map.pause()
+        }
         isMapReady = false
     }
 
     override fun onStop() {
         super.onStop()
-        //dataBinding.map.onStop()
+        if(viewModel.isInternationalDelivery.value){
+            dataBinding.googleMap.onStop()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        //dataBinding.map.onDestroy()
+        if(viewModel.isInternationalDelivery.value){
+            dataBinding.googleMap.onDestroy()
+        }
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        //dataBinding.map.onLowMemory()
+        if(viewModel.isInternationalDelivery.value){
+            dataBinding.googleMap.onLowMemory()
+        }
     }
 
     private fun showStartLocation(){

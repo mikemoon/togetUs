@@ -23,6 +23,8 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
                                                private val kakaoRepo: KakaoLocalRepository
     ):BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
+        val isInternationalDelivery = MutableStateFlow(false)
+
     private val _route = MutableLiveData<List<LatLng>>()
     val route: LiveData<List<LatLng>> = _route
 

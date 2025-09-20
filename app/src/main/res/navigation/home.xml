@@ -42,6 +42,7 @@
         android:id="@+id/deliveryMapFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryMapFragment"
         android:label="DeliveryMapFragment" >
+        <argument app:argType="boolean" android:name="isInternational" android:defaultValue="false"/>
         <action
             android:id="@+id/action_deliveryMapFragment_to_deliveryStartFragment2"
             app:destination="@id/deliveryStartFragment2" />
@@ -74,6 +75,8 @@
     <fragment
         android:id="@+id/deliveryAddressMapFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryAddressMapFragment"
-        android:label="DeliveryAddressMapFragment" />
+        android:label="DeliveryAddressMapFragment" >
+        <argument android:name="isStart" app:argType="boolean" android:defaultValue="true" />
+    </fragment>
 
 </navigation>

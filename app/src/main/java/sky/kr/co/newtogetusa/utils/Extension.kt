@@ -114,6 +114,33 @@ fun ImageView.loadProfile(src: String?, radiusDp: Float = 40f, cacheKey: Any? = 
     req.into(this)
 }
 
+@SuppressLint("CheckResult")
+fun ImageView.loadProfile(
+    src: Bitmap,
+    radiusDp: Float = 40f,
+    noCache: Boolean = false
+) {
+    val radiusPx = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, radiusDp, resources.displayMetrics
+    ).toInt()
+
+    val reqOpts = RequestOptions()
+        .transform(CenterCrop(), RoundedCorners(radiusPx))
+
+    val req = Glide.with(context)
+        .load(src)
+        .apply(reqOpts)
+        .placeholder(R.drawable.profile)
+        .error(R.drawable.profile)
+
+    if (noCache) {
+        req.skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+    }
+
+    req.into(this)
+}
+
 
 @SuppressLint("CheckResult")
 fun ImageView.loadImage(
@@ -158,6 +185,29 @@ fun base64ToBitmap(base64Str: String): Bitmap? {
         val decodedBytes = Base64.decode(base64Str, Base64.DEFAULT)
         BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
     } catch (e: IllegalArgumentException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun resizeImageUri(context: Context, uri: Uri, maxSize: Int = 1024): Bitmap? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream.close()
+
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val scale = maxSize.toFloat() / maxOf(width, height)
+
+        if (scale >= 1f) {
+            originalBitmap // 이미 작은 경우 원본 그대로
+        } else {
+            val newWidth = (width * scale).toInt()
+            val newHeight = (height * scale).toInt()
+            Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
+        }
+    } catch (e: Exception) {
         e.printStackTrace()
         null
     }

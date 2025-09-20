@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -32,6 +33,8 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
     override val layoutId: Int
         get() = R.layout.fragment_delivery_address_map
     override val viewModel: DeliveryAddressMapViewModel by viewModels()
+
+    private val args: DeliveryAddressMapFragmentArgs by navArgs()
 
     private var isMapReady = false
     private var kakaoMap : KakaoMap? = null
@@ -99,6 +102,7 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
                 is DeliveryAddressMapViewModel.Event.SetAddress ->{
                     viewModel.selectedAddress.value?.let {
                         val bundle = Bundle().apply {
+                            putBoolean("isStart", args.isStart)
                             putParcelable("selectedKakaoLocValue", it)
                         }
                         // 결과 전달

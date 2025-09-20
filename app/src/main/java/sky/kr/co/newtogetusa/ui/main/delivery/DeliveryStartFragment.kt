@@ -102,6 +102,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
             Timber.d("kakaoLocSelected1, $result, ")
             result.let {
                 val bundle = Bundle().apply {
+                    putBoolean("isStart", viewModel.isStart)
                     putParcelable("selectedKakaoLocValue", it)
                 }
                 // 결과 전달
@@ -115,6 +116,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
                 is DeliveryStartViewModel.Event.Back -> {
                     viewModel.selectedAddress.value?.let {
                         val bundle = Bundle().apply {
+                            putBoolean("isStart", viewModel.isStart)
                             putParcelable("selectedKakaoLocValue", it)
                         }
                         // 결과 전달
@@ -124,7 +126,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
                     findNavController().popBackStack()
                 }
                 is DeliveryStartViewModel.Event.FindAddressFromMap ->{
-                    findNavController().navigate(R.id.action_deliveryStartFragment2_to_deliveryAddressMapFragment)
+                    findNavController().navigate(DeliveryStartFragmentDirections.actionDeliveryStartFragment2ToDeliveryAddressMapFragment(isStart = viewModel.isStart))
                 }
             }
         }

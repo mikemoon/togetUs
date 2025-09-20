@@ -23,6 +23,7 @@ import sky.kr.co.newtogetusa.utils.bitmapToBase64
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.loadProfile
+import sky.kr.co.newtogetusa.utils.resizeImageUri
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 
@@ -66,7 +67,10 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
                     // 여기서 이미지 URI 사용
                     viewModel.isProfileImageChanged.value = true
                     Timber.d("ImageSelect 선택된 이미지 URI: $it, ${viewModel.isProfileImageChanged.value}")
-                    dataBinding.ivProfile.loadProfile(it.toString())
+                    val resizedBitmap = resizeImageUri(requireContext(), it)
+                    resizedBitmap?.let {  bitmap ->
+                        dataBinding.ivProfile.loadProfile(bitmap)
+                    }
                 }
             }
         }

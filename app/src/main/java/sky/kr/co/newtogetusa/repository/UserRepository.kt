@@ -15,11 +15,31 @@ class UserRepository @Inject constructor(
         apiService.getMyProfile()
     }
 
+    suspend fun getProfile(userId: Int) = safeApiCall(Dispatchers.IO){
+        apiService.getProfile(userId)
+    }
+
     suspend fun putProfileNickname(userId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.putProfileNickname(userId, request)
     }
 
     suspend fun putProfileImage(userId: Int, request: ProfileImageRequest) = safeApiCall(Dispatchers.IO){
         apiService.putProfileImage(userId, request)
+    }
+
+    suspend fun postReportUser(userId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
+        apiService.postReportUser(userId, request)
+    }
+
+    suspend fun postBlockUser(userId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
+        apiService.postBlockUser(userId, request)
+    }
+
+    suspend fun getReviews(userId: Int) = safeApiCall(Dispatchers.IO){
+        apiService.getReviews(userId)
+    }
+
+    suspend fun postReview(userId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
+        apiService.postReview(userId, request)
     }
 }

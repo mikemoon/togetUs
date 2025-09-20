@@ -9,9 +9,11 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RawRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
+import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
@@ -144,6 +146,13 @@ object BindingUtils {
             drawable,     // end
             drawables[3]  // bottom
         )
+    }
+
+    @JvmStatic
+    @BindingAdapter("lottieByPlayerMode")
+    fun LottieAnimationView.setLottieByPlayerMode(isPlayerMode: Boolean?) {
+        val resId = if (isPlayerMode == true) R.raw.mode_user else R.raw.mode_player
+        setAnimation(resId); playAnimation()
     }
 
     

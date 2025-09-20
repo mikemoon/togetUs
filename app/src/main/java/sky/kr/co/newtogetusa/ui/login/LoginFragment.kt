@@ -38,6 +38,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 
@@ -76,6 +77,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                         kakaoUserApiClient.loginWithKakaoTalk(requireContext()){ token, error ->
                             if(error != null){
                                 Timber.d("kakaoTalkLogin Error : ${error}")
+                                MessageDialog.newInstance(msgTitle = "로그인 실패", msg = "${error.message}", rightBtn = "확인").show(childFragmentManager, "")
                             }else if(token != null){
                                 Timber.d("kakaoTalkLogin Success : ${token.accessToken}")
                                 handleKakaoToken(token.accessToken)
@@ -85,6 +87,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                         kakaoUserApiClient.loginWithKakaoAccount(requireContext()){ token, error ->
                             if(error != null){
                                 Timber.d("kakaoAccountLogin Error : ${error}")
+                                MessageDialog.newInstance(msgTitle = "로그인 실패", msg = "${error.message}", rightBtn = "확인").show(childFragmentManager, "")
                             }else if(token != null){
                                 Timber.d("kakaoAccountLogin Success : ${token.accessToken}")
                                 handleKakaoToken(token.accessToken)
@@ -98,12 +101,14 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                         override fun onError(errorCode: Int, message: String) {
                             val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                             val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                            Toast.makeText(requireContext(),"errorCode:$errorCode, errorDesc:$errorDescription",
-                                Toast.LENGTH_SHORT).show()
+                            /*Toast.makeText(requireContext(),"errorCode:$errorCode, errorDesc:$errorDescription",
+                                Toast.LENGTH_SHORT).show()*/
+                            MessageDialog.newInstance(msgTitle = "로그인 실패", msg = "${errorDescription}:$errorCode", rightBtn = "확인").show(childFragmentManager, "")
                         }
 
                         override fun onFailure(httpStatus: Int, message: String) {
                             Timber.e("errorCode:$httpStatus, errorDesc:$message")
+                            MessageDialog.newInstance(msgTitle = "로그인 실패", msg = "${message}:$httpStatus", rightBtn = "확인").show(childFragmentManager, "")
                         }
 
                         override fun onSuccess() {
@@ -289,6 +294,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
             .setPositiveButton("확인", null)
             .show()
     }
+
     private fun buildGoogleLoginUrl(): String {
         val clientId = "714408641644-vl4r3v545qifrc7i82e2mdq9aah93jb5.apps.googleusercontent.com"
         val redirectUri = "http://togetus.p-e.kr/auths/oauth2/authorize/google"
