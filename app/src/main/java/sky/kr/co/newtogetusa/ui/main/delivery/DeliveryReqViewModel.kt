@@ -17,6 +17,11 @@ class DeliveryReqViewModel @Inject constructor(baseViewModelDependenciesFactory:
 
     val isInternationalDelivery = MutableStateFlow(false)
     val isAgreeAbroadDelivery = MutableStateFlow(false) //해외배송안내 동의
+
+    val chargeShowButtonEnable = MutableStateFlow(false)
+    fun updateChargeEnable(enable: Boolean) {
+        chargeShowButtonEnable.value = enable
+    }
     fun onAbroadDeliveryClick(callback:(isAgree:Boolean) -> Unit) = viewModelScope.launch {
         Timber.d("isAgreeAbroadDelivery : ${isAgreeAbroadDelivery.value}")
         if(!isAgreeAbroadDelivery.value) {

@@ -34,5 +34,12 @@
         <action
             android:id="@+id/action_deliveryRequestSearchFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_deliveryRequestSearchFragment_to_deliveryAreaRequirementSetFragment"
+            app:destination="@id/deliveryAreaRequirementSetFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/deliveryAreaRequirementSetFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryAreaRequirementSetFragment"
+        android:label="DeliveryAreaRequirementSetFragment" />
 </navigation>

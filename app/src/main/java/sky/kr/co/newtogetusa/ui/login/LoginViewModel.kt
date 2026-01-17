@@ -30,6 +30,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
 
     var recentLoginType = MutableStateFlow(-1)
     var refreshToken = MutableStateFlow("")
+    var isFirstRun = MutableStateFlow(true)
 
     init {
         viewModelScope.launch {
@@ -41,7 +42,15 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
                 tokenStore.setRefreshToken(it)
             }
             recentLoginType.value = dataStoreRepository.getInt(DataStoreKey.RECENT_LOGIN_TYPE)?:-1
+
+            dataStoreRepository.getBoolean(DataStoreKey.KEY_IS_FIRST_RUN)?.let {
+                isFirstRun.value = it
+            }
         }
+    }
+
+    fun setFirstRun() = viewModelScope.launch {
+        dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_FIRST_RUN, false)
     }
 
 

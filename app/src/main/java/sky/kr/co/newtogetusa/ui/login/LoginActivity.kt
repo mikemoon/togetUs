@@ -21,6 +21,8 @@ import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.NidOAuthLogin
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.ActivityLoginBinding
@@ -52,7 +54,23 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fcv) as NavHostFragment
         val navController = navHostFragment.navController
-        navController.setGraph(R.navigation.login)
+        val navGraph = navController.navInflater.inflate(R.navigation.login)
+        //navController.setGraph(R.navigation.login)
+        lifecycleScope.launch {
+            // isFirstRun 값의 로드가 완료될 때까지 기다립니다. (예: DataStore에서 읽어오는 경우)
+            val isFirstRun = viewModel.isFirstRun.filterNotNull().first()
+            if (isFirstRun != null) { // null이 아닌 초기값이 설정되었을 때 한 번만 실행
+                if (isFirstRun) {
+                    viewModel.setFirstRun()
+                    // 앱 최초 실행 시: LoginPermission 프래그먼트에서 시작
+                    navGraph.setStartDestination(R.id.loginPermission)
+                } else {
+                    // 최초 실행이 아닐 시: LoginFragment에서 시작
+                    navGraph.setStartDestination(R.id.loginFragment)
+                }
+                navController.graph = navGraph
+            }
+        }
     }
 
 

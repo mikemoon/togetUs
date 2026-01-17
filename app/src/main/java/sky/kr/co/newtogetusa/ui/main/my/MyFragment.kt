@@ -47,7 +47,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                     findNavController().navigate(R.id.action_myFragment_to_mySettingFragment)
                 }
                 MyViewModel.Event.ProfileManage ->{
-                    findNavController().navigate(MyFragmentDirections.actionMyFragmentToProfileManagementFragment(viewModel.profileDto.value))
+                    findNavController().navigate(MyFragmentDirections.actionMyFragmentToProfileManagementFragment(viewModel.profileDto.value, isPlayer = viewModel.isPlayerModeFlow.value))
                 }
                 MyViewModel.Event.Notice ->{
                     findNavController().navigate(R.id.action_myFragment_to_noticeFragment)
@@ -63,6 +63,9 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
                 MyViewModel.Event.JoinPlayer ->{
                     findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+                }
+                MyViewModel.Event.AccompanyCredit ->{
+
                 }
                 MyViewModel.Event.Term ->{
                     findNavController().navigate(MyFragmentDirections.actionMyFragmentToTermFragment())

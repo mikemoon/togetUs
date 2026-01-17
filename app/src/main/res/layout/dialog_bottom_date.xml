@@ -41,7 +41,7 @@
             android:textColor="@color/white"
             android:text="확인"
             android:layout_marginHorizontal="20dp"
-            android:background="@drawable/background_s_b80_r4"
+            android:background="@drawable/background_s_p100_r4"
             style="@style/HeadLine20B"
             android:gravity="center"
             />

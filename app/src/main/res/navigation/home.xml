@@ -29,6 +29,9 @@
         <action
             android:id="@+id/action_deliveryReqFragment_to_deliveryMapFragment"
             app:destination="@id/deliveryMapFragment" />
+        <action
+            android:id="@+id/action_deliveryReqFragment_to_deliveryFeeFragment"
+            app:destination="@id/deliveryFeeFragment" />
     </fragment>
     <fragment
         android:id="@+id/deliveryProductFragment"
@@ -46,15 +49,27 @@
         <action
             android:id="@+id/action_deliveryMapFragment_to_deliveryStartFragment2"
             app:destination="@id/deliveryStartFragment2" />
+        <action
+            android:id="@+id/action_deliveryMapFragment_to_deliverySearchFragment"
+            app:destination="@id/deliverySearchFragment" />
     </fragment>
     <fragment
         android:id="@+id/deliveryStartFragment2"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartFragment"
         android:label="DeliveryStartFragment">
         <argument android:name="isStart" app:argType="boolean" android:defaultValue="true" />
+        <argument app:argType="boolean" android:name="isInternational" android:defaultValue="false"/>
+        <argument
+            android:name="selectedKakaoLocValue"
+            app:argType="sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel"
+            android:defaultValue="@null"
+            app:nullable="true" />
         <action
             android:id="@+id/action_deliveryStartFragment2_to_deliveryAddressMapFragment"
             app:destination="@id/deliveryAddressMapFragment" />
+        <action
+            android:id="@+id/action_deliveryStartFragment2_to_deliverySearchFragment"
+            app:destination="@id/deliverySearchFragment" />
     </fragment>
     <fragment
         android:id="@+id/playerJoinFragment"
@@ -77,6 +92,21 @@
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryAddressMapFragment"
         android:label="DeliveryAddressMapFragment" >
         <argument android:name="isStart" app:argType="boolean" android:defaultValue="true" />
+        <argument android:name="isInternational" app:argType="boolean" android:defaultValue="false"/>
     </fragment>
+    <fragment
+        android:id="@+id/deliverySearchFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliverySearchFragment"
+        android:label="DeliverySearchFragment" >
+        <argument android:name="isStart" app:argType="boolean" android:defaultValue="true" />
+        <argument android:name="isInternational" app:argType="boolean" android:defaultValue="false"/>
+        <action
+            android:id="@+id/action_deliverySearchFragment_to_deliveryStartFragment2"
+            app:destination="@id/deliveryStartFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/deliveryFeeFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeFragment"
+        android:label="DeliveryFeeFragment" />
 
 </navigation>

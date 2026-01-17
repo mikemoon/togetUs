@@ -67,12 +67,36 @@
         <item name="android:textSize">18dp</item>
         <item name="android:fontFamily">@font/pretendard_bold</item>
     </style>
+    <style name="Paragraph18R" parent="TextViewStyle">
+        <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+    </style>
+    <style name="Paragraph18B" parent="TextViewStyle">
+        <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+    </style>
+    <style name="Paragraph17R" parent="TextViewStyle">
+        <item name="android:textSize">17dp</item>
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+    </style>
+    <style name="Paragraph17B" parent="TextViewStyle">
+        <item name="android:textSize">17dp</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+    </style>
     <style name="Paragraph16R" parent="TextViewStyle">
         <item name="android:textSize">16dp</item>
         <item name="android:fontFamily">@font/pretendard_regular</item>
     </style>
     <style name="Paragraph16B" parent="TextViewStyle">
         <item name="android:textSize">16dp</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+    </style>
+    <style name="Paragraph15R" parent="TextViewStyle">
+        <item name="android:textSize">15dp</item>
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+    </style>
+    <style name="Paragraph15B" parent="TextViewStyle">
+        <item name="android:textSize">15dp</item>
         <item name="android:fontFamily">@font/pretendard_bold</item>
     </style>
     <style name="Paragraph14R" parent="TextViewStyle">
@@ -89,6 +113,14 @@
     </style>
     <style name="Paragraph12B" parent="TextViewStyle">
         <item name="android:textSize">12dp</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+    </style>
+    <style name="Description13R" parent="TextViewStyle">
+        <item name="android:textSize">13dp</item>
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+    </style>
+    <style name="Description13B" parent="TextViewStyle">
+        <item name="android:textSize">13dp</item>
         <item name="android:fontFamily">@font/pretendard_bold</item>
     </style>
     <style name="Description10R" parent="TextViewStyle">

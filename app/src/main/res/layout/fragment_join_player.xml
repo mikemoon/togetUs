@@ -68,14 +68,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@{viewModel.step >= 1? @drawable/background_s_b80_r4 : @drawable/background_s_b10_r4}" />
+                android:background="@{viewModel.step >= 1? @drawable/background_s_p100_r4 : @drawable/background_s_b10_r4}" />
 
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:background="@{viewModel.step >= 2? @drawable/background_s_b80_r4 : @drawable/background_s_b10_r4}"
+                android:background="@{viewModel.step >= 2? @drawable/background_s_p100_r4 : @drawable/background_s_b10_r4}"
                 />
 
             <View
@@ -83,7 +83,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:background="@{viewModel.step >= 3? @drawable/background_s_b80_r4 : @drawable/background_s_b10_r4}"
+                android:background="@{viewModel.step >= 3? @drawable/background_s_p100_r4 : @drawable/background_s_b10_r4}"
                 />
 
             <View
@@ -91,7 +91,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:background="@{viewModel.step >= 4? @drawable/background_s_b80_r4 : @drawable/background_s_b10_r4}"
+                android:background="@{viewModel.step >= 4? @drawable/background_s_p100_r4 : @drawable/background_s_b10_r4}"
                 />
         </LinearLayout>
 

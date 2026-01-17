@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginHorizontal="20dp"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTopAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+            android:text="전체"
+            android:textColor="@color/selector_b40_white"
+            android:textSize="12dp"
+            android:textStyle="bold"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="16dp"
+            android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuAll)}"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTopDoing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+            android:text="거래진행"
+            android:textColor="@color/selector_b40_white"
+            android:textSize="12dp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="16dp"
+            android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuDoing)}"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTopEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+            android:text="거래종료"
+            android:textColor="@color/selector_b40_white"
+            android:textSize="12dp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="16dp"
+            android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuEnd)}"
+            />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

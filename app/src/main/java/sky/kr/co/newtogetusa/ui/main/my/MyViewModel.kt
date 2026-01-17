@@ -83,5 +83,6 @@ class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseView
         object FAQ : Event()
         object Term : Event()
         object JoinPlayer : Event()
+        object AccompanyCredit : Event()
     }
 }

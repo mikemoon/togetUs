@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <import type="android.view.View"/>
@@ -9,7 +10,7 @@
             type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryMapViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -49,51 +50,48 @@
                 android:text="어디로 보낼까요?"
                 />
 
+            <!-- 경유지1 start-->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/background_st_b10_s_w_r4"
-                android:onClick="@{()->viewModel.onEventClick(Event.SelectStart.INSTANCE)}"
-                >
+                android:onClick="@{()->viewModel.onEventClick(Event.SelectStart.INSTANCE)}">
+
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginStart="16dp"
                     android:text="출발지"
                     android:textColor="@color/black_80"
                     android:textSize="14dp"
                     android:textStyle="bold"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="4dp"
+                    android:text="@{viewModel.address}"
+                    android:textColor="@color/black_40"
+                    android:textSize="14dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/ivStartMore"
-                    android:layout_marginEnd="4dp"
-                    android:textSize="14dp"
-                    android:textColor="@color/black_40"
-                    android:text="@{viewModel.address}"
-                    />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/ivStartMore"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/right_gray"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 경유지1 start-->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
@@ -228,15 +226,18 @@
             </LinearLayout>
             
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvConfirm"
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginTop="40dp"
-                android:background="@drawable/selector_b20_b80_r4"
+                android:background="@drawable/selector_p40_p100_r4"
+                android:enabled="@{viewModel.confirmButtonEnable}"
                 android:textColor="@color/selector_wopa40_wopa100"
                 android:text="확인"
                 android:textSize="20dp"
                 android:textStyle="bold"
                 android:gravity="center"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Confirm.INSTANCE)}"
                 />
 
         </LinearLayout>

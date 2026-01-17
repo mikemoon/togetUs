@@ -100,7 +100,7 @@ class DirectionsRepository @Inject constructor(
 
         // roads[].vertexes = [x1,y1,x2,y2,...] -> Kakao LatLng 리스트로 변환 (Lat,Lng 순으로 넣기)
         val points = mutableListOf<com.kakao.vectormap.LatLng>()
-        route.sections.forEach { section ->
+        route?.sections?.forEach { section ->
             section.roads.forEach { road ->
                 val v = road.vertexes
                 var i = 0
@@ -112,6 +112,6 @@ class DirectionsRepository @Inject constructor(
                 }
             }
         }
-        return points to route.summary
+        return points to route?.summary
     }
 }

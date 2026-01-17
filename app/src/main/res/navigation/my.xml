@@ -38,6 +38,7 @@
         android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementFragment"
         android:label="ProfileManagementFragment" >
         <argument android:name="profileDto" app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" app:nullable="true"/>
+        <argument android:name="isPlayer" app:argType="boolean" android:defaultValue="false"/>
         <action
             android:id="@+id/action_profileManagementFragment_to_modifyProfileFragment"
             app:destination="@id/modifyProfileFragment" />

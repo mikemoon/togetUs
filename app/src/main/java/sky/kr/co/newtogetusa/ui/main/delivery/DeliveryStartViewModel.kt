@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.TogetUs
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
@@ -26,6 +28,7 @@ import sky.kr.co.newtogetusa.repository.AddressSearchRepository
 import sky.kr.co.newtogetusa.repository.KakaoLocalRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliverySearchViewModel.Event
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.ln
@@ -35,8 +38,15 @@ class DeliveryStartViewModel @Inject constructor(baseViewModelDependenciesFactor
     private val addressSearchRepository: AddressSearchRepository,
     private val kakaoLocalRepository: KakaoLocalRepository) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
-        var isStart = true
+        var isStart = MutableStateFlow(true)
+    val isInternationalDelivery = MutableStateFlow(false)
+
     private val _mode = MutableStateFlow(SearchMode.KEYWORD)
+
+    val name = MutableStateFlow("")
+    val phone = MutableStateFlow("")
+    val addressDetail = MutableStateFlow("")
+    val selectedAddress = MutableStateFlow<KakaoSearchModel?>(null)
 
     val searchAddress = MutableStateFlow("")
     fun searchAddress() = viewModelScope.launch {
@@ -65,8 +75,16 @@ class DeliveryStartViewModel @Inject constructor(baseViewModelDependenciesFactor
     fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         Timber.d("onTextChanged $s")
         searchAddress.value = s.toString()
-        setQuery(s.toString())
+        //setQuery(s.toString())
         //searchAddress()
+    }
+
+    fun onSearchClick() {
+        val keyword = searchAddress.value.trim()
+        if (keyword.isEmpty()) return
+
+        // 기존 onTextChanged 에서 하던 동작 이동
+        setQuery(keyword)
     }
 
     // 위치 기반 키워드 검색 옵션
@@ -94,21 +112,16 @@ class DeliveryStartViewModel @Inject constructor(baseViewModelDependenciesFactor
             }.cachedIn(viewModelScope)
 
 
-    private val _selectedAddress = SingleLiveEvent<KakaoSearchModel>()
-    val selectedAddress: LiveData<KakaoSearchModel> = _selectedAddress
-    fun onKakaoAddressClick(name : String,
-                            lat : Double?,
-                            lng : Double?,
-                            source : String?,
-                            subtitle : String?,
-                            roadAddress : String?) {
-        _selectedAddress.value = KakaoSearchModel(name = name, lat = lat, lng =  lng,
-            source = source, subtitle = subtitle, roadAddress = roadAddress)
+    fun setSelectedAddress(model: KakaoSearchModel) {
+        selectedAddress.value = model
     }
 
-    fun setSelectedAddress(kakaoSearchModel: KakaoSearchModel) {
-        _selectedAddress.value = kakaoSearchModel
-    }
+    // 완료 버튼 활성화 여부
+    val completeButtonEnable: StateFlow<Boolean> =
+        combine(name, phone, addressDetail, selectedAddress) { n, p, a, s ->
+            if(isStart.value)n.isNotBlank() && p.isNotBlank() && a.isNotBlank() && s != null else a.isNotBlank() && s != null
+        }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
@@ -119,6 +132,7 @@ class DeliveryStartViewModel @Inject constructor(baseViewModelDependenciesFactor
     sealed class Event {
         object Back : Event()
         object FindAddressFromMap : Event()
+        object InputComplete: Event()
     }
 
     enum class SearchMode { ADDRESS, KEYWORD }

@@ -56,13 +56,14 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/llTimePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
             <View
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@color/black_5"
+                android:background="@color/primary_5"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginHorizontal="30dp"
@@ -78,10 +79,11 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvConfirm"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_margin="20dp"
-            android:background="@drawable/background_s_b80_r4"
+            android:background="@drawable/background_s_p100_r4"
             android:text="선택 완료"
             android:textSize="20dp"
             android:textStyle="bold"

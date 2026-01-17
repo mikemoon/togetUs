@@ -4,8 +4,13 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryReqBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
@@ -18,6 +23,8 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
     override val layoutId: Int
         get() = R.layout.fragment_delivery_req
     override val viewModel: DeliveryReqViewModel by viewModels()
+
+    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
 
     override fun init() {
         super.init()
@@ -59,13 +66,29 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
     override fun initObserver() {
         super.initObserver()
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                sharedViewModel.state.collect { state ->
+
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sharedViewModel.isFeeConfirmReady.collect { ready ->
+                    viewModel.updateChargeEnable(ready)
+                }
+            }
+        }
+
         viewModel.event.observe(viewLifecycleOwner){event ->
             when(event){
                 DeliveryReqViewModel.Event.Back ->{
                     findNavController().popBackStack()
                 }
                 DeliveryReqViewModel.Event.Charge ->{
-
+                    findNavController().navigate(DeliveryReqFragmentDirections.actionDeliveryReqFragmentToDeliveryFeeFragment())
                 }
                 DeliveryReqViewModel.Event.StartLocation ->{
                     findNavController().navigate(DeliveryReqFragmentDirections.actionDeliveryReqFragmentToDeliveryMapFragment(isInternational = viewModel.isInternationalDelivery.value))

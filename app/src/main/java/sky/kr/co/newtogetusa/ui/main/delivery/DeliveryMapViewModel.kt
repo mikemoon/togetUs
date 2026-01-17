@@ -6,7 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.dto.DirectionsResponse
@@ -65,9 +69,14 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
         }
     }
 
+    val name = MutableStateFlow("")
+    val phone = MutableStateFlow("")
+
     //카카오 주소 얻기
     private val _destinationAddress = MutableStateFlow<String?>("도착지 선택")
     val destinationAddress: StateFlow<String?> = _destinationAddress
+
+    val destinationDetailAddress = MutableStateFlow("")
 
     fun setDestinationAddress(address: String) {
         _destinationAddress.value = address
@@ -76,8 +85,15 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
     private val _address = MutableStateFlow<String?>("출발지 선택")
     val address: StateFlow<String?> = _address
 
+    val addressDetail = MutableStateFlow("")
+
     fun setStartAddress(address: String) {
         _address.value = address
+    }
+
+    val confirmButtonEnable = MutableStateFlow(false)
+    fun updateConfirmButtonEnable(enable: Boolean) {
+        confirmButtonEnable.value = enable
     }
 
     fun fetchAddress(lat: Double, lng: Double) {
@@ -98,5 +114,7 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
         object Back : Event()
         object SelectStart : Event()
         object SelectDestination : Event()
+
+        object Confirm : Event()
     }
 }

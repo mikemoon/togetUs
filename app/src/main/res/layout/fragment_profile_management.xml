@@ -2,14 +2,18 @@
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel.Event"/>
+
+        <import type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel.Event" />
+
         <variable
             name="profile"
             type="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" />
+
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel" />
     </data>
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,78 +24,223 @@
             android:id="@+id/clTop"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/left_l"
                 android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
-                />
+                android:src="@drawable/left_l" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="프로필 관리"
+                android:text="프로필"
                 android:textColor="@color/black_80"
                 android:textSize="16dp"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:layout_marginEnd="20dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/heart_line"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/ivMore"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivMore"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/more_vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
         <!-- Topbar end-->
 
+        <LinearLayout
+            android:id="@+id/llTopProfile"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/profile" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine18B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="홍길동"
+                android:textColor="@color/black_80" />
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/shape_b10_r4" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/star_fill_priamry" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="4.3 (10)"
+                android:textColor="@color/primary_100" />
+
+        </LinearLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp">
+            android:layout_height="wrap_content"
+            android:background="@color/black_80"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
 
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="‘배송 확정' 상태에서의 취소 이력"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0건"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tabGravity="fill"
+                app:tabIndicator="@drawable/tab_indicator"
+                app:tabIndicatorColor="@color/black_80"
+                app:tabIndicatorFullWidth="false"
+                app:tabIndicatorHeight="2dp"
+                app:tabRippleColor="@null"
+                app:tabTextAppearance="@style/tab_text"
+                app:tabSelectedTextColor="@color/black_80"
+                app:tabTextColor="@color/selector_b40_b80"
+                app:tabIndicatorAnimationDuration="0"
+                app:tabMode="fixed">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="소개"
+                    style="@style/Paragraph16B"
+                    />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Paragraph16B"
+                    android:text="받은 후기" />
+            </com.google.android.material.tabs.TabLayout>
+
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                app:layout_constraintBottom_toBottomOf="@id/tabLayout"
+                android:background="@color/black_20"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--<androidx.constraintlayout.widget.ConstraintLayout
+            android:33
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/ivProfile"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginStart="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="20dp"
+                app:layout_constraintTop_toTopOf="parent"
                 app:loadProfile="@{profile.user.profile_image}"
-                app:loadProfileNoCache="@{true}"
-                />
+                app:loadProfileNoCache="@{true}" />
+
             <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine18B"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/ivProfile"
-                app:layout_constraintBottom_toBottomOf="@id/ivProfile"
-                app:layout_constraintStart_toEndOf="@id/ivProfile"
                 android:layout_marginStart="16dp"
                 android:text="@{profile.user.nickname}"
                 android:textColor="@color/black_80"
-                style="@style/HeadLine18B"
-                />
+                app:layout_constraintBottom_toBottomOf="@id/ivProfile"
+                app:layout_constraintStart_toEndOf="@id/ivProfile"
+                app:layout_constraintTop_toTopOf="@id/ivProfile" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph12B"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/background_s_b80_r4"
+                android:gravity="center"
+                android:onClick="@{()-> viewModel.onEventClick(Event.ModifyProfile.INSTANCE)}"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
                 android:text="수정"
                 android:textColor="@color/white"
-                android:gravity="center"
-                style="@style/Paragraph12B"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/background_s_b80_r4"
-                android:onClick="@{()-> viewModel.onEventClick(Event.ModifyProfile.INSTANCE)}"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-        <View
+        <!--<View
             android:layout_width="match_parent"
             android:layout_height="4dp"
-            android:background="@color/black_2"
-            />
+            android:background="@color/black_2" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -100,95 +249,90 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvAccountInfo"
+                style="@style/Paragraph16B"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginStart="20dp"
                 android:text="계정 정보"
                 android:textColor="@color/black_80"
-                style="@style/Paragraph16B"
-                />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvSns"
+                style="@style/Paragraph14R"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tvAccountInfo"
-                app:layout_constraintStart_toStartOf="@id/tvAccountInfo"
                 android:layout_marginTop="10dp"
                 android:text="SNS 로그인"
                 android:textColor="@color/black_80"
-                style="@style/Paragraph14R"
-                />
+                app:layout_constraintStart_toStartOf="@id/tvAccountInfo"
+                app:layout_constraintTop_toBottomOf="@id/tvAccountInfo" />
 
             <LinearLayout
                 android:id="@+id/llAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toTopOf="@id/tvSns"
-                app:layout_constraintBottom_toBottomOf="@id/tvSns"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="20dp"
                 android:gravity="center_vertical"
-                >
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="@id/tvSns"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvSns">
+
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_kakao"
-                    />
+                    android:src="@drawable/ic_kakao" />
+
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph14R"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
                     android:text="abc@email.com"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph14R"
-                    />
+                    android:textColor="@color/black_80" />
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/llAddress"
                 android:layout_marginTop="8dp"
-                >
+                app:layout_constraintTop_toBottomOf="@id/llAddress">
+
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph14R"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="@id/tvReSetting"
-                    app:layout_constraintBottom_toBottomOf="@id/tvReSetting"
-                    app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginStart="20dp"
                     android:text="비밀번호"
                     android:textColor="@color/black_80"
-                    style="@style/Paragraph14R"
-                    />
+                    app:layout_constraintBottom_toBottomOf="@id/tvReSetting"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tvReSetting" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvReSetting"
+                    style="@style/Paragraph12B"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginEnd="20dp"
+                    android:background="@drawable/background_s_b5_r4"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.PasswordSet.INSTANCE)}"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
                     android:text="재설정"
                     android:textColor="@color/black_80"
-                    style="@style/Paragraph12B"
-                    android:background="@drawable/background_s_b5_r4"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="12dp"
-                    android:onClick="@{()-> viewModel.onEventClick(Event.PasswordSet.INSTANCE)}"
-                    />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/black_5"
-            />
+            android:background="@color/black_5" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -197,53 +341,49 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvPhoneInfo"
+                style="@style/Paragraph16B"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 android:text="휴대폰 번호"
                 android:textColor="@color/black_80"
-                style="@style/Paragraph16B"
-                />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvPhone"
+                style="@style/Paragraph14R"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tvPhoneInfo"
-                app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="10dp"
                 android:text="010-1234-1234"
                 android:textColor="@color/black_80"
-                style="@style/Paragraph14R"
-                />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPhoneInfo" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvRecent"
+                style="@style/Paragraph12R"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tvPhone"
-                app:layout_constraintStart_toStartOf="parent"
-                style="@style/Paragraph12R"
-                android:textColor="@color/black_40"
-                android:text="※ 최근 인증: 2025.08.11"
                 android:layout_marginTop="4dp"
-                />
+                android:text="※ 최근 인증: 2025.08.11"
+                android:textColor="@color/black_40"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPhone" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvRecertain"
+                style="@style/Paragraph12B"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/tvPhone"
-                app:layout_constraintBottom_toBottomOf="@id/tvRecent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:text="재인증"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph12B"
                 android:background="@drawable/background_s_b5_r4"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:text="재인증"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="@id/tvRecent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvPhone" />
+        </androidx.constraintlayout.widget.ConstraintLayout>-->
     </LinearLayout>
 </layout>

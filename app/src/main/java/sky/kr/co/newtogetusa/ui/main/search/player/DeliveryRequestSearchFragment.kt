@@ -58,7 +58,7 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomFilterDialog().apply {
-                            filterList = listOf("가까운 거리순", "최신 등록순")
+                            filterList = listOf("마감 임박순", "최신 등록순")
                         }
                     )
                 }
@@ -69,6 +69,9 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                         BottomDeliveryFilterDialog().apply {
                         }
                     )
+                }
+                DeliveryRequestSearchViewModel.Event.AreaRequirement ->{
+                    findNavController().navigate(DeliveryRequestSearchFragmentDirections.actionDeliveryRequestSearchFragmentToDeliveryAreaRequirementSetFragment())
                 }
             }
         }

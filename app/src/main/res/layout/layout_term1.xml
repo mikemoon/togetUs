@@ -294,7 +294,7 @@
                 android:textColor="@color/selector_wopa40_wopa100"
                 android:text="약관 동의하기"
                 android:enabled="@{viewModel.allAgree}"
-                android:background="@drawable/selector_b20_b80_r4"
+                android:background="@drawable/selector_b20_p100_r4"
                 android:onClick="@{()-> viewModel.onNextClick(1)}"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>

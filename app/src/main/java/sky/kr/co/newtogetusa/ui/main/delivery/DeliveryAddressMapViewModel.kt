@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.local.model.GoogleMapSearchModel
 import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.repository.DirectionsRepository
 import sky.kr.co.newtogetusa.repository.KakaoLocalRepository
@@ -20,6 +21,10 @@ class DeliveryAddressMapViewModel @Inject constructor(baseViewModelDependenciesF
                                                       private val kakaoRepo: KakaoLocalRepository
 ) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
+    val isInternationalDelivery = MutableStateFlow(false)
+
+    val uiSelectedAddressName = MutableStateFlow("")
+
     private val _selectedAddress = MutableStateFlow<KakaoSearchModel?>(null)
     val selectedAddress: StateFlow<KakaoSearchModel?> = _selectedAddress
 
@@ -27,10 +32,14 @@ class DeliveryAddressMapViewModel @Inject constructor(baseViewModelDependenciesF
         // ⚠️ Kakao Local은 x=lng, y=lat
         runCatching { kakaoRepo.getAddressFromCoord(lng = lng, lat = lat) }
             .onSuccess { res ->
+                uiSelectedAddressName.value = res?.name.orEmpty()
                 _selectedAddress.value = res
             }
             .onFailure { _selectedAddress.value = null }
     }
+
+    val selectedAddressByGoogleMap = MutableStateFlow<GoogleMapSearchModel?>(null)
+
 
     private val _address = MutableStateFlow<String?>("출발지 선택")
     val address: StateFlow<String?> = _address

@@ -82,10 +82,11 @@
 
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSelectedComplete"
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:layout_margin="20dp"
-            android:background="@drawable/background_s_b80_r4"
+            android:background="@drawable/background_s_p100_r4"
             android:text="선택 완료"
             android:textSize="20dp"
             android:textStyle="bold"

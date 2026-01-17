@@ -24,6 +24,10 @@ class LoginNicknameViewModel @Inject constructor(baseViewModelDependenciesFactor
     val userId = MutableStateFlow(0)
     val verifyCode = MutableStateFlow("")
 
+    private val nicknameRegex = Regex("^[가-힣A-Za-z0-9]{2,10}$")
+
+    fun isNicknameValid(s: String): Boolean = nicknameRegex.matches(s)
+
     private val _nickname = MutableLiveData<String>("")
     val nickname: LiveData<String> = _nickname
     fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {

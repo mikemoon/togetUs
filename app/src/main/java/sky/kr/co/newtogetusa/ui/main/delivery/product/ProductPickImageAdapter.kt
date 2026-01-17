@@ -9,8 +9,13 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryProductViewModel
 
-class ProductPickImageAdapter(private val context: Context, private val onRemoveClick:(Uri, Int) -> Unit):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ProductPickImageAdapter(
+    private val context: Context,
+    private val viewModel: DeliveryProductViewModel,
+    private val onRemoveClick: (Uri, Int) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         const val VIEW_TYPE_GALLERY = 0
@@ -93,12 +98,15 @@ class ProductPickImageAdapter(private val context: Context, private val onRemove
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_GALLERY ->{
-                val view = LayoutInflater.from(context).inflate(R.layout.item_product_photo, parent, false)
+            VIEW_TYPE_GALLERY -> {
+                val view =
+                    LayoutInflater.from(context).inflate(R.layout.item_product_photo, parent, false)
                 GalleryViewHolder(view)
             }
-            else ->{
-                val view = LayoutInflater.from(context).inflate(R.layout.item_product_pick_img, parent, false)
+
+            else -> {
+                val view = LayoutInflater.from(context)
+                    .inflate(R.layout.item_product_pick_img, parent, false)
                 ImageViewHolder(view)
             }
         }
@@ -110,6 +118,7 @@ class ProductPickImageAdapter(private val context: Context, private val onRemove
             VIEW_TYPE_GALLERY -> {
                 (holder as GalleryViewHolder).bind()
             }
+
             VIEW_TYPE_IMAGE -> {
                 // 실제 이미지 데이터 인덱스는 position - 1
                 val item = imageList[position - 1]
@@ -140,7 +149,7 @@ class ProductPickImageAdapter(private val context: Context, private val onRemove
         private val imageView: ImageView = itemView.findViewById(R.id.ivImg)
         private val closeView: ImageView = itemView.findViewById(R.id.ivClose)
 
-        fun bind(item: Uri, position:Int) {
+        fun bind(item: Uri, position: Int) {
 
             // Glide로 이미지 로딩
             Glide.with(itemView.context)
@@ -150,6 +159,8 @@ class ProductPickImageAdapter(private val context: Context, private val onRemove
             closeView.setOnClickListener {
                 val pos = bindingAdapterPosition
                 if (pos != RecyclerView.NO_POSITION) {
+                    val path = imageList[pos - 1].path ?: return@setOnClickListener
+                    viewModel.removeAttachImage(path = path)
                     onRemoveClick(item, pos)
                 }
             }

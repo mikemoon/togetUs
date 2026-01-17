@@ -70,5 +70,13 @@
         <argument android:name="email" app:argType="string" />
         <argument android:name="verifyCode" app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/loginPermission"
+        android:name="sky.kr.co.newtogetusa.ui.login.LoginPermission"
+        android:label="LoginPermission" >
+        <action
+            android:id="@+id/action_loginPermission_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
 
 </navigation>

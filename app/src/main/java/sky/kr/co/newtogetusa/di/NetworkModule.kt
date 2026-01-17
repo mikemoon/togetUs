@@ -14,7 +14,9 @@ import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.AuthInterceptor
 import sky.kr.co.newtogetusa.data.remote.api.APiService
 import sky.kr.co.newtogetusa.data.remote.api.AddressSearchService
+import sky.kr.co.newtogetusa.data.remote.api.AdminApiService
 import sky.kr.co.newtogetusa.data.remote.api.ConfigService
+import sky.kr.co.newtogetusa.data.remote.api.DeliveryService
 import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
 import sky.kr.co.newtogetusa.data.remote.api.PlayerService
 import sky.kr.co.newtogetusa.data.remote.api.RefreshApi
@@ -37,6 +39,10 @@ class NetworkModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class ChatTopic
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class AdminApi
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
@@ -68,6 +74,10 @@ class NetworkModule {
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
+    annotation class DeliveryApi
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
     annotation class KakaoLocalOkHttp
 
     @Qualifier @Retention(AnnotationRetention.BINARY)
@@ -96,6 +106,22 @@ class NetworkModule {
     @Retention(AnnotationRetention.BINARY)
     annotation class RefreshRetrofit
 
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class DeliveryApiUrl
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class DeliveryOkHttp
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class DeliveryRetrofit
+
+    @DeliveryApiUrl
+    @Provides
+    fun provideDeliveryApiUrl() = "http://www.togetus.net/"
+
     @AddressApiServer
     @Provides
     fun provideAddressApiUrl()= "https://dapi.kakao.com/"
@@ -111,6 +137,22 @@ class NetworkModule {
         val okHttpClientBuilder = OkHttpClient.Builder()
             .addInterceptor(logger)
         return okHttpClientBuilder.build()
+    }
+
+    @DeliveryOkHttp
+    @Singleton
+    @Provides
+    fun provideDeliveryOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        val logger = HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            else HttpLoggingInterceptor.Level.NONE
+        }
+
+        return OkHttpClient.Builder()
+            .addInterceptor(logger)
+            // 필요한 경우 Delivery 전용 AuthInterceptor 추가 가능
+            .addInterceptor(authInterceptor)
+            .build()
     }
 
     @AddressApiServer
@@ -131,6 +173,20 @@ class NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(DirectionsApiService::class.java)
+    }
+
+    @DeliveryRetrofit
+    @Singleton
+    @Provides
+    fun provideDeliveryRetrofit(
+        @DeliveryApiUrl url: String,
+        @DeliveryOkHttp client: OkHttpClient
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(url)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 
     @ApiServer
@@ -166,6 +222,12 @@ class NetworkModule {
             .build()
     }
 
+    @AdminApi
+    @Provides
+    fun provideAdminApiService(@AdminApi retrofit: Retrofit): AdminApiService{
+        return retrofit.create(AdminApiService::class.java)
+    }
+
     @ApiServer
     @Singleton
     @Provides
@@ -199,6 +261,13 @@ class NetworkModule {
     @Provides
     fun providePlayerService(@ApiServer retrofit: Retrofit): PlayerService {
         return retrofit.create(PlayerService::class.java)
+    }
+
+    @DeliveryApi
+    @Singleton
+    @Provides
+    fun provideDeliveryService(@DeliveryRetrofit retrofit: Retrofit): DeliveryService{
+        return retrofit.create(DeliveryService::class.java)
     }
 
     @Provides @Singleton

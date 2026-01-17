@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.utils
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -13,6 +14,8 @@ import android.os.Build
 import android.os.Environment
 import android.util.Base64
 import android.util.TypedValue
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -42,6 +45,18 @@ fun DialogFragment.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
 
 fun dialogFragmentShow(fm: FragmentManager, fragment: Fragment) {
     fm.beginTransaction().add(fragment, "").commitAllowingStateLoss()
+}
+
+fun Context.showKeyboard(view: View) {
+    val inputMethodManager =
+        getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+}
+
+fun Context.hideKeyboard(view: View) {
+    val inputMethodManager =
+        getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
 }
 
 fun Int.dpToPx(): Int {

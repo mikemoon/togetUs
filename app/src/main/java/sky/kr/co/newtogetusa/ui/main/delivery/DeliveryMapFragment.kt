@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -57,12 +58,15 @@ import java.lang.Exception
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.coroutines.resume
+import kotlin.getValue
 
 @AndroidEntryPoint
 class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMapViewModel>()  {
     override val layoutId: Int
         get() = R.layout.fragment_delivery_map
     override val viewModel: DeliveryMapViewModel by viewModels()
+
+    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private var googleMap: GoogleMap? = null
@@ -263,7 +267,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 locationUpdatedCallback.invoke()
             }
         }.addOnFailureListener { e ->
-            Timber.e("KakaoMap", "getCurrentLocation failed", e)
+            Timber.e("KakaoMap getCurrentLocation failed $e")
         }
     }
 
@@ -355,35 +359,54 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             }
         }
 
-        parentFragmentManager.setFragmentResultListener("fromB", viewLifecycleOwner) { requestKey, bundle ->
-            val isStartLoc = bundle.getBoolean("isStart")
-            val result = bundle.getParcelable<KakaoSearchModel>("selectedKakaoLocValue") ?: return@setFragmentResultListener
-
-            val loc = Location("kakao").apply {
-                latitude = result.lat ?: return@setFragmentResultListener
-                longitude = result.lng ?: return@setFragmentResultListener
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                sharedViewModel.isMapConfirmReady.collectLatest { isReady ->
+                    viewModel.updateConfirmButtonEnable(isReady)
+                }
             }
-            Timber.d("kakaoLocSelected $isStartLoc, $result, $isMapReady")
+        }
 
-            val addressName = if(result.roadAddress.isNullOrEmpty()) result.name else result.roadAddress
-            if (isStartLoc) {
-                lastKnownLocation = loc // 상태 갱신
-                viewModel.setStartAddress(addressName)
-                if (isMapReady) applyStartLocation(loc) else queuedStart = loc
-            } else {
-                lastKnownDestLocation = loc
-                viewModel.setDestinationAddress(addressName)
-                if (isMapReady) applyDestLocation(loc, result.name) else queuedDest = loc
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                sharedViewModel.state.collectLatest { state ->
+                    state.startLat?.let { loc ->
+                        val loc = Location("kakao").apply {
+                            latitude = state.startLat
+                            longitude = state.startLng!!
+                        }
+                        lastKnownLocation = loc
+                        viewModel.setStartAddress(state.startAddress.orEmpty())
+                        viewModel.addressDetail.value = state.startDetail.orEmpty()
+
+                        if (isMapReady) applyStartLocation(loc)
+                        else queuedStart = loc
+                    }
+
+                    // ✅ 도착지 처리
+                    state.destLat?.let { loc ->
+                        val loc = Location("kakao").apply {
+                            latitude = state.destLat
+                            longitude = state.destLng!!
+                        }
+                        lastKnownDestLocation = loc
+                        viewModel.setDestinationAddress(state.destinationAddress.orEmpty())
+                        viewModel.destinationDetailAddress.value = state.destinationDetail.orEmpty()
+
+                        if (isMapReady) applyDestLocation(loc)
+                        else queuedDest = loc
+                    }
+
+                    // ✅ 경로 처리
+                    val start = lastKnownLocation
+                    val end = lastKnownDestLocation
+                    if (start != null && end != null) {
+                        if (isMapReady) drawRouteFromTo(start, end)
+                        else queuedRoute = start to end
+                    }
+
+                }
             }
-
-            // 경로는 시작/도착이 모두 있을 때 큐 or 즉시
-            val start = lastKnownLocation
-            val end = lastKnownDestLocation
-            if (start != null && end != null) {
-                if (isMapReady) drawRouteFromTo(start, end)
-                else queuedRoute = start to loc
-            }
-
         }
 
         viewModel.route.observe(viewLifecycleOwner){
@@ -397,13 +420,24 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                     findNavController().popBackStack()
                 }
                 DeliveryMapViewModel.Event.SelectStart -> {
-                    findNavController().navigate(DeliveryMapFragmentDirections.actionDeliveryMapFragmentToDeliveryStartFragment2(isStart = true))
+                    findNavController().navigate(DeliveryMapFragmentDirections.actionDeliveryMapFragmentToDeliveryStartFragment2(isStart = true, isInternational = viewModel.isInternationalDelivery.value))
                 }
                 DeliveryMapViewModel.Event.SelectDestination ->{
-                    findNavController().navigate(DeliveryMapFragmentDirections.actionDeliveryMapFragmentToDeliveryStartFragment2(isStart = false))
+                    findNavController().navigate(DeliveryMapFragmentDirections.actionDeliveryMapFragmentToDeliveryStartFragment2(isStart = false, isInternational = viewModel.isInternationalDelivery.value))
+                    //findNavController().navigate(DeliveryMapFragmentDirections.actionDeliveryMapFragmentToDeliverySearchFragment(isStart = false, isInternational = viewModel.isInternationalDelivery.value))
+                }
+                DeliveryMapViewModel.Event.Confirm ->{
+                    setFragmentResult()
+                    findNavController().popBackStack()
                 }
             }
         }
+    }
+
+    private fun setFragmentResult(){
+        sharedViewModel.updateDistance(
+            distance = calcDistanceKm(lastKnownLocation, lastKnownDestLocation).toString()
+        )
     }
 
     private fun applyPendingIfAny() {
@@ -669,6 +703,21 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             val target = preferredZoomFor(it).coerceIn(minZoom, maxZoom)
             map.moveCamera(com.kakao.vectormap.camera.CameraUpdateFactory.zoomTo(target.toInt()))
         }
+    }
+
+    fun calcDistanceKm(
+        start: Location?,
+        end: Location?
+    ): Double {
+        if (start == null || end == null) return 0.0
+
+        val result = FloatArray(1)
+        Location.distanceBetween(
+            start.latitude, start.longitude,
+            end.latitude, end.longitude,
+            result
+        )
+        return result[0] / 1000.0 // meter → km
     }
 
     private fun dp(px: Int) = (px * resources.displayMetrics.density + 0.5f).toInt()

@@ -83,7 +83,7 @@
                 android:textColor="@color/white"
                 android:gravity="center"
                 style="@style/HeadLine20B"
-                android:background="@drawable/background_s_b80_r4"
+                android:background="@drawable/background_s_p100_r4"
                 />
         </LinearLayout>
     </LinearLayout>

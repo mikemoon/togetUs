@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.login
 
+import android.text.InputFilter
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginNicknameBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.AllowedNicknameFilter
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 
@@ -27,24 +29,38 @@ class LoginNicknameFragment : BaseFragment<FragmentLoginNicknameBinding, LoginNi
         super.init()
         viewModel.userId.value = args.userId
         viewModel.verifyCode.value = args.verifyCode
+        /*dataBinding.etNickname.filters = arrayOf(
+            AllowedNicknameFilter(),
+            InputFilter.LengthFilter(10)
+        )*/
     }
 
     override fun initObserver() {
         super.initObserver()
 
-        viewModel.nickname.observe(viewLifecycleOwner){
-            if(it.length == 1){
-                dataBinding.tvDesc.apply {
-                    text = "닉네임을 2자 이상 입력해주세요."
-                    setTextColor(ContextCompat.getColor(context, R.color.red_100))
-                }
-            }else{
-                dataBinding.tvDesc.apply {
-                    text = "닉네임은 한글, 영문, 숫자만 가능해요. (10자 이하)"
-                    setTextColor(ContextCompat.getColor(context, R.color.black_40))
+        viewModel.nickname.observe(viewLifecycleOwner){ textStr ->
+            val s = textStr ?: ""
+            val validLength = s.length >= 2
+            val validChars = s.all { it.isLetterOrDigit() || (it in '가'..'힣') }
+            val isValid = validLength && viewModel.isNicknameValid(s)
+
+            dataBinding.tvDesc.apply {
+                when {
+                    !validLength -> {
+                        text = "닉네임을 2자 이상 입력해주세요."
+                        setTextColor(ContextCompat.getColor(context, R.color.red_100))
+                    }
+                    !validChars -> {
+                        text = "닉네임은 한글, 영문, 숫자만 가능해요. (10자 이하)"
+                        setTextColor(ContextCompat.getColor(context, R.color.black_40))
+                    }
+                    else -> {
+                        text = ""
+                        setTextColor(ContextCompat.getColor(context, R.color.black_40))
+                    }
                 }
             }
-            dataBinding.tvConfirm.isEnabled = it.length >= 2
+            dataBinding.tvConfirm.isEnabled = isValid
         }
 
         viewModel.checkingNickname.observe(viewLifecycleOwner){ checking ->

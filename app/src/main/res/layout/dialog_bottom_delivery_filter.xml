@@ -301,7 +301,7 @@
                 style="@style/HeadLine20B"
                 android:onClick="@{()-> viewModel.onEventClick(Event.Confirm.INSTANCE)}"
                 android:gravity="center"
-                android:background="@drawable/background_s_b80_r4"
+                android:background="@drawable/background_s_p100_r4"
                 />
         </LinearLayout>
 

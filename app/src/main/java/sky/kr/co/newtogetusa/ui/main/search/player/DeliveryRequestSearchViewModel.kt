@@ -36,5 +36,6 @@ class DeliveryRequestSearchViewModel @Inject constructor(baseViewModelDependenci
     sealed class Event {
         object Sort : Event()
         object Filter : Event()
+        object AreaRequirement: Event()
     }
 }

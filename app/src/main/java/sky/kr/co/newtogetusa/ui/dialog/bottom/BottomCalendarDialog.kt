@@ -92,7 +92,8 @@ class BottomCalendarDialog :
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
                     background =
-                        if (isToday) context.getDrawable(R.drawable.background_s_p100_r20) else null
+                        if(isSelectedDay) context.getDrawable(R.drawable.background_s_b80_r20)
+                        else if (isToday) context.getDrawable(R.drawable.background_s_p100_r20) else null
                     visibility =
                         if (data.position == DayPosition.MonthDate) View.VISIBLE else View.INVISIBLE
                     setTextColor(
@@ -138,6 +139,13 @@ class BottomCalendarDialog :
                     Locale.getDefault()
                 )
             }"
+        }
+
+        dataBinding.tvSelectedComplete.setOnClickListener {
+            selectedDate?.let {
+                daySelectCallback?.invoke(it)
+                dismissAllowingStateLoss()
+            }
         }
     }
 

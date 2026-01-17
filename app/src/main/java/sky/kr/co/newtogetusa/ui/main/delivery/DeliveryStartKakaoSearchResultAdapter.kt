@@ -11,7 +11,7 @@ import sky.kr.co.newtogetusa.databinding.ItemSearchResultBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 
 class DeliveryStartKakaoSearchResultAdapter(
-    private val viewModel: DeliveryStartViewModel
+    private val viewModel: DeliverySearchViewModel
 ) : PagingDataAdapter<KakaoSearchModel, DeliveryStartKakaoSearchResultAdapter.VH>(diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {

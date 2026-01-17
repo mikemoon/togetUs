@@ -21,6 +21,7 @@ import javax.inject.Inject
 private const val PREFERENCES_NAME = "togetus"
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 object DataStoreKey{
+    const val KEY_IS_FIRST_RUN = "is_first_run"
     const val KEY_IS_MODE_PLAYER = "is_mode_player"
     const val KEY_TOKEN = "access_token"
     const val KEY_REFRESH_TOKEN = "refresh_token"

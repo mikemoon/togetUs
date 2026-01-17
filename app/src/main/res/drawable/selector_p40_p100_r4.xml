@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true" android:drawable="@drawable/background_s_p100_r4" />
+    <item android:state_enabled="true" android:drawable="@drawable/background_s_p100_r4" />
+    <item android:state_selected="false" android:drawable="@drawable/background_s_p40_r4" />
+    <item android:state_enabled="false" android:drawable="@drawable/background_s_p40_r4" />
+</selector>

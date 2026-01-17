@@ -5,6 +5,7 @@
     <data>
         <import type="android.view.View"/>
         <import type="sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel.Event"/>
+        <import type="sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel.MapShow"/>
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel" />
@@ -113,16 +114,99 @@
                     android:text="플레이어가 저렴하고 안전하게 배송해드려요."
                     app:layout_constraintTop_toBottomOf="@id/tvMainTitle" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/ivMain"
+                <FrameLayout
+                    android:id="@+id/frMap"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/tvMainDesc"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="16dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/home"
-                    app:layout_constraintTop_toBottomOf="@id/tvMainDesc" />
+                    android:clipToOutline="true"
+                    android:background="@drawable/bg_round_4"
+                    >
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivMain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/home"
+                        android:visibility="@{viewModel.mapShowState == MapShow.LOCAL_IMAGE ?View.VISIBLE : View.GONE}"
+                        />
+                    <com.kakao.vectormap.MapView
+                        android:id="@+id/map"
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/llBottomPanel"
+                        android:visibility="@{viewModel.mapShowState == MapShow.KAKAO_MAP ?View.VISIBLE : View.GONE}"
+                        />
+
+                    <com.google.android.gms.maps.MapView
+                        android:id="@+id/googleMap"
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/llBottomPanel"
+                        android:visibility="@{viewModel.mapShowState == MapShow.GOOGLE_MAP ?View.VISIBLE : View.GONE}"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivMyLocation"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="bottom"
+                        android:src="@drawable/floating"
+                        />
+
+                    <FrameLayout
+                        android:id="@+id/frGoogleMapType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/background_s_b5_r40"
+                        android:visibility="@{viewModel.mapShowState == MapShow.GOOGLE_MAP ?View.VISIBLE : View.GONE}"
+                        >
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvIndicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/background_s_b80_r24"
+                            android:layout_margin="4dp"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="8dp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="4dp">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvMap"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="8dp"
+                                android:text="지도"
+                                android:textColor="@color/selector_b80_w"
+                                android:textSize="12dp"
+                                android:textStyle="bold" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvSettle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="8dp"
+                                android:text="위성"
+                                android:textColor="@color/selector_b80_w"
+                                android:textSize="12dp" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </FrameLayout>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvReqDelivery"
@@ -130,12 +214,12 @@
                     android:layout_height="44dp"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="16dp"
-                    android:background="@drawable/selector_b20_b80_r4"
+                    android:background="@drawable/selector_b20_p100_r4"
                     android:gravity="center"
                     android:text="배송 요청하기"
                     android:textColor="@color/white"
                     android:onClick="@{()-> viewModel.onEventClick(Event.RequestDelivery.INSTANCE)}"
-                    app:layout_constraintTop_toBottomOf="@id/ivMain" />
+                    app:layout_constraintTop_toBottomOf="@id/frMap" />
 
                 <View
                     android:id="@+id/vDivider"
@@ -216,7 +300,7 @@
                         android:layout_height="44dp"
                         android:layout_marginHorizontal="20dp"
                         android:layout_marginTop="12dp"
-                        android:background="@drawable/background_s_b80_r4"
+                        android:background="@drawable/background_s_p100_r4"
                         android:gravity="center"
                         android:onClick="@{()-> viewModel.onEventClick(Event.JoinPlayer.INSTANCE)}"
                         android:text="플레이어 신청"
