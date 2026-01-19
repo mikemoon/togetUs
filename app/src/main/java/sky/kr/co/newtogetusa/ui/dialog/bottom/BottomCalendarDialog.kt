@@ -155,6 +155,12 @@ class BottomCalendarDialog :
 
         init {
             view.setOnClickListener {
+                if (
+                    day.position != DayPosition.MonthDate ||
+                    day.date.isBefore(todayDate)    // 🔥 과거 날짜 차단
+                ) {
+                    return@setOnClickListener
+                }
                 if (day.position == DayPosition.MonthDate) {
                     // Keep a reference to any previous selection
                     // in case we overwrite it and need to reload it.

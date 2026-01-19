@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.base
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DataStoreRepository
@@ -20,6 +21,8 @@ open class BaseViewModel @Inject constructor(private val dependencies: BaseViewM
         }
     }
     open fun init() {}
+
+    val loadingState = MutableStateFlow(false)
 }
 
 

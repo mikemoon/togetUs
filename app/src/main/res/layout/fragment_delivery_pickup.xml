@@ -261,7 +261,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_margin="20dp"
-                android:background="@drawable/selector_b20_p100_r4"
+                android:background="@drawable/selector_p40_p100_r4"
                 android:gravity="center"
                 android:text="선택 완료"
                 android:textColor="@color/selector_wopa40_wopa100"

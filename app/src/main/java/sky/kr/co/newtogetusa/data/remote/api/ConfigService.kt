@@ -54,7 +54,6 @@ interface ConfigService {
 
     @GET("/api/configs/v1/delivery/product_type")//물품종류
     suspend fun getProductType(
-
     ):List<BaseCommonDto>
 
     @GET("/api/configs/v1/review/user")//사용자리뷰를 위한 평가항목

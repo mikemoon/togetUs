@@ -5,6 +5,9 @@
     <data>
         <import type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeVM.Event"/>
         <variable
+            name="uiModel"
+            type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeUiModel" />
+        <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeVM" />
     </data>
@@ -93,6 +96,7 @@
                             app:layout_constraintTop_toTopOf="parent"
                             style="@style/Paragraph17R"
                             android:textColor="@color/black_80"
+                            android:text='@{uiModel.distance}'
                             tools:text="5km"
                             />
 
@@ -115,6 +119,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             style="@style/Paragraph17R"
                             android:textColor="@color/black_80"
+                            android:text="@{uiModel.weight}"
                             tools:text="가벼움 (~-3KG)"
                             />
 
@@ -143,7 +148,7 @@
                         android:layout_marginTop="4dp"
                         style="@style/Paragraph18B"
                         android:textColor="@color/black_80"
-                        android:text=""
+                        android:text="@{uiModel.fee}"
                         android:gravity="end"
                         tools:text="9,600원"
                         />
@@ -167,11 +172,13 @@
                         />
 
                     <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/etAdjustFee"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:background="@drawable/background_st_b10_s_w_r4"
                         android:padding="16dp"
+                        android:inputType="number"
                         style="@style/Paragraph17R"
                         android:textColor="@color/black_80"
                         android:hint="0 원"
@@ -226,11 +233,16 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:layout_marginTop="32dp"
+                    android:onClick="@{()-> viewModel.onAgree()}"
                     android:orientation="horizontal">
-                    <androidx.appcompat.widget.AppCompatImageView
+                    <androidx.appcompat.widget.AppCompatCheckBox
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/checkbox_selector"
+                        android:button="@null"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:background="@drawable/checkbox_selector"
+                        android:checked="@{viewModel.isAgreeChecked}"
                         />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -408,6 +420,8 @@
                     android:text="동행 요청 등록"
                     android:textColor="@color/selector_wopa40_wopa100"
                     style="@style/HeadLine18B"
+                    android:enabled="@{viewModel.isAgreeChecked}"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.RegisterDelivery.INSTANCE)}"
                     />
 
             </LinearLayout>

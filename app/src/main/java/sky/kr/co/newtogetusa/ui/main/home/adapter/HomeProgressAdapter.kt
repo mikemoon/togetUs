@@ -47,7 +47,7 @@ class HomeProgressAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class TitleVH(private val binding: ItemHomeTitleBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: String) {
-            binding.tvTitle.text = "진행 중인 배송요청"
+            binding.tvTitle.text = "진행 중인 동행요청"
         }
     }
 
@@ -64,7 +64,7 @@ class HomeProgressAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class EmptyVH(private val binding: ItemHomeEmptyBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: String) {
-            binding.tv.text = "진행중인 배송요청이 없어요."
+            binding.tv.text = "진행중인 동행요청이 없어요."
         }
     }
 

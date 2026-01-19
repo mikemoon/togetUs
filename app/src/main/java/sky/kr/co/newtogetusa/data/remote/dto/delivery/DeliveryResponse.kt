@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class DeliveryResponse(
     @SerializedName("delivery_id")
-    val deliveryId: Int
+    val deliveryId: Long
 )

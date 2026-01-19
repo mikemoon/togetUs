@@ -206,6 +206,7 @@
                         android:textSize="20dp"
                         android:textStyle="bold"
                         android:enabled="@{viewModel.selectedCompleteButtonEnable}"
+                        android:onClick="@{()-> viewModel.onEventClick(Event.SelectedComplete.INSTANCE)}"
                         app:layout_constraintBottom_toBottomOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>

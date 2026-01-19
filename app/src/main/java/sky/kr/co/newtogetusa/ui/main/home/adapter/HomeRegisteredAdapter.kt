@@ -58,7 +58,7 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class TitleVH(private val binding: ItemHomeTitleBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: String) {
-            binding.tvTitle.text = "등록한 배송요청"
+            binding.tvTitle.text = "등록한 진행요청"
         }
     }
 
@@ -75,7 +75,7 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class EmptyVH(private val binding: ItemHomeEmptyBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: String) {
-            binding.tv.text = "등록한 배송요청이 없어요."
+            binding.tv.text = "등록한 진행요청이 없어요."
         }
     }
 

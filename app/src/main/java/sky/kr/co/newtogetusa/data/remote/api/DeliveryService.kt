@@ -5,8 +5,10 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
 
 interface DeliveryService {
@@ -56,11 +58,6 @@ interface DeliveryService {
         @Path("delivery_id") delivery_id: Int,
     ):Boolean
 
-    @GET("api/deliveries/v1/{delivery_id}/fee")//배송요청 요금확인
-    suspend fun getFee(
-        @Path("delivery_id") delivery_id: Int,
-    ):Boolean
-
     @PUT("api/deliveries/v1/{delivery_id}/fee")//배송요청 요금확정
     suspend fun putFee(
         @Path("delivery_id") delivery_id: Int,
@@ -83,6 +80,13 @@ interface DeliveryService {
     @GET("api/deliverys/v1/{delivery_id}/fee") //요금확인
     suspend fun getDeliveryFee(
         @Path("delivery_id") delivery_id: Long,
+    ): DeliveryFeeResponse
+
+    @PUT("api/deliverys/v1/{delivery_id}/fee")
+    suspend fun putDeliveryFinalReq(
+        @Path("delivery_id") delivery_id: Long,
+        @Body body: DeliveryFinalReq,
     ): Boolean
+
 
 }

@@ -12,6 +12,9 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -19,7 +22,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryProductBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.main.delivery.product.HorizontalSpaceItemDecoration
@@ -44,6 +49,10 @@ class DeliveryProductFragment :
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var rvAdapter: ProductPickImageAdapter
     private val selectedUris = mutableListOf<Uri>()
+
+    private val categoryViews = mutableMapOf<String, AppCompatTextView>()
+    private val weightViews = mutableMapOf<String, AppCompatTextView>()
+    private val sizeViews = mutableMapOf<String, AppCompatTextView>()
 
     override fun init() {
         super.init()
@@ -111,104 +120,6 @@ class DeliveryProductFragment :
         itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(dataBinding.rv)
 
-        val categories = mapOf(
-            "서류/문서" to "type_1",
-            "전자기기" to "type_2",
-            "음식/식품" to "type_3",
-            "생활/잡화" to "type_4",
-            "귀중품" to "type_5",
-            "기타/다중" to "type_6"
-        )
-
-        categories.forEach { category ->
-
-            val itemTv = AppCompatTextView(requireContext(), null).apply {
-                text = category.key
-                setPadding(8.dpToPx(), 8.dpToPx(), 8.dpToPx(), 8.dpToPx())
-                background = ContextCompat.getDrawable(context, R.drawable.background_s_b5_r4)
-                setTextColor(requireContext().getColor(R.color.black_80))
-                layoutParams = FlexboxLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(0, 8.dpToPx(), 8.dpToPx(), 0)
-                }
-
-                setOnClickListener {
-                    isSelected = !isSelected
-                    background = ContextCompat.getDrawable(
-                        context,
-                        if (isSelected) R.drawable.background_st_p60_s_p10_r4 else R.drawable.background_s_b5_r4
-                    )
-                    setTextColor(requireContext().getColor(if (isSelected) R.color.primary_100 else R.color.black_80))
-                    viewModel.productType.value = category.value
-                }
-            }
-            dataBinding.flProductSort.addView(itemTv)
-
-        }
-
-        val weights = mapOf(
-            "가벼움 (~3KG)" to "small",
-            "보통 (3~10KG)" to "medium",
-            "무거움 (10KG~)" to "big"
-        )
-        weights.forEach { weight ->
-            val itemTv = AppCompatTextView(requireContext(), null).apply {
-                text = weight.key
-                setPadding(8.dpToPx(), 8.dpToPx(), 8.dpToPx(), 8.dpToPx())
-                background = ContextCompat.getDrawable(context, R.drawable.background_s_b5_r4)
-                setTextColor(requireContext().getColor(R.color.black_80))
-                layoutParams = FlexboxLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(0, 8.dpToPx(), 8.dpToPx(), 0)
-                }
-
-                setOnClickListener {
-                    isSelected = !isSelected
-                    background = ContextCompat.getDrawable(
-                        context,
-                        if (isSelected) R.drawable.background_st_p60_s_p10_r4 else R.drawable.background_s_b5_r4
-                    )
-                    setTextColor(requireContext().getColor(if (isSelected) R.color.primary_100 else R.color.black_80))
-                    viewModel.productWeight.value = weight.value
-                }
-            }
-            dataBinding.flProductWeight.addView(itemTv)
-        }
-
-        val sizes = mapOf(
-            "작음 (작은 상자/에코백 수준)" to "small",
-            "중간 (두 손으로 안을 수준)" to "medium",
-            "큼 (대형 박스/차량 필요)" to "big"
-        )
-        sizes.forEach { size ->
-            val itemTv = AppCompatTextView(requireContext(), null).apply {
-                text = size.key
-                setPadding(8.dpToPx(), 8.dpToPx(), 8.dpToPx(), 8.dpToPx())
-                background = ContextCompat.getDrawable(context, R.drawable.background_s_b5_r4)
-                setTextColor(requireContext().getColor(R.color.black_80))
-                layoutParams = FlexboxLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(0, 8.dpToPx(), 8.dpToPx(), 0)
-                }
-
-                setOnClickListener {
-                    isSelected = !isSelected
-                    background = ContextCompat.getDrawable(
-                        context,
-                        if (isSelected) R.drawable.background_st_p60_s_p10_r4 else R.drawable.background_s_b5_r4
-                    )
-                    setTextColor(requireContext().getColor(if (isSelected) R.color.primary_100 else R.color.black_80))
-                    viewModel.productVolume.value = size.value
-                }
-            }
-            dataBinding.flProductSize.addView(itemTv)
-        }
     }
 
     override fun initObserver() {
@@ -231,6 +142,90 @@ class DeliveryProductFragment :
                     findNavController().popBackStack()
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+
+                launch {
+                    viewModel.productTypes.collect {
+                        createSelectableItems(
+                            dataBinding.flProductSort,
+                            it,
+                            categoryViews
+                        ) { code -> viewModel.productType.value = code }
+                    }
+                }
+
+                launch {
+                    viewModel.productWeights.collect {
+                        createSelectableItems(
+                            dataBinding.flProductWeight,
+                            it,
+                            weightViews
+                        ) { code -> viewModel.productWeight.value = code }
+                    }
+                }
+
+                launch {
+                    viewModel.productVolumes.collect {
+                        createSelectableItems(
+                            dataBinding.flProductSize,
+                            it,
+                            sizeViews
+                        ) { code -> viewModel.productVolume.value = code }
+                    }
+                }
+
+                launch {
+                    sharedViewModel.state.collect { state ->
+                        state.productTitle?.let {
+                            dataBinding.etTitle.setText(it)
+                            viewModel.productTitle.value = it
+                        }
+                        state.productDescription?.let {
+                            dataBinding.etDescription.setText(it)
+                            viewModel.productDescription.value = it
+                        }
+                        state.productType?.let {
+                            selectSingle(categoryViews, it)
+                            viewModel.productType.value = it
+                        }
+
+                        state.productWeight?.let {
+                            selectSingle(weightViews, it)
+                            viewModel.productWeight.value = it
+                        }
+
+                        state.productVolume?.let {
+                            selectSingle(sizeViews, it)
+                            viewModel.productVolume.value = it
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun selectSingle(
+        views: Map<String, AppCompatTextView>,
+        selectedKey: String
+    ) {
+        views.forEach { (key, tv) ->
+            val selected = key == selectedKey
+            tv.isSelected = selected
+            tv.background = ContextCompat.getDrawable(
+                tv.context,
+                if (selected) R.drawable.background_st_p60_s_p10_r4
+                else R.drawable.background_s_b5_r4
+            )
+            tv.setTextColor(
+                ContextCompat.getColor(
+                    tv.context,
+                    if (selected) R.color.primary_100 else R.color.black_80
+                )
+            )
         }
     }
 
@@ -259,5 +254,38 @@ class DeliveryProductFragment :
         input.close()
 
         return tempFile.absolutePath
+    }
+
+    private fun createSelectableItems(
+        container: FlexboxLayout,
+        items: List<BaseCommonDto>,
+        viewMap: MutableMap<String, AppCompatTextView>,
+        onSelect: (String) -> Unit
+    ) {
+        container.removeAllViews()
+        viewMap.clear()
+
+        items.forEach { dto ->
+            val tv = AppCompatTextView(requireContext()).apply {
+                text = dto.name
+                setPadding(8.dpToPx(), 8.dpToPx(), 8.dpToPx(), 8.dpToPx())
+                background = ContextCompat.getDrawable(context, R.drawable.background_s_b5_r4)
+                setTextColor(ContextCompat.getColor(context, R.color.black_80))
+                layoutParams = FlexboxLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, 8.dpToPx(), 8.dpToPx(), 0)
+                }
+
+                setOnClickListener {
+                    selectSingle(viewMap, dto.code)
+                    onSelect(dto.code)
+                }
+            }
+
+            viewMap[dto.code] = tv
+            container.addView(tv)
+        }
     }
 }

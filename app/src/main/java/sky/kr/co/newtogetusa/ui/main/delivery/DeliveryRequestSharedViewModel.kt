@@ -91,6 +91,10 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
         _state.update { it.copy(distanceKm = distance) }
     }
 
+    fun clearState(){
+        _state.value = DeliveryRequestState()
+    }
+
     val isMapConfirmReady: StateFlow<Boolean> =
         state
             .map { s ->

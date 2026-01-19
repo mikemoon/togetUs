@@ -7,13 +7,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class DeliveryProductViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory) : BaseViewModel(baseViewModelDependenciesFactory.create()){
+class DeliveryProductViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val configRepository: ConfigRepository
+    ) : BaseViewModel(baseViewModelDependenciesFactory.create()){
+
+    val productTypes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
+    val productWeights = MutableStateFlow<List<BaseCommonDto>>(emptyList())
+    val productVolumes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
+
+        init {
+            getConfigProductType()
+            getConfigProductWeight()
+            getConfigProductVolume()
+        }
 
 
     val attachImagesUrl = MutableStateFlow<List<String>>(emptyList())
@@ -58,6 +74,37 @@ class DeliveryProductViewModel @Inject constructor(baseViewModelDependenciesFact
 
     fun removeAttachImage(path: String) {
         attachImagesUrl.value = attachImagesUrl.value - path
+    }
+
+
+    fun getConfigProductType() = viewModelScope.launch {
+        val res = configRepository.getProductTypeList()
+        when(res){
+            is ResultWrapper.Success -> {
+                productTypes.value = res.data
+            }
+            else -> {}
+        }
+    }
+
+    fun getConfigProductWeight() = viewModelScope.launch {
+        val res = configRepository.getProductWeightList()
+        when(res){
+            is ResultWrapper.Success -> {
+                productWeights.value = res.data
+            }
+            else -> {}
+        }
+    }
+
+    fun getConfigProductVolume() = viewModelScope.launch {
+        val res = configRepository.getProductVolumeList()
+        when(res){
+            is ResultWrapper.Success -> {
+                productVolumes.value = res.data
+            }
+            else -> {}
+        }
     }
 
 

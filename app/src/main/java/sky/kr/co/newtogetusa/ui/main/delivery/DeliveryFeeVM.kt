@@ -1,18 +1,103 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
+import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
-import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryProductViewModel.Event
 import javax.inject.Inject
 
 @HiltViewModel
-class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory):
+class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val deliveryRepository: DeliveryRepository
+    ):
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
+        val isAgreeChecked = MutableStateFlow(false)
 
+    private val deliveryIdFlow = MutableStateFlow<Long?>(null)
+
+    private val distanceKm = MutableStateFlow<String?>(null)
+    private val productWeight = MutableStateFlow<String?>(null)
+    private val feeValue = MutableStateFlow<Long?>(null)
+
+    fun setDistance(distance: String) {
+        distanceKm.value = distance
+    }
+
+    fun setProductWeight(weight: String?) {
+        productWeight.value = weight
+    }
+
+    fun createDelivery(deliveryReq: DeliveryRequest, result: (Long) -> Unit) = viewModelScope.launch {
+        loadingState.value = true
+        val res = deliveryRepository.postDelivery(deliveryReq)
+        when(res){
+            is ResultWrapper.Success -> {
+                deliveryIdFlow.value = res.data.deliveryId
+                result.invoke(res.data.deliveryId)
+            }
+            is ResultWrapper.GenericError ->{
+            }
+            is ResultWrapper.NetworkError ->{
+            }
+        }
+    }
+    fun checkingFee(deliveryId: Long) = viewModelScope.launch {
+        val res = deliveryRepository.getDeliveryFee(deliveryId)
+        when(res){
+            is ResultWrapper.Success -> {
+                feeValue.value = res.data.feeFinal.toLong()
+            }
+            is ResultWrapper.GenericError ->{
+            }
+            is ResultWrapper.NetworkError ->{
+            }
+        }
+        loadingState.value = false
+    }
+
+    fun registerDelivery(req: DeliveryFinalReq, result: (Boolean) -> Unit) = viewModelScope.launch {
+        val res = deliveryRepository.putDeliveryFinalReq(deliveryIdFlow.value?:return@launch, req)
+        when(res){
+            is ResultWrapper.Success -> {
+                result.invoke(res.data)
+            }
+            is ResultWrapper.GenericError ->{
+            }
+            is ResultWrapper.NetworkError ->{
+            }
+        }
+    }
+
+    val deliveryUiModel = combine(
+        distanceKm,
+        productWeight,
+        feeValue
+    ) { distance, weight, fee ->
+
+        if (distance == null || weight == null || fee == null) {
+            null
+        } else {
+            DeliveryFeeUiModel(
+                distance = distance,
+                weight = weight,
+                fee = "%,d원".format(fee)
+            )
+        }
+    }
+
+    fun onAgree(){
+        isAgreeChecked.value = !isAgreeChecked.value
+    }
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
@@ -22,6 +107,12 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
 
     sealed class Event {
         object Back : Event()
-
+        object RegisterDelivery : Event()
     }
 }
+
+data class DeliveryFeeUiModel(
+    val distance: String,
+    val weight: String,
+    val fee: String
+)

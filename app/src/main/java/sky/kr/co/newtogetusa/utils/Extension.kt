@@ -33,6 +33,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.ui.dialog.loading.LoadingDialogFragment
 import java.io.ByteArrayOutputStream
 
 fun Context.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
@@ -76,6 +77,20 @@ fun Fragment.isStorageWritePermissionsGranted(): Boolean {
     } else {
         true
     }
+}
+
+fun Fragment.showLoading() {
+    if (childFragmentManager.findFragmentByTag(LoadingDialogFragment.TAG) == null) {
+        LoadingDialogFragment().show(
+            childFragmentManager,
+            LoadingDialogFragment.TAG
+        )
+    }
+}
+
+fun Fragment.hideLoading() {
+    (childFragmentManager.findFragmentByTag(LoadingDialogFragment.TAG) as? DialogFragment)
+        ?.dismissAllowingStateLoss()
 }
 
 fun Context.downloadUrlWithDownloadManager(url: String, fileName: String) {

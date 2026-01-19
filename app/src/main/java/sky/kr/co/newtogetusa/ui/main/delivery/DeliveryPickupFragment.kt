@@ -4,9 +4,13 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryPickupBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
@@ -16,6 +20,10 @@ import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.toKoreanDateYYYYMMDDEEEE
 import sky.kr.co.newtogetusa.utils.toYYYYMMDD
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -169,6 +177,27 @@ class DeliveryPickupFragment :
                 }
             }
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                sharedViewModel.state.collect { state ->
+                    val isImmediately = state.pickupIsImmediately
+                    moveIndicatorTo(if(isImmediately)dataBinding.tvImmediate else dataBinding.tvReservation)
+                    setSelectPickupType(!isImmediately)
+
+                    state.pickupDate?.let {
+                        dataBinding.etDate.setText(formatKoreanDate(it))
+                        viewModel.pickupDate.value = it
+                    }
+                    state.pickupTime?.let{
+                        dataBinding.etTime.setText(formatTimeToKorean(it))
+                        viewModel.pickupTime.value = it
+                    }
+                    moveIndicator2To(if(state.pickupIsFaceToFace)dataBinding.tvMeet else dataBinding.tvNotMeet)
+                    setSelectMeetType(state.pickupIsFaceToFace)
+                }
+            }
+        }
     }
 
     private fun formatAmPm(hour24: Int, minute: Int): String {
@@ -179,5 +208,24 @@ class DeliveryPickupFragment :
             else -> hour24
         }
         return "$amPm $hour12:${"%02d".format(minute)}"
+    }
+
+    fun formatKoreanDate(input: String): String {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+        val outputFormatter = DateTimeFormatter.ofPattern(
+            "yyyy년 MM월 dd일 EEEE",
+            Locale.KOREAN
+        )
+
+        val date = LocalDate.parse(input, inputFormatter)
+        return date.format(outputFormatter)
+    }
+
+    fun formatTimeToKorean(time: String): String {
+        val inputFormatter = DateTimeFormatter.ofPattern("HHmm")
+        val outputFormatter = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREAN)
+
+        val localTime = LocalTime.parse(time, inputFormatter)
+        return localTime.format(outputFormatter)
     }
 }
