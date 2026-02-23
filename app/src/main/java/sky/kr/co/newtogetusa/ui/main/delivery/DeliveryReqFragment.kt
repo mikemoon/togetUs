@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.delivery
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,7 +25,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
         get() = R.layout.fragment_delivery_req
     override val viewModel: DeliveryReqViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
     override fun init() {
         super.init()
@@ -61,6 +62,16 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
                 }
             }
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    sharedViewModel.clearState()
+                    findNavController().popBackStack()
+                }
+            }
+        )
     }
 
     override fun initObserver() {
@@ -85,6 +96,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
         viewModel.event.observe(viewLifecycleOwner){event ->
             when(event){
                 DeliveryReqViewModel.Event.Back ->{
+                    sharedViewModel.clearState()
                     findNavController().popBackStack()
                 }
                 DeliveryReqViewModel.Event.Charge ->{

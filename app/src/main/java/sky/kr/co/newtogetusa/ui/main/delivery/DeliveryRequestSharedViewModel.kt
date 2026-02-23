@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
 
+    val attachImagesUrl = MutableStateFlow<List<Uri>>(emptyList())
     private val _state = MutableStateFlow(DeliveryRequestState())
     val state: StateFlow<DeliveryRequestState> = _state
 
@@ -89,6 +91,12 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
 
     fun updateDistance(distance: String){
         _state.update { it.copy(distanceKm = distance) }
+    }
+
+    fun setInternational(isInternational: Boolean) {
+        _state.update {
+            it.copy(isInternational = isInternational)
+        }
     }
 
     fun clearState(){

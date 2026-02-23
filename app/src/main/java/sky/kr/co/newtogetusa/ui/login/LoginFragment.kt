@@ -33,6 +33,8 @@ import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginBinding
@@ -59,11 +61,23 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.recentLoginType.collect{ loginType ->
-                    if(loginType != -1 && viewModel.refreshToken.value.isNotEmpty()){
-                        viewModel.refreshToken(viewModel.refreshToken.value){ result ->
-                            if(result) requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                launch {
+                    viewModel.recentLoginType.collect { loginType ->
+                        if (loginType != -1 && viewModel.refreshToken.value.isNotEmpty()) {
+                            viewModel.refreshToken(viewModel.refreshToken.value) { result ->
+                                if (result) requireContext().startActivity(
+                                    Intent(
+                                        requireActivity(),
+                                        MainActivity::class.java
+                                    )
+                                )
+                            }
                         }
+                    }
+                }
+                launch {
+                    viewModel.uiErrorMsg.filter { it.isNotEmpty() }.collectLatest { msg ->
+                        requireContext().toast(msg)
                     }
                 }
             }

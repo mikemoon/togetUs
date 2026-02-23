@@ -30,4 +30,12 @@ class ConfigRepository @Inject constructor(
     suspend fun getProductTypeList() = safeApiCall(Dispatchers.IO){
         apiService.getProductType()
     }
+
+    suspend fun getBanks() = safeApiCall(Dispatchers.IO){
+        apiService.getBanks()
+    }
+
+    suspend fun getPlayerTerms() = safeApiCall(Dispatchers.IO){
+        apiService.getPlayerTerms()
+    }
 }

@@ -38,7 +38,7 @@ object MapUtil {
         // 1) 스타일 준비
         val stylesSet = com.kakao.vectormap.route.RouteLineStylesSet.from(
             com.kakao.vectormap.route.RouteLineStyles.from(
-                com.kakao.vectormap.route.RouteLineStyle.from(16f, Color.parseColor("#7d7ca7"))
+                com.kakao.vectormap.route.RouteLineStyle.from(16f, Color.parseColor("#F9A1AC"))
             )
         )
         // 2) 세그먼트 생성

@@ -32,7 +32,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
         get() = R.layout.fragment_delivery_start
     override val viewModel: DeliveryStartViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
     private lateinit var placesClient: PlacesClient
     //private lateinit var searchResultAdapter: DeliveryStartKakaoSearchResultAdapter
     private val args : DeliveryStartFragmentArgs by navArgs()

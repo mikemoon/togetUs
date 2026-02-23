@@ -4,7 +4,7 @@
     <data>
         <variable
             name="item"
-            type="String" />
+            type="sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto" />
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.history.HistoryViewModel" />
@@ -24,7 +24,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="매칭대기중"
+                android:text="@{item.status_text}"
                 android:textColor="@color/black_60"
                 style="@style/Paragraph12B"
                 android:background="@drawable/background_s_b5_r4"
@@ -70,7 +70,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/Paragraph14R"
-                    android:text="노트북 좀 전달해 주세요."
+                    android:text="@{item.title}"
                     android:textColor="@color/black_80"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     style="@style/HeadLine18B"
-                    android:text="23,000원"
+                    android:text="@{item.price_text}"
                     android:textColor="@color/black_80"
                     />
             </LinearLayout>
@@ -107,7 +107,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="픽업 요청일"
+                android:text="픽업"
                 android:textColor="@color/black_60"
                 style="@style/Paragraph12B"
                 />
@@ -115,7 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:text="2025년 5월 1일(목) 오전 10:30"
+                android:text="@{item.pickup_ui_date}"
                 android:textColor="@color/black_80"
                 style="@style/Paragraph12R"
                 />
@@ -141,7 +141,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/icon_route_start_end"
+                        android:src="@drawable/placecircle_primary"
                         />
                 </FrameLayout>
 
@@ -156,13 +156,13 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="서울 강서구 공항대로 631"
+                    android:text="@{item.depart_address}"
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />
             </LinearLayout>
             <!-- 경유지1 -->
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="24dp"
                 android:orientation="horizontal"
@@ -172,7 +172,7 @@
                     android:layout_width="16dp"
                     android:layout_height="match_parent"
                     >
-                    <!-- 위로 가는 선 -->
+                    &lt;!&ndash; 위로 가는 선 &ndash;&gt;
                     <View
                         android:layout_width="2dp"
                         android:layout_height="16dp"
@@ -202,7 +202,7 @@
                     style="@style/Paragraph12R"
                     />
             </LinearLayout>
-            <!-- 경유지2 -->
+            &lt;!&ndash; 경유지2 &ndash;&gt;
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="24dp"
@@ -213,7 +213,7 @@
                     android:layout_width="16dp"
                     android:layout_height="match_parent"
                     >
-                    <!-- 위로 가는 선 -->
+                    &lt;!&ndash; 위로 가는 선 &ndash;&gt;
                     <View
                         android:layout_width="2dp"
                         android:layout_height="16dp"
@@ -242,7 +242,7 @@
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />
-            </LinearLayout>
+            </LinearLayout>-->
             <!-- 도착지 -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -263,7 +263,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/icon_route_start_end"
+                        android:src="@drawable/placecircle_primary"
                         android:layout_marginTop="8dp"
                         />
                 </FrameLayout>
@@ -279,7 +279,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="서울 강서구 공항대로 631"
+                    android:text="@{item.dest_address}"
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />

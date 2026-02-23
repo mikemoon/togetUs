@@ -12,9 +12,6 @@
         <action
             android:id="@+id/action_homeTabFragment_to_deliveryReqFragment"
             app:destination="@id/deliveryReqFragment" />
-        <action
-            android:id="@+id/action_homeTabFragment_to_playerJoinFragment"
-            app:destination="@id/playerJoinFragment" />
     </fragment>
     <fragment
         android:id="@+id/deliveryReqFragment"
@@ -66,34 +63,22 @@
             app:nullable="true" />
         <action
             android:id="@+id/action_deliveryStartFragment2_to_deliveryAddressMapFragment"
-            app:destination="@id/deliveryAddressMapFragment" />
+            app:destination="@id/deliveryAddressMapFragment" >
+            <argument
+                android:name="isStart"
+                app:argType="boolean"
+                android:defaultValue="true" />
+
+            <argument
+                android:name="isInternational"
+                app:argType="boolean"
+                android:defaultValue="false" />
+        </action>
         <action
             android:id="@+id/action_deliveryStartFragment2_to_deliverySearchFragment"
             app:destination="@id/deliverySearchFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/playerJoinFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinFragment"
-        android:label="PlayerJoinFragment" >
-        <action
-            android:id="@+id/action_playerJoinFragment_to_playerJoinCompleteFragment"
-            app:destination="@id/playerJoinCompleteFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/playerJoinCompleteFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinCompleteFragment"
-        android:label="PlayerJoinCompleteFragment" >
-        <action
-            android:id="@+id/action_playerJoinCompleteFragment_to_homeTabFragment"
-            app:destination="@id/homeTabFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/deliveryAddressMapFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryAddressMapFragment"
-        android:label="DeliveryAddressMapFragment" >
-        <argument android:name="isStart" app:argType="boolean" android:defaultValue="true" />
-        <argument android:name="isInternational" app:argType="boolean" android:defaultValue="false"/>
-    </fragment>
+
     <fragment
         android:id="@+id/deliverySearchFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliverySearchFragment"

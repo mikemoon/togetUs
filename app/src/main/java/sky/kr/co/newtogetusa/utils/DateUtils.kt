@@ -1,7 +1,9 @@
 package sky.kr.co.newtogetusa.utils
 
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
 
 val week = listOf(
@@ -24,3 +26,27 @@ fun LocalDate.toKoreanDateYYYYMMDDEEEE(): String {
 
 fun LocalDate.toYYYYMMDD(): String =
     this.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+
+fun formatPickupDateTime(raw: String): String {
+    // "20250912 1430" or "20260120 226"
+    val parts = raw.trim().split(" ")
+    if (parts.size != 2) return raw
+
+    val datePart = parts[0]
+    val timePart = parts[1].padStart(4, '0') // 핵심 포인트 ⭐
+
+    val date = LocalDate.parse(datePart, DateTimeFormatter.ofPattern("yyyyMMdd"))
+    val time = LocalTime.parse(timePart, DateTimeFormatter.ofPattern("HHmm"))
+
+    val amPm = if (time.hour < 12) "오전" else "오후"
+    val hour12 = when {
+        time.hour == 0 -> 12
+        time.hour > 12 -> time.hour - 12
+        else -> time.hour
+    }
+
+    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
+
+    return "${date.year}년 ${date.monthValue}월 ${date.dayOfMonth}일($dayOfWeek) " +
+            "$amPm ${"%01d".format(hour12)}:${"%02d".format(time.minute)}"
+}

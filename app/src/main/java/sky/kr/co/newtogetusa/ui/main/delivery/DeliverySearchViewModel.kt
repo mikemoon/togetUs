@@ -50,7 +50,6 @@ class DeliverySearchViewModel @Inject constructor(baseViewModelDependenciesFacto
         Timber.d("onTextChanged $s")
         searchAddress.value = s.toString()
         //setQuery(s.toString())
-        //searchAddress()
     }
 
     fun onSearchClick() {
@@ -86,6 +85,10 @@ class DeliverySearchViewModel @Inject constructor(baseViewModelDependenciesFacto
         return false
     }
 
+    fun onDeleteSearchText(){
+        searchAddress.value = ""
+    }
+
     // 위치 기반 키워드 검색 옵션
 
     private val _mode = MutableStateFlow(SearchMode.KEYWORD)
@@ -114,14 +117,8 @@ class DeliverySearchViewModel @Inject constructor(baseViewModelDependenciesFacto
 
     private val _selectedAddress = SingleLiveEvent<KakaoSearchModel>()
     val selectedAddress: LiveData<KakaoSearchModel> = _selectedAddress
-    fun onKakaoAddressClick(name : String,
-                            lat : Double?,
-                            lng : Double?,
-                            source : String?,
-                            subtitle : String?,
-                            roadAddress : String?) {
-        _selectedAddress.value = KakaoSearchModel(name = name, lat = lat, lng =  lng,
-            source = source, subtitle = subtitle, roadAddress = roadAddress)
+    fun onKakaoAddressClick(kakaoSearchModel: KakaoSearchModel) {
+        _selectedAddress.value = kakaoSearchModel
     }
 
     private val _event = SingleLiveEvent<Event>()

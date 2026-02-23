@@ -416,6 +416,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="40dp"
                     android:padding="16dp"
+                    android:gravity="center"
                     android:background="@drawable/selector_p40_p100_r4"
                     android:text="동행 요청 등록"
                     android:textColor="@color/selector_wopa40_wopa100"

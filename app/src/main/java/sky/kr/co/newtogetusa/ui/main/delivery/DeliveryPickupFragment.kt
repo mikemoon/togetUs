@@ -33,7 +33,7 @@ class DeliveryPickupFragment :
         get() = R.layout.fragment_delivery_pickup
     override val viewModel: DeliveryPickupViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
     override fun init() {
         super.init()

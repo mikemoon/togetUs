@@ -66,7 +66,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         get() = R.layout.fragment_delivery_map
     override val viewModel: DeliveryMapViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private var googleMap: GoogleMap? = null

@@ -22,10 +22,10 @@
     <color name="green_100">#42DE37</color>
     <color name="green_5">#F6FDF5</color>
     <color name="primary_100">#F56275</color>
-    <color name="primary_60">#7D7CA7</color>
+    <color name="primary_60">#F9A1AC</color>
     <color name="primary_40">#FBC0C8</color>
-    <color name="primary_20">#D4D3E2</color>
-    <color name="primary_10">#E9E9F0</color>
+    <color name="primary_20">#FDE0E3</color>
+    <color name="primary_10">#FEEFF1</color>
     <color name="primary_5">#FEF7F8</color>
     <color name="color_333333">#333333</color>
     <color name="color_999999">#999999</color>

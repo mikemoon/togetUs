@@ -32,6 +32,8 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
     var refreshToken = MutableStateFlow("")
     var isFirstRun = MutableStateFlow(true)
 
+    var uiErrorMsg = MutableStateFlow("")
+
     init {
         viewModelScope.launch {
             dataStoreRepository.getString(DataStoreKey.KEY_TOKEN)?.let {
@@ -72,6 +74,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
                     } ?: false
                 } else {
                     Timber.w("reissue failed: code=${resp.code()} body=${resp.errorBody()?.string()}")
+                    uiErrorMsg.emit("인증이 만료되었습니다. 다시 로그인해주세요.")
                     false
                 }
             }.getOrElse { e ->

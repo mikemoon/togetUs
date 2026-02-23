@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -32,8 +33,11 @@ import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter
@@ -70,8 +74,23 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
 
+
     override fun init() {
         super.init()
+        arguments?.getBoolean("openDeliveryReq")?.let { open ->
+            if (open) {
+                arguments?.remove("openDeliveryReq")
+
+                val navController = findNavController()
+
+                // 1️⃣ DeliveryReq로 이동
+                navController.navigate(
+                    R.id.action_homeTabFragment_to_deliveryReqFragment
+                )
+                return
+            }
+        }
+
 
         checkLocationPermission()
         if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
@@ -80,29 +99,43 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             setupKakaoMap()
         }
 
-        prgAdapter = HomeProgressAdapter()
+        prgAdapter = HomeProgressAdapter{
+            selectedItem ->
+            val action =
+                NavGraphDirections.actionGlobalHistoryDetailFragment(selectedItem)
+
+            requireActivity().findNavController(R.id.nav_host_container).navigate(action)
+        }
         dataBinding.rvProgress.apply {
             adapter = prgAdapter
         }
-        regAdapter = HomeRegisteredAdapter().apply {
-            setItems(listOf("1", "2","3"))
-        }
+        regAdapter = HomeRegisteredAdapter()
         dataBinding.rvRegistered.apply {
             adapter = regAdapter
         }
 
-        applyAdapter = ApplyAdapter().apply {
-            setItems(listOf("1", "2","3"))
-        }
+        applyAdapter = ApplyAdapter()
         dataBinding.rvApply.apply {
             adapter = applyAdapter
         }
 
-        availableAdapter = AvailableAdapter().apply {
-            setItems(listOf("1", "2","3"))
-        }
+        availableAdapter = AvailableAdapter()
         dataBinding.rvAvailable.apply {
             adapter = availableAdapter
+        }
+
+        if(viewModel.isModePlayer.value){
+            viewModel.postPlayerDeliverySearch(DeliverySearchReq(
+                type = "DELIVERY|MATCH",
+                title = "",
+                page_no = 0
+            ))
+        }else{
+            viewModel.postDeliverySearch(DeliverySearchReq(
+                type = "DELIVERY|MATCH",
+                title = "",
+                page_no = 0
+            ))
         }
     }
 
@@ -112,8 +145,37 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.isModePlayer.collectLatest {
+                launch {
+                    viewModel.isModePlayer.collectLatest {
 
+                    }
+                }
+                launch {
+                    viewModel.doingDeliveryList.filterNotNull().collectLatest {
+                        Timber.d("hometab doingDelivery: ${it.size}")
+                        prgAdapter?.setItems(it)
+                    }
+                }
+                launch {
+                    viewModel.registeredDeliveryList.filterNotNull().collectLatest {
+                        Timber.d("hometab regDelivery: ${it.size}")
+                        regAdapter?.setItems(it)
+                    }
+                }
+                launch {
+                    viewModel.doingPlayerDeliveryList.filterNotNull().collectLatest {
+                        prgAdapter?.setItems(it)
+                    }
+                }
+                launch {
+                    viewModel.applyDeliveryList.filterNotNull().collectLatest {
+                        applyAdapter?.setItems(it)
+                    }
+                }
+                launch {
+                    viewModel.availableDeliveryList.filterNotNull().collectLatest {
+                        availableAdapter?.setItems(it)
+                    }
                 }
             }
         }
@@ -422,11 +484,13 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     override fun onResume() {
         super.onResume()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onResume()
-        }else {
-            dataBinding.map.resume()
-        }
+        runCatching {
+            if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
+                dataBinding.googleMap.onResume()
+            } else {
+                dataBinding.map.resume()
+            }
+        }.onFailure {  }
         //showStartLocation()
     }
 

@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +10,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
@@ -61,6 +63,21 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
             }
             is ResultWrapper.NetworkError ->{
             }
+        }
+        loadingState.value = false
+    }
+
+    fun registerPhoto(photos: List<DeliveryRegPhoto>, resultCallback: () -> Unit) = viewModelScope.launch {
+        loadingState.value = true
+        val res = if (photos.size == 1) {
+            deliveryRepository.postDeliveryPicture(deliveryIdFlow.value?:return@launch,photos.first())
+        } else {
+            deliveryRepository.postDeliveryPictures(deliveryIdFlow.value?:return@launch, photos)
+        }
+
+        when (res) {
+            is ResultWrapper.Success -> resultCallback.invoke()
+            else -> { /* error 처리 */ }
         }
         loadingState.value = false
     }

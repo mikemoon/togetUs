@@ -11,7 +11,7 @@ import sky.kr.co.newtogetusa.databinding.ItemSearchResultBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 
 class DeliveryStartKakaoSearchResultAdapter(
-    private val viewModel: DeliverySearchViewModel
+    private val onClick: (KakaoSearchModel) -> Unit
 ) : PagingDataAdapter<KakaoSearchModel, DeliveryStartKakaoSearchResultAdapter.VH>(diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -37,15 +37,7 @@ class DeliveryStartKakaoSearchResultAdapter(
 
             binding.root.setOnClickListener {
                 // Kakao 응답에는 placeId가 없음
-                // 프로젝트의 모델로 매핑
-                viewModel.onKakaoAddressClick(
-                    name = doc.name,
-                    lat = lat,
-                    lng = lng,
-                    source = doc.source,
-                    subtitle = doc.subtitle,
-                    roadAddress = doc.roadAddress
-                )
+                onClick(doc)
             }
         }
     }

@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.home.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHomeBottomButtonBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeEmptyBinding
@@ -15,7 +16,7 @@ import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.TitleVH
 
 class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = mutableListOf<Any>()
+    private val items = mutableListOf<DeliverySummaryDto>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
@@ -27,21 +28,23 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        if(items.size == 0) return 2 else return items.size + 2
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return if(position == 0) VIEW_TYPE_TITLE else{
-            if(items.size == 0){
-                VIEW_TYPE_EMPTY
-            }else{
-                if(position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
-                    VIEW_TYPE_CONTENTS
-            }
+        return when {
+            items.isEmpty() -> 2 // title + empty
+            items.size >= 3 -> items.size + 2 // title + contents + bottombutton
+            else -> items.size + 1 // title + contents만
         }
     }
 
-    fun setItems(items: List<Any>){
+    override fun getItemViewType(position: Int): Int {
+        return when {
+            position == 0 -> VIEW_TYPE_TITLE
+            items.isEmpty() -> VIEW_TYPE_EMPTY
+            items.size >= 3 && position == items.size + 1 -> VIEW_TYPE_BOTTOM_BUTTON
+            else -> VIEW_TYPE_CONTENTS
+        }
+    }
+
+    fun setItems(items: List<DeliverySummaryDto>){
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()
@@ -52,7 +55,7 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             VIEW_TYPE_TITLE -> (holder as TitleVH).bind("")
             VIEW_TYPE_EMPTY -> (holder as EmptyVH).bind("")
             VIEW_TYPE_BOTTOM_BUTTON -> (holder as BottomButtonVH).bind("")
-            else -> (holder as ContentsVH).bind(items[position-1] as String)
+            else -> (holder as ContentsVH).bind(items[position-1])
         }
     }
 
@@ -63,7 +66,7 @@ class HomeRegisteredAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     inner class ContentsVH(private val binding: ItemHomeContentsBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(item: String) {
+        fun bind(item: DeliverySummaryDto) {
 
         }
     }

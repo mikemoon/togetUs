@@ -13,6 +13,7 @@ data class ProfileDto(
     @Parcelize
     data class User(
         val user_id: Int,
+        val player_id: Int,
         val nickname: String,
         val profile_image: String?,
         val enable: Boolean

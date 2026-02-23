@@ -12,36 +12,48 @@ import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
+import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartViewModel.Event
 import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
+import timber.log.Timber
+import java.util.UUID
 import javax.inject.Inject
+import kotlin.uuid.Uuid
 
 @HiltViewModel
-class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-    private val userRepository: UserRepository) :
+class MyViewModel @Inject constructor(
+    baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val playerRepository: PlayerRepository,
+    private val userRepository: UserRepository
+) :
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
     val isModeChanging = MutableStateFlow(false)
     val isPlayerModeFlow = MutableStateFlow(false)
 
+    val impUidString = MutableStateFlow("")
+
     init {
         viewModelScope.launch {
-            dataStoreRepository.getBooleanFlow(DataStoreKey.KEY_IS_MODE_PLAYER).filterNotNull().collectLatest {
-                isPlayerModeFlow.value = it
-            }
+            dataStoreRepository.getBooleanFlow(DataStoreKey.KEY_IS_MODE_PLAYER).filterNotNull()
+                .collectLatest {
+                    isPlayerModeFlow.value = it
+                }
         }
+        getImpUid()
     }
 
     val profileDto = MutableStateFlow<ProfileDto?>(null)
-    fun getMyProfile(result: (ProfileDto) -> Unit)= viewModelScope.launch {
+    fun getMyProfile(result: (ProfileDto) -> Unit) = viewModelScope.launch {
         val profileData = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
-        if(profileData != null){
+        if (profileData != null) {
+            Timber.d("profileAlreadyHas profileData $profileData")
             result.invoke(profileData)
             profileDto.value = profileData
-        }else {
+        } else {
             when (val response = userRepository.getMyProfile()) {
                 is ResultWrapper.Success -> {
                     dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
@@ -51,6 +63,44 @@ class MyViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseView
 
                 else -> {}
             }
+        }
+    }
+
+    val hasPlayerApplyRequest = MutableStateFlow(false)
+    fun getPlayerInfo() = viewModelScope.launch {
+        val res = playerRepository.getPlayers()
+        when(res){
+            is ResultWrapper.Success ->{
+
+            }
+            else -> {
+                hasPlayerApplyRequest.value = false
+            }
+        }
+    }
+
+
+    fun getImpUid() = viewModelScope.launch {
+        impUidString.value = dataStoreRepository.getString(DataStoreKey.KEY_IMP_UID).orEmpty()
+        //impUidString.value = "cert_1"+ UUID.randomUUID().toString()
+    }
+
+    //임시
+    fun setTempImpUid(){
+        impUidString.value = "cert_1"+ UUID.randomUUID().toString()
+    }
+
+    fun putImpUid(impUid:String) = viewModelScope.launch {
+        dataStoreRepository.putString(DataStoreKey.KEY_IMP_UID, impUid)
+    }
+
+    fun verifyImpUid(impUid:String, callback: (Int) -> Unit) = viewModelScope.launch {
+        val res = playerRepository.verifyImpUid(hashMapOf("imp_uid" to impUid))
+        when(res){
+            is ResultWrapper.Success ->{
+                callback(res.data)
+            }
+            else -> {}
         }
     }
 

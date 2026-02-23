@@ -9,4 +9,66 @@
     <include app:graph="@navigation/history"/>
     <include app:graph="@navigation/chat"/>
     <include app:graph="@navigation/my"/>
+
+    <fragment
+        android:id="@+id/historyDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.HistoryDetailFragment"
+        android:label="HistoryDetailFragment" >
+        <argument
+            android:name="delivery"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto"
+            />
+        <action
+            android:id="@+id/action_historyDetailFragment_to_photoFragment"
+            app:destination="@id/photoFragment" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_global_home"
+        app:destination="@id/home"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="false" />
+
+    <action
+        android:id="@+id/action_global_historyDetailFragment"
+        app:destination="@id/historyDetailFragment"
+        app:launchSingleTop="true"/>
+
+    <action
+        android:id="@+id/action_global_to_home_for_delivery"
+        app:destination="@id/home"
+        app:popUpTo="@id/historyDetailFragment"
+        app:popUpToInclusive="false" />
+
+    <fragment
+        android:id="@+id/photoFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.PhotoFragment"
+        android:label="PhotoFragment" >
+        <argument
+            android:name="images"
+            app:argType="string[]"
+            />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deliveryAddressMapFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryAddressMapFragment"
+        android:label="DeliveryAddressMapFragment">
+
+        <argument
+            android:name="isStart"
+            app:argType="boolean"
+            android:defaultValue="true" />
+
+        <argument
+            android:name="isInternational"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_global_deliveryAddressMapFragment"
+        app:destination="@id/deliveryAddressMapFragment" />
+
+
 </navigation>

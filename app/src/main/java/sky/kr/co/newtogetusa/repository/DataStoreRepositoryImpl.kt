@@ -28,6 +28,8 @@ object DataStoreKey{
     const val RECENT_LOGIN_TYPE = "recent_login_type"
     const val KEY_PROFILE = "profile"
     const val KEY_ABROAD_DELIVERY_AGREE = "agree_abroad_delivery"
+
+    const val KEY_IMP_UID = "imp_uid"
 }
 
 class DataStoreRepositoryImpl  @Inject constructor(private val context: Context): DataStoreRepository {

@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.history
 
 import android.os.Message
 import android.os.Parcelable
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
@@ -40,13 +42,15 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
         }
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
-        viewLifecycleOwner.lifecycleScope.launch {
-            historyAdapter.submitData(PagingData.from(listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")))
-        }
+
     }
 
     override fun initObserver() {
         super.initObserver()
+
+        dataBinding.ivSearch.setOnClickListener {
+            viewModel.setKeyword(dataBinding.etSearch.text.toString())
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
@@ -61,6 +65,14 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
 
         viewModel.topMenuLiveData.observe(viewLifecycleOwner){ topMenu ->
             setSelectedTopMenu(topMenu)
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.deliveryPagingFlow.collectLatest { pagingData ->
+                    historyAdapter.submitData(pagingData)
+                }
+            }
         }
 
         viewModel.itemCancelLiveData.observe(viewLifecycleOwner){

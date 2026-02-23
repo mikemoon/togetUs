@@ -1,335 +1,862 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel.MapShow" />
+        <import type="sky.kr.co.newtogetusa.ui.main.history.HistoryDetailViewModel.Event"/>
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.history.HistoryDetailViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
-        <!-- 차후 맵뷰자리-->
-        <View
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="240dp"
-            app:layout_constraintTop_toTopOf="parent"
-            />
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:src="@drawable/left_back"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="20dp"
-            />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:src="@drawable/more_overlay"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="20dp"
-            />
-
-        <!-- 내용물 start -->
-        <LinearLayout
-            android:id="@+id/llContentTop"
+        <FrameLayout
+            android:id="@+id/frMap"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/map"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_round_4"
+            android:clipToOutline="true">
+
+            <com.kakao.vectormap.MapView
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:visibility="@{viewModel.mapShowState == MapShow.KAKAO_MAP ?View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toTopOf="@id/llBottomPanel"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/googleMap"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:visibility="@{viewModel.mapShowState == MapShow.GOOGLE_MAP ?View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toTopOf="@id/llBottomPanel"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </FrameLayout>
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:background="@color/white"
-            >
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Paragraph14B"
-                android:text="매칭 대기중"
-                android:textColor="@color/black_60"
-                android:paddingVertical="2dp"
-                android:paddingHorizontal="8dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="20dp"
+            tools:visibility="visible"
+            android:visibility="gone">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/left_l"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Back.INSTANCE)}"
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="노트북 좀 전달해주세요."
+                android:layout_marginStart="56dp"
+                style="@style/Paragraph16B"
                 android:textColor="@color/black_80"
-                style="@style/HeadLine20B"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
+                android:text="@{viewModel.deliveryData.title}"
+                tools:text="제목제목"
                 />
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="23,000원"
-                android:textColor="@color/black_80"
-                style="@style/HeadLine18R"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="4dp"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/more_vertical"
+                android:layout_gravity="end"
+                android:layout_marginEnd="20dp"
+                android:onClick="@{()-> viewModel.onEventClick(Event.MoreShow.INSTANCE)}"
                 />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="20dp"
-                android:orientation="horizontal">
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="픽업 요청일"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph14B"
-                    />
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/black_10"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginVertical="2dp"
-                    />
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5월 1일(목) 오전 10:30"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph14R"
-                    />
-            </LinearLayout>
+        </androidx.appcompat.widget.Toolbar>
 
-            <View
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/left_back"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Back.INSTANCE)}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/more_overlay"
+                android:onClick="@{()-> viewModel.onEventClick(Event.MoreShow.INSTANCE)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+        <LinearLayout
+            android:id="@+id/bottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollContent"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/black_10"
-                android:layout_marginTop="20dp"
-                />
+                android:layout_height="match_parent"
+                android:layout_marginBottom="95dp"
+                android:paddingBottom="76dp"
+                android:fillViewport="true">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/frMap">
+
+                    <!-- 내용물 start -->
+                    <LinearLayout
+                        android:id="@+id/llContentTop"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="매칭 대기중"
+                            android:textColor="@color/black_60" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine20B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="16dp"
+                            android:text="@{viewModel.deliveryData.title}"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="4dp"
+                            android:text="@{viewModel.deliveryData.priceText}"
+                            android:textColor="@color/black_80" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="픽업 요청일"
+                                android:textColor="@color/black_80" />
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginHorizontal="8dp"
+                                android:layout_marginVertical="2dp"
+                                android:background="@color/black_10" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14R"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{viewModel.deliveryData.pickupDateText}"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="20dp"
+                            android:background="@color/black_10" />
+
+                    </LinearLayout>
+                    <!-- 내용물 end -->
+
+                    <!-- 이동 경로 -->
+                    <LinearLayout
+                        android:id="@+id/llMovingRoute"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="20dp"
+                        app:layout_constraintTop_toBottomOf="@id/llContentTop">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:text="이동경로"
+                            android:textColor="@color/black_80" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="20dp">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="예상 주행거리"
+                                android:textColor="@color/black_80" />
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="16dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:background="@color/black_10" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17R"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{viewModel.deliveryData.distanceText}"
+                                android:textColor="@color/black_80" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="20dp">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="예상 소요 시간"
+                                android:textColor="@color/black_80" />
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="16dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:background="@color/black_10" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17R"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{viewModel.deliveryData.estimatedTimeText}"
+                                android:textColor="@color/black_80" />
+
+                        </LinearLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="20dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/ivPickup"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/placecircle_primary"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvPickup"
+                                style="@style/Paragraph17B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="픽업지"
+                                android:textColor="@color/black_80"
+                                app:layout_constraintStart_toEndOf="@id/ivPickup"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17R"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="@{viewModel.deliveryData.pickupAddressText}"
+                                android:textColor="@color/black_80"
+                                app:layout_constrainedWidth="true"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0"
+                                app:layout_constraintStart_toEndOf="@id/tvPickup"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="44dp"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="8dp">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="연락처"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="@{viewModel.deliveryData.departContactName+` `+viewModel.deliveryData.departContactPhone}"
+                                android:textColor="@color/black_60" />
+                        </LinearLayout>
+
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="20dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/ivDestination"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/placecircle_primary"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDestination"
+                                style="@style/Paragraph17B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="도착지"
+                                android:textColor="@color/black_80"
+                                app:layout_constraintStart_toEndOf="@id/ivDestination"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17R"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="@{viewModel.deliveryData.destinationAddressText}"
+                                android:textColor="@color/black_80"
+                                app:layout_constrainedWidth="true"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0"
+                                app:layout_constraintStart_toEndOf="@id/tvDestination"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="44dp"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="8dp">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph17B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="연락처"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="@{viewModel.deliveryData.destContactName+` `+viewModel.deliveryData.departContactPhone}"
+                                android:textColor="@color/black_60" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- 물품사진-->
+                    <LinearLayout
+                        android:id="@+id/llProductPic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toBottomOf="@id/llMovingRoute"
+                        >
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/HeadLine18B"
+                            android:text="물품사진"
+                            android:textColor="@color/black_80"
+                            android:layout_marginStart="20dp"
+                            />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvPhotos"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:paddingStart="20dp"
+                            />
+                    </LinearLayout>
+
+                    <!-- 요청사항 -->
+                    <LinearLayout
+                        android:id="@+id/llRequestInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/llProductPic"
+                        android:layout_marginTop="32dp"
+                        android:orientation="vertical">
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/HeadLine18B"
+                            android:text="요청사항"
+                            android:textColor="@color/black_80"
+                            android:layout_marginStart="20dp"
+                            />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/Paragraph17R"
+                            android:textColor="@color/black_80"
+                            android:text="@{viewModel.deliveryData.productDesc}"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            />
+                    </LinearLayout>
+
+                    <!-- 물품 정보-->
+                    <LinearLayout
+                        android:id="@+id/llProductInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        app:layout_constraintTop_toBottomOf="@id/llRequestInfo"
+                        android:orientation="vertical">
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/HeadLine18B"
+                            android:text="물품 정보"
+                            android:textColor="@color/black_80"
+                            android:layout_marginStart="20dp"
+                            />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            android:orientation="horizontal">
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="제목"
+                                />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                android:text="@{viewModel.deliveryData.title}"
+                                android:layout_marginStart="8dp"
+                                />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="종류"
+                                />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_primary5_r4"
+                                style="@style/Paragraph15B"
+                                android:textColor="@color/primary_100"
+                                android:text="@{viewModel.deliveryData.productType}"
+                                android:layout_marginStart="8dp"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                tools:text="전자기기"
+                                />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="무게"
+                                />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_primary5_r4"
+                                style="@style/Paragraph15B"
+                                android:textColor="@color/primary_100"
+                                android:text="@{viewModel.deliveryData.productWeight}"
+                                android:layout_marginStart="8dp"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                tools:text="전자기기"
+                                />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20dp"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="부피"
+                                />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_primary5_r4"
+                                style="@style/Paragraph15B"
+                                android:textColor="@color/primary_100"
+                                android:text="@{viewModel.deliveryData.productVolume}"
+                                android:layout_marginStart="8dp"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                tools:text="전자기기"
+                                />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- 결제 정보 -->
+                    <LinearLayout
+                        android:id="@+id/llPayInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/llProductInfo"
+                        android:layout_marginTop="32dp"
+                        android:orientation="vertical"
+                        >
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/HeadLine18B"
+                            android:text="결제 정보"
+                            android:textColor="@color/black_80"
+                            android:layout_marginStart="20dp"
+                            />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                style="@style/Paragraph17R"
+                                android:text="기본 결제 금액"
+                                android:textColor="@color/black_80"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                tools:text="9,600원"
+                                />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                android:layout_marginStart="12dp"
+                                style="@style/Paragraph17R"
+                                android:text="기본 요금"
+                                android:textColor="@color/black_60"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_60"
+                                tools:text="9,600원"
+                                />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginHorizontal="20dp"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                android:layout_marginStart="12dp"
+                                style="@style/Paragraph17R"
+                                android:text="난이도 추가요금"
+                                android:textColor="@color/black_60"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_60"
+                                tools:text="9,600원"
+                                />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                android:layout_marginStart="12dp"
+                                style="@style/Paragraph17R"
+                                android:text="결제수단"
+                                android:textColor="@color/black_60"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvPayMethod"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_60"
+                                tools:text="신용카드"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toBottomOf="@id/tvPayMethod"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                android:layout_marginTop="4dp"
+                                style="@style/Paragraph15R"
+                                android:textColor="@color/black_40"
+                                android:text="2025.04.29 21:30"
+                                tools:text="2025.04.29 21:30"
+                                />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/llPayInfo"
+                        android:orientation="vertical">
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/black_5"
+                            android:layout_marginHorizontal="20dp"
+                            />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                style="@style/Paragraph17R"
+                                android:text="추가 협의 결제 금액"
+                                android:textColor="@color/black_80"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                tools:text="9,600원"
+                                />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginHorizontal="20dp"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                android:layout_marginStart="12dp"
+                                style="@style/Paragraph17R"
+                                android:text="결제수단"
+                                android:textColor="@color/black_60"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvAdditionPayMethod"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_60"
+                                tools:text="신용카드"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toBottomOf="@id/tvAdditionPayMethod"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                android:layout_marginTop="4dp"
+                                style="@style/Paragraph15R"
+                                android:textColor="@color/black_40"
+                                android:text="2025.04.29 21:30"
+                                tools:text="2025.04.29 21:30"
+                                />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.core.widget.NestedScrollView>
 
         </LinearLayout>
-        <!-- 내용물 end -->
-
-        <!-- 이동 경로 -->
+        
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/llContentTop"
-            android:paddingVertical="20dp"
-            >
+            android:layout_height="96dp"
+            android:layout_gravity="bottom"
+            android:paddingHorizontal="20dp"
+            android:background="@color/white"
+            android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
                 style="@style/HeadLine18B"
-                android:text="이동경로"
                 android:textColor="@color/black_80"
+                android:text="취소하기"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:paddingVertical="16dp"
+                android:paddingHorizontal="20dp"
+                android:background="@drawable/background_s_b5_r4"
+                android:layout_weight="1"
+                android:onClick="@{()-> viewModel.onEventClick(Event.CancelReq.INSTANCE)}"
                 />
-            <LinearLayout
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                style="@style/HeadLine18B"
+                android:textColor="@color/white"
+                android:text="수정하기"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="12dp"
+                android:paddingVertical="16dp"
                 android:paddingHorizontal="20dp"
-                android:layout_marginTop="16dp"
-                >
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="예상 주행거리"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph17B"
-                    />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="16dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="@color/black_10"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/Paragraph17R"
-                    android:text="5km"
-                    android:textColor="@color/black_80"
-                    />
-
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:layout_marginTop="4dp"
-                >
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="예상 소요 시간"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph17B"
-                    />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="16dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="@color/black_10"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/Paragraph17R"
-                    android:text="30분"
-                    android:textColor="@color/black_80"
-                    />
-
-            </LinearLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                >
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/ivPickup"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/placecircle_primary"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvPickup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    style="@style/Paragraph17B"
-                    android:text="픽업지"
-                    android:textColor="@color/black_80"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/ivPickup"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvPickup"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginStart="8dp"
-                    android:text="서울 강서구 공항대로 631 염창역 2번출구 앞서울 강서구 공항대로 631 염창역 2번출구 앞"
-                    app:layout_constrainedWidth="true"
-                    app:layout_constraintHorizontal_bias="0"
-                    style="@style/Paragraph17R"
-                    android:textColor="@color/black_80"
-                    />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="44dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:gravity="center_vertical"
-                android:padding="8dp"
-                >
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="연락처"
-                    style="@style/Paragraph17B"
-                    android:textColor="@color/black_80"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="홍길동 010-1234-5678"
-                    android:textColor="@color/black_60"
-                    android:layout_marginStart="16dp"
-                    />
-            </LinearLayout>
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                >
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/ivDestination"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/placecircle_primary"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvDestination"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    style="@style/Paragraph17B"
-                    android:text="도착지"
-                    android:textColor="@color/black_80"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/ivDestination"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvDestination"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginStart="8dp"
-                    android:text="서울 강서구 공항대로 631 염창역 2번출구 앞서울 강서구 공항대로 631 염창역 2번출구 앞"
-                    app:layout_constrainedWidth="true"
-                    app:layout_constraintHorizontal_bias="0"
-                    style="@style/Paragraph17R"
-                    android:textColor="@color/black_80"
-                    />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="44dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:gravity="center_vertical"
-                android:padding="8dp"
-                >
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="연락처"
-                    style="@style/Paragraph17B"
-                    android:textColor="@color/black_80"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="홍길동 010-1234-5678"
-                    android:textColor="@color/black_60"
-                    android:layout_marginStart="16dp"
-                    />
-            </LinearLayout>
-
+                android:background="@drawable/background_s_p100_r4"
+                android:layout_weight="4"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Modify.INSTANCE)}"
+                />
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black_5"
+            android:layout_marginBottom="96dp"
+            android:layout_gravity="bottom"
+            />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

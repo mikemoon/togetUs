@@ -1,112 +1,599 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
-        <import type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel.Event"/>
+
+        <import type="android.view.View"/>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel.Event" />
+
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel" />
     </data>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
             style="@style/HeadLine20B"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="8dp"
-            android:text="배송 가능지역 설정"
+            android:text="동행 가능 반경을 설정해 주세요."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:textColor="@color/black_80" />
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="28dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/pin_fill_primary"
-                />
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="출발 가능지역"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph14B"
-                />
-        </LinearLayout>
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/background_s_b5_r4"
-            android:text="선택"
-            android:textColor="@color/black_80"
-            style="@style/Paragraph14R"
-            android:gravity="center"
-            android:onClick="@{()-> viewModel.onEventClick(Event.StartArea.INSTANCE)}"
-            />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="28dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/pin_fill_primary40"
-                />
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="도착 가능지역"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph14B"
-                />
-        </LinearLayout>
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@drawable/background_s_b5_r4"
-            android:text="선택"
-            android:textColor="@color/black_80"
-            style="@style/Paragraph14R"
-            android:gravity="center"
-            android:onClick="@{()-> viewModel.onEventClick(Event.DestinaitonArea.INSTANCE)}"
-            />
-        
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintBottom_toTopOf="@id/tvNext"
             >
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginBottom="20dp"
-                android:background="@drawable/selector_b20_p100_r4"
-                android:textColor="@color/selector_wopa40_wopa100"
-                android:text="다음"
-                style="@style/HeadLine20B"
-                android:gravity="center"
-                android:onClick="@{()-> viewModel.onEventClick(Event.Complete.INSTANCE)}"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-        
-    </LinearLayout>
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="28dp"
+                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:padding="12dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/HeadLine18B"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="동행범위1"
+                        android:textColor="@color/black_80"
+                        app:layout_constraintBottom_toBottomOf="@id/tvOn"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvOn" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvOn"
+                        style="@style/Paragraph17R"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_bg_b5_st_p60_p10_r4"
+                        android:padding="12dp"
+                        android:text="ON"
+                        android:selected="@{viewModel.area1On}"
+                        android:textColor="@color/selector_b40_p100"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toBottomOf="@id/tvOn">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="28dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/pin_fill_primary" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="픽업 가능"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDepart"
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:gravity="center"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.StartArea.INSTANCE)}"
+                            android:text="선택"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/clDepart"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:padding="12dp"
+                            android:layout_marginTop="12dp"
+                            android:visibility="gone"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="출발지"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="서울 강서구 공항대로 지하 631"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartAreaTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="서비스 반경"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvDepartTitle"
+                                android:layout_marginTop="8dp"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartAreaValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvDepartTitle"
+                                android:layout_marginTop="8dp"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="3km"
+                                />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="28dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/pin_fill_primary40" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="도착 가능"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvArrive"
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:gravity="center"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.DestinaitonArea.INSTANCE)}"
+                            android:text="선택"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/clArrive"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:padding="12dp"
+                            android:layout_marginTop="12dp"
+                            android:visibility="gone"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="출발지"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="서울 강서구 공항대로 지하 631"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveAreaTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="서비스 반경"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvArriveTitle"
+                                android:layout_marginTop="8dp"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveAreaValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvArriveTitle"
+                                android:layout_marginTop="8dp"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="3km"
+                                />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- 동행범위2 -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clArea2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="28dp"
+                    android:visibility="@{viewModel.addArea? View.VISIBLE : View.GONE}"
+                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:padding="12dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/HeadLine18B"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="동행범위2"
+                        android:textColor="@color/black_80"
+                        app:layout_constraintBottom_toBottomOf="@id/tvOn2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvOn2" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        app:layout_constraintTop_toTopOf="@id/tvOn2"
+                        app:layout_constraintBottom_toBottomOf="@id/tvOn2"
+                        app:layout_constraintEnd_toStartOf="@id/tvOn2"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_trash"
+                        android:onClick="@{()-> viewModel.onDeleteArea(true)}"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvOn2"
+                        style="@style/Paragraph17R"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_bg_b5_st_p60_p10_r4"
+                        android:padding="12dp"
+                        android:selected="@{viewModel.area2On}"
+                        android:text="ON"
+                        android:textColor="@color/selector_b40_p100"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toBottomOf="@id/tvOn2">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="28dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/pin_fill_primary" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="픽업 가능"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDepart2"
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:gravity="center"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.StartArea.INSTANCE)}"
+                            android:text="선택"
+                            android:textColor="@color/black_80" />
+
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/clDepart2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:padding="12dp"
+                            android:layout_marginTop="12dp"
+                            android:visibility="gone"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartTitle2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="출발지"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartValue2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="서울 강서구 공항대로 지하 631"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartAreaTitle2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="서비스 반경"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvDepartTitle2"
+                                android:layout_marginTop="8dp"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvDepartAreaValue2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvDepartTitle2"
+                                android:layout_marginTop="8dp"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="3km"
+                                />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="28dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/pin_fill_primary40" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="도착 가능"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvArrive2"
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:gravity="center"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.DestinaitonArea.INSTANCE)}"
+                            android:text="선택"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/clArrive2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:padding="12dp"
+                            android:layout_marginTop="12dp"
+                            android:visibility="gone"
+                            >
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveTitle2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="출발지"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveValue2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="서울 강서구 공항대로 지하 631"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveAreaTitle2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Paragraph17B"
+                                android:textColor="@color/black_80"
+                                android:text="서비스 반경"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvArriveTitle2"
+                                android:layout_marginTop="8dp"
+                                />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvArriveAreaValue2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvArriveTitle2"
+                                android:layout_marginTop="8dp"
+                                style="@style/Paragraph17R"
+                                android:textColor="@color/black_80"
+                                tools:text="3km"
+                                />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- 동행범위2 end -->
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAdd"
+                    style="@style/Paragraph16B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp"
+                    android:drawableStart="@drawable/plus_gray"
+                    android:drawablePadding="4dp"
+                    android:enabled="@{viewModel.addAreaBtnEnable}"
+                    android:selected="@{viewModel.addAreaBtnEnable}"
+                    android:onClick="@{()-> viewModel.onAddArea(true)}"
+                    android:visibility="@{viewModel.addArea? View.GONE : View.VISIBLE}"
+                    android:text="추가하기"
+                    android:textColor="@color/selector_b20_b60" />
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:padding="8dp"
+                    android:background="@drawable/background_s_b5_r4"
+                    >
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        style="@style/Paragraph17R"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/black_40"
+                        android:text="·"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvDesc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginStart="20dp"
+                        style="@style/Paragraph17R"
+                        android:textColor="@color/black_40"
+                        android:text="기본 동행지는 최대 2개까지 등록 가능합니다."
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/tvDesc"
+                        app:layout_constraintStart_toStartOf="parent"
+                        style="@style/Paragraph17R"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/black_40"
+                        android:text="·"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/tvDesc"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="4dp"
+                        style="@style/Paragraph17R"
+                        android:textColor="@color/black_40"
+                        android:text="설정하신 픽업/도착 지역 조건에 일치되는 동행요청건 등록 시 알림을 수신할 수 있습니다."
+                        />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNext"
+            style="@style/HeadLine20B"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/selector_b20_p100_r4"
+            android:gravity="center"
+            android:onClick="@{()-> viewModel.onEventClick(Event.Complete.INSTANCE)}"
+            android:text="다음"
+            android:textColor="@color/selector_wopa40_wopa100"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

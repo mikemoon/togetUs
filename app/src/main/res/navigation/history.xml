@@ -21,4 +21,5 @@
             app:destination="@id/historyFragment" />
     </fragment>
 
+
 </navigation>

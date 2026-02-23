@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.data.remote.api
 import retrofit2.http.GET
 import retrofit2.http.Header
 import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
+import sky.kr.co.newtogetusa.data.remote.dto.BaseDto
 import sky.kr.co.newtogetusa.data.remote.dto.auth.TermMeta
 import sky.kr.co.newtogetusa.data.remote.dto.search.RegionDto
 
@@ -26,7 +27,7 @@ interface ConfigService {
 
     @GET("/api/configs/v1/player/banks")
     suspend fun getBanks(
-    ): List<TermMeta>
+    ): List<BaseDto>
 
     @GET("/api/configs/v1/delivery/status")
     suspend fun getDeliveryStatus(

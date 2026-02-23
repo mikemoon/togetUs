@@ -46,7 +46,9 @@ class DeliverySearchFragment :
         )
         dataBinding.rvRecently.adapter = recentlyAdapter
 
-        searchResultAdapter = DeliveryStartKakaoSearchResultAdapter(viewModel)
+        searchResultAdapter = DeliveryStartKakaoSearchResultAdapter{ kakaoSearchModel ->
+            viewModel.onKakaoAddressClick(kakaoSearchModel)
+        }
         dataBinding.rvSearchResult.adapter = searchResultAdapter
 
         dataBinding.etAddress.requestFocus()

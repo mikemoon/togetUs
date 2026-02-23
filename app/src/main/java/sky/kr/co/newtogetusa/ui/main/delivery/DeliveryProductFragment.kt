@@ -30,6 +30,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.main.delivery.product.HorizontalSpaceItemDecoration
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ItemMoveCallback
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ProductPickImageAdapter
+import sky.kr.co.newtogetusa.utils.FileUtil.copyUriToTempFile
 import sky.kr.co.newtogetusa.utils.dpToPx
 import timber.log.Timber
 import java.io.File
@@ -43,7 +44,7 @@ class DeliveryProductFragment :
         get() = R.layout.fragment_delivery_product
     override val viewModel: DeliveryProductViewModel by viewModels()
 
-    private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
+    private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -53,6 +54,8 @@ class DeliveryProductFragment :
     private val categoryViews = mutableMapOf<String, AppCompatTextView>()
     private val weightViews = mutableMapOf<String, AppCompatTextView>()
     private val sizeViews = mutableMapOf<String, AppCompatTextView>()
+
+    private var latestState: DeliveryRequestState? = null
 
     override fun init() {
         super.init()
@@ -81,10 +84,12 @@ class DeliveryProductFragment :
                     // ViewModel 갱신
                     viewModel.addAttachImages(tempPaths)
 
+                    val imageUrlList = viewModel.attachImagesUrl.value.map { Uri.fromFile(File(it)) }
                     // RecyclerView 갱신
                     rvAdapter.setData(
-                        viewModel.attachImagesUrl.value.map { Uri.fromFile(File(it)) }
+                        imageUrlList
                     )
+                    sharedViewModel.attachImagesUrl.value = imageUrlList
                 }
             }
 
@@ -99,6 +104,7 @@ class DeliveryProductFragment :
         rvAdapter = ProductPickImageAdapter(requireContext(), viewModel) { removeUri, position ->
             selectedUris.remove(removeUri)
             rvAdapter.removeItem(position)
+            sharedViewModel.attachImagesUrl.value = sharedViewModel.attachImagesUrl.value - removeUri
         }.apply {
             setGalleryClickListener(object : ProductPickImageAdapter.OnGalleryClickListener {
                 override fun onGalleryClick() {
@@ -120,6 +126,9 @@ class DeliveryProductFragment :
         itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(dataBinding.rv)
 
+        rvAdapter.setData(
+            sharedViewModel.attachImagesUrl.value
+        )
     }
 
     override fun initObserver() {
@@ -154,6 +163,10 @@ class DeliveryProductFragment :
                             it,
                             categoryViews
                         ) { code -> viewModel.productType.value = code }
+                        latestState?.productType?.let {
+                            selectSingle(categoryViews, it)
+                            viewModel.productType.value = it
+                        }
                     }
                 }
 
@@ -164,6 +177,10 @@ class DeliveryProductFragment :
                             it,
                             weightViews
                         ) { code -> viewModel.productWeight.value = code }
+                        latestState?.productWeight?.let {
+                            selectSingle(weightViews, it)
+                            viewModel.productWeight.value = it
+                        }
                     }
                 }
 
@@ -174,11 +191,17 @@ class DeliveryProductFragment :
                             it,
                             sizeViews
                         ) { code -> viewModel.productVolume.value = code }
+                        latestState?.productVolume?.let {
+                            selectSingle(sizeViews, it)
+                            viewModel.productVolume.value = it
+                        }
                     }
                 }
 
                 launch {
                     sharedViewModel.state.collect { state ->
+                        Timber.d("sharedState $state")
+                        latestState = state
                         state.productTitle?.let {
                             dataBinding.etTitle.setText(it)
                             viewModel.productTitle.value = it
@@ -236,24 +259,6 @@ class DeliveryProductFragment :
             addCategory(Intent.CATEGORY_OPENABLE)
         }
         imagePickerLauncher.launch(intent)
-    }
-
-    private fun copyUriToTempFile(context: Context, uri: Uri): String {
-        val resolver = context.contentResolver
-        val input = resolver.openInputStream(uri) ?: error("InputStream null")
-
-        val tempFile = File.createTempFile(
-            "delivery_${System.currentTimeMillis()}_${UUID.randomUUID()}",
-            ".jpg",
-            context.cacheDir
-        )
-
-        tempFile.outputStream().use { output ->
-            input.copyTo(output)
-        }
-        input.close()
-
-        return tempFile.absolutePath
     }
 
     private fun createSelectableItems(

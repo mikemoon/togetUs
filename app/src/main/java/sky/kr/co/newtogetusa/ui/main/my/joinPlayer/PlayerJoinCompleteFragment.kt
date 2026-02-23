@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.my.joinPlayer
 
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,11 +16,15 @@ class PlayerJoinCompleteFragment : BaseFragment<FragmentFavorPlayerBinding, Play
 
     override fun initObserver() {
         super.initObserver()
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner
+        ) {
+        }
 
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
                 PlayerJoinCompleteViewModel.Event.MoveToHome -> {
-                    findNavController().navigate(R.id.action_playerJoinCompleteFragment_to_homeTabFragment)
+                    findNavController().navigate(R.id.action_global_home)
                 }
             }
         }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -118,6 +119,7 @@
                     android:textColor="@color/black_80" />
 
                 <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etIntroduce"
                     style="@style/Paragraph14R"
                     android:layout_width="match_parent"
                     android:layout_height="160dp"
@@ -125,7 +127,7 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/background_st_b10_s_w_r4"
                     android:gravity="top|left"
-                    android:hint="배송 업무 관련하여 본인을 소개해 주세요."
+                    android:hint="동행 업무 관련하여 본인을 소개해 주세요."
                     android:maxLength="200"
                     android:padding="8dp"
                     android:textColor="@color/black_80"
@@ -164,30 +166,37 @@
                     android:layout_marginHorizontal="20dp"
                     >
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvRegisterCRC"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/background_s_b5_r4"
                         android:paddingVertical="16dp"
                         style="@style/Paragraph14B"
-                        android:enabled="false"
+                        android:enabled="@{viewModel.isCrcAgree}"
+                        android:selected="@{viewModel.isCrcAgree}"
                         android:textColor="@color/selector_black20_b80"
                         android:text="범죄경력회부서 등록"
                         android:gravity="center"
-                        android:visibility="gone"
+                        android:visibility="visible"
+                        tools:visibility="visible"
                         />
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvCRCfileName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/background_s_b5_r4"
                         android:paddingVertical="16dp"
                         style="@style/Paragraph14B"
-                        android:enabled="false"
+                        android:enabled="@{viewModel.isCrcAgree}"
+                        android:selected="@{viewModel.isCrcAgree}"
                         android:textColor="@color/selector_black20_b80"
                         android:text="fileName.pdf"
                         android:gravity="center"
+                        android:visibility="gone"
                         />
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvReRegisterCRC"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
@@ -195,10 +204,10 @@
                         android:layout_marginStart="8dp"
                         android:paddingVertical="16dp"
                         style="@style/Paragraph14B"
-                        android:enabled="false"
-                        android:textColor="@color/selector_black20_b80"
+                        android:textColor="@color/white"
                         android:text="재등록"
                         android:gravity="center"
+                        android:visibility="gone"
                         />
                 </LinearLayout>
 
@@ -212,10 +221,12 @@
                     android:layout_gravity="center_vertical"
                     >
                     <CheckBox
+                        android:id="@+id/cbAgree"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:button="@null"
                         android:background="@drawable/checkbox_selector"
+                        android:onCheckedChanged="@{(button, isChecked) -> viewModel.onCrcAgreeChanged(isChecked)}"
                         />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -290,6 +301,7 @@
             android:layout_marginVertical="20dp"
             android:background="@drawable/selector_b20_p100_r4"
             android:gravity="center"
+            android:enabled="@{viewModel.enableStep3Next}"
             android:onClick="@{()-> viewModel.onClickStepNext(4)}"
             android:text="다음"
             android:textColor="@color/selector_wopa40_wopa100"

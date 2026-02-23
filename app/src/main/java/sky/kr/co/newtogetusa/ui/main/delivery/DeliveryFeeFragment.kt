@@ -22,6 +22,7 @@ import sky.kr.co.newtogetusa.data.remote.request.delivery.ProductInfo
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryFeeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.utils.ImageUtil
 import sky.kr.co.newtogetusa.utils.hideLoading
 import sky.kr.co.newtogetusa.utils.showLoading
 import kotlin.getValue
@@ -34,7 +35,7 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
 
     override val viewModel: DeliveryFeeVM by viewModels()
 
-    private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.home)
+    private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
 
     override fun init() {
@@ -128,25 +129,35 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
                     findNavController().popBackStack()
                 }
                 is DeliveryFeeVM.Event.RegisterDelivery ->{
-                    viewModel.registerDelivery(
-                        req = DeliveryFinalReq(
-                            fee_adjust = dataBinding.etAdjustFee.text.toString().toLongOrNull()?:0
+                    val uris = sharedViewModel.attachImagesUrl.value
+                    if(uris.isNotEmpty()){
+                        val photos = ImageUtil.uriListToPhotos(
+                            requireContext(),
+                            uris,
+                            maxSize = 1024
                         )
-                    ){ ret ->
-                        if(ret){
-                            sharedViewModel.clearState()
-                            MessageDialog.newInstance(
-                                msg = "동행 요청 등록이 완료되었어요.",
-                                rightBtn = "확인"
-                            ).onRightBtn {
-                                findNavController().navigate(
-                                    R.id.homeTabFragment,
-                                    null,
-                                    NavOptions.Builder()
-                                        .setPopUpTo(R.id.homeTabFragment, true)
-                                        .build()
+                        viewModel.registerPhoto(photos){
+                            viewModel.registerDelivery(
+                                req = DeliveryFinalReq(
+                                    fee_adjust = dataBinding.etAdjustFee.text.toString().toLongOrNull()?:0
                                 )
-                            }.show(childFragmentManager, "MessageDialog")
+                            ){ ret ->
+                                if(ret){
+                                    sharedViewModel.clearState()
+                                    MessageDialog.newInstance(
+                                        msg = "동행 요청 등록이 완료되었어요.",
+                                        rightBtn = "확인"
+                                    ).onRightBtn {
+                                        findNavController().navigate(
+                                            R.id.homeTabFragment,
+                                            null,
+                                            NavOptions.Builder()
+                                                .setPopUpTo(R.id.homeTabFragment, true)
+                                                .build()
+                                        )
+                                    }.show(childFragmentManager, "MessageDialog")
+                                }
+                            }
                         }
                     }
                 }

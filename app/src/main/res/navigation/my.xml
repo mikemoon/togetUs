@@ -136,9 +136,33 @@
     <fragment
         android:id="@+id/playerJoinFragment2"
         android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinFragment"
-        android:label="PlayerJoinFragment" />
+        android:label="PlayerJoinFragment" >
+        <action
+            android:id="@+id/action_playerJoinFragment2_to_playerJoinSearchFragment"
+            app:destination="@id/playerJoinSearchFragment" />
+        <action
+            android:id="@+id/action_playerJoinFragment2_to_playerJoinCompleteFragment"
+            app:destination="@id/playerJoinCompleteFragment" />
+    </fragment>
     <fragment
         android:id="@+id/termFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.term.TermFragment"
         android:label="TermFragment" />
+    <fragment
+        android:id="@+id/playerJoinSearchFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinSearchFragment"
+        android:label="PlayerJoinSearchFragment" >
+        <argument
+            android:name="isStart"
+            app:argType="boolean" />
+
+        <argument
+            android:name="isSecondary"
+            app:argType="boolean" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/playerJoinCompleteFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinCompleteFragment"
+        android:label="PlayerJoinCompleteFragment" />
 </navigation>

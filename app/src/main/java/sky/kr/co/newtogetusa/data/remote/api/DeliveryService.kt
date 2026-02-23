@@ -5,11 +5,15 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryDetailResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 
 interface DeliveryService {
 
@@ -72,21 +76,54 @@ interface DeliveryService {
     suspend fun getDeliveryList(
     ):List<DeliveryItemDto>
 
-    @GET("api/deliveries/v1/{delivery_id}")
+    @GET("api/deliverys/v1/{delivery_id}")
     suspend fun getDeliveryDetail(
         @Path("delivery_id") delivery_id: Long,
-    ): Boolean
+    ): DeliveryDetailResponse
 
     @GET("api/deliverys/v1/{delivery_id}/fee") //요금확인
     suspend fun getDeliveryFee(
         @Path("delivery_id") delivery_id: Long,
     ): DeliveryFeeResponse
 
-    @PUT("api/deliverys/v1/{delivery_id}/fee")
+    @PUT("api/deliverys/v1/{delivery_id}/fee") //배송등록
     suspend fun putDeliveryFinalReq(
         @Path("delivery_id") delivery_id: Long,
         @Body body: DeliveryFinalReq,
     ): Boolean
 
+    @GET("api/deliverys/v1/{delivery_id}/requester/status_log") //현황조회
+    suspend fun getDeliveryStatusList(
+        @Path("delivery_id") delivery_id: Long,
+    )
+
+    @POST("api/deliverys/v1/search/requester") //검색하기
+    suspend fun postDeliverySearch(
+        @Body body: DeliverySearchReq
+    ): DeliverySearchResponse
+
+    @POST("api/deliverys/v1/{delivery_id}/product_picture") //사진한장등록
+    suspend fun postDeliveryPicture(
+        @Path("delivery_id") delivery_id: Long,
+        @Body body: DeliveryRegPhoto
+    ): Boolean
+
+    @POST("api/deliverys/v1/{delivery_id}/product_pictures")//사진 여러장등록
+    suspend fun postDeliveryPictures(
+        @Path("delivery_id") delivery_id: Long,
+        @Body body: List<DeliveryRegPhoto>
+    ): Boolean
+
+    @PUT("api/deliverys/v1/{delivery_id}/requester/cancel")//취소하기
+    suspend fun cancelDelivery(
+        @Path("delivery_id") delivery_id: Long,
+    ): Boolean
+
+
+    //플레이어
+    @POST("api/deliverys/v1/search/player") //검색하기
+    suspend fun postPlayerDeliverySearch(
+        @Body body: DeliverySearchReq
+    ): DeliverySearchResponse
 
 }

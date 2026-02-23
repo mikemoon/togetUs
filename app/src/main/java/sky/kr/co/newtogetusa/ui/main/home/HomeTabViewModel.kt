@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
@@ -38,6 +42,58 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         }
 
         decideMapProvider()
+    }
+
+    val doingDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
+    val registeredDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
+
+    fun postDeliverySearch(deliverySearchReq: DeliverySearchReq) = viewModelScope.launch {
+        val res = deliveryRepo.postDeliverySearch(deliverySearchReq)
+        when(res){
+            is ResultWrapper.Success ->{
+                val matchList = res.data.deliveries.filter {
+                    it.status_cd.startsWith("MATCH")
+                }
+
+                val deliveryList = res.data.deliveries.filter {
+                    it.status_cd.startsWith("DELIVERY")
+                }
+
+                registeredDeliveryList.value = matchList
+                doingDeliveryList.value = deliveryList
+            }
+            else -> {}
+        }
+    }
+
+    val doingPlayerDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
+    val applyDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
+    val availableDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
+
+    fun postPlayerDeliverySearch(deliverySearchReq: DeliverySearchReq) = viewModelScope.launch {
+        val res = deliveryRepo.postPlayerDeliverySearch(deliverySearchReq)
+        when(res){
+            is ResultWrapper.Success ->{
+                val matchList = res.data.deliveries.filter {
+                    it.status_cd.startsWith("MATCH")
+                }
+
+                val deliveryList = res.data.deliveries.filter {
+                    it.status_cd.startsWith("DELIVERY")
+                }
+
+                val availableList = res.data.deliveries.filter {
+                    it.status_cd.startsWith("ENABLE")
+                }
+                doingPlayerDeliveryList.value = deliveryList //진행중인배송
+                applyDeliveryList.value = matchList //지원한 배송
+                availableDeliveryList.value = availableList //가능한 배송
+            }
+            is ResultWrapper.NetworkError ->{
+            }
+            is ResultWrapper.GenericError ->{
+            }
+        }
     }
 
     private val _event = SingleLiveEvent<Event>()

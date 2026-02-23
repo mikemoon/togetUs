@@ -15,6 +15,8 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentMyBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
@@ -25,16 +27,17 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
     override fun init() {
         super.init()
 
-        viewModel.getMyProfile(){
+        viewModel.getMyProfile() {
             dataBinding.profile = it
         }
+        viewModel.getPlayerInfo()
     }
 
     override fun initObserver() {
         super.initObserver()
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isModeChanging.drop(1).filter { it }.collectLatest {
                     (requireActivity() as MainActivity).showChangeModeAnimation(!viewModel.isPlayerModeFlow.value)
                 }
@@ -43,37 +46,77 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
 
         viewModel.event.observe(viewLifecycleOwner) {
             when (it) {
-                MyViewModel.Event.MySetting ->{
+                MyViewModel.Event.MySetting -> {
                     findNavController().navigate(R.id.action_myFragment_to_mySettingFragment)
                 }
-                MyViewModel.Event.ProfileManage ->{
-                    findNavController().navigate(MyFragmentDirections.actionMyFragmentToProfileManagementFragment(viewModel.profileDto.value, isPlayer = viewModel.isPlayerModeFlow.value))
+
+                MyViewModel.Event.ProfileManage -> {
+                    findNavController().navigate(
+                        MyFragmentDirections.actionMyFragmentToProfileManagementFragment(
+                            viewModel.profileDto.value,
+                            isPlayer = viewModel.isPlayerModeFlow.value
+                        )
+                    )
                 }
-                MyViewModel.Event.Notice ->{
+
+                MyViewModel.Event.Notice -> {
                     findNavController().navigate(R.id.action_myFragment_to_noticeFragment)
                 }
-                MyViewModel.Event.FAQ ->{
+
+                MyViewModel.Event.FAQ -> {
                     findNavController().navigate(R.id.action_myFragment_to_FAQFragment)
                 }
-                MyViewModel.Event.Settle ->{
+
+                MyViewModel.Event.Settle -> {
                     findNavController().navigate(R.id.action_myFragment_to_settleFragment)
                 }
-                MyViewModel.Event.Favor ->{
+
+                MyViewModel.Event.Favor -> {
                     findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
                 }
-                MyViewModel.Event.JoinPlayer ->{
-                    findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+
+                MyViewModel.Event.JoinPlayer -> {
+                    if (viewModel.hasPlayerApplyRequest.value) { //플레이어 신청 있는 상태
+                        MessageDialog.newInstance(
+                            msg = "신청 중인 내역이 있어요. 이어서 진행하시겠어요?",
+                            rightBtn = "예",
+                            leftBtn = "아니오"
+                        ).onRightBtn {
+
+                        }
+                            .onLeftBtn {
+
+                            }
+                            .show(childFragmentManager, "")
+                    } else {
+                        val profileId = viewModel.profileDto.value?.user?.player_id
+                        if(viewModel.impUidString.value.isEmpty() && (profileId == null || profileId == 0)) {
+                            //본인인증 flow
+
+                            //서버인증
+                            viewModel.setTempImpUid()
+                            viewModel.verifyImpUid(viewModel.impUidString.value){ playerId ->
+                                findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+                            }
+                        }else{
+                            findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+                        }
+                    }
                 }
-                MyViewModel.Event.AccompanyCredit ->{
+
+                MyViewModel.Event.AccompanyCredit -> {
 
                 }
-                MyViewModel.Event.Term ->{
+
+                MyViewModel.Event.Term -> {
                     findNavController().navigate(MyFragmentDirections.actionMyFragmentToTermFragment())
                 }
-                MyViewModel.Event.UseHistory ->{
+
+                MyViewModel.Event.UseHistory -> {
 
                 }
-                MyViewModel.Event.FavorPlayer ->{
+
+                MyViewModel.Event.FavorPlayer -> {
 
                 }
             }
