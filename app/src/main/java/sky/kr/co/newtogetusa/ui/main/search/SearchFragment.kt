@@ -21,6 +21,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
         get() = R.layout.fragment_search
     override val viewModel: SearchViewModel by viewModels()
 
+    private var departCd: List<String> = emptyList()
+    private var destCd: List<String> = emptyList()
+
     override fun init() {
         super.init()
     }
@@ -51,6 +54,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                         BottomAreaSelectDialog{ selectedRegion, selectedSubRegion ->
                             val subRegionText = selectedSubRegion.map { it.name }.toRegionSummary()
                             dataBinding.tvStart.text = "${selectedRegion[0].name} > $subRegionText"
+                            departCd = selectedSubRegion.map { it.code }
                         }
                     )
                 }
@@ -60,11 +64,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                         BottomAreaSelectDialog{ selectedRegion, selectedSubRegion ->
                             val subRegionText = selectedSubRegion.map { it.name }.toRegionSummary()
                             dataBinding.tvDestination.text = "${selectedRegion[0].name} > ${subRegionText}"
+                            destCd = selectedSubRegion.map { it.code }
                         }
                     )
                 }
                 SearchViewModel.Event.Search -> {
-                    findNavController().navigate(R.id.action_searchFragment_to_searchResultFragment)
+                    findNavController().navigate(
+                        SearchFragmentDirections.actionSearchFragmentToSearchResultFragment(
+                            departCd = departCd.toTypedArray(),
+                            destCd = destCd.toTypedArray()
+                        )
+                    )
                     //findNavController().navigate(R.id.playerTermFragment)
                 }
             }

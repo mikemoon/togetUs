@@ -18,7 +18,14 @@
     <fragment
         android:id="@+id/searchResultFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.search.SearchResultFragment"
-        android:label="SearchResultFragment" />
+        android:label="SearchResultFragment" >
+        <argument
+            android:name="departCd"
+            app:argType="string[]" />
+        <argument
+            android:name="destCd"
+            app:argType="string[]" />
+    </fragment>
     <fragment
         android:id="@+id/playerTermFragment"
         android:name="sky.kr.co.newtogetusa.ui.others.terms.PlayerTermFragment"
