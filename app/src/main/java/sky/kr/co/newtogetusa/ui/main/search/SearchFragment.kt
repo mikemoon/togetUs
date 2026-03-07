@@ -48,13 +48,19 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                 SearchViewModel.Event.StartRegion -> {
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomAreaSelectDialog()
+                        BottomAreaSelectDialog{ selectedRegion, selectedSubRegion ->
+                            val subRegionText = selectedSubRegion.map { it.name }.toRegionSummary()
+                            dataBinding.tvStart.text = "${selectedRegion[0].name} > $subRegionText"
+                        }
                     )
                 }
                 SearchViewModel.Event.DestinationRegion -> {
                     dialogFragmentShow(
                         childFragmentManager,
-                        BottomAreaSelectDialog()
+                        BottomAreaSelectDialog{ selectedRegion, selectedSubRegion ->
+                            val subRegionText = selectedSubRegion.map { it.name }.toRegionSummary()
+                            dataBinding.tvDestination.text = "${selectedRegion[0].name} > ${subRegionText}"
+                        }
                     )
                 }
                 SearchViewModel.Event.Search -> {
@@ -62,6 +68,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     //findNavController().navigate(R.id.playerTermFragment)
                 }
             }
+        }
+    }
+
+    fun List<String>.toRegionSummary(): String {
+        val sorted = this.sorted()
+        return if (sorted.size > 1) {
+            "${sorted.first()} 외 +${sorted.size - 1}"
+        } else {
+            sorted.firstOrNull() ?: ""
         }
     }
 }

@@ -1,14 +1,20 @@
 package sky.kr.co.newtogetusa.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.PlayerService
+import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
+import sky.kr.co.newtogetusa.repository.page.PlayerSearchPagingSource
 import javax.inject.Inject
 
 class PlayerRepository @Inject constructor(
@@ -80,6 +86,29 @@ class PlayerRepository @Inject constructor(
 
     suspend fun postPlayerBank(playerId: Int, request: BankRequestDto) = safeApiCall(Dispatchers.IO){
         apiService.postPlayerBank(playerId, request)
+    }
+
+    fun searchPlayers(
+        departCd: List<String>,
+        destCd: List<String>,
+        sortType: String
+    ): Flow<PagingData<PlayerDto>> {
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                initialLoadSize = 10,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                PlayerSearchPagingSource(
+                    apiService,
+                    departCd,
+                    destCd,
+                    sortType
+                )
+            }
+        ).flow
     }
 
 }

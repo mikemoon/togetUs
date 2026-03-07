@@ -16,6 +16,9 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         get() = R.layout.fragment_search_result
     override val viewModel: SearchResultViewModel by viewModels()
 
+    var departList : List<String>? = null
+    var destList : List<String>? = null
+
     override fun init() {
         super.init()
         dataBinding.llEmpty.isVisible = false

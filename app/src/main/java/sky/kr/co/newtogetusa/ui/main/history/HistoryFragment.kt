@@ -89,7 +89,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             )
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        /*viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.historyFlow.collectLatest{
                     val adapter = (dataBinding.rvHistory.adapter as HistoryAdapter)
@@ -105,7 +105,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                     //adapter.submitData(it)
                 }
             }
-        }
+        }*/
     }
 
     private fun setSelectedTopMenu(topMenu: HistoryViewModel.TopMenu){

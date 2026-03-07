@@ -10,11 +10,13 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
+import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerSearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.req.ProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
 
 interface PlayerService {
 
@@ -118,6 +120,11 @@ interface PlayerService {
     suspend fun verifyImpUid(
         @Body request: HashMap<String, String>
     ): Int
+
+    @POST("/api/players/v1/search") //플레이어검색
+    suspend fun postPlayersSearch(
+        @Body request: PlayerSearchRequest
+    ): PlayerSearchResponse
 
 
 }

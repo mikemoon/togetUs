@@ -4,11 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHistoryBinding
 import sky.kr.co.newtogetusa.databinding.ItemHistoryDeliveryBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 
-class HistoryDeliverAdapter(private val viewModel: HistoryDeliveryViewModel) : PagingDataAdapter<String, BaseViewHolder>(diffCallback) {
+class HistoryDeliverAdapter(private val viewModel: HistoryDeliveryViewModel) : PagingDataAdapter<DeliverySummaryDto, BaseViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return ViewHolder((ItemHistoryDeliveryBinding.inflate(LayoutInflater.from(parent.context), parent, false)))
@@ -30,12 +31,12 @@ class HistoryDeliverAdapter(private val viewModel: HistoryDeliveryViewModel) : P
     }
 
     companion object{
-        private val diffCallback = object : DiffUtil.ItemCallback<String>(){
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+        private val diffCallback = object : DiffUtil.ItemCallback<DeliverySummaryDto>(){
+            override fun areItemsTheSame(oldItem: DeliverySummaryDto, newItem: DeliverySummaryDto): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            override fun areContentsTheSame(oldItem: DeliverySummaryDto, newItem: DeliverySummaryDto): Boolean {
                 return oldItem == newItem
             }
         }

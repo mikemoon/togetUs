@@ -34,9 +34,6 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
         }
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
-        viewLifecycleOwner.lifecycleScope.launch {
-            historyAdapter.submitData(PagingData.from(listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")))
-        }
     }
 
     override fun initObserver() {
@@ -44,10 +41,18 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.isModePlayer.collectLatest {
-                    Timber.d("isModePlayer $it")
-                    if(!it){
-                        findNavController().navigate(R.id.action_historyDeliveryFragment_to_historyFragment)
+                launch {
+                    viewModel.isModePlayer.collectLatest {
+                        Timber.d("isModePlayer $it")
+                        if(!it){
+                            findNavController().navigate(R.id.action_historyDeliveryFragment_to_historyFragment)
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.deliveryPagingFlow.collectLatest { pagingData ->
+                        historyAdapter.submitData(pagingData)
                     }
                 }
             }

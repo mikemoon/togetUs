@@ -13,15 +13,19 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.search.RegionDto
 import sky.kr.co.newtogetusa.databinding.DialogBottomAreaBinding
 import sky.kr.co.newtogetusa.utils.dpToPx
 
 @AndroidEntryPoint
-class BottomAreaSelectDialog : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSelectViewModel>() {
+class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>, List<RegionDto>) -> Unit) : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSelectViewModel>() {
     override val layoutId: Int
         get() = R.layout.dialog_bottom_area
     override val viewModel: BottomAreaSelectViewModel by viewModels()
+
     private lateinit var areaAdapter: BottomAreaAdapter
+    var selectedRegion: List<RegionDto>? = null
+    var selectedSubRegion: List<RegionDto>? = null
 
     override fun init() {
         super.init()
@@ -31,19 +35,24 @@ class BottomAreaSelectDialog : BottomBaseDialog<DialogBottomAreaBinding, BottomA
 
         areaAdapter =
             BottomAreaAdapter(viewModel.domesticAddressList.value, multiSelect = false) { selectRegion, isDetail ->
-                if (isDetail) {
-                    dataBinding.tvRegion2.text = selectRegion[0].name
-                } else {
-                    dataBinding.tvDetailDesc.apply {
-                        isVisible = true
-                        text = if (viewModel.isLocal.value)"시/군/구는 복수로 선택할 수 있어요" else "도시는 복수로 선택할 수 있어요"
+                if(selectRegion.isNotEmpty()) {
+                    if (isDetail) {
+                        dataBinding.tvRegion2.text = selectRegion[0].name
+                        selectedSubRegion = selectRegion
+                    } else {
+                        dataBinding.tvDetailDesc.apply {
+                            isVisible = true
+                            text =
+                                if (viewModel.isLocal.value) "시/군/구는 복수로 선택할 수 있어요" else "도시는 복수로 선택할 수 있어요"
+                        }
+                        dataBinding.tvRegion1.text = selectRegion[0].name
+                        (dataBinding.rvRegions.adapter as BottomAreaAdapter).update(
+                            if (viewModel.isLocal.value) viewModel.domesticSubAddressList.value.filter { it.cate == selectRegion[0].code } else viewModel.domesticSubAddressList.value,
+                            multiSelect = true,
+                            isDetail = true
+                        )
+                        selectedRegion = selectRegion
                     }
-                    dataBinding.tvRegion1.text = selectRegion[0].name
-                    (dataBinding.rvRegions.adapter as BottomAreaAdapter).update(
-                        if (viewModel.isLocal.value) viewModel.domesticSubAddressList.value.filter { it.cate == selectRegion[0].code } else viewModel.domesticSubAddressList.value,
-                        multiSelect = true,
-                        isDetail = true
-                    )
                 }
             }
         dataBinding.rvRegions.apply {
@@ -75,8 +84,18 @@ class BottomAreaSelectDialog : BottomBaseDialog<DialogBottomAreaBinding, BottomA
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.domesticAddressList.collectLatest {
-                    areaAdapter.setItems(it)
+                launch {
+                    viewModel.selectedCompleteFlow.collectLatest {
+                        if(it){
+                            selectedRegionCallback(selectedRegion ?: emptyList(), selectedSubRegion ?: emptyList())
+                            dismissAllowingStateLoss()
+                        }
+                    }
+                }
+                launch {
+                    viewModel.domesticAddressList.collectLatest {
+                        areaAdapter.setItems(it)
+                    }
                 }
             }
         }

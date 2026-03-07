@@ -48,4 +48,9 @@ class BottomAreaSelectViewModel @Inject constructor(baseViewModelFactory: BaseVi
             else -> {}
         }
     }
+
+    val selectedCompleteFlow = MutableStateFlow(false)
+    fun onSelectedComplete(){
+        selectedCompleteFlow.value = true
+    }
 }

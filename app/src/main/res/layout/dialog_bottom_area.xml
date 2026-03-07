@@ -106,6 +106,7 @@
             android:background="@drawable/background_s_p100_r4"
             android:text="선택 완료"
             android:textColor="@color/white"
+            android:onClick="@{()-> viewModel.onSelectedComplete()}"
             style="@style/HeadLine20B"
             android:gravity="center"
             />
