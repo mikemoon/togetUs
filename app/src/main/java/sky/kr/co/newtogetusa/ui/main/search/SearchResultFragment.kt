@@ -23,11 +23,8 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         get() = R.layout.fragment_search_result
     override val viewModel: SearchResultViewModel by viewModels()
 
-    var departList : List<String>? = null
-    var destList : List<String>? = null
     private val args: SearchResultFragmentArgs by navArgs()
     private val searchResultAdapter = SearchResultAdapter()
-    private var searchJob: Job? = null
 
     override fun init() {
         super.init()
@@ -40,15 +37,15 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.searchPlayers(
-                    departCd = args.departCd.toList(),
-                    destCd = args.destCd.toList(),
-                    sortType = "distance"
-                ).collect(searchResultAdapter::submitData)
+                viewModel.playerPagingData.collect(searchResultAdapter::submitData)
             }
         }
 
-        searchPlayersWithSortType(SORT_DISTANCE)
+        viewModel.updateSearchCondition(
+            departCd = args.departCd.toList(),
+            destCd = args.destCd.toList(),
+            sortType = SORT_DISTANCE
+        )
     }
 
     override fun initObserver() {
@@ -65,24 +62,15 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
                         BottomFilterDialog().apply {
                             itemSelectCallback = { selectedItem ->
                                 this@SearchResultFragment.dataBinding.tvFilter.text = selectedItem
-                                searchPlayersWithSortType(selectedItem.toSortType())
+                                this@SearchResultFragment.viewModel.updateSearchCondition(
+                                    departCd = args.departCd.toList(),
+                                    destCd = args.destCd.toList(),
+                                    sortType = selectedItem.toSortType()
+                                )
                             }
                         }
                     )
                 }
-            }
-        }
-    }
-
-    private fun searchPlayersWithSortType(sortType: String) {
-        searchJob?.cancel()
-        searchJob = lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.searchPlayers(
-                    departCd = args.departCd.toList(),
-                    destCd = args.destCd.toList(),
-                    sortType = sortType
-                ).collect(searchResultAdapter::submitData)
             }
         }
     }

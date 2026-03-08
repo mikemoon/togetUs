@@ -6,6 +6,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
 import sky.kr.co.newtogetusa.repository.PlayerRepository
@@ -18,18 +21,29 @@ class SearchResultViewModel @Inject constructor(baseViewModelDependenciesFactory
     private val playerRepository: PlayerRepository)
     : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
+    private val searchCondition = MutableStateFlow<SearchCondition?>(null)
 
-    fun searchPlayers(
+    val playerPagingData: Flow<PagingData<PlayerDto>> = searchCondition
+        .filterNotNull()
+        .flatMapLatest { condition ->
+            playerRepository.searchPlayers(
+                departCd = condition.departCd,
+                destCd = condition.destCd,
+                sortType = condition.sortType
+            )
+        }
+        .cachedIn(viewModelScope)
+
+    fun updateSearchCondition(
         departCd: List<String>,
         destCd: List<String>,
         sortType: String
-    ): Flow<PagingData<PlayerDto>> {
-
-        return playerRepository.searchPlayers(
-            departCd,
-            destCd,
-            sortType
-        ).cachedIn(viewModelScope)
+    ) {
+        searchCondition.value = SearchCondition(
+            departCd = departCd,
+            destCd = destCd,
+            sortType = sortType
+        )
     }
 
     private val _event = SingleLiveEvent<Event>()
@@ -42,4 +56,10 @@ class SearchResultViewModel @Inject constructor(baseViewModelDependenciesFactory
         object Back: Event()
         object Filter : Event()
     }
+
+    data class SearchCondition(
+        val departCd: List<String>,
+        val destCd: List<String>,
+        val sortType: String
+    )
 }

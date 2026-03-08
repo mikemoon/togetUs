@@ -7,6 +7,7 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivProfile"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
@@ -45,7 +46,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="20dp"
-            android:gravity="end"
+            android:gravity="end|center_vertical"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -55,6 +56,7 @@
                 android:src="@drawable/star_fill_priamry" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvScore"
                 style="@style/Paragraph14R"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -64,6 +66,7 @@
                 android:textColor="@color/primary_100" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDoneCnt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"

@@ -109,7 +109,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         dataBinding.rvProgress.apply {
             adapter = prgAdapter
         }
-        regAdapter = HomeRegisteredAdapter()
+        regAdapter = HomeRegisteredAdapter{ selectedItem ->
+            val action =
+                NavGraphDirections.actionGlobalHistoryDetailFragment(selectedItem)
+            requireActivity().findNavController(R.id.nav_host_container).navigate(action)
+        }
         dataBinding.rvRegistered.apply {
             adapter = regAdapter
         }
