@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.home.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHomeBottomButtonBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
@@ -68,7 +69,7 @@ class HomeRegisteredAdapter(private val onItemClickListener: ((DeliverySummaryDt
 
     inner class ContentsVH(private val binding: ItemHomeContentsBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: DeliverySummaryDto) {
-            binding.ivProduct.loadImage(item.prd_picture)
+            binding.ivProduct.loadImage(item.prd_picture, placeholder = R.drawable.no_img, error =  R.drawable.no_img)
             binding.root.setOnClickListener {
                 onItemClickListener?.invoke(item)
             }

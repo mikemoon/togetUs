@@ -13,12 +13,9 @@ object TextConvertUtil {
         return "${formatter.format(amount)}원"
     }
 
-    fun formatPickupDateTime(date: String, time: String): String {
-        // date: yyyyMMdd
-        val localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd"))
+    fun formatPickupDateTime(date: String, time: String?): String {
 
-        // time: HHmm
-        val localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HHmm"))
+        val localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd"))
 
         val month = localDate.monthValue
         val day = localDate.dayOfMonth
@@ -31,6 +28,20 @@ object TextConvertUtil {
             5 -> "금"
             6 -> "토"
             else -> "일"
+        }
+
+        // time이 없으면 날짜만 표시
+        if (time.isNullOrBlank() || time == "null") {
+            return "${month}월 ${day}일(${dayOfWeek})"
+        }
+
+        val localTime = runCatching {
+            LocalTime.parse(time, DateTimeFormatter.ofPattern("HHmm"))
+        }.getOrNull()
+
+        // 파싱 실패 시 날짜만 표시
+        if (localTime == null) {
+            return "${month}월 ${day}일(${dayOfWeek})"
         }
 
         val hour = localTime.hour

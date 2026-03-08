@@ -280,7 +280,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     deliverySharedViewModel.updatePickupInfo(
                         isImmediately = detail.pickup.is_immediately,
                         date = detail.pickup.date,
-                        time = detail.pickup.time,
+                        time = detail.pickup.time.orEmpty(),
                         isFaceToFace = detail.pickup.is_face2face
                     )
 
