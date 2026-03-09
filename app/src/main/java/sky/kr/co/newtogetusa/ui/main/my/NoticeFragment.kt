@@ -1,9 +1,13 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentNoticeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
@@ -18,17 +22,25 @@ class NoticeFragment : BaseFragment<FragmentNoticeBinding, NoticeViewModel>() {
     override fun init() {
         super.init()
 
-        noticeAdapter = NoticeAdapter(viewModel).apply {
-            setItems(listOf("1"))
-        }
+        noticeAdapter = NoticeAdapter(viewModel)
         dataBinding.rv.apply {
             adapter = noticeAdapter
             addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         }
+
+        viewModel.getNoticeList()
     }
 
     override fun initObserver() {
         super.initObserver()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.noticeList.collect{
+                    noticeAdapter.setItems(it)
+                }
+            }
+        }
 
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
@@ -36,7 +48,8 @@ class NoticeFragment : BaseFragment<FragmentNoticeBinding, NoticeViewModel>() {
                     findNavController().popBackStack()
                 }
                 is NoticeViewModel.Event.NoticeDetail -> {
-                    findNavController().navigate(R.id.action_noticeFragment_to_noticeDetailFragment)
+                    val action = NoticeFragmentDirections.actionNoticeFragmentToNoticeDetailFragment(it.id)
+                    findNavController().navigate(action)
                 }
             }
         }

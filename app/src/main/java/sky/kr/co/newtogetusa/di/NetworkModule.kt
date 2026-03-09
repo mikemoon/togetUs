@@ -18,6 +18,7 @@ import sky.kr.co.newtogetusa.data.remote.api.AdminApiService
 import sky.kr.co.newtogetusa.data.remote.api.ConfigService
 import sky.kr.co.newtogetusa.data.remote.api.DeliveryService
 import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
+import sky.kr.co.newtogetusa.data.remote.api.MyService
 import sky.kr.co.newtogetusa.data.remote.api.PlayerService
 import sky.kr.co.newtogetusa.data.remote.api.RefreshApi
 import sky.kr.co.newtogetusa.data.remote.api.UserService
@@ -59,6 +60,10 @@ class NetworkModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class PlayerApi
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class MyApi
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
@@ -261,6 +266,13 @@ class NetworkModule {
     @Provides
     fun providePlayerService(@ApiServer retrofit: Retrofit): PlayerService {
         return retrofit.create(PlayerService::class.java)
+    }
+
+    @MyApi
+    @Singleton
+    @Provides
+    fun provideMyService(@ApiServer retrofit: Retrofit): MyService {
+        return retrofit.create(MyService::class.java)
     }
 
     @DeliveryApi

@@ -77,12 +77,20 @@
         android:label="NoticeFragment" >
         <action
             android:id="@+id/action_noticeFragment_to_noticeDetailFragment"
-            app:destination="@id/noticeDetailFragment" />
+            app:destination="@id/noticeDetailFragment" >
+            <argument
+                android:name="id"
+                app:argType="int" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/noticeDetailFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.NoticeDetailFragment"
-        android:label="NoticeDetailFragment" />
+        android:label="NoticeDetailFragment" >
+        <argument
+            android:name="id"
+            app:argType="int" />
+    </fragment>
     <fragment
         android:id="@+id/FAQFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.faq.FAQFragment"

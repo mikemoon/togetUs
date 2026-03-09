@@ -12,6 +12,7 @@ import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
+import sky.kr.co.newtogetusa.repository.MyRepository
 import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
@@ -27,7 +28,7 @@ import kotlin.uuid.Uuid
 class MyViewModel @Inject constructor(
     baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
     private val playerRepository: PlayerRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) :
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 

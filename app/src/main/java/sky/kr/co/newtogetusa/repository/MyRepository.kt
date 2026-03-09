@@ -1,0 +1,21 @@
+package sky.kr.co.newtogetusa.repository
+
+import kotlinx.coroutines.Dispatchers
+import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
+import sky.kr.co.newtogetusa.data.remote.api.MyService
+import sky.kr.co.newtogetusa.di.NetworkModule
+import javax.inject.Inject
+
+class MyRepository @Inject constructor(
+    @NetworkModule.MyApi private val apiService: MyService
+): BaseNetRepo() {
+
+    suspend fun putNoticeList(hashMap: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
+        apiService.putNoticeList(hashMap)
+    }
+
+    suspend fun putNoticeDetail(noticeId: Int) = safeApiCall(Dispatchers.IO){
+        apiService.putNoticeDetail(noticeId)
+    }
+
+}
