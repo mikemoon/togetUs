@@ -16,7 +16,7 @@ plugins {
 
 android {
     namespace = "sky.kr.co.newtogetusa"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "sky.kr.co.newtogetusa"
@@ -81,6 +81,7 @@ android {
     buildFeatures{
         buildConfig = true
     }
+
 }
 
 dependencies {
@@ -105,7 +106,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.easypermissions)
     implementation(libs.glide)
-    ksp("com.github.bumptech.glide:ksp:$rootProject.glide_version")
+    kapt "com.github.bumptech.glide:compiler:$rootProject.glide_version"
 
     implementation libs.hilt.android
     kapt "com.google.dagger:hilt-android-compiler:$rootProject.hilt_version"
@@ -121,13 +122,14 @@ dependencies {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
     }
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics.ktx)
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore.ktx)
-    implementation libs.firebase.messaging.ktx
-    implementation libs.firebase.crashlytics
-    implementation libs.firebase.config.ktx
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-config-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     implementation libs.play.services.location
 
@@ -148,10 +150,9 @@ dependencies {
     implementation 'androidx.media3:media3-exoplayer:1.2.0'
     implementation 'androidx.media3:media3-ui:1.2.0'
 
-    implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    implementation "androidx.room:room-ktx:2.6.1"
-    kapt "androidx.room:room-compiler:2.6.1"
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation "androidx.room:room-ktx:2.8.4"
+    kapt "androidx.room:room-compiler:2.8.4"
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
@@ -182,8 +183,6 @@ dependencies {
         exclude group: 'com.airbnb.android', module: 'lottie'
     }
     //implementation(files("libs/oauth-5.10.0.aar"))
-    /*implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
-    implementation("com.google.firebase:firebase-auth")*/
 
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")

@@ -80,7 +80,7 @@
             app:destination="@id/noticeDetailFragment" >
             <argument
                 android:name="id"
-                app:argType="int" />
+                app:argType="integer" />
         </action>
     </fragment>
     <fragment
@@ -89,7 +89,7 @@
         android:label="NoticeDetailFragment" >
         <argument
             android:name="id"
-            app:argType="int" />
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/FAQFragment"
