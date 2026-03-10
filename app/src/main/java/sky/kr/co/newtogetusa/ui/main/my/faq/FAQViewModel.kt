@@ -32,11 +32,13 @@ class FAQViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
 
     val faqList = MutableStateFlow<List<FAQDto>>(listOf())
     fun getFaqList(cateId: Int) = viewModelScope.launch {
-        when(val res = myRepository.putFaqList(hashMapOf("cate_id" to cateId.toString()))){
-            is ResultWrapper.Success ->{
-                faqList.value = res.data
-            }
-            else -> {}
+        faqList.value = getFaqListByCategory(cateId)
+    }
+
+    suspend fun getFaqListByCategory(cateId: Int): List<FAQDto> {
+        return when(val res = myRepository.putFaqList(hashMapOf("cate_id" to cateId.toString()))){
+            is ResultWrapper.Success -> res.data
+            else -> emptyList()
         }
     }
 

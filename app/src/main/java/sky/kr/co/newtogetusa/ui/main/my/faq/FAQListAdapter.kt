@@ -4,11 +4,12 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.data.remote.dto.my.FAQDto
 import sky.kr.co.newtogetusa.databinding.ItemFaqListBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 
 class FAQListAdapter(val viewModel: FAQViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    val items = mutableListOf<String>()
+    val items = mutableListOf<FAQDto>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ViewHolder(ItemFaqListBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -17,7 +18,7 @@ class FAQListAdapter(val viewModel: FAQViewModel) : RecyclerView.Adapter<Recycle
     override fun getItemCount(): Int = items.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setItems(items: List<String>){
+    fun setItems(items: List<FAQDto>){
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()
@@ -28,9 +29,10 @@ class FAQListAdapter(val viewModel: FAQViewModel) : RecyclerView.Adapter<Recycle
     inner class  ViewHolder(private val binding: ItemFaqListBinding) : BaseViewHolder(binding.root) {
         override fun onBindViewHolder(data: Any?, position: Int) {
             super.onBindViewHolder(data, position)
-            binding.data = data as String
+            val faq = data as FAQDto
+            binding.data = faq.title
             binding.root.setOnClickListener {
-                viewModel.onEventClick(FAQViewModel.Event.FAQDetail(position))
+                viewModel.onEventClick(FAQViewModel.Event.FAQDetail(faq.faqId))
             }
         }
     }

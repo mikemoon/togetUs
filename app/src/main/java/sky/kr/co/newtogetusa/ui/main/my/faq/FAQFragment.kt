@@ -1,10 +1,19 @@
 package sky.kr.co.newtogetusa.ui.main.my.faq
 
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.my.FAQCateDto
+import sky.kr.co.newtogetusa.data.remote.dto.my.FAQDto
 import sky.kr.co.newtogetusa.databinding.FragmentFaqBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.custom.CustomItemDecoration
@@ -17,24 +26,19 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
         get() = R.layout.fragment_faq
     override val viewModel: FAQViewModel by viewModels()
 
-    private var faqAdapter = FAQAdapter()
+    private var faqAdapter = FAQAdapter(::onCategorySelected)
     private lateinit var faqListAdapter: FAQListAdapter
+    private var allFaqList: List<FAQDto> = emptyList()
 
     override fun init() {
         super.init()
 
-        faqAdapter.setItems(listOf("전체", "공통", "플레이어", "유저"))
         dataBinding.rvCategory.apply {
             adapter = faqAdapter
             addItemDecoration(HorizontalItemSpacingDecoration(8.dpToPx()))
         }
 
         faqListAdapter = FAQListAdapter(viewModel)
-        faqListAdapter.setItems(listOf(
-            "투겟어스 자주 묻는 질문입니다 제목은 최대 두줄까지 표시되며 초과되면 말줄임 표시를 합니...",
-            "수령한 물품에 문제가 생겼어요",
-            "정산 주기는 어떻게 되나요?"
-        ))
         dataBinding.rvFaq.apply {
             adapter = faqListAdapter
             addItemDecoration(CustomItemDecoration(context, ContextCompat.getDrawable(context, R.drawable.list_divider)))
@@ -45,6 +49,40 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
 
     override fun initObserver() {
         super.initObserver()
+
+        dataBinding.etSearch.doAfterTextChanged {
+
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.faqCateList.collect { categories ->
+                        if (categories.isEmpty()) return@collect
+
+                        val categoryItems = buildList {
+                            add(FAQCateDto(cateId = 0, cateName = "전체"))
+                            addAll(categories)
+                        }
+                        faqAdapter.setItems(categoryItems)
+
+                        val fetchedFaqMap = categories.associate { category ->
+                            category.cateId to async { viewModel.getFaqListByCategory(category.cateId) }
+                        }.mapValues { it.value.await() }
+
+                        allFaqList = categories.flatMap { fetchedFaqMap[it.cateId].orEmpty() }
+                        faqListAdapter.setItems(allFaqList)
+                    }
+                }
+
+                launch {
+                    viewModel.faqList.collect {
+                        faqListAdapter.setItems(it)
+                    }
+                }
+            }
+        }
+
 
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
@@ -62,5 +100,13 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
                 }
             }
         }
+    }
+
+    private fun onCategorySelected(category: FAQCateDto) {
+        if (category.cateId == 0) {
+            faqListAdapter.setItems(allFaqList)
+            return
+        }
+        viewModel.getFaqList(category.cateId)
     }
 }
