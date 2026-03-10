@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.my.faq
 
+import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
@@ -29,6 +30,8 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
     private var faqAdapter = FAQAdapter(::onCategorySelected)
     private lateinit var faqListAdapter: FAQListAdapter
     private var allFaqList: List<FAQDto> = emptyList()
+    private var selectedCategoryId: Int = 0
+    private var faqListByCategory: Map<Int, List<FAQDto>> = emptyMap()
 
     override fun init() {
         super.init()
@@ -50,9 +53,16 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
     override fun initObserver() {
         super.initObserver()
 
-        dataBinding.etSearch.doAfterTextChanged {
-
+        dataBinding.etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                applySearch()
+                true
+            } else {
+                false
+            }
         }
+
+        dataBinding.ivSearch.setOnClickListener { applySearch() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -70,14 +80,9 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
                             category.cateId to async { viewModel.getFaqListByCategory(category.cateId) }
                         }.mapValues { it.value.await() }
 
+                        faqListByCategory = fetchedFaqMap
                         allFaqList = categories.flatMap { fetchedFaqMap[it.cateId].orEmpty() }
-                        faqListAdapter.setItems(allFaqList)
-                    }
-                }
-
-                launch {
-                    viewModel.faqList.collect {
-                        faqListAdapter.setItems(it)
+                        showCurrentCategoryList()
                     }
                 }
             }
@@ -103,10 +108,36 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
     }
 
     private fun onCategorySelected(category: FAQCateDto) {
-        if (category.cateId == 0) {
-            faqListAdapter.setItems(allFaqList)
+        selectedCategoryId = category.cateId
+        showCurrentCategoryList()
+    }
+
+    private fun showCurrentCategoryList() {
+        val baseList = if (selectedCategoryId == 0) {
+            allFaqList
+        } else {
+            faqListByCategory[selectedCategoryId].orEmpty()
+        }
+        faqListAdapter.setItems(baseList)
+    }
+
+    private fun applySearch() {
+        val keyword = dataBinding.etSearch.text?.toString()?.trim().orEmpty()
+        val baseList = if (selectedCategoryId == 0) {
+            allFaqList
+        } else {
+            faqListByCategory[selectedCategoryId].orEmpty()
+        }
+
+        if (keyword.isBlank()) {
+            faqListAdapter.setItems(baseList)
             return
         }
-        viewModel.getFaqList(category.cateId)
+
+        val filtered = baseList.filter {
+            it.title.contains(keyword, ignoreCase = true) ||
+                    it.contents.contains(keyword, ignoreCase = true)
+        }
+        faqListAdapter.setItems(filtered)
     }
 }
