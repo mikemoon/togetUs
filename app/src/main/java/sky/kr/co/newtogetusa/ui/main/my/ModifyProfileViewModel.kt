@@ -12,6 +12,7 @@ import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.my.MyViewModel.Event
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,13 +24,20 @@ class ModifyProfileViewModel @Inject constructor(
 
     var isProfileImageChanged = MutableStateFlow(false)
 
+    val errorMsg = MutableStateFlow("")
+
     fun setNickName(userId: Int, req: HashMap<String, String>, callback: (Boolean) -> Unit) = viewModelScope.launch {
         when (val response = userRepository.putProfileNickname(userId, req)) {
             is ResultWrapper.Success -> {
                 callback.invoke(response.data)
             }
 
-            else -> {}
+            is ResultWrapper.GenericError ->{
+                errorMsg.value = response.message.toString()
+            }
+            else -> {
+                Timber.e("error $response")
+            }
         }
     }
 

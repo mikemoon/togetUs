@@ -11,9 +11,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.req.ProfileImageRequest
@@ -111,6 +117,14 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
                 }
                 is ModifyProfileViewModel.Event.ProfileImage -> {
                     requestImagePick()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.errorMsg.filter { it.isNotEmpty() }.collectLatest {
+                    requireContext().toast(it)
                 }
             }
         }

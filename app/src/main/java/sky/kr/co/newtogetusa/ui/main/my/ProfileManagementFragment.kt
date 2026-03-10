@@ -36,6 +36,7 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         viewModel.getMyProfile {
             dataBinding.profile = it
             profileDto = it
+            dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"
         }
 
         dataBinding.viewPager.apply {
