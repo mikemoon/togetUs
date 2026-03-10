@@ -70,6 +70,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvContentCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
@@ -166,65 +167,37 @@
                 android:layout_marginTop="28dp">
                 
                 <CheckBox
+                    android:id="@+id/cbPrivacy"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:button="@null"
                     android:background="@drawable/checkbox_selector"
                     />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvGuide"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginStart="8dp"
-                    android:text="투겟어스 정보수집 규정을 모두 읽었으며 이에 동의합니다"
+                    android:text="투겟어스 개인정보 수집 및 활용에 동의합니다."
                     android:textColor="@color/black_80"
-                    style="@style/Paragraph14R"
-                    />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="12dp"
-                android:background="@color/black_10"
-                />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginHorizontal="20dp"
-                android:padding="8dp"
-                android:background="@drawable/background_s_b2_r4"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="개인정보 수집 및 활용"
-                    android:textColor="@color/primary_100"
                     style="@style/Paragraph14R"
                     android:onClick="@{()-> viewModel.onEventClick(Event.ShowPrivacy.INSTANCE)}"
-                    />
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="에 동의 합니다."
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph14R"
                     />
             </LinearLayout>
             
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSubmit"
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="66dp"
                 android:layout_marginBottom="20dp"
-                android:background="@drawable/background_s_b20_r4"
+                android:background="@drawable/selector_b20_p100_r4"
                 android:textColor="@color/selector_wopa40_wopa100"
                 android:text="문의하기"
                 android:gravity="center"
+                android:enabled="false"
                 style="@style/HeadLine20B"
                 />
 

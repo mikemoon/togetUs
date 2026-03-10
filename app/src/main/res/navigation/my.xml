@@ -125,12 +125,18 @@
         android:label="AskHistoryFragment" >
         <action
             android:id="@+id/action_askHistoryFragment_to_askDetailFragment"
-            app:destination="@id/askDetailFragment" />
+            app:destination="@id/askDetailFragment">
+            <argument android:name="data"
+                app:argType="sky.kr.co.newtogetusa.data.remote.dto.my.InquiryDto" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/askDetailFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.faq.AskDetailFragment"
-        android:label="AskDetailFragment" />
+        android:label="AskDetailFragment" >
+        <argument android:name="data"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.my.InquiryDto" />
+    </fragment>
     <fragment
         android:id="@+id/settleFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.settle.SettleFragment"

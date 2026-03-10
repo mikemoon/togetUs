@@ -3,9 +3,11 @@ package sky.kr.co.newtogetusa.ui.main.my.faq
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.my.InquiryDto
 import sky.kr.co.newtogetusa.repository.MyRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
@@ -17,10 +19,11 @@ class AskHistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: 
     : BaseViewModel(baseViewModelDependenciesFactory.create()){
 
 
+        val inquiryList = MutableStateFlow<List<InquiryDto>>(listOf())
         fun getOneOnOne() = viewModelScope.launch {
             when(val res = myRepository.putOneOnOne()) {
                 is ResultWrapper.Success -> {
-
+                    inquiryList.value = res.data
                 }
                 else -> {}
             }
@@ -34,6 +37,6 @@ class AskHistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: 
 
     sealed class Event {
         object Back : Event()
-        data class AskItem(val position: Int) : Event()
+        data class AskItem(val data: InquiryDto) : Event()
     }
 }

@@ -19,7 +19,8 @@ class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
         fun postOneOnOne(
             content:String,
             phone:String,
-            imageBase64: String? = null
+            imageBase64: String? = null,
+            resultCallback:(Boolean) -> Unit
         ) = viewModelScope.launch {
             when(val res = myRepository.postOneOnOne(hashMapOf(
                 "inquiry" to content,
@@ -31,7 +32,7 @@ class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
                 }
             })){
                 is ResultWrapper.Success -> {
-
+                    resultCallback(res.data)
                 }
                 else -> {}
             }
