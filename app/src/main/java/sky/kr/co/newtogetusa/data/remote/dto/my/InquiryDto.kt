@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.data.remote.dto.my
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class InquiryDto(
 
@@ -27,4 +28,4 @@ data class InquiryDto(
 
     @SerializedName("response_date")
     val responseDate: String
-)
+): Serializable

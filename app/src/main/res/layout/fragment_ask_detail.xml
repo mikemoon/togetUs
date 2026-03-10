@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <import type="sky.kr.co.newtogetusa.ui.main.my.faq.AskDetailViewModel.Event"/>
         <variable
@@ -47,6 +48,7 @@
             android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvState"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/background_s_b5_r4"
@@ -60,6 +62,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="정상은 언제되나요?"
@@ -70,6 +73,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2025.08.20"
@@ -87,6 +91,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="20dp"
@@ -96,11 +101,13 @@
                 />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxHeight="200dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginHorizontal="20dp"
-                android:src="@drawable/temp_banner_area"
+                android:scaleType="centerCrop"
                 />
 
             <LinearLayout
@@ -125,13 +132,14 @@
                         />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvResDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         android:textColor="@color/black_40"
-                        android:text="2025.08.20"
                         style="@style/Paragraph14R"
+                        tools:text="2025.08.20"
                         />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -146,24 +154,46 @@
                     android:visibility="gone"
                     />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    style="@style/Paragraph14R"
-                    android:textColor="@color/black_80"
-                    android:text="안녕하세요, 투겟어스 고객센터입니다.
+                    >
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvResContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        style="@style/Paragraph14R"
+                        android:textColor="@color/black_80"
+                        tools:text="안녕하세요, 투겟어스 고객센터입니다.
 문의하신 내용은 이런저런 사유로 이래저래 된 내용입니다.\n\n
 https://play.google.com/store/apps/details?id=sky.kr.co.newtogetusahl=ko
 \n
 감사합니다."
-                    />
+                        android:text=""
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvResReady"
+                        android:layout_width="match_parent"
+                        android:layout_height="204dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:gravity="center"
+                        style="@style/Paragraph14R"
+                        android:textColor="@color/black_40"
+                        tools:text="답변 대기중입니다.\n조금만 기다려주세요."
+                        android:text="답변 대기중입니다.\n조금만 기다려주세요."
+                        />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
 
                 <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivRes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxHeight="200dp"
                     android:layout_marginTop="20dp"
-                    android:src="@drawable/temp_banner_area"
+                    android:scaleType="centerCrop"
                     />
 
             </LinearLayout>
