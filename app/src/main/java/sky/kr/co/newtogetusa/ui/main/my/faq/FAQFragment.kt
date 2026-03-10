@@ -95,7 +95,8 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
                     findNavController().popBackStack()
                 }
                 is FAQViewModel.Event.FAQDetail -> {
-                    findNavController().navigate(R.id.action_FAQFragment_to_FAQDetailFragment)
+                    val action = FAQFragmentDirections.actionFAQFragmentToFAQDetailFragment(it.id)
+                    findNavController().navigate(action)
                 }
                 is FAQViewModel.Event.Ask -> {
                     findNavController().navigate(R.id.action_FAQFragment_to_askFragment)

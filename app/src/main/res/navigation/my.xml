@@ -97,7 +97,10 @@
         android:label="FAQFragment" >
         <action
             android:id="@+id/action_FAQFragment_to_FAQDetailFragment"
-            app:destination="@id/FAQDetailFragment" />
+            app:destination="@id/FAQDetailFragment">
+            <argument android:name="faqId"
+                app:argType="integer" />
+        </action>
         <action
             android:id="@+id/action_FAQFragment_to_askFragment"
             app:destination="@id/askFragment" />
@@ -108,7 +111,10 @@
     <fragment
         android:id="@+id/FAQDetailFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.faq.FAQDetailFragment"
-        android:label="FAQDetailFragment" />
+        android:label="FAQDetailFragment">
+        <argument android:name="faqId"
+            app:argType="integer" />
+    </fragment>
     <fragment
         android:id="@+id/askFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.faq.AskFragment"

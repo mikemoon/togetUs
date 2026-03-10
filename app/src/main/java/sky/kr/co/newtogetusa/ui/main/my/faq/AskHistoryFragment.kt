@@ -25,6 +25,7 @@ class AskHistoryFragment :BaseFragment<FragmentAskHistoryBinding, AskHistoryView
             adapter = historyAdapter
             addItemDecoration(CustomItemDecoration(context, ContextCompat.getDrawable(context, R.drawable.list_divider)))
         }
+        viewModel.getOneOnOne()
     }
 
     override fun initObserver() {

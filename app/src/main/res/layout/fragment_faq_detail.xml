@@ -40,6 +40,7 @@
         <!-- Topbar end-->
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/HeadLine18B"
@@ -50,6 +51,7 @@
             />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -67,6 +69,7 @@
             />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"

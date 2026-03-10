@@ -26,4 +26,16 @@ class MyRepository @Inject constructor(
         apiService.putFAQList(hashMap)
     }
 
+    suspend fun putFaqDetail(faqId: Int) = safeApiCall(Dispatchers.IO){
+        apiService.putFAQDetail(faqId)
+    }
+
+    suspend fun putOneOnOne() = safeApiCall(Dispatchers.IO) {
+        apiService.putOneOnOne()
+    }
+
+    suspend fun postOneOnOne(hashMap: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
+        apiService.postOneOnOne(hashMap)
+    }
+
 }
