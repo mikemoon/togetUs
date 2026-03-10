@@ -18,4 +18,12 @@ class MyRepository @Inject constructor(
         apiService.putNoticeDetail(noticeId)
     }
 
+    suspend fun putFaqCateList() = safeApiCall(Dispatchers.IO){
+        apiService.putFAQCateList()
+    }
+
+    suspend fun putFaqList(hashMap: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
+        apiService.putFAQList(hashMap)
+    }
+
 }

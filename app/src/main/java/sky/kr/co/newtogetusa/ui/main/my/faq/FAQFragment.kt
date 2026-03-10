@@ -39,6 +39,8 @@ class FAQFragment :BaseFragment<FragmentFaqBinding, FAQViewModel>() {
             adapter = faqListAdapter
             addItemDecoration(CustomItemDecoration(context, ContextCompat.getDrawable(context, R.drawable.list_divider)))
         }
+
+        viewModel.getFaqCateList()
     }
 
     override fun initObserver() {
