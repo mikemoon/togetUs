@@ -91,6 +91,21 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             }
         }
 
+        arguments?.getBoolean("openDeliveryFee")?.let { open ->
+            if (open) {
+                arguments?.remove("openDeliveryFee")
+
+                findNavController().navigate(
+                    R.id.action_homeTabFragment_to_deliveryReqFragment
+                )
+                findNavController().navigate(
+                    R.id.action_deliveryReqFragment_to_deliveryFeeFragment
+                )
+                return
+            }
+        }
+
+
 
         checkLocationPermission()
         if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){

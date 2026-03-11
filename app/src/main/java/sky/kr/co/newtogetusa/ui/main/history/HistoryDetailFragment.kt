@@ -269,7 +269,10 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         return@observe
                     }
                     populateDeliverySharedState()
-                    findNavController().navigate(R.id.action_global_deliveryFeeFragment)
+                    findNavController().navigate(
+                        R.id.action_global_to_home_for_delivery,
+                        bundleOf("openDeliveryFee" to true)
+                    )
                 }
             }
         }
