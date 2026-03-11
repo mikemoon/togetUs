@@ -400,7 +400,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         marginStart = 12.dpToPx()
                     }
                     setOnClickListener {
-                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.Modify)
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.ModifyFee)
                     }
                 }
             }
