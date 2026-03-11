@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
@@ -224,6 +226,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.deliveryDetail.filterNotNull().collectLatest { detail ->
+                    updateBottomActionButtons(detail.status_cd)
                     if (isMapReady) {
                         drawRouteKakaoMapByDirections(
                             startLat = detail.depart.latitude,
@@ -326,6 +329,104 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 }
             }
         }.show(childFragmentManager, "")
+    }
+
+    private fun updateBottomActionButtons(statusCode: String) = with(dataBinding) {
+        when (statusCode) {
+            "REGISTER_ING" -> {
+                llBottomButtonContainer.visibility = View.VISIBLE
+                vBottomDivider.visibility = View.VISIBLE
+
+                tvBottomSecondaryButton.apply {
+                    visibility = View.VISIBLE
+                    text = "삭제하기"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black_80))
+                    setBackgroundResource(R.drawable.background_s_b5_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = 0
+                        weight = 1f
+                        marginEnd = 0
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.CancelReq)
+                    }
+                }
+
+                tvBottomPrimaryButton.apply {
+                    text = "수정하기"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    setBackgroundResource(R.drawable.background_s_p100_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = 0
+                        weight = 2f
+                        marginStart = 12.dpToPx()
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.Modify)
+                    }
+                }
+            }
+
+            "MATCH_BEFORE" -> {
+                llBottomButtonContainer.visibility = View.VISIBLE
+                vBottomDivider.visibility = View.VISIBLE
+
+                tvBottomSecondaryButton.apply {
+                    visibility = View.VISIBLE
+                    text = "취소하기"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black_80))
+                    setBackgroundResource(R.drawable.background_s_b5_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = 0
+                        weight = 1f
+                        marginEnd = 0
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.CancelReq)
+                    }
+                }
+
+                tvBottomPrimaryButton.apply {
+                    text = "추가금액수정"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    setBackgroundResource(R.drawable.background_s_p100_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = 0
+                        weight = 2f
+                        marginStart = 12.dpToPx()
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.Modify)
+                    }
+                }
+            }
+
+            "CANCEL" -> {
+                llBottomButtonContainer.visibility = View.VISIBLE
+                vBottomDivider.visibility = View.VISIBLE
+
+                tvBottomSecondaryButton.visibility = View.GONE
+
+                tvBottomPrimaryButton.apply {
+                    text = "다시등록하기"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    setBackgroundResource(R.drawable.background_s_p100_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = ViewGroup.LayoutParams.MATCH_PARENT
+                        weight = 0f
+                        marginStart = 0
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.Modify)
+                    }
+                }
+            }
+
+            else -> {
+                llBottomButtonContainer.visibility = View.GONE
+                vBottomDivider.visibility = View.GONE
+            }
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

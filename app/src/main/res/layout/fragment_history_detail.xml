@@ -813,6 +813,7 @@
         </LinearLayout>
         
         <LinearLayout
+            android:id="@+id/llBottomButtonContainer"
             android:layout_width="match_parent"
             android:layout_height="96dp"
             android:layout_gravity="bottom"
@@ -820,6 +821,7 @@
             android:background="@color/white"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvBottomSecondaryButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/HeadLine18B"
@@ -834,6 +836,7 @@
                 android:onClick="@{()-> viewModel.onEventClick(Event.CancelReq.INSTANCE)}"
                 />
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvBottomPrimaryButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/HeadLine18B"
@@ -851,6 +854,7 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/vBottomDivider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/black_5"
