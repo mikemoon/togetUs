@@ -165,6 +165,8 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         object CancelReq: Event()
         object Modify: Event()
 
+        object ModifyFee: Event()
+
 
     }
 

@@ -311,6 +311,10 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         bundleOf("openDeliveryReq" to true)
                     )
                 }
+
+                HistoryDetailViewModel.Event.ModifyFee ->{
+
+                }
             }
         }
     }
