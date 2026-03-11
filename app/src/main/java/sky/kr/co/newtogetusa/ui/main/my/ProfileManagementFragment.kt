@@ -4,11 +4,16 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentProfileManagementBinding
@@ -58,11 +63,12 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
             customTabBinding0 = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.tab_my_profile_custom, dataBinding.tabLayout, false)
             customTabBinding0?.tvTitle?.text = "동행 요청"
             dataBinding.tabLayout.getTabAt(0)?.customView = customTabBinding0?.root
-            updateDeliveryRequestCount(12)
+            updateDeliveryRequestCount(0)
+            viewModel.fetchDeliveryRequestTotalCount()
         }
         customTabBinding1 = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.tab_my_profile_custom, dataBinding.tabLayout, false)
         dataBinding.tabLayout.getTabAt(1)?.customView = customTabBinding1?.root
-        updateReviewCount(3)
+        updateReviewCount(0)
     }
 
     override fun initObserver() {
@@ -78,6 +84,16 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 }
                 is ProfileManagementViewModel.Event.PasswordSet -> {
                     findNavController().navigate(R.id.action_profileManagementFragment_to_passwordSetFragment)
+                }
+            }
+        }
+
+        if (!isPlayerMode) {
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.deliveryRequestTotalCount.collectLatest {
+                        updateDeliveryRequestCount(it)
+                    }
                 }
             }
         }

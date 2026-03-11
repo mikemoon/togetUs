@@ -26,6 +26,9 @@ class ProfileDeliveryRequestFragment : BaseFragment<FragmentProfileDeliveryReque
         super.init()
 
         deliveryReqAdapter = DeliveryReqAdapter(viewModel)
+        deliveryReqAdapter.addOnPagesUpdatedListener {
+            focusTopPosition()
+        }
         dataBinding.rv.apply {
             adapter = deliveryReqAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
@@ -49,6 +52,13 @@ class ProfileDeliveryRequestFragment : BaseFragment<FragmentProfileDeliveryReque
 
         viewModel.topMenuLiveData.observe(viewLifecycleOwner) {
             deliveryReqAdapter.notifyItemChanged(0)
+            focusTopPosition()
+        }
+    }
+
+    private fun focusTopPosition() {
+        dataBinding.rv.post {
+            dataBinding.rv.scrollToPosition(0)
         }
     }
 }

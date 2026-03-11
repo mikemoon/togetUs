@@ -28,6 +28,7 @@ class DeliveryReqAdapter(
                     false
                 )
             )
+
             else -> ItemVH(
                 ItemDeliveryRequestBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -38,9 +39,9 @@ class DeliveryReqAdapter(
         }
     }
 
-            override fun getItemCount(): Int {
-                return super.getItemCount() + 1
-            }
+    override fun getItemCount(): Int {
+        return super.getItemCount() + 1
+    }
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -58,14 +59,18 @@ class DeliveryReqAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind() {
-            binding.tvTopAll.isSelected = viewModel.topMenuLiveData.value is ProfileManagementViewModel.TopMenu.All
-            binding.tvTopDoing.isSelected = viewModel.topMenuLiveData.value is ProfileManagementViewModel.TopMenu.Doing
-            binding.tvTopEnd.isSelected = viewModel.topMenuLiveData.value is ProfileManagementViewModel.TopMenu.End
+            binding.tvTopAll.isSelected =
+                viewModel.topMenuLiveData.value is ProfileManagementViewModel.TopMenu.All
+            binding.tvTopDoing.isSelected =
+                viewModel.topMenuLiveData.value is ProfileManagementViewModel.TopMenu.Doing
+            binding.tvTopEnd.isSelected =
+                viewModel.topMenuLiveData.value is ProfileManagementViewModel.TopMenu.End
             binding.tvTopAll.setOnClickListener { viewModel.onTopMenuSelect(viewModel.menuAll) }
             binding.tvTopDoing.setOnClickListener { viewModel.onTopMenuSelect(viewModel.menuDoing) }
             binding.tvTopEnd.setOnClickListener { viewModel.onTopMenuSelect(viewModel.menuEnd) }
         }
     }
+
     inner class ItemVH(private val binding: ItemDeliveryRequestBinding) :
         RecyclerView.ViewHolder(binding.root) {
 

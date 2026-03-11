@@ -43,6 +43,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     val menuAll = TopMenu.All
     val menuDoing = TopMenu.Doing
     val menuEnd = TopMenu.End
+    val deliveryRequestTotalCount = MutableStateFlow(0)
 
     private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
     private val _topMenuLiveData = SingleLiveEvent<TopMenu>()
@@ -71,6 +72,22 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
                 }
         }
         .cachedIn(viewModelScope)
+
+
+    fun fetchDeliveryRequestTotalCount() = viewModelScope.launch {
+        when (val res = deliveryRepository.postDeliverySearch(
+            DeliverySearchReq(
+                type = "ALL",
+                title = "",
+                page_no = 0
+            )
+        )) {
+            is ResultWrapper.Success -> {
+                deliveryRequestTotalCount.value = res.data.total_cnt
+            }
+            else -> {}
+        }
+    }
 
 
     private val _event = SingleLiveEvent<Event>()
