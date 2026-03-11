@@ -23,7 +23,6 @@
             android:textStyle="bold"
             android:paddingVertical="8dp"
             android:paddingHorizontal="16dp"
-            android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuAll)}"
             />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -38,7 +37,6 @@
             android:layout_marginStart="8dp"
             android:paddingVertical="8dp"
             android:paddingHorizontal="16dp"
-            android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuDoing)}"
             />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -53,7 +51,6 @@
             android:layout_marginStart="8dp"
             android:paddingVertical="8dp"
             android:paddingHorizontal="16dp"
-            android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuEnd)}"
             />
     </LinearLayout>
 

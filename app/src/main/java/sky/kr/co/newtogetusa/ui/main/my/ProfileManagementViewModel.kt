@@ -2,8 +2,13 @@ package sky.kr.co.newtogetusa.ui.main.my
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import androidx.paging.filter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
@@ -35,20 +40,37 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         }
     }
 
-    fun getDeliveryList()= viewModelScope.launch {
-        when(val res = deliveryRepository.postDeliverySearch(DeliverySearchReq(
-            type = "ALL",
-            title = "",
-            page_no = 0,
-        )
-        )
-        ){
-            is ResultWrapper.Success ->{
+    val menuAll = TopMenu.All
+    val menuDoing = TopMenu.Doing
+    val menuEnd = TopMenu.End
 
-            }
-            else ->{}
-        }
+    private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
+    private val _topMenuLiveData = SingleLiveEvent<TopMenu>()
+    val topMenuLiveData: LiveData<TopMenu> = _topMenuLiveData
+
+    fun onTopMenuSelect(topMenu: TopMenu) {
+        _topMenu.value = topMenu
+        _topMenuLiveData.value = topMenu
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val deliveryPagingFlow = _topMenu
+        .flatMapLatest { selectedMenu ->
+            deliveryRepository.getDeliveryPagingFlow(type = "ALL", title = "")
+                .map { pagingData ->
+                    pagingData.filter { item ->
+                        when (selectedMenu) {
+                            is TopMenu.All -> true
+                            is TopMenu.Doing -> item.status_cd.startsWith("ING") ||
+                                    item.status_cd.startsWith("REG") ||
+                                    item.status_cd.startsWith("MATCH") ||
+                                    item.status_cd.startsWith("DELIVERY")
+                            is TopMenu.End -> item.status_cd.startsWith("DONE") || item.status_cd.startsWith("CANCEL")
+                        }
+                    }
+                }
+        }
+        .cachedIn(viewModelScope)
 
 
     private val _event = SingleLiveEvent<Event>()
@@ -61,5 +83,11 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         object Back : Event()
         object ModifyProfile : Event()
         object PasswordSet : Event()
+    }
+
+    sealed class TopMenu {
+        object All : TopMenu()
+        object Doing : TopMenu()
+        object End : TopMenu()
     }
 }

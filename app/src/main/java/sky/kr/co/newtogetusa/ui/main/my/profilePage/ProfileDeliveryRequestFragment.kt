@@ -1,7 +1,12 @@
 package sky.kr.co.newtogetusa.ui.main.my.profilePage
 
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentProfileDeliveryRequestBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
@@ -20,17 +25,30 @@ class ProfileDeliveryRequestFragment : BaseFragment<FragmentProfileDeliveryReque
     override fun init() {
         super.init()
 
-        deliveryReqAdapter = DeliveryReqAdapter()
-        deliveryReqAdapter.setItems(listOf("a", "b", "c"))
+        deliveryReqAdapter = DeliveryReqAdapter(viewModel)
         dataBinding.rv.apply {
             adapter = deliveryReqAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
             setPadding(paddingLeft, 20.dpToPx(), paddingRight, 20.dpToPx())
             clipToPadding = false
         }
+        viewModel.onTopMenuSelect(viewModel.menuAll)
     }
 
     override fun initObserver() {
         super.initObserver()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.deliveryPagingFlow.collectLatest { pagingData ->
+                        deliveryReqAdapter.submitData(pagingData)
+                    }
+                }
+            }
+        }
+
+        viewModel.topMenuLiveData.observe(viewLifecycleOwner) {
+            deliveryReqAdapter.notifyItemChanged(0)
+        }
     }
 }
