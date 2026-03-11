@@ -40,6 +40,10 @@
         app:popUpTo="@id/historyDetailFragment"
         app:popUpToInclusive="false" />
 
+    <action
+        android:id="@+id/action_global_deliveryFeeFragment"
+        app:destination="@id/deliveryFeeFragment" />
+
     <fragment
         android:id="@+id/photoFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.PhotoFragment"

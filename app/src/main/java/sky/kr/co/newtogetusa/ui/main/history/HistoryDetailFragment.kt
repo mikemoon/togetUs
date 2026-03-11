@@ -255,55 +255,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 }
                 HistoryDetailViewModel.Event.Modify ->{
                     val detail = viewModel.deliveryDetail.value ?: return@observe
-                    // 1️⃣ 이전 작성 상태 초기화 (중요)
-                    deliverySharedViewModel.clearState()
-
-                    // 2️⃣ 국내 / 해외
-                    deliverySharedViewModel.updateDistance(
-                        distance = detail.expected.expected_distance.toString()
-                    )
-
-                    // 3️⃣ 출발지
-                    deliverySharedViewModel.updateStartLocation(
-                        address = detail.depart.address,
-                        detail = detail.depart.address2.orEmpty(),
-                        lat = detail.depart.latitude,
-                        lng = detail.depart.longitude
-                    )
-
-                    // 4️⃣ 도착지
-                    deliverySharedViewModel.updateDestinationLocation(
-                        address = detail.dest.address,
-                        detail = detail.dest.address2.orEmpty(),
-                        lat = detail.dest.latitude,
-                        lng = detail.dest.longitude
-                    )
-
-                    // 5️⃣ 픽업 정보
-                    deliverySharedViewModel.updatePickupInfo(
-                        isImmediately = detail.pickup.is_immediately,
-                        date = detail.pickup.date,
-                        time = detail.pickup.time.orEmpty(),
-                        isFaceToFace = detail.pickup.is_face2face
-                    )
-
-                    // 6️⃣ 상품 정보
-                    deliverySharedViewModel.updateProductInfo(
-                        title = detail.product.name,
-                        description = detail.product.descript,
-                        type = detail.product.type_cd,
-                        weight = detail.product.weight_cd,
-                        volume = detail.product.volume_cd
-                    )
-
-                    // 7️⃣ 요청자 정보
-                    deliverySharedViewModel.updateUser(
-                        name = detail.depart_contact.name.orEmpty(),
-                        phone = detail.depart_contact.phone.orEmpty()
-                    )
-
-                    // 8️⃣ 국제 배송 여부
-                    deliverySharedViewModel.setInternational(!detail.is_domestic)
+                    populateDeliverySharedState()
 
                     // 9️⃣ DeliveryReqFragment로 이동
                     findNavController().navigate(
@@ -313,10 +265,59 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 }
 
                 HistoryDetailViewModel.Event.ModifyFee ->{
-
+                    if (findNavController().currentDestination?.id != R.id.historyDetailFragment) {
+                        return@observe
+                    }
+                    populateDeliverySharedState()
+                    findNavController().navigate(R.id.action_global_deliveryFeeFragment)
                 }
             }
         }
+    }
+
+    private fun populateDeliverySharedState() {
+        val detail = viewModel.deliveryDetail.value ?: return
+        deliverySharedViewModel.clearState()
+
+        deliverySharedViewModel.updateDistance(
+            distance = detail.expected.expected_distance.toString()
+        )
+
+        deliverySharedViewModel.updateStartLocation(
+            address = detail.depart.address,
+            detail = detail.depart.address2.orEmpty(),
+            lat = detail.depart.latitude,
+            lng = detail.depart.longitude
+        )
+
+        deliverySharedViewModel.updateDestinationLocation(
+            address = detail.dest.address,
+            detail = detail.dest.address2.orEmpty(),
+            lat = detail.dest.latitude,
+            lng = detail.dest.longitude
+        )
+
+        deliverySharedViewModel.updatePickupInfo(
+            isImmediately = detail.pickup.is_immediately,
+            date = detail.pickup.date,
+            time = detail.pickup.time.orEmpty(),
+            isFaceToFace = detail.pickup.is_face2face
+        )
+
+        deliverySharedViewModel.updateProductInfo(
+            title = detail.product.name,
+            description = detail.product.descript,
+            type = detail.product.type_cd,
+            weight = detail.product.weight_cd,
+            volume = detail.product.volume_cd
+        )
+
+        deliverySharedViewModel.updateUser(
+            name = detail.depart_contact.name.orEmpty(),
+            phone = detail.depart_contact.phone.orEmpty()
+        )
+
+        deliverySharedViewModel.setInternational(!detail.is_domestic)
     }
 
     private fun cancelRequest() {
