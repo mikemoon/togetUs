@@ -4,9 +4,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentProfileDeliveryRequestBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
@@ -25,7 +27,10 @@ class ProfileDeliveryRequestFragment : BaseFragment<FragmentProfileDeliveryReque
     override fun init() {
         super.init()
 
-        deliveryReqAdapter = DeliveryReqAdapter(viewModel)
+        deliveryReqAdapter = DeliveryReqAdapter(viewModel) { selectedItem ->
+            val action = NavGraphDirections.actionGlobalHistoryDetailFragment(selectedItem)
+            requireActivity().findNavController(R.id.nav_host_container).navigate(action)
+        }
         deliveryReqAdapter.addOnPagesUpdatedListener {
             focusTopPosition()
         }

@@ -16,7 +16,8 @@ import sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel
 import sky.kr.co.newtogetusa.utils.loadImage
 
 class DeliveryReqAdapter(
-    private val viewModel: ProfileManagementViewModel
+    private val viewModel: ProfileManagementViewModel,
+    private val onItemClick: (DeliverySummaryDto) -> Unit
 ) : PagingDataAdapter<DeliverySummaryDto, RecyclerView.ViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -85,6 +86,7 @@ class DeliveryReqAdapter(
             binding.tvDestAddress.text = item.dest_address
             binding.ivProduct.loadImage(item.prd_picture, error = R.drawable.no_img)
             binding.vRouteLine.isVisible = item.dest_address.isNotBlank()
+            binding.root.setOnClickListener { onItemClick(item) }
         }
     }
 
