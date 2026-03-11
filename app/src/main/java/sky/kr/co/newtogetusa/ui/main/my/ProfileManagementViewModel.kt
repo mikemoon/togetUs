@@ -8,7 +8,9 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.repository.DataStoreKey
+import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-                                                     private val userRepository: UserRepository
+                                                     private val userRepository: UserRepository,
+    private val deliveryRepository: DeliveryRepository
 )
     : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
@@ -31,6 +34,22 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
             else ->{}
         }
     }
+
+    fun getDeliveryList()= viewModelScope.launch {
+        when(val res = deliveryRepository.postDeliverySearch(DeliverySearchReq(
+            type = "ALL",
+            title = "",
+            page_no = 0,
+        )
+        )
+        ){
+            is ResultWrapper.Success ->{
+
+            }
+            else ->{}
+        }
+    }
+
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event

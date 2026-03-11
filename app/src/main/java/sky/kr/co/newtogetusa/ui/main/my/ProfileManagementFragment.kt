@@ -56,7 +56,7 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         })
         if(!isPlayerMode){
             customTabBinding0 = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.tab_my_profile_custom, dataBinding.tabLayout, false)
-            customTabBinding0?.tvTitle?.text = "배송 요청"
+            customTabBinding0?.tvTitle?.text = "동행 요청"
             dataBinding.tabLayout.getTabAt(0)?.customView = customTabBinding0?.root
             updateDeliveryRequestCount(12)
         }
