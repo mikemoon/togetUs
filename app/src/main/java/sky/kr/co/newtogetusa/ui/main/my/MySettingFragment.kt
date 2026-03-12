@@ -53,7 +53,11 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
                     findNavController().popBackStack()
                 }
                 MySettingViewModel.Event.ManageProfile ->{
-                    findNavController().navigate(R.id.action_mySettingFragment_to_profileManagementFragment)
+                    findNavController().navigate(
+                        MySettingFragmentDirections.actionMySettingFragmentToProfileManagementFragment(
+                            profileDto = null,
+                        )
+                    )
                 }
                 MySettingViewModel.Event.DeliveryAlarm ->{
                     dialogFragmentShow(
