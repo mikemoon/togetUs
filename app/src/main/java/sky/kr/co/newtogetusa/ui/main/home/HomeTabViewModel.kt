@@ -59,8 +59,8 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
                     it.status_cd.startsWith("DELIVERY")
                 }
 
-                registeredDeliveryList.value = matchList
-                doingDeliveryList.value = deliveryList
+                registeredDeliveryList.value = matchList.map { it.apply { setUiValue() }}
+                doingDeliveryList.value = deliveryList.map { it.apply { setUiValue() }}
             }
             else -> {}
         }

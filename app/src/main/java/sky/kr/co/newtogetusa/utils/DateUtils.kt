@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.utils
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -52,3 +53,28 @@ fun formatPickupDateTime(raw: String): String {
                 "$amPm ${"%01d".format(hour12)}:${"%02d".format(time.minute)}"
     }.getOrElse { raw }
     }
+
+
+fun formatRegisterDateTime(input: String): String {
+    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
+    val dateTime = LocalDateTime.parse(input, inputFormatter)
+
+    val dayOfWeek = when (dateTime.dayOfWeek.value) {
+        1 -> "월"
+        2 -> "화"
+        3 -> "수"
+        4 -> "목"
+        5 -> "금"
+        6 -> "토"
+        else -> "일"
+    }
+
+    val ampm = if (dateTime.hour < 12) "오전" else "오후"
+    val hour = when {
+        dateTime.hour == 0 -> 12
+        dateTime.hour > 12 -> dateTime.hour - 12
+        else -> dateTime.hour
+    }
+
+    return "${dateTime.year}년 ${dateTime.monthValue}월 ${dateTime.dayOfMonth}일($dayOfWeek) $ampm ${hour}:${"%02d".format(dateTime.minute)}"
+}

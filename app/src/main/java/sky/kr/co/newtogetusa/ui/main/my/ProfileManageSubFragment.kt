@@ -47,7 +47,7 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
                             "이메일" -> R.drawable.login_mail
                             else -> R.drawable.login_mail
                         }
-                        dataBinding.ivSns.setImageResource(iconRes)
+                        //dataBinding.ivSns.setImageResource(iconRes)
                     }
                 }
             }

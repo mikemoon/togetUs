@@ -171,6 +171,7 @@
                     android:id="@+id/ivSns"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
+                    android:src="@drawable/login_mail"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvEmail"

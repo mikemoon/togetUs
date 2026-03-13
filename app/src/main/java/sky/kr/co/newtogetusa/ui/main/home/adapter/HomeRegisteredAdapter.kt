@@ -69,6 +69,7 @@ class HomeRegisteredAdapter(private val onItemClickListener: ((DeliverySummaryDt
 
     inner class ContentsVH(private val binding: ItemHomeContentsBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: DeliverySummaryDto) {
+            binding.data = item
             binding.ivProduct.loadImage(item.prd_picture, placeholder = R.drawable.no_img, error =  R.drawable.no_img)
             binding.root.setOnClickListener {
                 onItemClickListener?.invoke(item)

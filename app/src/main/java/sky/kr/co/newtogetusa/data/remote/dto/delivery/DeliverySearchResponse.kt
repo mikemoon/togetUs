@@ -4,6 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
 import sky.kr.co.newtogetusa.utils.formatPickupDateTime
+import sky.kr.co.newtogetusa.utils.formatRegisterDateTime
 
 data class DeliverySearchResponse(
     val page_no: Int,
@@ -31,12 +32,14 @@ data class DeliverySummaryDto(
     var status_text: String,
     var price_text: String,
     var pickup_ui_date: String,
+    var regist_date_text: String,
 ): Parcelable {
 
     fun setUiValue(){
         setStatusText()
         price_text = fee_final.toWon()
         pickup_ui_date = formatPickupDateTime((pickup_date as String?).orEmpty())
+        regist_date_text = formatRegisterDateTime((regist_date as String?).orEmpty())
     }
     fun setStatusText(){
         status_text = when(status_cd as String){
