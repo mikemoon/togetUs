@@ -26,6 +26,7 @@ object DataStoreKey{
     const val KEY_TOKEN = "access_token"
     const val KEY_REFRESH_TOKEN = "refresh_token"
     const val RECENT_LOGIN_TYPE = "recent_login_type"
+    const val KEY_LOGIN_EMAIL = "login_email"
     const val KEY_PROFILE = "profile"
     const val KEY_ABROAD_DELIVERY_AGREE = "agree_abroad_delivery"
 

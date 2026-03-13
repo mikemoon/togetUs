@@ -94,6 +94,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, KAKAO)
+                dataStoreRepository.putString(DataStoreKey.KEY_LOGIN_EMAIL, "")
                 callback.invoke(200, null)
             }
             is ResultWrapper.GenericError -> {
@@ -118,6 +119,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, NAVER)
+                dataStoreRepository.putString(DataStoreKey.KEY_LOGIN_EMAIL, "")
                 callback.invoke(200, null)
             }
             is ResultWrapper.GenericError -> {
@@ -140,6 +142,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, GOOGLE)
+                dataStoreRepository.putString(DataStoreKey.KEY_LOGIN_EMAIL, "")
             }
             is ResultWrapper.GenericError -> {
                 callback.invoke(response.code?.toInt()?:0, response.errorData)

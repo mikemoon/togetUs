@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.my
 import android.content.Intent
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentMySettingBinding
@@ -18,6 +19,8 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
     override val layoutId: Int
         get() = R.layout.fragment_my_setting
     override val viewModel: MySettingViewModel by viewModels()
+
+    private val args : MySettingFragmentArgs by navArgs()
 
     override fun initObserver() {
         super.initObserver()
@@ -54,8 +57,8 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
                 }
                 MySettingViewModel.Event.ManageProfile ->{
                     findNavController().navigate(
-                        MySettingFragmentDirections.actionMySettingFragmentToProfileManagementFragment(
-                            profileDto = null,
+                        MySettingFragmentDirections.actionMySettingFragmentToProfileManageSubFragment(
+                            profileDto = args.profileDto,
                         )
                     )
                 }
@@ -101,8 +104,10 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
 
                 }
                 MySettingViewModel.Event.Logout ->{
-                    requireContext().startActivity(Intent(requireContext(), LoginActivity::class.java))
-                    requireActivity().finish()
+                    viewModel.logout {
+                        requireContext().startActivity(Intent(requireContext(), LoginActivity::class.java))
+                        requireActivity().finish()
+                    }
                 }
                 MySettingViewModel.Event.WithDraw ->{
                     findNavController().navigate(R.id.action_mySettingFragment_to_withDrawFragment)

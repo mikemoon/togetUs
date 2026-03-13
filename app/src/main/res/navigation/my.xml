@@ -13,7 +13,9 @@
             app:destination="@id/profileManagementFragment" />
         <action
             android:id="@+id/action_myFragment_to_mySettingFragment"
-            app:destination="@id/mySettingFragment" />
+            app:destination="@id/mySettingFragment" >
+            <argument android:name="profileDto" app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" app:nullable="true"/>
+        </action>
         <action
             android:id="@+id/action_myFragment_to_noticeFragment"
             app:destination="@id/noticeFragment" />
@@ -45,6 +47,9 @@
         <action
             android:id="@+id/action_profileManagementFragment_to_passwordSetFragment"
             app:destination="@id/passwordSetFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_profileManageSubFragment"
+            app:destination="@id/profileManageSubFragment" />
     </fragment>
     <fragment
         android:id="@+id/modifyProfileFragment"
@@ -60,12 +65,15 @@
         android:id="@+id/mySettingFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.MySettingFragment"
         android:label="MySettingFragment" >
+        <argument android:name="profileDto" app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" app:nullable="true"/>
         <action
             android:id="@+id/action_mySettingFragment_to_withDrawFragment"
             app:destination="@id/withDrawFragment" />
         <action
-            android:id="@+id/action_mySettingFragment_to_profileManagementFragment"
-            app:destination="@id/profileManagementFragment" />
+            android:id="@+id/action_mySettingFragment_to_profileManageSubFragment"
+            app:destination="@id/profileManageSubFragment" >
+            <argument android:name="profileDto" app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" app:nullable="true"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/withDrawFragment"
@@ -185,4 +193,13 @@
         android:id="@+id/playerJoinCompleteFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinCompleteFragment"
         android:label="PlayerJoinCompleteFragment" />
+    <fragment
+        android:id="@+id/profileManageSubFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManageSubFragment"
+        android:label="ProfileManageSubFragment" >
+        <argument android:name="profileDto" app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" app:nullable="true"/>
+        <action
+            android:id="@+id/action_profileManageSubFragment_to_modifyProfileFragment"
+            app:destination="@id/modifyProfileFragment" />
+    </fragment>
 </navigation>

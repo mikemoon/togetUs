@@ -39,6 +39,8 @@ class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: 
         )
         when(response){
             is ResultWrapper.Success -> {
+                dataStoreRepository.putInt(sky.kr.co.newtogetusa.repository.DataStoreKey.RECENT_LOGIN_TYPE, LoginViewModel.EMAIL)
+                dataStoreRepository.putString(sky.kr.co.newtogetusa.repository.DataStoreKey.KEY_LOGIN_EMAIL, email)
                 _loginResult.value = response.data
             }
             else ->{

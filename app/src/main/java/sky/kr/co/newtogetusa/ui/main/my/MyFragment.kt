@@ -47,7 +47,8 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
         viewModel.event.observe(viewLifecycleOwner) {
             when (it) {
                 MyViewModel.Event.MySetting -> {
-                    findNavController().navigate(R.id.action_myFragment_to_mySettingFragment)
+                    val action = MyFragmentDirections.actionMyFragmentToMySettingFragment(viewModel.profileDto.value)
+                    findNavController().navigate(action)
                 }
 
                 MyViewModel.Event.ProfileManage -> {

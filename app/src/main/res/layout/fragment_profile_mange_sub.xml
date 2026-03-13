@@ -8,7 +8,7 @@
             name="profile"
             type="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" />
         <variable
-            name="vm"
+            name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.my.ProfileManageSubVM" />
     </data>
 
@@ -30,7 +30,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="20dp"
-                android:onClick="@{()->vm.onEventClick(Event.Back.INSTANCE)}"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
                 android:src="@drawable/left_l" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -98,9 +98,6 @@
                 android:textColor="@color/black_80"
                 tools:text="홍길동" />
 
-
-
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -108,7 +105,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{()-> vm.onEventClick(Event.ModifyProfile.INSTANCE)}"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.ModifyProfile.INSTANCE)}"
                     android:text="수정"
                     android:textColor="@color/white"
                     style="@style/Paragraph15B"
@@ -176,6 +173,7 @@
                     android:layout_height="24dp"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
