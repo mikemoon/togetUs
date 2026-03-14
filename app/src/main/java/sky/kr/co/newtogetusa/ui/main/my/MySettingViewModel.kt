@@ -16,50 +16,78 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class MySettingViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-    private val configRepository: ConfigRepository)
-    :BaseViewModel(baseViewModelDependenciesFactory.create()) {
+class MySettingViewModel @Inject constructor(
+    baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val configRepository: ConfigRepository
+) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
-        init {
-            getAlarmSettings()
-        }
+    init {
+        getAlarmSettings()
+    }
 
     val alarmSettingState = MutableStateFlow<NotificationSettingDto?>(null)
 
     fun getAlarmSettings() = viewModelScope.launch {
-        when(val res = configRepository.getAlarmSettings()){
+        when (val res = configRepository.getAlarmSettings()) {
             is ResultWrapper.Success -> {
-                alarmSettingState.value = res.data
+                if (res.data is NotificationSettingDto) {
+                    alarmSettingState.value = res.data
+                }
             }
+
             else -> {
             }
         }
     }
 
     fun setAlarmSettings(settings: NotificationSettingReq) = viewModelScope.launch {
-        when(val res = configRepository.putAlarmSettings(
+        when (val res = configRepository.putAlarmSettings(
             settings
         )
-        ){
+        ) {
             is ResultWrapper.Success -> {
 
             }
+
             else -> {
 
             }
         }
     }
 
+    fun updateAlarmSetting(update: (NotificationSettingDto) -> NotificationSettingDto) {
+        val current = alarmSettingState.value ?: return
+        val updated = update(current)
+        alarmSettingState.value = updated
+        setAlarmSettings(updated.toReq())
+    }
+
+    private fun NotificationSettingDto.toReq() = NotificationSettingReq(
+        pushYn = pushYn.toYn(),
+        chatYn = chatYn.toYn(),
+        marketingYn = marketingYn.toYn(),
+        deliveryYn = deliveryYn.toYn(),
+        nightPushYn = nightPushYn.toYn()
+    )
+
+    private fun Boolean.toYn(): String = if (this) "Y" else "N"
+
     fun logout(callback: () -> Unit) = viewModelScope.launch {
         dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
         dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
-        when(val res = configRepository.deletePushToken(hashMapOf("device_token" to dataStoreRepository.getString(
-            DataStoreKey.KEY_FCM_TOKEN), "device_type" to null))){
+        when (val res = configRepository.deletePushToken(
+            hashMapOf(
+                "device_token" to dataStoreRepository.getString(
+                    DataStoreKey.KEY_FCM_TOKEN
+                ), "device_type" to null
+            )
+        )) {
             is ResultWrapper.Success -> {
-                if(res.data) {
+                if (res.data) {
                     callback()
                 }
             }
+
             else -> {
             }
         }

@@ -15,6 +15,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -25,39 +26,25 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
     override val viewModel: MySettingViewModel by viewModels()
 
     private val args : MySettingFragmentArgs by navArgs()
+    private var isSwitchBindingInProgress = false
 
     override fun initObserver() {
         super.initObserver()
 
+        bindAlarmSwitchListeners()
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.alarmSettingState.collect{
-
+                viewModel.alarmSettingState.collect{ setting ->
+                    setting ?: return@collect
+                    Timber.d("alarmSettingState $setting")
+                    isSwitchBindingInProgress = true
+                    dataBinding.swDelivery.isChecked = setting.deliveryYn
+                    dataBinding.swChatting.isChecked = setting.chatYn
+                    dataBinding.swMarketing.isChecked = setting.marketingYn
+                    dataBinding.swNight.isChecked = setting.nightPushYn
+                    isSwitchBindingInProgress = false
                 }
-            }
-        }
-
-        dataBinding.swDelivery.setOnCheckedChangeListener { _, isChecked ->
-            if(!isChecked){
-                viewModel.onEventClick(MySettingViewModel.Event.DeliveryAlarm)
-            }
-        }
-
-        dataBinding.swChatting.setOnCheckedChangeListener { _, isChecked ->
-            if(!isChecked){
-                viewModel.onEventClick(MySettingViewModel.Event.ChattingAlarm)
-            }
-        }
-
-        dataBinding.swMarketing.setOnCheckedChangeListener { _, isChecked ->
-            if(!isChecked){
-                viewModel.onEventClick(MySettingViewModel.Event.MarkettingAlarm)
-            }
-        }
-
-        dataBinding.swNight.setOnCheckedChangeListener { _, isChecked ->
-            if(!isChecked){
-                viewModel.onEventClick(MySettingViewModel.Event.NightAlarm)
             }
         }
 
@@ -134,4 +121,27 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
             }
         }
     }
+
+    private fun bindAlarmSwitchListeners() {
+        dataBinding.swDelivery.setOnCheckedChangeListener { _, isChecked ->
+            if (isSwitchBindingInProgress) return@setOnCheckedChangeListener
+            viewModel.updateAlarmSetting { it.copy(deliveryYn = isChecked) }
+        }
+
+        dataBinding.swChatting.setOnCheckedChangeListener { _, isChecked ->
+            if (isSwitchBindingInProgress) return@setOnCheckedChangeListener
+            viewModel.updateAlarmSetting { it.copy(chatYn = isChecked) }
+        }
+
+        dataBinding.swMarketing.setOnCheckedChangeListener { _, isChecked ->
+            if (isSwitchBindingInProgress) return@setOnCheckedChangeListener
+            viewModel.updateAlarmSetting { it.copy(marketingYn = isChecked) }
+        }
+
+        dataBinding.swNight.setOnCheckedChangeListener { _, isChecked ->
+            if (isSwitchBindingInProgress) return@setOnCheckedChangeListener
+            viewModel.updateAlarmSetting { it.copy(nightPushYn = isChecked) }
+        }
+    }
+
 }

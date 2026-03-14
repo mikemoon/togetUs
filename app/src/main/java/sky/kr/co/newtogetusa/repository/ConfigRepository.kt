@@ -12,11 +12,11 @@ class ConfigRepository @Inject constructor(
     @NetworkModule.ConfigApi private val apiService: ConfigService
 ) : BaseNetRepo() {
 
-    suspend fun getDomesticAreas() = safeApiCall<List<RegionDto>>(Dispatchers.IO){
+    suspend fun getDomesticAreas() = safeApiCall(Dispatchers.IO){
         apiService.getDomesticAreas()
     }
 
-    suspend fun getDomesticSubAreas() = safeApiCall<List<RegionDto>>(Dispatchers.IO){
+    suspend fun getDomesticSubAreas() = safeApiCall(Dispatchers.IO){
         apiService.getDomesticSubAreas()
     }
 
