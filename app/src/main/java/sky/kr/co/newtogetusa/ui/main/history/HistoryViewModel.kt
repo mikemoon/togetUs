@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryDetailResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.repository.DataStoreKey
@@ -31,6 +32,8 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
     val menuAll = TopMenu.All
     val menuDoing = TopMenu.Doing
     val menuEnd = TopMenu.End
+
+    val deliveryDetail = MutableStateFlow<DeliveryDetailResponse?>(null)
 
     val isModePlayer = MutableStateFlow(false)
     init {
@@ -88,9 +91,20 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
         _itemCancelLiveData.value = item
     }
 
+    private val _menuButtonLiveData = SingleLiveEvent<MenuButton>()
+    val menuButtonLiveData: LiveData<MenuButton> = _menuButtonLiveData
+    fun onMenuBottonClick(menuAction: MenuButton) {
+        _menuButtonLiveData.value = menuAction
+    }
+
     sealed class TopMenu {
         object All : TopMenu()
         object Doing : TopMenu()
         object End : TopMenu()
+
+    }
+
+    sealed class MenuButton{
+        data class MenuModify(val item: DeliverySummaryDto) : MenuButton()
     }
 }

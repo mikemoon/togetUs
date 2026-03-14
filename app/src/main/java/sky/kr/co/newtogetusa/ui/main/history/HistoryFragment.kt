@@ -2,12 +2,14 @@ package sky.kr.co.newtogetusa.ui.main.history
 
 import android.os.Message
 import android.os.Parcelable
+import androidx.core.os.bundleOf
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,10 +21,12 @@ import sky.kr.co.newtogetusa.databinding.FragmentHistoryBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.ReceiveConfirmDialog
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRequestSharedViewModel
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
 import timber.log.Timber
+import kotlin.getValue
 
 @AndroidEntryPoint
 class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>() {
@@ -30,6 +34,9 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         get() = R.layout.fragment_history
     override val viewModel: HistoryViewModel by viewModels()
     private var savedState: Parcelable? = null
+
+    private val deliverySharedViewModel: DeliveryRequestSharedViewModel
+            by navGraphViewModels(R.id.nav_graph)
 
     private lateinit var historyAdapter: HistoryAdapter
     override fun init() {
@@ -89,6 +96,17 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             )
         }
 
+        viewModel.menuButtonLiveData.observe(viewLifecycleOwner){ menuAction ->
+            when(menuAction){
+                is HistoryViewModel.MenuButton.MenuModify -> {
+                    findNavController().navigate(
+                        R.id.action_global_to_home_for_delivery,
+                        bundleOf("openDeliveryReq" to true)
+                    )
+                }
+            }
+        }
+
         /*viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.historyFlow.collectLatest{
@@ -112,5 +130,50 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         dataBinding.tvTopAll.isSelected = topMenu == HistoryViewModel.TopMenu.All
         dataBinding.tvTopDoing.isSelected = topMenu == HistoryViewModel.TopMenu.Doing
         dataBinding.tvTopEnd.isSelected = topMenu == HistoryViewModel.TopMenu.End
+    }
+
+    private fun populateDeliverySharedState() {
+        val detail = viewModel.deliveryDetail.value ?: return
+        deliverySharedViewModel.clearState()
+
+        deliverySharedViewModel.updateDistance(
+            distance = detail.expected.expected_distance.toString()
+        )
+
+        deliverySharedViewModel.updateStartLocation(
+            address = detail.depart.address,
+            detail = detail.depart.address2.orEmpty(),
+            lat = detail.depart.latitude,
+            lng = detail.depart.longitude
+        )
+
+        deliverySharedViewModel.updateDestinationLocation(
+            address = detail.dest.address,
+            detail = detail.dest.address2.orEmpty(),
+            lat = detail.dest.latitude,
+            lng = detail.dest.longitude
+        )
+
+        deliverySharedViewModel.updatePickupInfo(
+            isImmediately = detail.pickup.is_immediately,
+            date = detail.pickup.date,
+            time = detail.pickup.time.orEmpty(),
+            isFaceToFace = detail.pickup.is_face2face
+        )
+
+        deliverySharedViewModel.updateProductInfo(
+            title = detail.product.name,
+            description = detail.product.descript,
+            type = detail.product.type_cd,
+            weight = detail.product.weight_cd,
+            volume = detail.product.volume_cd
+        )
+
+        deliverySharedViewModel.updateUser(
+            name = detail.depart_contact.name.orEmpty(),
+            phone = detail.depart_contact.phone.orEmpty()
+        )
+
+        deliverySharedViewModel.setInternational(!detail.is_domestic)
     }
 }

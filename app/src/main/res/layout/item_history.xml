@@ -287,11 +287,13 @@
 
             <!-- 하단 버튼 start -->
             <LinearLayout
+                android:id="@+id/llBottomButtons"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvSecondaryButton"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="취소"
@@ -304,6 +306,7 @@
                     android:onClick="@{()-> viewModel.onItemCancel(item)}"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPrimaryButton"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
