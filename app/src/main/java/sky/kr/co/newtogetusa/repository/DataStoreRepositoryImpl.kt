@@ -31,6 +31,8 @@ object DataStoreKey{
     const val KEY_ABROAD_DELIVERY_AGREE = "agree_abroad_delivery"
 
     const val KEY_IMP_UID = "imp_uid"
+
+    const val KEY_FCM_TOKEN = "fcm_token"
 }
 
 class DataStoreRepositoryImpl  @Inject constructor(private val context: Context): DataStoreRepository {

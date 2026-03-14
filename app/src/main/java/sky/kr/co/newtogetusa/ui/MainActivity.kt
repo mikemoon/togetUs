@@ -9,6 +9,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.chat.ChatClient
@@ -57,6 +59,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     override fun init() {
         super.init()
+        setFirebaseToken()
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
         navHostFragment = supportFragmentManager.findFragmentById(
             R.id.nav_host_container
@@ -92,6 +95,16 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     override fun onDestroy() {
         super.onDestroy()
         //chatClient.disconnect()
+    }
+
+    private fun setFirebaseToken(){
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            }
+            val token = task.result
+            viewModel.postFCMToken(token)
+        })
     }
 
     private fun sendChatMessage(message: String){

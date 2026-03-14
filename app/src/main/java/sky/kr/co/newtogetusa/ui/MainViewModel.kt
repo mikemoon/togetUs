@@ -11,15 +11,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.chat.ChatClient
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val chatClient: ChatClient,
-    baseViewModelFactory: BaseViewModelDependenciesFactory
+    baseViewModelFactory: BaseViewModelDependenciesFactory,
+    private val configRepository: ConfigRepository
 ) : BaseViewModel(baseViewModelFactory.create()) {
 
     val isModeChanging = MutableStateFlow(false)
@@ -46,6 +50,18 @@ class MainViewModel @Inject constructor(
 
     fun sendMessage(message: String) {
         chatClient.sendMessage(message)
+    }
+
+    fun postFCMToken(token: String) = viewModelScope.launch {
+        dataStoreRepository.putString(DataStoreKey.KEY_FCM_TOKEN, token)
+        when(val res = configRepository.postPushToken(hashMapOf("device_token" to token, "device_type" to "AOS"))){
+            is ResultWrapper.Success -> {
+            }
+            else -> {
+                Timber.e("fcm register error ${res}")
+            }
+        }
+
     }
 
     fun onModeChange(isPlayerMode: Boolean) {

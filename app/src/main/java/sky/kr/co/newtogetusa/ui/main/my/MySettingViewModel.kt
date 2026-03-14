@@ -3,21 +3,66 @@ package sky.kr.co.newtogetusa.ui.main.my
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.config.NotificationSettingDto
+import sky.kr.co.newtogetusa.data.remote.request.config.NotificationSettingReq
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class MySettingViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class MySettingViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val configRepository: ConfigRepository)
     :BaseViewModel(baseViewModelDependenciesFactory.create()) {
+
+        init {
+            getAlarmSettings()
+        }
+
+    val alarmSettingState = MutableStateFlow<NotificationSettingDto?>(null)
+
+    fun getAlarmSettings() = viewModelScope.launch {
+        when(val res = configRepository.getAlarmSettings()){
+            is ResultWrapper.Success -> {
+                alarmSettingState.value = res.data
+            }
+            else -> {
+            }
+        }
+    }
+
+    fun setAlarmSettings(settings: NotificationSettingReq) = viewModelScope.launch {
+        when(val res = configRepository.putAlarmSettings(
+            settings
+        )
+        ){
+            is ResultWrapper.Success -> {
+
+            }
+            else -> {
+
+            }
+        }
+    }
 
     fun logout(callback: () -> Unit) = viewModelScope.launch {
         dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
         dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
-        callback()
+        when(val res = configRepository.deletePushToken(hashMapOf("device_token" to dataStoreRepository.getString(
+            DataStoreKey.KEY_FCM_TOKEN), "device_type" to null))){
+            is ResultWrapper.Success -> {
+                if(res.data) {
+                    callback()
+                }
+            }
+            else -> {
+            }
+        }
     }
 
     private val _event = SingleLiveEvent<Event>()

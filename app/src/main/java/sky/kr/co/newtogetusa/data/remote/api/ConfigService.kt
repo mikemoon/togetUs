@@ -1,11 +1,18 @@
 package sky.kr.co.newtogetusa.data.remote.api
 
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
 import sky.kr.co.newtogetusa.data.remote.dto.BaseDto
 import sky.kr.co.newtogetusa.data.remote.dto.auth.TermMeta
+import sky.kr.co.newtogetusa.data.remote.dto.config.NotificationSettingDto
 import sky.kr.co.newtogetusa.data.remote.dto.search.RegionDto
+import sky.kr.co.newtogetusa.data.remote.request.config.NotificationSettingReq
 
 interface ConfigService {
 
@@ -66,5 +73,23 @@ interface ConfigService {
 
     ):Any
 
+    @POST("/api/mys/v1/push/device") //디바이스 토큰 등록
+    suspend fun postPushToken(
+        @Body body: HashMap<String, String>
+    ): Boolean
+
+    @HTTP(method = "DELETE", hasBody = true, path = "/api/mys/v1/push/device") //디바이스 토큰 삭제
+    suspend fun deletePushToken(
+        @Body body: HashMap<String, Any?>
+    ): Boolean
+
+    @GET("/api/mys/v1/push/setting")//알림 설정 조회
+    suspend fun getAlarmSettings(
+    ): NotificationSettingDto
+
+    @PUT("/api/mys/v1/push/setting")
+    suspend fun putAlarmSettings(
+        @Body body: NotificationSettingReq
+    ): Boolean
 
 }
