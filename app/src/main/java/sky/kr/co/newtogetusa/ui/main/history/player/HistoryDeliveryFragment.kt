@@ -41,6 +41,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
     private lateinit var historyAdapter: HistoryDeliverAdapter
     private val todayDate = LocalDate.now()
+    private var selectedDate: LocalDate? = null
 
     override fun init() {
         super.init()
@@ -90,19 +91,28 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             override fun create(view: android.view.View) = DayViewContainer(view)
 
             override fun bind(container: DayViewContainer, data: CalendarDay) {
+                container.day = data
+                val isSelectedDay = data.date == selectedDate
+                val isToday = data.date == todayDate
+
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
                     visibility =
                         if (data.position == DayPosition.MonthDate) android.view.View.VISIBLE else android.view.View.INVISIBLE
-                    background =
-                        if (data.date == todayDate) context.getDrawable(R.drawable.background_s_p10_r20) else null
+                    background = when {
+                        isSelectedDay -> context.getDrawable(R.drawable.background_s_p100_r20)
+                        isToday -> context.getDrawable(R.drawable.background_s_p10_r20)
+                        else -> null
+                    }
                     setTextColor(
                         ContextCompat.getColor(
                             context,
-                            when (data.date.dayOfWeek) {
-                                DayOfWeek.SUNDAY -> R.color.red_100
-                                DayOfWeek.SATURDAY -> R.color.blue_100
-                                else -> if (data.date == todayDate) R.color.white else R.color.black_60
+                            when {
+                                isSelectedDay -> R.color.white
+                                isToday -> R.color.primary_80
+                                data.date.dayOfWeek == DayOfWeek.SUNDAY -> R.color.red_100
+                                data.date.dayOfWeek == DayOfWeek.SATURDAY -> R.color.blue_100
+                                else -> R.color.black_60
                             }
                         )
                     )
@@ -147,6 +157,24 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
     inner class DayViewContainer(view: android.view.View) : ViewContainer(view) {
         val binding = CalendarDayLayoutBinding.bind(view)
+        lateinit var day: CalendarDay
+
+        init {
+            view.setOnClickListener {
+                if (day.position != DayPosition.MonthDate) {
+                    return@setOnClickListener
+                }
+
+                val previousSelection = selectedDate
+                if (previousSelection == day.date) {
+                    return@setOnClickListener
+                }
+
+                selectedDate = day.date
+                dataBinding.icCalendar.calendarView.notifyDateChanged(day.date)
+                previousSelection?.let { dataBinding.icCalendar.calendarView.notifyDateChanged(it) }
+            }
+        }
     }
 
     inner class MonthViewContainer(view: android.view.View) : ViewContainer(view) {
