@@ -6,6 +6,7 @@ import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.player.DeliverySummaryDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
@@ -20,6 +22,7 @@ import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.history.HistoryViewModel
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -69,21 +72,34 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
         isShowCalendar.value = isShow
     }
 
+    private val _monthDeliveryDates = MutableStateFlow<Set<LocalDate>>(emptySet())
+    val monthDeliveryDates = _monthDeliveryDates.asStateFlow()
+
+    private val _calendarDayDeliveries = MutableStateFlow<List<DeliverySummaryDto>>(emptyList())
+    val calendarDayDeliveries = _calendarDayDeliveries.asStateFlow()
+
     fun getMonthInfo(year: Int, month: Int) = viewModelScope.launch {
         when(val res = playerRepository.getMonthInfo(year, month)) {
             is ResultWrapper.Success -> {
-
+                _monthDeliveryDates.value = res.data.calender.mapNotNull { dayInfo ->
+                    dayInfo.date.takeIf { it.isNotBlank() }?.runCatching { LocalDate.parse(this) }?.getOrNull()
+                }.filter { it.monthValue == month && it.year == year }
+                    .toSet()
             }
-            else -> {}
+            else -> {
+                _monthDeliveryDates.value = emptySet()
+            }
         }
     }
 
     fun getDayInfo(year: Int, month: Int, day: Int) = viewModelScope.launch {
         when (val res = playerRepository.getDayInfo(year, month, day)) {
             is ResultWrapper.Success -> {
-
+                _calendarDayDeliveries.value = res.data.deliveries
             }
-            else -> {}
+            else -> {
+                _calendarDayDeliveries.value = emptyList()
+            }
         }
     }
 

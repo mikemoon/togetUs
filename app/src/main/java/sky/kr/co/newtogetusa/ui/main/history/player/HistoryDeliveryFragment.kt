@@ -33,7 +33,9 @@ import timber.log.Timber
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.TextStyle
 import java.util.Calendar
+import java.util.Locale
 
 @AndroidEntryPoint
 class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, HistoryDeliveryViewModel>() {
@@ -43,6 +45,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
     private lateinit var historyAdapter: HistoryDeliverAdapter
     private val todayDate = LocalDate.now()
     private var selectedDate: LocalDate? = null
+    private var currentMonth: YearMonth = YearMonth.now()
 
     override fun init() {
         super.init()
@@ -95,6 +98,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 container.day = data
                 val isSelectedDay = data.date == selectedDate
                 val isToday = data.date == todayDate
+                val hasDelivery = viewModel.monthDeliveryDates.value.contains(data.date)
 
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
@@ -117,13 +121,31 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                             }
                         )
                     )
+
+                    container.binding.vDeliveryDot.visibility =
+                        if (data.position == DayPosition.MonthDate && hasDelivery) android.view.View.VISIBLE
+                        else android.view.View.INVISIBLE
                 }
             }
         }
 
-        val currentMonth = YearMonth.now()
-        dataBinding.icCalendar.calendarView.setup(currentMonth, currentMonth, firstDayOfWeekFromLocale())
+        currentMonth = YearMonth.now()
+        val startMonth = currentMonth.minusMonths(12)
+        val endMonth = currentMonth.plusMonths(12)
+        dataBinding.icCalendar.calendarView.setup(startMonth, endMonth, firstDayOfWeekFromLocale())
         dataBinding.icCalendar.calendarView.scrollToMonth(currentMonth)
+        dataBinding.icCalendar.ivPrevMonth.setOnClickListener {
+            dataBinding.icCalendar.calendarView.smoothScrollToMonth(currentMonth.minusMonths(1))
+        }
+        dataBinding.icCalendar.ivNextMonth.setOnClickListener {
+            dataBinding.icCalendar.calendarView.smoothScrollToMonth(currentMonth.plusMonths(1))
+        }
+        dataBinding.icCalendar.calendarView.monthScrollListener = { month ->
+            currentMonth = month.yearMonth
+            dataBinding.icCalendar.tvYearMonth.text = "${month.yearMonth.year}년 ${month.yearMonth.month.getDisplayName(
+                TextStyle.FULL, Locale.KOREAN)}"
+            viewModel.getMonthInfo(month.yearMonth.year, month.yearMonth.monthValue)
+        }
     }
 
     override fun initObserver() {
@@ -149,7 +171,9 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
                 launch {
                     viewModel.deliveryPagingFlow.collectLatest { pagingData ->
-                        historyAdapter.submitData(pagingData)
+                        if (!viewModel.isShowCalendar.value) {
+                            historyAdapter.submitData(pagingData)
+                        }
                     }
                 }
 
@@ -157,10 +181,31 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                     viewModel.isShowCalendar
                         .collectLatest { isShowCalendar ->
                             if (isShowCalendar) {
-                                val currentMonth = YearMonth.now()
                                 viewModel.getMonthInfo(currentMonth.year, currentMonth.monthValue)
+                                val targetDate = selectedDate ?: todayDate
+                                selectedDate = targetDate
+                                dataBinding.icCalendar.calendarView.notifyDateChanged(targetDate)
+                                viewModel.getDayInfo(targetDate.year, targetDate.monthValue, targetDate.dayOfMonth)
+                            } else {
+                                dataBinding.tvCalendarEmpty.visibility = android.view.View.GONE
                             }
                         }
+                }
+
+                launch {
+                    viewModel.monthDeliveryDates.collectLatest {
+                        dataBinding.icCalendar.calendarView.notifyCalendarChanged()
+                    }
+                }
+
+                launch {
+                    viewModel.calendarDayDeliveries.collectLatest { dayDeliveries ->
+                        if (viewModel.isShowCalendar.value) {
+                            historyAdapter.submitData(PagingData.from(dayDeliveries))
+                            dataBinding.tvCalendarEmpty.visibility =
+                                if (dayDeliveries.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+                        }
+                    }
                 }
             }
         }
