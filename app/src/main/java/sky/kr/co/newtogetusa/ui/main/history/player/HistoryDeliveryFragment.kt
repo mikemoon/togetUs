@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.databinding.CalendarDayLayoutBinding
 import sky.kr.co.newtogetusa.databinding.CalendarDayTitleContainerBinding
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryDeliveryBinding
@@ -55,6 +56,12 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
         }
         initCalendar()
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
+        viewModel.getPlayerDeliveryList(PlayerDeliveryHistoryReq(
+            type = "ALL",
+            title = "",
+            pageNo = 0,
+            pageSize = 30
+        ))
     }
 
     private fun initCalendar() {

@@ -12,8 +12,11 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
+import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.history.HistoryViewModel
@@ -21,6 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+                                                   private val playerRepository: PlayerRepository,
                                                    private val deliveryRepo : DeliveryRepository)
     : BaseViewModel(baseViewModelDependenciesFactory.create()){
 
@@ -63,6 +67,15 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     val isShowCalendar = MutableStateFlow(false)
     fun onShowCalendar(isShow: Boolean){
         isShowCalendar.value = isShow
+    }
+
+    fun getPlayerDeliveryList(request: PlayerDeliveryHistoryReq) = viewModelScope.launch {
+        when(val res = playerRepository.postPlayerDeliveryList(request)){
+            is ResultWrapper.Success -> {
+
+            }
+            else ->{}
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

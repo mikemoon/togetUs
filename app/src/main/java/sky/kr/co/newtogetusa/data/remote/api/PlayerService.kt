@@ -8,12 +8,14 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryHistoryResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerSearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.req.ProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
@@ -126,5 +128,9 @@ interface PlayerService {
         @Body request: PlayerSearchRequest
     ): PlayerSearchResponse
 
+    @POST("/api/deliverys/v1/search/player")//동행내역 검색
+    suspend fun postPlayerDeliveryList(
+        @Body request: PlayerDeliveryHistoryReq
+    ): DeliveryHistoryResponseDto
 
 }

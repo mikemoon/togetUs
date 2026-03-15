@@ -11,6 +11,7 @@ import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.PlayerService
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
@@ -109,6 +110,10 @@ class PlayerRepository @Inject constructor(
                 )
             }
         ).flow
+    }
+
+    suspend fun postPlayerDeliveryList(request: PlayerDeliveryHistoryReq) = safeApiCall(Dispatchers.IO){
+        apiService.postPlayerDeliveryList(request)
     }
 
 }
