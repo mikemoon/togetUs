@@ -43,9 +43,9 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.isModePlayer.collectLatest {
-                    Timber.d("isModePlayer $it")
-                    if(!it){
+                viewModel.isModePlayer.collectLatest { isModePlayer ->
+                    Timber.d("isModePlayer $isModePlayer")
+                    if(isModePlayer == false && findNavController().currentDestination?.id == R.id.deliveryRequestSearchFragment){
                         findNavController().navigate(R.id.action_deliveryRequestSearchFragment_to_searchFragment)
                     }
                 }

@@ -8,6 +8,8 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryCalendarDayResponseDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryCalendarResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryHistoryResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
@@ -123,7 +125,7 @@ interface PlayerService {
         @Body request: HashMap<String, String>
     ): Int
 
-    @POST("/api/players/v1/search") //플레이어검색
+    @POST("/api/players/v1/search") //플레이어 검색하기
     suspend fun postPlayersSearch(
         @Body request: PlayerSearchRequest
     ): PlayerSearchResponse
@@ -132,5 +134,18 @@ interface PlayerService {
     suspend fun postPlayerDeliveryList(
         @Body request: PlayerDeliveryHistoryReq
     ): DeliveryHistoryResponseDto
+
+    @GET("/api/players/v1/calender/{year}/{month}") //캘린더 월정보
+    suspend fun getMonthInfo(
+        @Path("year") year: Int,
+        @Path("month") month: Int
+    ): DeliveryCalendarResponseDto
+
+    @GET("/api/players/v1/calender/{year}/{month}/{day}") //캘린더 일정보
+    suspend fun getDayInfo(
+        @Path("year") year: Int,
+        @Path("month") month: Int,
+        @Path("day") day: Int
+    ): DeliveryCalendarDayResponseDto
 
 }

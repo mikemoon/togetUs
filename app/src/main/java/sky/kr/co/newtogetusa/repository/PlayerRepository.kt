@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
 import sky.kr.co.newtogetusa.repository.page.PlayerDeliveryHistoryPagingSource
 import sky.kr.co.newtogetusa.repository.page.PlayerSearchPagingSource
@@ -126,6 +127,18 @@ class PlayerRepository @Inject constructor(
 
     suspend fun postPlayerDeliveryList(request: PlayerDeliveryHistoryReq) = safeApiCall(Dispatchers.IO){
         apiService.postPlayerDeliveryList(request)
+    }
+
+    suspend fun postPlayersSearch(request: PlayerSearchRequest) = safeApiCall(Dispatchers.IO){
+        apiService.postPlayersSearch(request)
+    }
+
+    suspend fun getMonthInfo(year: Int, month: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.getMonthInfo(year, month)
+    }
+
+    suspend fun getDayInfo(year: Int, month: Int, day: Int) = safeApiCall(Dispatchers.IO){
+        apiService.getDayInfo(year, month, day)
     }
 
 }

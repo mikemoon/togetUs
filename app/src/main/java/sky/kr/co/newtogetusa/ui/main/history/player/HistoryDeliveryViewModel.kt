@@ -69,6 +69,25 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
         isShowCalendar.value = isShow
     }
 
+    fun getMonthInfo(year: Int, month: Int) = viewModelScope.launch {
+        when(val res = playerRepository.getMonthInfo(year, month)) {
+            is ResultWrapper.Success -> {
+
+            }
+            else -> {}
+        }
+    }
+
+    fun getDayInfo(year: Int, month: Int, day: Int) = viewModelScope.launch {
+        when (val res = playerRepository.getDayInfo(year, month, day)) {
+            is ResultWrapper.Success -> {
+
+            }
+            else -> {}
+        }
+    }
+
+
     fun getPlayerDeliveryList(request: PlayerDeliveryHistoryReq) = viewModelScope.launch {
         when(val res = playerRepository.postPlayerDeliveryList(request)){
             is ResultWrapper.Success -> {
