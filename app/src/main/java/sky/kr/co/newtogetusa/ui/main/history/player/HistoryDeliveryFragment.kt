@@ -56,12 +56,6 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
         }
         initCalendar()
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
-        viewModel.getPlayerDeliveryList(PlayerDeliveryHistoryReq(
-            type = "ALL",
-            title = "",
-            pageNo = 0,
-            pageSize = 30
-        ))
     }
 
     private fun initCalendar() {

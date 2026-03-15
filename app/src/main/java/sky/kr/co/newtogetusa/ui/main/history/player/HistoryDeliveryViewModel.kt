@@ -83,7 +83,7 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
         combine(_topMenu, _keyword) { type, keyword ->
             type to keyword
         }.flatMapLatest { (type, keyword) ->
-            deliveryRepo.getPlayerDeliveryPagingFlow(type, keyword)
+            playerRepository.getPlayerDeliveryHistoryPagingFlow(type, keyword)
         }.cachedIn(viewModelScope)
 
     sealed class TopMenu {

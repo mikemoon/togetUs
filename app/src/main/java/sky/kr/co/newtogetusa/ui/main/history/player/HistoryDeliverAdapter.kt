@@ -4,8 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
-import sky.kr.co.newtogetusa.databinding.ItemHistoryBinding
+import sky.kr.co.newtogetusa.data.remote.dto.player.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHistoryDeliveryBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 

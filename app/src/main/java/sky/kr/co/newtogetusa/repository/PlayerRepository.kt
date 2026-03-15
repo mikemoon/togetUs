@@ -15,6 +15,7 @@ import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
+import sky.kr.co.newtogetusa.repository.page.PlayerDeliveryHistoryPagingSource
 import sky.kr.co.newtogetusa.repository.page.PlayerSearchPagingSource
 import javax.inject.Inject
 
@@ -111,6 +112,17 @@ class PlayerRepository @Inject constructor(
             }
         ).flow
     }
+
+    fun getPlayerDeliveryHistoryPagingFlow(type: String, title: String, pageSize: Int = 30) =
+        Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                PlayerDeliveryHistoryPagingSource(this, type, title, pageSize)
+            }
+        ).flow
 
     suspend fun postPlayerDeliveryList(request: PlayerDeliveryHistoryReq) = safeApiCall(Dispatchers.IO){
         apiService.postPlayerDeliveryList(request)
