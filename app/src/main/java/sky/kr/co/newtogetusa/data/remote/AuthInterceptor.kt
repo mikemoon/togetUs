@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import sky.kr.co.newtogetusa.auth.AuthSessionManager
 import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.api.RefreshApi
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
     private val tokenStore: TokenStore,
-    private val refreshApi: RefreshApi
+    private val refreshApi: RefreshApi,
+    private val authSessionManager: AuthSessionManager
 ) : Interceptor {
 
 
@@ -47,6 +49,8 @@ class AuthInterceptor @Inject constructor(
                     .build()
                 return chain.proceed(retry)
             } else {
+                tokenStore.clear()
+                authSessionManager.notifySessionExpired()
                 // 재시도 안 함: 현재 response를 '닫지 않고' 그대로 반환
                 return response
             }

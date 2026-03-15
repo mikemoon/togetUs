@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.chat.ChatClient
+import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
@@ -22,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val chatClient: ChatClient,
+    private val tokenStore: TokenStore,
     baseViewModelFactory: BaseViewModelDependenciesFactory,
     private val configRepository: ConfigRepository
 ) : BaseViewModel(baseViewModelFactory.create()) {
@@ -72,6 +74,12 @@ class MainViewModel @Inject constructor(
             isPlayerModeFlow.value = isPlayerMode
             isModeChanging.value = false
         }
+    }
+
+    fun clearSessionData() = viewModelScope.launch {
+        tokenStore.clear()
+        dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
+        dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
     }
 
     override fun onCleared() {

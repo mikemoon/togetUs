@@ -1,10 +1,13 @@
 package sky.kr.co.newtogetusa.ui
 
+import android.content.Intent
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -12,13 +15,17 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.auth.AuthSessionManager
 import sky.kr.co.newtogetusa.chat.ChatClient
 import sky.kr.co.newtogetusa.databinding.ActivityMainBinding
 import sky.kr.co.newtogetusa.ui.base.BaseActivity
+import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.jvm.java
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
@@ -32,6 +39,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     //@Inject
     //lateinit var chatClient: ChatClient
+    @Inject
+    lateinit var authSessionManager: AuthSessionManager
 
     private var backKeyPressedTime: Long = 0
     private val finishDelayTime = 2000
@@ -88,6 +97,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         navController.addOnDestinationChangedListener { _, destination, _ ->
             Timber.d("onDestion  ${destination.label} , ${destination.route}")
             dataBinding.bottomNavigation.isVisible = destination.id in mainTabFragments
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                authSessionManager.sessionExpiredFlow.collect {
+                    viewModel.clearSessionData()
+                    startActivity(Intent(this@MainActivity, LoginActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    })
+                }
+            }
         }
 
     }
