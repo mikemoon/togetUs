@@ -200,7 +200,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
                 launch {
                     viewModel.calendarDayDeliveries.collectLatest { dayDeliveries ->
-                        if (viewModel.isShowCalendar.value) {
+                        if (viewModel.isShowCalendar.value && dayDeliveries != null) {
                             historyAdapter.submitData(PagingData.from(dayDeliveries))
                             dataBinding.tvCalendarEmpty.visibility =
                                 if (dayDeliveries.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE

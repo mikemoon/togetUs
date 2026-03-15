@@ -75,7 +75,7 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     private val _monthDeliveryDates = MutableStateFlow<Set<LocalDate>>(emptySet())
     val monthDeliveryDates = _monthDeliveryDates.asStateFlow()
 
-    private val _calendarDayDeliveries = MutableStateFlow<List<DeliverySummaryDto>>(emptyList())
+    private val _calendarDayDeliveries = MutableStateFlow<List<DeliverySummaryDto>?>(null)
     val calendarDayDeliveries = _calendarDayDeliveries.asStateFlow()
 
     fun getMonthInfo(year: Int, month: Int) = viewModelScope.launch {
