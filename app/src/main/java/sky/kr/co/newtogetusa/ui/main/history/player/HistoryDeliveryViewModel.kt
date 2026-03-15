@@ -25,7 +25,7 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     : BaseViewModel(baseViewModelDependenciesFactory.create()){
 
 
-    val isModePlayer = MutableStateFlow(false)
+    val isModePlayer = MutableStateFlow<Boolean?>(null)
     init {
         viewModelScope.launch {
             dataStoreRepository.getBooleanFlow(DataStoreKey.KEY_IS_MODE_PLAYER).filterNotNull()

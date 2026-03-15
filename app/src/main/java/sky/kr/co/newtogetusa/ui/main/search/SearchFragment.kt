@@ -35,7 +35,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.isModePlayer.collectLatest {
                     Timber.d("isModePlayer $it")
-                    if(it){
+                    if (it && findNavController().currentDestination?.id == R.id.searchFragment) {
                         findNavController().navigate(R.id.action_searchFragment_to_deliveryRequestSearchFragment)
                     }
                 }

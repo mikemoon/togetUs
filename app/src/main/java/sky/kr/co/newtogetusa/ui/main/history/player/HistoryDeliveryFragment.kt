@@ -8,6 +8,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryDeliveryBinding
@@ -42,7 +44,10 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 launch {
-                    viewModel.isModePlayer.collectLatest {
+                    viewModel.isModePlayer
+                        .filterNotNull()
+                        .distinctUntilChanged()
+                        .collectLatest {
                         Timber.d("isModePlayer $it")
                         val navController = findNavController()
                         if (
