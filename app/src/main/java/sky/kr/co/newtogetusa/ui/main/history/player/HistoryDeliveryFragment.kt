@@ -29,6 +29,7 @@ import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.week
 import timber.log.Timber
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Calendar
@@ -67,7 +68,19 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                     if (container.titlesContainer.tag == null) {
                         container.titlesContainer.tag = data.yearMonth
                         container.binding.root.forEachIndexed { index, titleView ->
-                            (titleView as? android.widget.TextView)?.text = week[index]
+                            (titleView as? android.widget.TextView)?.apply {
+                                text = week[index]
+                                setTextColor(
+                                    ContextCompat.getColor(
+                                        context,
+                                        when (index) {
+                                            0 -> R.color.red_100
+                                            6 -> R.color.blue_100
+                                            else -> R.color.black_60
+                                        }
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -82,11 +95,15 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                     visibility =
                         if (data.position == DayPosition.MonthDate) android.view.View.VISIBLE else android.view.View.INVISIBLE
                     background =
-                        if (data.date == todayDate) context.getDrawable(R.drawable.background_s_p100_r20) else null
+                        if (data.date == todayDate) context.getDrawable(R.drawable.background_s_p10_r20) else null
                     setTextColor(
                         ContextCompat.getColor(
                             context,
-                            if (data.date == todayDate) R.color.white else R.color.black_60
+                            when (data.date.dayOfWeek) {
+                                DayOfWeek.SUNDAY -> R.color.red_100
+                                DayOfWeek.SATURDAY -> R.color.blue_100
+                                else -> if (data.date == todayDate) R.color.white else R.color.black_60
+                            }
                         )
                     )
                 }
