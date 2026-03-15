@@ -152,6 +152,16 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                         historyAdapter.submitData(pagingData)
                     }
                 }
+
+                launch {
+                    viewModel.isShowCalendar
+                        .collectLatest { isShowCalendar ->
+                            if (isShowCalendar) {
+                                val currentMonth = YearMonth.now()
+                                viewModel.getMonthInfo(currentMonth.year, currentMonth.monthValue)
+                            }
+                        }
+                }
             }
         }
     }
@@ -173,6 +183,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
                 selectedDate = day.date
                 dataBinding.icCalendar.calendarView.notifyDateChanged(day.date)
+                viewModel.getDayInfo(day.date.year, day.date.monthValue, day.date.dayOfMonth)
                 previousSelection?.let { dataBinding.icCalendar.calendarView.notifyDateChanged(it) }
             }
         }
