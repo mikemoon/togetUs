@@ -77,6 +77,12 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.JoinPlayer -> {
+                    val dto = viewModel.playerApplyedInfoDto.value
+                    if (!dto?.certi_req_date.isNullOrEmpty() && dto.certi_res_date.isNullOrEmpty()) {
+                        findNavController().navigate(R.id.action_myFragment_to_playerJoinCompleteFragment)
+                        return@observe
+                    }
+
                     if (viewModel.hasPlayerApplyRequest.value) { //플레이어 신청 있는 상태
                         MessageDialog.newInstance(
                             msg = "신청 중인 내역이 있어요. 이어서 진행하시겠어요?",

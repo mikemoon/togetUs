@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_myFragment_to_termFragment"
             app:destination="@id/termFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_playerJoinCompleteFragment"
+            app:destination="@id/playerJoinCompleteFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileManagementFragment"

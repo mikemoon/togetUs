@@ -23,14 +23,25 @@ data class BankDto(
 )
 
 data class AreaDto(
-    val depart: LocationDto?,
-    val dest: LocationDto?
-)
+    val player_area_id: Int?,
+    val player_id: Int?,
 
-data class LocationDto(
-    val address: String?,
-    val address2: String?,
-    val latitude: Double?,
-    val longitude: Double?,
-    val range: Int?
+    val depart_area_cd: String?,
+    val depart_area_gu_cd: String?,
+    val depart_address: String?,
+    val depart_address2: String?,
+    val depart_latitude: Double?,
+    val depart_longitude: Double?,
+    val depart_range: Int?,
+
+    val dest_area_cd: String?,
+    val dest_area_gu_cd: String?,
+    val dest_address: String?,
+    val dest_address2: String?,
+    val dest_latitude: Double?,
+    val dest_longitude: Double?,
+    val dest_range: Int?,
+
+    val domestic_yn: String?,
+    val use_yn: String?
 )

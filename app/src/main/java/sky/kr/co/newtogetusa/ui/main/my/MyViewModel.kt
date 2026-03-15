@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.MyRepository
@@ -34,6 +35,9 @@ class MyViewModel @Inject constructor(
 
     val isModeChanging = MutableStateFlow(false)
     val isPlayerModeFlow = MutableStateFlow(false)
+
+    val isPlayerRequestBtnVisible = MutableStateFlow(false)
+    val isPlayerModeChangeBtnVisible = MutableStateFlow(false)
 
     val impUidString = MutableStateFlow("")
 
@@ -68,11 +72,15 @@ class MyViewModel @Inject constructor(
     }
 
     val hasPlayerApplyRequest = MutableStateFlow(false)
+    val playerApplyedInfoDto = MutableStateFlow<PlayerApplyedInfoDto?>(null)
     fun getPlayerInfo() = viewModelScope.launch {
         val res = playerRepository.getPlayers()
         when(res){
             is ResultWrapper.Success ->{
-
+                val dto = res.data
+                isPlayerRequestBtnVisible.value = dto.certi_res_date.isNullOrEmpty()
+                isPlayerModeChangeBtnVisible.value = !isPlayerRequestBtnVisible.value
+                playerApplyedInfoDto.value = res.data
             }
             else -> {
                 hasPlayerApplyRequest.value = false
