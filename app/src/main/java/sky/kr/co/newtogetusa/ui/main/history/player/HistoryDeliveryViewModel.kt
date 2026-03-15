@@ -60,6 +60,11 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
         _topMenuLiveData.value = topMenu
     }
 
+    val isShowCalendar = MutableStateFlow(false)
+    fun onShowCalendar(isShow: Boolean){
+        isShowCalendar.value = isShow
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val deliveryPagingFlow =
         combine(_topMenu, _keyword) { type, keyword ->

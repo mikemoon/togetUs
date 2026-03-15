@@ -63,8 +63,12 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.isModePlayer.collectLatest {
                     Timber.d("isModePlayer $it")
-                    if(it){
-                        findNavController().navigate(R.id.action_historyFragment_to_historyDeliveryFragment)
+                    val navController = findNavController()
+                    if (
+                        it &&
+                        navController.currentDestination?.id == R.id.historyFragment
+                    ) {
+                        navController.navigate(R.id.action_historyFragment_to_historyDeliveryFragment)
                     }
                 }
             }

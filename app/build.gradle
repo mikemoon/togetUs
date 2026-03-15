@@ -194,4 +194,6 @@ dependencies {
 
     implementation("com.tbuonomo:dotsindicator:5.1.0")
 
+    implementation 'com.kizitonwose.calendar:view:2.9.0'
+
 }

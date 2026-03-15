@@ -44,8 +44,12 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 launch {
                     viewModel.isModePlayer.collectLatest {
                         Timber.d("isModePlayer $it")
-                        if(!it){
-                            findNavController().navigate(R.id.action_historyDeliveryFragment_to_historyFragment)
+                        val navController = findNavController()
+                        if (
+                            !it &&
+                            navController.currentDestination?.id == R.id.historyDeliveryFragment
+                        ) {
+                            navController.navigate(R.id.action_historyDeliveryFragment_to_historyFragment)
                         }
                     }
                 }

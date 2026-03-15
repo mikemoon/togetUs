@@ -15,6 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.auth.AuthSessionManager
@@ -106,6 +107,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
                     startActivity(Intent(this@MainActivity, LoginActivity::class.java).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     })
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                viewModel.isPlayerModeFlow.collectLatest { isPlayerMode ->
+                    dataBinding.bottomNavigation.menu.findItem(R.id.history)?.title =
+                        if (isPlayerMode) "동행내역" else "이용내역"
                 }
             }
         }
