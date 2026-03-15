@@ -17,7 +17,7 @@
             android:layout_height="60dp"
             android:layout_marginStart="20dp"
             android:paddingVertical="17dp"
-            android:text="배송내역"
+            android:text="동행내역"
             android:textColor="@color/black_80"
             android:textSize="20dp"
             android:textStyle="bold"
@@ -120,6 +120,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <include
+                android:id="@+id/icCalendar"
                 layout="@layout/include_calendar"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_width="match_parent"
