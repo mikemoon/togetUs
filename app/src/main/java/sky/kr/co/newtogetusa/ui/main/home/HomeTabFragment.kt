@@ -1,12 +1,24 @@
 package sky.kr.co.newtogetusa.ui.main.home
 
 import android.Manifest
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
+import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
@@ -17,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -40,13 +53,16 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeBannerAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeRegisteredAdapter
 import sky.kr.co.newtogetusa.ui.main.home.playerAdapter.ApplyAdapter
 import sky.kr.co.newtogetusa.ui.main.home.playerAdapter.AvailableAdapter
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.loadImage
 import timber.log.Timber
 import java.lang.Exception
+import kotlin.math.abs
 
 @AndroidEntryPoint
 class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
@@ -73,6 +89,13 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     private var googleMap: GoogleMap? = null
 
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
+
+    private var bannerAdapter: HomeBannerAdapter? = null
+    private var bannerSwitchHandler: Handler? = null
+    private var bannerSwitchRunnable: Runnable? = null
+    private var currentBannerIndex = 0
+    private var isBannerDragging = false
+    private var bannerPageChangeCallback: ViewPager2.OnPageChangeCallback? = null
 
 
     override fun init() {
@@ -143,6 +166,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             adapter = availableAdapter
         }
 
+        bannerAdapter = HomeBannerAdapter { banner ->
+            viewModel.getBannerDetail(banner.bannerId)
+        }
+        dataBinding.vpBanner.adapter = bannerAdapter
+
         if(viewModel.isModePlayer.value){
             viewModel.postPlayerDeliverySearch(DeliverySearchReq(
                 type = "DELIVERY|MATCH",
@@ -200,8 +228,24 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 }
 
                 launch {
-                    viewModel.bannerList.filterNotNull().collectLatest {
-                        Timber.d("hometab bannerList: ${it}")
+                    viewModel.bannerList.filterNotNull().collectLatest { banners ->
+                        Timber.d("hometab bannerList: ${banners}")
+                        bannerAdapter?.setItems(banners)
+                        currentBannerIndex = 0
+                        dataBinding.vpBanner.setCurrentItem(0, false)
+                        setupBannerIndicator(banners.size)
+                        startBannerAutoSwitch()
+                    }
+                }
+
+                launch {
+                    viewModel.bannerDetail.filterNotNull().collectLatest { landing ->
+                        runCatching {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(landing.landingUrl))
+                            startActivity(intent)
+                        }.onFailure {
+                        }
+                        viewModel.clearBannerDetail()
                     }
                 }
             }
@@ -225,6 +269,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 moveToMyLocationKakao()
             }
         }
+
     }
 
     private fun checkLocationPermission() {
@@ -493,8 +538,84 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }
     }
 
+    private fun setupBannerPager() {
+        bannerPageChangeCallback?.let { dataBinding.vpBanner.unregisterOnPageChangeCallback(it) }
+        bannerPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                currentBannerIndex = position
+                setSelectedIndicator(position)
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                isBannerDragging = state == ViewPager2.SCROLL_STATE_DRAGGING
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    stopBannerAutoSwitch()
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    startBannerAutoSwitch()
+                }
+            }
+        }
+        bannerPageChangeCallback?.let { dataBinding.vpBanner.registerOnPageChangeCallback(it) }
+    }
+
+    private fun setupBannerIndicator(count: Int) {
+        dataBinding.llBannerIndicator.removeAllViews()
+        if (count <= 1) {
+            dataBinding.llBannerIndicator.visibility = View.GONE
+            return
+        }
+
+        dataBinding.llBannerIndicator.visibility = View.VISIBLE
+
+        repeat(count) { idx ->
+            val dot = ImageView(requireContext()).apply {
+                setImageResource(R.drawable.shape_ellipse_indicator)
+                layoutParams = LinearLayout.LayoutParams(6.dpToPx(), 6.dpToPx()).apply {
+                    marginStart = if (idx == 0) 0 else 4.dpToPx()
+                }
+            }
+            dataBinding.llBannerIndicator.addView(dot)
+        }
+        setSelectedIndicator(currentBannerIndex)
+    }
+
+    private fun setSelectedIndicator(selectedIndex: Int) {
+        val childCount = dataBinding.llBannerIndicator.childCount
+        for (i in 0 until childCount) {
+            val child = dataBinding.llBannerIndicator.getChildAt(i)
+            child.alpha = if (i == selectedIndex) 1f else 0.4f
+        }
+    }
+
+    private fun startBannerAutoSwitch() {
+        stopBannerAutoSwitch()
+        val banners = viewModel.bannerList.value ?: return
+        if (banners.size <= 1 || isBannerDragging) return
+
+        bannerSwitchHandler = Handler(Looper.getMainLooper())
+        bannerSwitchRunnable = object : Runnable {
+            override fun run() {
+                val next = (currentBannerIndex + 1) % banners.size
+                dataBinding.vpBanner.setCurrentItem(next, true)
+                bannerSwitchHandler?.postDelayed(this, 3000)
+            }
+        }.also {
+            bannerSwitchHandler?.postDelayed(it, 3000)
+        }
+    }
+
+    private fun stopBannerAutoSwitch() {
+        bannerSwitchRunnable?.let { runnable ->
+            bannerSwitchHandler?.removeCallbacks(runnable)
+        }
+        bannerSwitchRunnable = null
+        bannerSwitchHandler = null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setupBannerPager()
 
         if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
             dataBinding.googleMap.onCreate(savedInstanceState)
@@ -506,6 +627,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
             dataBinding.googleMap.onStart()
         }
+        startBannerAutoSwitch()
         //dataBinding.map.onStart()
     }
 
@@ -533,12 +655,16 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     override fun onStop() {
         super.onStop()
+        stopBannerAutoSwitch()
         if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
             dataBinding.googleMap.onStop()
         }
     }
 
     override fun onDestroyView() {
+        stopBannerAutoSwitch()
+        bannerPageChangeCallback?.let { dataBinding.vpBanner.unregisterOnPageChangeCallback(it) }
+        bannerPageChangeCallback = null
         super.onDestroyView()
         if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
             dataBinding.googleMap.onDestroy()

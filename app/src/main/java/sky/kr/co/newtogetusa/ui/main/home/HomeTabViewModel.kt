@@ -120,6 +120,10 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         }
     }
 
+    fun clearBannerDetail() {
+        bannerDetail.value = null
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event) {
