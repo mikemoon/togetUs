@@ -1,4 +1,4 @@
-package sky.kr.co.newtogetusa.data.remote.dto.users.req
+package sky.kr.co.newtogetusa.data.remote.request.user
 
 data class ProfileImageRequest(
     val mime: String,

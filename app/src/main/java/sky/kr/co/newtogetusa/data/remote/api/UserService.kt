@@ -4,9 +4,11 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.users.BannerDto
+import sky.kr.co.newtogetusa.data.remote.dto.users.BannerLandingDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
-import sky.kr.co.newtogetusa.data.remote.dto.users.req.ProfileImageRequest
+import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
 
 interface UserService {
 
@@ -53,5 +55,13 @@ interface UserService {
         @Path("user_id") userId: Int,
         @Body request: HashMap<String, String>
     ):Boolean
+
+    @GET("/api/users/v1/banner")
+    suspend fun getBanners():List<BannerDto>
+
+    @GET("/api/users/v1/banner/{bn_id}")
+    suspend fun getBannerDetail(
+        @Path("bn_id") bnId: Int,
+    ): BannerLandingDto
 
 }

@@ -3,7 +3,7 @@ package sky.kr.co.newtogetusa.repository
 import kotlinx.coroutines.Dispatchers
 import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.UserService
-import sky.kr.co.newtogetusa.data.remote.dto.users.req.ProfileImageRequest
+import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
 import javax.inject.Inject
 
@@ -42,4 +42,13 @@ class UserRepository @Inject constructor(
     suspend fun postReview(userId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.postReview(userId, request)
     }
+
+    suspend fun getBanners() = safeApiCall(Dispatchers.IO){
+        apiService.getBanners()
+    }
+
+    suspend fun getBannerDetail(bnId: Int) = safeApiCall(Dispatchers.IO){
+        apiService.getBannerDetail(bnId)
+    }
+
 }

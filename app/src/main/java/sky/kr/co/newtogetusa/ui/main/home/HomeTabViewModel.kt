@@ -12,11 +12,14 @@ import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
+import sky.kr.co.newtogetusa.data.remote.dto.users.BannerDto
+import sky.kr.co.newtogetusa.data.remote.dto.users.BannerLandingDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.repository.KakaoLocalRepository
+import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import java.util.Locale
@@ -26,6 +29,7 @@ import javax.inject.Inject
 class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDependenciesFactory,
                                            private val configRepository: ConfigRepository,
                                            private val kakaoRepo: KakaoLocalRepository,
+                                           private val userRepository: UserRepository,
                                            private val deliveryRepo : DeliveryRepository) : BaseViewModel(baseViewModelFactory.create()) {
 
     val isModePlayer = MutableStateFlow(false)
@@ -93,6 +97,26 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
             }
             is ResultWrapper.GenericError ->{
             }
+        }
+    }
+
+    val bannerList = MutableStateFlow<List<BannerDto>?>(null)
+    fun getBanners() = viewModelScope.launch {
+        when(val res = userRepository.getBanners()){
+            is ResultWrapper.Success ->{
+                bannerList.value = res.data
+            }
+            else -> {}
+        }
+    }
+
+    val bannerDetail = MutableStateFlow<BannerLandingDto?>(null)
+    fun getBannerDetail(bnId: Int) = viewModelScope.launch {
+        when(val res = userRepository.getBannerDetail(bnId)){
+            is ResultWrapper.Success ->{
+                bannerDetail.value = res.data
+            }
+            else -> {}
         }
     }
 

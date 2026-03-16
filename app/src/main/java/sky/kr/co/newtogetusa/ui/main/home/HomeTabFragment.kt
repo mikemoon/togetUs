@@ -156,6 +156,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 page_no = 0
             ))
         }
+
+        viewModel.getBanners()
     }
 
     @SuppressLint("MissingPermission")
@@ -194,6 +196,12 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 launch {
                     viewModel.availableDeliveryList.filterNotNull().collectLatest {
                         availableAdapter?.setItems(it)
+                    }
+                }
+
+                launch {
+                    viewModel.bannerList.filterNotNull().collectLatest {
+                        Timber.d("hometab bannerList: ${it}")
                     }
                 }
             }
