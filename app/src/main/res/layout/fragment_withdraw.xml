@@ -237,6 +237,7 @@
                 android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etPw"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:padding="16dp"
@@ -257,6 +258,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvNext"
                     style="@style/HeadLine20B"
                     android:layout_width="match_parent"
                     android:layout_height="58dp"
