@@ -38,4 +38,8 @@ class MyRepository @Inject constructor(
         apiService.postOneOnOne(hashMap)
     }
 
+    suspend fun deleteWithdraw() = safeApiCall(Dispatchers.IO){
+        apiService.deleteWithdraw()
+    }
+
 }

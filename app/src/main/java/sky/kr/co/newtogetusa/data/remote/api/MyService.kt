@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.data.remote.api
 
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -42,6 +43,10 @@ interface MyService {
     @POST("/api/mys/v1/1n1")
     suspend fun postOneOnOne(
         @Body request: HashMap<String, String>
+    ): Boolean
+
+    @DELETE("api/mys/v1/withdraw")
+    suspend fun deleteWithdraw(
     ): Boolean
 
 
