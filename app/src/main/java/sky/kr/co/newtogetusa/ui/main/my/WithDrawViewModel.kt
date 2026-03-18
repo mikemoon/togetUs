@@ -40,12 +40,21 @@ class WithDrawViewModel @Inject constructor(
     fun withDraw(callback:(Boolean)->Unit) = viewModelScope.launch {
         when (val res = myRepository.deleteWithdraw()) {
             is ResultWrapper.Success -> {
-                callback(res.data)
+                clearSessionData{
+                    callback(res.data)
+                }
             }
 
             else -> {}
         }
     }
+
+    fun clearSessionData(callback: () -> Unit) = viewModelScope.launch {
+        dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
+        dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
+        callback()
+    }
+
 
     fun verifyEmail(password: String, callback: (Boolean) -> Unit) = viewModelScope.launch {
         val email = ""

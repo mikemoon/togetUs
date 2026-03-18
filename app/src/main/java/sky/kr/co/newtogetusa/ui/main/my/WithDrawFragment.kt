@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
 import android.app.AlertDialog
+import android.content.Intent
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -21,6 +22,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -28,9 +30,11 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentWithdrawBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.ui.login.LoginViewModel
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
+import kotlin.jvm.java
 
 @AndroidEntryPoint
 class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel>() {
@@ -84,7 +88,7 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                     viewModel.isSnsVerified.collectLatest { isVerified ->
                         dataBinding.tvWithDraw.isEnabled = isVerified
                         if (isVerified) {
-                            dataBinding.tvSns.text = "인증 완료"
+                            dataBinding.tvSns.isClickable = false
                         }
                     }
                 }
@@ -118,6 +122,7 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                 }
 
                 WithDrawViewModel.Event.WithDraw -> {
+                    Timber.d("withDraw ${viewModel.isSnsVerified.value}, ${viewModel.isEmailVerified.value}")
                     if (viewModel.isSnsVerified.value || viewModel.isEmailVerified.value) {
                         showWithDrawConfirmDialog(false, false)
                     }
@@ -241,11 +246,18 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                         if(it){
                             requireContext().toast("탈퇴가 완료되었습니다.\n" +
                                     "그동안 이용해 주셔서 감사합니다.")
+                            lifecycleScope.launch {
+                                delay(500)
+                                startActivity(Intent(requireContext(), LoginActivity::class.java).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                })
+                                requireActivity().finish()
+                            }
                         }
                     }
                 }
             }
-        }
+        }.show(childFragmentManager, "")
     }
 
     private fun onSnsVerified() {
