@@ -83,6 +83,23 @@
                     />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/llEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone"
+                >
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="이용내역이 존재하지 않아요."
+                    android:textColor="@color/black_40"
+                    style="@style/Paragraph17R"
+                    />
+            </LinearLayout>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
