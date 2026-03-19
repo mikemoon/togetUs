@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.history
 import android.os.Message
 import android.os.Parcelable
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -56,6 +57,11 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
 
     override fun initObserver() {
         super.initObserver()
+
+        historyAdapter.addLoadStateListener { loadState ->
+            val isEmpty = loadState.refresh is LoadState.NotLoading && historyAdapter.itemCount == 0
+            dataBinding.llEmpty.isVisible = isEmpty
+        }
 
         dataBinding.ivSearch.setOnClickListener {
             viewModel.setKeyword(dataBinding.etSearch.text.toString())

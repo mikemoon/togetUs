@@ -82,6 +82,15 @@ class MyViewModel @Inject constructor(
                 isPlayerModeChangeBtnVisible.value = !isPlayerRequestBtnVisible.value
                 playerApplyedInfoDto.value = res.data
             }
+            is ResultWrapper.GenericError ->{
+                if(res.code?.toInt() == 404){ //신청 정보가 없음
+                    isPlayerRequestBtnVisible.value = true
+                }
+                Timber.d("GenericError ${res}")
+            }
+            is ResultWrapper.NetworkError ->{
+                Timber.d("NetworkError ${res}")
+            }
             else -> {
                 hasPlayerApplyRequest.value = false
             }
