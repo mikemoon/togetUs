@@ -56,8 +56,8 @@ class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class TitleVH(private val binding: ItemHomeTitleBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: String) {
-            binding.tvTitle.text = "배송 가능한 요청"
-            binding.llMore.isVisible = true
+            binding.tvTitle.text = "동행 가능한 요청"
+            binding.llMore.isVisible = false
         }
     }
 
@@ -74,7 +74,7 @@ class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class EmptyVH(private val binding: ItemHomeEmptyBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: String) {
-            binding.tv.text = "가능한 배송이  없어요."
+            binding.tv.text = "동행 가능한 요청을 찾을 수 없어요"
         }
     }
 

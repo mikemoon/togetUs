@@ -63,7 +63,7 @@ class HomeRegisteredAdapter(private val onItemClickListener: ((DeliverySummaryDt
 
     inner class TitleVH(private val binding: ItemHomeTitleBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: String) {
-            binding.tvTitle.text = "등록한 진행요청"
+            binding.tvTitle.text = "등록한 동행요청"
         }
     }
 

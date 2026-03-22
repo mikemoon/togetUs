@@ -73,7 +73,7 @@ class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class EmptyVH(private val binding: ItemHomeEmptyBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: String) {
-            binding.tv.text = "지원한 동행이 없어요."
+            binding.tv.text = "지원한 동행요청이 없어요."
         }
     }
 
