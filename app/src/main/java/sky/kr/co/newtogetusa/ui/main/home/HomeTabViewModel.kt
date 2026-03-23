@@ -19,6 +19,7 @@ import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.repository.KakaoLocalRepository
+import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory

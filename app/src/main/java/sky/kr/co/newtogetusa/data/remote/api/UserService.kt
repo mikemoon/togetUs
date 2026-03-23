@@ -6,8 +6,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import sky.kr.co.newtogetusa.data.remote.dto.users.BannerDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.BannerLandingDto
+import sky.kr.co.newtogetusa.data.remote.dto.users.DeliverySearchListResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
+import sky.kr.co.newtogetusa.data.remote.request.user.DeliveryListSearchRequest
 import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
 
 interface UserService {
@@ -63,5 +65,11 @@ interface UserService {
     suspend fun getBannerDetail(
         @Path("bn_id") bnId: Int,
     ): BannerLandingDto
+
+    @POST("/api/users/v1/search") //플레이어 동행요청 검색
+    suspend fun postUsersSearch(
+        @Body request: DeliveryListSearchRequest
+    ): DeliverySearchListResponse
+
 
 }

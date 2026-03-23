@@ -169,7 +169,7 @@ class DeliveryPickupFragment :
                                     this@DeliveryPickupFragment.viewModel.pickupTime.value = "0000"
                                 }else{
                                     this@DeliveryPickupFragment.dataBinding.etTime.setText(formatAmPm(hour24, minutes))
-                                    this@DeliveryPickupFragment.viewModel.pickupTime.value = "${hour24}${minutes}"
+                                    this@DeliveryPickupFragment.viewModel.pickupTime.value = formatTimeValue(hour24, minutes)
                                 }
                             }
                         }
@@ -210,6 +210,10 @@ class DeliveryPickupFragment :
         return "$amPm $hour12:${"%02d".format(minute)}"
     }
 
+    private fun formatTimeValue(hour24: Int, minute: Int): String {
+        return "%02d%02d".format(hour24, minute)
+    }
+
     fun formatKoreanDate(input: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val outputFormatter = DateTimeFormatter.ofPattern(
@@ -224,8 +228,9 @@ class DeliveryPickupFragment :
     fun formatTimeToKorean(time: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("HHmm")
         val outputFormatter = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREAN)
+        val normalizedTime = time.padStart(4, '0').takeLast(4)
 
-        val localTime = LocalTime.parse(time, inputFormatter)
+        val localTime = LocalTime.parse(normalizedTime, inputFormatter)
         return localTime.format(outputFormatter)
     }
 }

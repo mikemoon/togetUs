@@ -9,12 +9,16 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.repository.DataStoreKey
+import sky.kr.co.newtogetusa.repository.PlayerRepository
+import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class DeliveryRequestSearchViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory)
+class DeliveryRequestSearchViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val userRepository: UserRepository
+)
     : BaseViewModel(baseViewModelDependenciesFactory.create()){
 
     val isModePlayer = MutableStateFlow<Boolean?>(null)
@@ -26,6 +30,7 @@ class DeliveryRequestSearchViewModel @Inject constructor(baseViewModelDependenci
                 }
         }
     }
+
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
