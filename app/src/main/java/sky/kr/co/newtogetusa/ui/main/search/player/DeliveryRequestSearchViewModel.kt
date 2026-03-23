@@ -27,7 +27,7 @@ class DeliveryRequestSearchViewModel @Inject constructor(
 
     val isModePlayer = MutableStateFlow<Boolean?>(null)
 
-    private val searchCondition = MutableStateFlow(
+    val searchCondition = MutableStateFlow(
         SearchCondition(
             myArea = true,
             departCd = emptyList(),
@@ -66,6 +66,18 @@ class DeliveryRequestSearchViewModel @Inject constructor(
         searchCondition.value = searchCondition.value.copy(sortType = sortType)
     }
 
+    fun updateFilterCondition(
+        myArea: Boolean,
+        face2Face: Boolean?,
+        immediately: String
+    ) {
+        searchCondition.value = searchCondition.value.copy(
+            myArea = myArea,
+            face2Face = face2Face,
+            immediately = immediately
+        )
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event) {
@@ -90,6 +102,7 @@ class DeliveryRequestSearchViewModel @Inject constructor(
 
     companion object {
         const val SORT_TYPE_NEWEST = "NEWEST"
+        const val SORT_TYPE_DEADLINE = "DEADLINE"
         const val IMMEDIATELY_ALL = "ALL"
     }
 }

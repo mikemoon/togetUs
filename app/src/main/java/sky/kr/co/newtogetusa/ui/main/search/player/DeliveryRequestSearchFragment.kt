@@ -65,6 +65,10 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                         childFragmentManager,
                         BottomFilterDialog().apply {
                             filterList = listOf("마감 임박순", "최신 등록순")
+                            itemSelectCallback = { selectedItem ->
+                                this@DeliveryRequestSearchFragment.dataBinding.tvSort.text = selectedItem
+                                this@DeliveryRequestSearchFragment.viewModel.updateSortType(selectedItem.toSortType())
+                            }
                         }
                     )
                 }
@@ -74,6 +78,18 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomDeliveryFilterDialog().apply {
+                            initialFilterOption = BottomDeliveryFilterDialog.FilterOption(
+                                myArea = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.myArea,
+                                face2Face = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.face2Face,
+                                immediately = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.immediately
+                            )
+                            filterConfirmCallback = { option ->
+                                this@DeliveryRequestSearchFragment.viewModel.updateFilterCondition(
+                                    myArea = option.myArea,
+                                    face2Face = option.face2Face,
+                                    immediately = option.immediately
+                                )
+                            }
                         }
                     )
                 }
@@ -84,5 +100,14 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
             }
         }
 
+    }
+
+    private fun String.toSortType(): String = when (this) {
+        FILTER_DEADLINE -> DeliveryRequestSearchViewModel.SORT_TYPE_DEADLINE
+        else -> DeliveryRequestSearchViewModel.SORT_TYPE_NEWEST
+    }
+
+    companion object {
+        private const val FILTER_DEADLINE = "마감 임박순"
     }
 }

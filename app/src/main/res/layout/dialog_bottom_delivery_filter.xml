@@ -80,6 +80,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="31dp"
                     android:layout_marginStart="12dp"
+                    android:id="@+id/switchMyArea"
                     />
             </LinearLayout>
 
@@ -192,6 +193,7 @@
             android:layout_marginHorizontal="20dp">
             
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvFaceToFaceAll"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="8dp"
@@ -202,6 +204,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvFaceToFaceYes"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="8dp"
@@ -212,6 +215,7 @@
                 android:background="@drawable/background_st_b10_s_w_r4"
                 />
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvFaceToFaceNo"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="8dp"
@@ -241,6 +245,7 @@
             android:layout_marginHorizontal="20dp">
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPickupAll"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="8dp"
@@ -251,6 +256,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPickupReserve"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="8dp"
@@ -261,6 +267,7 @@
                 android:background="@drawable/background_st_b10_s_w_r4"
                 />
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPickupImmediate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="8dp"
