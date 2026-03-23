@@ -29,9 +29,7 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
     override fun init() {
         super.init()
 
-        deliveryRequestSearchAdapter = DeliveryRequestSearchAdapter().apply {
-            setItems(listOf(1,2,3))
-        }
+        deliveryRequestSearchAdapter = DeliveryRequestSearchAdapter()
         dataBinding.rv.apply {
             adapter = deliveryRequestSearchAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
@@ -42,18 +40,26 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
         super.initObserver()
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.deliveryRequestPagingData.collectLatest { pagingData ->
+                    deliveryRequestSearchAdapter.submitData(pagingData)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isModePlayer.collectLatest { isModePlayer ->
                     Timber.d("isModePlayer $isModePlayer")
-                    if(isModePlayer == false && findNavController().currentDestination?.id == R.id.deliveryRequestSearchFragment){
+                    if (isModePlayer == false && findNavController().currentDestination?.id == R.id.deliveryRequestSearchFragment) {
                         findNavController().navigate(R.id.action_deliveryRequestSearchFragment_to_searchFragment)
                     }
                 }
             }
         }
 
-        viewModel.event.observe(viewLifecycleOwner){
-            when(it){
+        viewModel.event.observe(viewLifecycleOwner) {
+            when (it) {
                 DeliveryRequestSearchViewModel.Event.Sort -> {
                     dialogFragmentShow(
                         childFragmentManager,
@@ -62,6 +68,7 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                         }
                     )
                 }
+
                 DeliveryRequestSearchViewModel.Event.Filter -> {
                     Timber.d("filter")
                     dialogFragmentShow(
@@ -70,7 +77,8 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                         }
                     )
                 }
-                DeliveryRequestSearchViewModel.Event.AreaRequirement ->{
+
+                DeliveryRequestSearchViewModel.Event.AreaRequirement -> {
                     findNavController().navigate(DeliveryRequestSearchFragmentDirections.actionDeliveryRequestSearchFragmentToDeliveryAreaRequirementSetFragment())
                 }
             }
