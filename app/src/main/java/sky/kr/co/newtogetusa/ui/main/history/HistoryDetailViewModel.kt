@@ -22,6 +22,7 @@ import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatPickupDateTime
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatWon
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.ceil
 
 @HiltViewModel
 class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
@@ -110,7 +111,7 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
             title = detail.title,
             priceText = formatWon(detail.fee.fee_final),
             distanceText = "${detail.expected.expected_distance}km",
-            estimatedTimeText = "${detail.expected.expected_time}분",
+            estimatedTimeText = formatExpectedTimeInMinutes(detail.expected.expected_time),
             pickupDateText = formatPickupDateTime(
                 detail.pickup.date,
                 detail.pickup.time
@@ -149,8 +150,10 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         }
     }
 
-
-
+    private fun formatExpectedTimeInMinutes(expectedTimeSeconds: Int): String {
+        val expectedMinutes = ceil(expectedTimeSeconds / 60.0).toInt().coerceAtLeast(1)
+        return "${expectedMinutes}분"
+    }
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event

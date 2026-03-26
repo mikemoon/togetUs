@@ -5,6 +5,7 @@
 
     <data>
 
+        <import type="android.view.View" />
         <import type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel.Event" />
 
         <variable
@@ -14,6 +15,10 @@
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel" />
+
+        <variable
+            name="isFromSearchResult"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -79,6 +84,7 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/tvSuggest"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -151,6 +157,7 @@
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:onClick="@{()-> viewModel.onEventClick(Event.ModifyProfile.INSTANCE)}"
+                                android:visibility="@{isFromSearchResult ? View.GONE : View.VISIBLE}"
                                 android:src="@drawable/fillcircle_edit_opblack"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
@@ -230,6 +237,24 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSuggest"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/background_s_p100_r4"
+            android:gravity="center"
+            android:onClick="@{()-> viewModel.onEventClick(Event.SuggestDelivery.INSTANCE)}"
+            android:text="제안하기"
+            android:textColor="@color/white"
+            android:visibility="@{isFromSearchResult ? View.VISIBLE : View.GONE}"
+            style="@style/HeadLine18B"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

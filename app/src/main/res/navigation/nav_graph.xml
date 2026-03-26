@@ -11,6 +11,38 @@
     <include app:graph="@navigation/my"/>
 
     <fragment
+        android:id="@+id/profileManagementFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementFragment"
+        android:label="ProfileManagementFragment" >
+        <argument
+            android:name="profileDto"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+            app:nullable="true" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="isFromSearchResult"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_modifyProfileFragment"
+            app:destination="@id/modifyProfileFragment" >
+            <argument
+                android:name="profileDto"
+                app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+                app:nullable="true" />
+        </action>
+        <action
+            android:id="@+id/action_profileManagementFragment_to_passwordSetFragment"
+            app:destination="@id/passwordSetFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_profileManageSubFragment"
+            app:destination="@id/profileManageSubFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/historyDetailFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.HistoryDetailFragment"
         android:label="HistoryDetailFragment" >
@@ -33,6 +65,11 @@
         android:id="@+id/action_global_historyDetailFragment"
         app:destination="@id/historyDetailFragment"
         app:launchSingleTop="true"/>
+
+    <action
+        android:id="@+id/action_global_profileManagementFragment"
+        app:destination="@id/profileManagementFragment"
+        app:launchSingleTop="true" />
 
     <action
         android:id="@+id/action_global_to_home_for_delivery"

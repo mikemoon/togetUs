@@ -12,6 +12,7 @@ import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.loadProfile
 
 class SearchResultAdapter(
+    private val onItemClick: (PlayerDto) -> Unit
 ) : PagingDataAdapter<PlayerDto, SearchResultAdapter.VH>(diff)  {
 
     inner class VH(private val binding: ItemPlayerSearchResultBinding) : RecyclerView.ViewHolder(binding.root){
@@ -21,6 +22,9 @@ class SearchResultAdapter(
             binding.ivProfile.loadProfile(item?.profile_image)
             binding.tvScore.text = item?.star_average.toString()
             binding.tvDoneCnt.text = "(${item?.complete_count.toString()})"
+            binding.root.setOnClickListener {
+                item?.let(onItemClick)
+            }
         }
     }
 

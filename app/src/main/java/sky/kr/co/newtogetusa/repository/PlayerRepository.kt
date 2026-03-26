@@ -94,6 +94,7 @@ class PlayerRepository @Inject constructor(
     fun searchPlayers(
         departCd: List<String>,
         destCd: List<String>,
+        isDomestic: Boolean,
         sortType: String
     ): Flow<PagingData<PlayerDto>> {
 
@@ -108,6 +109,7 @@ class PlayerRepository @Inject constructor(
                     apiService,
                     departCd,
                     destCd,
+                    isDomestic,
                     sortType
                 )
             }

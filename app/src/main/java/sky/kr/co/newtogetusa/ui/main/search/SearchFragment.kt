@@ -23,6 +23,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     private var departCd: List<String> = emptyList()
     private var destCd: List<String> = emptyList()
+    private var isDomestic: Boolean = true
 
     override fun init() {
         super.init()
@@ -72,7 +73,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     findNavController().navigate(
                         SearchFragmentDirections.actionSearchFragmentToSearchResultFragment(
                             departCd = departCd.toTypedArray(),
-                            destCd = destCd.toTypedArray()
+                            destCd = destCd.toTypedArray(),
+                            isDomestic = isDomestic
                         )
                     )
                     //findNavController().navigate(R.id.playerTermFragment)

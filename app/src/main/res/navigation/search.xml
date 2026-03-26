@@ -25,6 +25,10 @@
         <argument
             android:name="destCd"
             app:argType="string[]" />
+        <argument
+            android:name="isDomestic"
+            android:defaultValue="true"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/playerTermFragment"

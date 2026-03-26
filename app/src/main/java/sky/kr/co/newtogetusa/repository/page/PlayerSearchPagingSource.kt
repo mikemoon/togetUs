@@ -11,17 +11,18 @@ class PlayerSearchPagingSource(
     private val apiService: PlayerService,
     private val departCd: List<String>,
     private val destCd: List<String>,
+    private val isDomestic: Boolean,
     private val sortType: String
 ) : PagingSource<Int, PlayerDto>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PlayerDto> {
         val page = params.key ?: 0
-
         return try {
 
             val request = PlayerSearchRequest(
                 depart_cd = departCd,
                 dest_cd = destCd,
+                is_domestic = isDomestic,
                 sort_type = sortType,
                 page_no = page,
                 page_size = params.loadSize
@@ -31,8 +32,8 @@ class PlayerSearchPagingSource(
 
             LoadResult.Page(
                 data = response.players,
-                prevKey = if (page == 0) null else page - 1,
-                nextKey = if (response.has_more) page + 1 else null
+                prevKey = null,
+                nextKey = null
             )
 
         } catch (e: Exception) {

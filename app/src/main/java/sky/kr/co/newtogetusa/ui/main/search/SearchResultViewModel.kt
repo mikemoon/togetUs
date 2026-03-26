@@ -29,6 +29,7 @@ class SearchResultViewModel @Inject constructor(baseViewModelDependenciesFactory
             playerRepository.searchPlayers(
                 departCd = condition.departCd,
                 destCd = condition.destCd,
+                isDomestic = condition.isDomestic,
                 sortType = condition.sortType
             )
         }
@@ -37,11 +38,13 @@ class SearchResultViewModel @Inject constructor(baseViewModelDependenciesFactory
     fun updateSearchCondition(
         departCd: List<String>,
         destCd: List<String>,
+        isDomestic: Boolean,
         sortType: String
     ) {
         searchCondition.value = SearchCondition(
             departCd = departCd,
             destCd = destCd,
+            isDomestic = isDomestic,
             sortType = sortType
         )
     }
@@ -60,6 +63,7 @@ class SearchResultViewModel @Inject constructor(baseViewModelDependenciesFactory
     data class SearchCondition(
         val departCd: List<String>,
         val destCd: List<String>,
+        val isDomestic: Boolean,
         val sortType: String
     )
 }

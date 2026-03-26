@@ -43,6 +43,11 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     val menuAll = TopMenu.All
     val menuDoing = TopMenu.Doing
     val menuEnd = TopMenu.End
+
+    val eventBack = Event.Back
+    val eventModifyProfile = Event.ModifyProfile
+    val eventSuggestDelivery = Event.SuggestDelivery
+
     val deliveryRequestTotalCount = MutableStateFlow(0)
 
     private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
@@ -99,6 +104,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     sealed class Event {
         object Back : Event()
         object ModifyProfile : Event()
+        object SuggestDelivery : Event()
         object PasswordSet : Event()
     }
 

@@ -9,9 +9,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
+import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentSearchResultBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomFilterDialog
@@ -24,7 +26,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
     override val viewModel: SearchResultViewModel by viewModels()
 
     private val args: SearchResultFragmentArgs by navArgs()
-    private val searchResultAdapter = SearchResultAdapter()
+    private val searchResultAdapter = SearchResultAdapter(::navigateToProfileManagement)
 
     override fun init() {
         super.init()
@@ -44,6 +46,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         viewModel.updateSearchCondition(
             departCd = args.departCd.toList(),
             destCd = args.destCd.toList(),
+            isDomestic = args.isDomestic,
             sortType = SORT_DISTANCE
         )
     }
@@ -65,6 +68,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
                                 this@SearchResultFragment.viewModel.updateSearchCondition(
                                     departCd = args.departCd.toList(),
                                     destCd = args.destCd.toList(),
+                                    isDomestic = args.isDomestic,
                                     sortType = selectedItem.toSortType()
                                 )
                             }
@@ -83,6 +87,30 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             FILTER_LATEST_DEAL -> SORT_LATEST_DEAL
             else -> SORT_DISTANCE
         }
+    }
+
+    private fun navigateToProfileManagement(player: PlayerDto) {
+        val profileDto = ProfileDto(
+            user = ProfileDto.User(
+                user_id = player.user_id.toInt(),
+                player_id = player.player_id.toInt(),
+                nickname = player.nickname,
+                profile_image = player.profile_image,
+                enable = player.enable
+            ),
+            evaluation = ProfileDto.Evaluation(
+                start_average = player.star_average,
+                cancel_count = 0
+            ),
+            requst_count = 0,
+            review_count = player.complete_count
+        )
+        val action = NavGraphDirections.actionGlobalProfileManagementFragment(
+            profileDto = profileDto,
+            isPlayer = true,
+            isFromSearchResult = true
+        )
+        findNavController().navigate(action)
     }
 
     companion object {

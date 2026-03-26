@@ -1,7 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
 import android.view.LayoutInflater
-import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -19,6 +18,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentProfileManagementBinding
 import sky.kr.co.newtogetusa.databinding.TabMyProfileCustomBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
 class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding, ProfileManagementViewModel>() {
@@ -29,19 +29,28 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
 
     var profileDto : ProfileDto? = null
     var isPlayerMode  = false
+    private var isFromSearchResult = false
     private var customTabBinding0:TabMyProfileCustomBinding? = null
     private var customTabBinding1:TabMyProfileCustomBinding? = null
 
     override fun init() {
         super.init()
         isPlayerMode = args.isPlayer
+        isFromSearchResult = args.isFromSearchResult
         profileDto = args.profileDto
         dataBinding.profile = profileDto
+        dataBinding.isFromSearchResult = isFromSearchResult
 
-        viewModel.getMyProfile {
-            dataBinding.profile = it
-            profileDto = it
-            dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"
+        if (!isFromSearchResult) {
+            viewModel.getMyProfile {
+                dataBinding.profile = it
+                profileDto = it
+                dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"
+            }
+        } else {
+            profileDto?.let {
+                dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"
+            }
         }
 
         dataBinding.viewPager.apply {
@@ -84,6 +93,9 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 }
                 is ProfileManagementViewModel.Event.PasswordSet -> {
                     findNavController().navigate(R.id.action_profileManagementFragment_to_passwordSetFragment)
+                }
+                is ProfileManagementViewModel.Event.SuggestDelivery -> {
+                    requireContext().toast("제안하기 기능을 준비중입니다.")
                 }
             }
         }
