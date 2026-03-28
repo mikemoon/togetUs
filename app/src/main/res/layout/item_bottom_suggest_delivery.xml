@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="top|center_vertical"
+    android:paddingTop="16dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivRadio"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/radio" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="10dp"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black_80"
+            style="@style/Paragraph16R"
+            android:text="노트북 좀 전달해주세요" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvRoute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/black_40"
+            style="@style/Paragraph14R"
+            android:text="서울 강서구 - 서울 강서구" />
+    </LinearLayout>
+</LinearLayout>

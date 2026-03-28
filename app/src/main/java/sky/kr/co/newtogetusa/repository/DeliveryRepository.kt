@@ -73,6 +73,9 @@ class DeliveryRepository @Inject constructor(
             }
         ).flow
 
+    suspend fun putSuggest(deliveryId: Long, body: Map<String, String>) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putSuggest(deliveryId, body)
+    }
 
     //플레이어
     suspend fun postPlayerDeliverySearch(deliverySearchReq: DeliverySearchReq) = safeApiCall<DeliverySearchResponse>(Dispatchers.IO){

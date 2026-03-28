@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.data.remote.api
 
+import com.squareup.okhttp.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -37,9 +38,10 @@ interface DeliveryService {
         @Path("delivery_id") delivery_id: Int,
     ):Boolean
 
-    @PUT("api/deliveries/v1/{delivery_id}/suggest") //플레이어에게 배송요청 제안
+    @PUT("/api/deliverys/v1/{delivery_id}/requester/suggest") //플레이어에게 배송요청 제안
     suspend fun putSuggest(
-        @Path("delivery_id") delivery_id: Int,
+        @Path("delivery_id") delivery_id: Long,
+        @Body body : Map<String, String>
     ):Boolean
 
     @PUT("api/deliveries/v1/{delivery_id}/accept") //플레이어에게 배송요청 확정
@@ -118,7 +120,6 @@ interface DeliveryService {
     suspend fun cancelDelivery(
         @Path("delivery_id") delivery_id: Long,
     ): Boolean
-
 
     //플레이어
     @POST("api/deliverys/v1/search/player") //검색하기

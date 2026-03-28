@@ -26,6 +26,10 @@
             android:name="isFromSearchResult"
             app:argType="boolean"
             android:defaultValue="false" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
         <action
             android:id="@+id/action_profileManagementFragment_to_modifyProfileFragment"
             app:destination="@id/modifyProfileFragment" >

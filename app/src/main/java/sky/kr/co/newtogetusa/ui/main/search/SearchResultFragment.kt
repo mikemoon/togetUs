@@ -17,7 +17,9 @@ import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentSearchResultBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomFilterDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomSuggestDeliveryDialog
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
 class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchResultViewModel>() {
@@ -87,6 +89,14 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             FILTER_LATEST_DEAL -> SORT_LATEST_DEAL
             else -> SORT_DISTANCE
         }
+    }
+
+    private fun showSuggestBottomDialog(){
+        BottomSuggestDeliveryDialog().apply {
+            selectedRequestCallback = {
+                requireContext().toast("배송요청 제안을 준비중입니다.")
+            }
+        }.show(parentFragmentManager, "BottomSuggestDeliveryDialog")
     }
 
     private fun navigateToProfileManagement(player: PlayerDto) {

@@ -54,7 +54,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.ProfileManage -> {
                     findNavController().navigate(
                         MyFragmentDirections.actionMyFragmentToProfileManagementFragment(
-                            viewModel.profileDto.value,
+                            profileDto = viewModel.profileDto.value,
                             isPlayer = viewModel.isPlayerModeFlow.value
                         )
                     )

@@ -23,6 +23,10 @@
                 android:name="isFromSearchResult"
                 app:argType="boolean"
                 android:defaultValue="false" />
+            <argument
+                android:name="deliveryId"
+                app:argType="long"
+                android:defaultValue="-1L" />
         </action>
         <action
             android:id="@+id/action_myFragment_to_mySettingFragment"

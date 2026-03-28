@@ -38,6 +38,7 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         isPlayerMode = args.isPlayer
         isFromSearchResult = args.isFromSearchResult
         profileDto = args.profileDto
+        viewModel.setSuggestDeliveryId(args.deliveryId)
         dataBinding.profile = profileDto
         dataBinding.isFromSearchResult = isFromSearchResult
 
@@ -94,9 +95,15 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 is ProfileManagementViewModel.Event.PasswordSet -> {
                     findNavController().navigate(R.id.action_profileManagementFragment_to_passwordSetFragment)
                 }
-                is ProfileManagementViewModel.Event.SuggestDelivery -> {
-                    requireContext().toast("제안하기 기능을 준비중입니다.")
-                }
+                is ProfileManagementViewModel.Event.SuggestDelivery -> Unit
+            }
+        }
+
+        viewModel.suggestDeliveryResult.observe(viewLifecycleOwner) { isSuccess ->
+            if (isSuccess) {
+                requireContext().toast("제안하기 요청이 전송되었습니다.")
+            } else {
+                requireContext().toast("제안하기 요청 전송에 실패했습니다.")
             }
         }
 
