@@ -1,7 +1,12 @@
 package sky.kr.co.newtogetusa.ui.dialog.bottom
 
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.DialogBottomSuggestDeliveryBinding
 
@@ -12,16 +17,7 @@ class BottomSuggestDeliveryDialog : BottomBaseDialog<DialogBottomSuggestDelivery
     override val viewModel: BottomSuggestDeliveryViewModel by viewModels()
 
     var nickname: String = ""
-    var requestItems: List<SuggestRequestItem> = listOf(
-        SuggestRequestItem(
-            title = "노트북 좀 전달해주세요",
-            routeText = "서울 강서구 - 서울 강서구"
-        ),
-        SuggestRequestItem(
-            title = "의류 좀 전달해주세요",
-            routeText = "서울 강서구 - 일본 도쿄"
-        )
-    )
+    var requestItems: List<SuggestRequestItem> = emptyList()
     var selectedRequestCallback: ((SuggestRequestItem) -> Unit)? = null
 
     private val requestAdapter = BottomSuggestDeliveryAdapter()
@@ -33,10 +29,20 @@ class BottomSuggestDeliveryDialog : BottomBaseDialog<DialogBottomSuggestDelivery
 
         dataBinding.rvRequests.adapter = requestAdapter
         requestAdapter.submitList(requestItems)
+        viewModel.loadRegisteredDeliveries()
     }
 
     override fun initObserver() {
         super.initObserver()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.requestItems.collectLatest {
+                    requestAdapter.submitList(it)
+                }
+            }
+        }
+
         viewModel.event.observe(viewLifecycleOwner) { event ->
             when (event) {
                 BottomSuggestDeliveryViewModel.Event.Close -> dismissAllowingStateLoss()
