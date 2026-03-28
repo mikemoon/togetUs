@@ -38,12 +38,14 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         isPlayerMode = args.isPlayer
         isFromSearchResult = args.isFromSearchResult
         profileDto = args.profileDto
+        viewModel.profileDto.value = profileDto
         viewModel.setSuggestDeliveryId(args.deliveryId)
         dataBinding.profile = profileDto
         dataBinding.isFromSearchResult = isFromSearchResult
 
         if (!isFromSearchResult) {
             viewModel.getMyProfile {
+                viewModel.profileDto.value = it
                 dataBinding.profile = it
                 profileDto = it
                 dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"

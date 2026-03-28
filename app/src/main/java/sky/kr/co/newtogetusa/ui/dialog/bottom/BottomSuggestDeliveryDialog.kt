@@ -57,6 +57,7 @@ class BottomSuggestDeliveryDialog : BottomBaseDialog<DialogBottomSuggestDelivery
     }
 
     data class SuggestRequestItem(
+        val deliveryId: Long,
         val title: String,
         val routeText: String
     )

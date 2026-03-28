@@ -30,6 +30,7 @@ class BottomSuggestDeliveryViewModel @Inject constructor(
                     .filter { it.status_cd.startsWith("MATCH") }
                     .map {
                         BottomSuggestDeliveryDialog.SuggestRequestItem(
+                            deliveryId = it.delivery_id,
                             title = it.title,
                             routeText = "${it.depart_address} - ${it.dest_address}"
                         )

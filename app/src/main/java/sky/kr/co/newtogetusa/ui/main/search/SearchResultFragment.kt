@@ -28,7 +28,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
     override val viewModel: SearchResultViewModel by viewModels()
 
     private val args: SearchResultFragmentArgs by navArgs()
-    private val searchResultAdapter = SearchResultAdapter(::navigateToProfileManagement)
+    private val searchResultAdapter = SearchResultAdapter(::showSuggestBottomDialog)
 
     override fun init() {
         super.init()
@@ -91,15 +91,16 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         }
     }
 
-    private fun showSuggestBottomDialog(){
+    private fun showSuggestBottomDialog(player: PlayerDto) {
         BottomSuggestDeliveryDialog().apply {
+            nickname = player.nickname
             selectedRequestCallback = {
-                requireContext().toast("배송요청 제안을 준비중입니다.")
+                navigateToProfileManagement(player, it.deliveryId)
             }
         }.show(parentFragmentManager, "BottomSuggestDeliveryDialog")
     }
 
-    private fun navigateToProfileManagement(player: PlayerDto) {
+    private fun navigateToProfileManagement(player: PlayerDto, deliveryId: Long) {
         val profileDto = ProfileDto(
             user = ProfileDto.User(
                 user_id = player.user_id.toInt(),
@@ -118,7 +119,8 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         val action = NavGraphDirections.actionGlobalProfileManagementFragment(
             profileDto = profileDto,
             isPlayer = true,
-            isFromSearchResult = true
+            isFromSearchResult = true,
+            deliveryId = deliveryId
         )
         findNavController().navigate(action)
     }
