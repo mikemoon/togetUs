@@ -17,9 +17,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentSearchResultBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomFilterDialog
-import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomSuggestDeliveryDialog
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
-import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
 class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchResultViewModel>() {
@@ -28,7 +26,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
     override val viewModel: SearchResultViewModel by viewModels()
 
     private val args: SearchResultFragmentArgs by navArgs()
-    private val searchResultAdapter = SearchResultAdapter(::showSuggestBottomDialog)
+    private val searchResultAdapter = SearchResultAdapter(::navigateToProfileManagement)
 
     override fun init() {
         super.init()
@@ -91,16 +89,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         }
     }
 
-    private fun showSuggestBottomDialog(player: PlayerDto) {
-        BottomSuggestDeliveryDialog().apply {
-            nickname = player.nickname
-            selectedRequestCallback = {
-                navigateToProfileManagement(player, it.deliveryId)
-            }
-        }.show(parentFragmentManager, "BottomSuggestDeliveryDialog")
-    }
-
-    private fun navigateToProfileManagement(player: PlayerDto, deliveryId: Long) {
+    private fun navigateToProfileManagement(player: PlayerDto) {
         val profileDto = ProfileDto(
             user = ProfileDto.User(
                 user_id = player.user_id.toInt(),
@@ -119,8 +108,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         val action = NavGraphDirections.actionGlobalProfileManagementFragment(
             profileDto = profileDto,
             isPlayer = true,
-            isFromSearchResult = true,
-            deliveryId = deliveryId
+            isFromSearchResult = true
         )
         findNavController().navigate(action)
     }

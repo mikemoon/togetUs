@@ -51,12 +51,6 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     private val _suggestDeliveryResult = SingleLiveEvent<Boolean>()
     val suggestDeliveryResult: LiveData<Boolean> = _suggestDeliveryResult
 
-    private var suggestDeliveryId: Long = -1L
-
-    fun setSuggestDeliveryId(deliveryId: Long) {
-        suggestDeliveryId = deliveryId
-    }
-
     val deliveryRequestTotalCount = MutableStateFlow(0)
 
     private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
@@ -104,18 +98,14 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     }
 
 
-    private fun requestSuggestDelivery() = viewModelScope.launch {
+    fun requestSuggestDelivery(deliveryId: Long) = viewModelScope.launch {
         val playerId = profileDto.value?.user?.player_id ?: -1
-        if (playerId <= 0L) {
-            _suggestDeliveryResult.value = false
-            return@launch
-        }
-        if (suggestDeliveryId <= 0L) {
+        if (playerId <= 0L || deliveryId <= 0L) {
             _suggestDeliveryResult.value = false
             return@launch
         }
 
-        when (deliveryRepository.putSuggest(deliveryId = suggestDeliveryId, hashMapOf("player_id" to playerId.toString()))) {
+        when (deliveryRepository.putSuggest(deliveryId = deliveryId, hashMapOf("player_id" to playerId.toString()))) {
             is ResultWrapper.Success -> _suggestDeliveryResult.value = true
             else -> _suggestDeliveryResult.value = false
         }
@@ -125,10 +115,6 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event){
-        if (event is Event.SuggestDelivery) {
-            requestSuggestDelivery()
-            return
-        }
         _event.value = event
     }
 

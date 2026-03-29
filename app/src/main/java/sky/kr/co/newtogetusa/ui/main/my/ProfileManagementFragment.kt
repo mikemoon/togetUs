@@ -18,6 +18,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentProfileManagementBinding
 import sky.kr.co.newtogetusa.databinding.TabMyProfileCustomBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomSuggestDeliveryDialog
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -39,7 +40,6 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         isFromSearchResult = args.isFromSearchResult
         profileDto = args.profileDto
         viewModel.profileDto.value = profileDto
-        viewModel.setSuggestDeliveryId(args.deliveryId)
         dataBinding.profile = profileDto
         dataBinding.isFromSearchResult = isFromSearchResult
 
@@ -97,7 +97,9 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 is ProfileManagementViewModel.Event.PasswordSet -> {
                     findNavController().navigate(R.id.action_profileManagementFragment_to_passwordSetFragment)
                 }
-                is ProfileManagementViewModel.Event.SuggestDelivery -> Unit
+                is ProfileManagementViewModel.Event.SuggestDelivery -> {
+                    showSuggestBottomDialog()
+                }
             }
         }
 
@@ -118,6 +120,16 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 }
             }
         }
+    }
+
+    private fun showSuggestBottomDialog() {
+        val nickname = profileDto?.user?.nickname.orEmpty()
+        BottomSuggestDeliveryDialog().apply {
+            this.nickname = nickname
+            selectedRequestCallback = { selectedItem ->
+                this@ProfileManagementFragment.viewModel.requestSuggestDelivery(selectedItem.deliveryId)
+            }
+        }.show(parentFragmentManager, "BottomSuggestDeliveryDialog")
     }
 
     private fun updateDeliveryRequestCount(count: Int){
