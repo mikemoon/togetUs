@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.global.NoPictureVM" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_5">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginVertical="16dp"
+            android:src="@drawable/left_l"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
+            style="@style/HeadLine20B"
+            android:layout_width="0dp"
+            android:layout_height="82dp"
+            android:layout_marginHorizontal="24dp"
+            android:gravity="center_vertical"
+            android:text="촬영 불가 사유를 선택해주세요"
+            android:textColor="@color/black_80"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivBack" />
+
+        <LinearLayout
+            android:id="@+id/reasonContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="24dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reasonOption1"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@{viewModel.selectedReasonIndex == 0 ? @drawable/background_st_primary100_s_primary10_r4 : @drawable/background_st_b10_s_w_r4}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="직접 전달"
+                    android:textColor="@{viewModel.selectedReasonIndex == 0 ? @color/primary_100 : @color/black_80}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/check_round_checked"
+                    android:visibility="@{viewModel.selectedReasonIndex == 0 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reasonOption2"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                android:background="@{viewModel.selectedReasonIndex == 1 ? @drawable/background_st_primary100_s_primary10_r4 : @drawable/background_st_b10_s_w_r4}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="촬영 금지 장소"
+                    android:textColor="@{viewModel.selectedReasonIndex == 1 ? @color/primary_100 : @color/black_80}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/check_round_checked"
+                    android:visibility="@{viewModel.selectedReasonIndex == 1 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reasonOption3"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                android:background="@{viewModel.selectedReasonIndex == 2 ? @drawable/background_st_primary100_s_primary10_r4 : @drawable/background_st_b10_s_w_r4}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="촬영하기 어두운 장소"
+                    android:textColor="@{viewModel.selectedReasonIndex == 2 ? @color/primary_100 : @color/black_80}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/check_round_checked"
+                    android:visibility="@{viewModel.selectedReasonIndex == 2 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reasonOption4"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                android:background="@{viewModel.selectedReasonIndex == 3 ? @drawable/background_st_primary100_s_primary10_r4 : @drawable/background_st_b10_s_w_r4}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="네트워크(인터넷) 장애"
+                    android:textColor="@{viewModel.selectedReasonIndex == 3 ? @color/primary_100 : @color/black_80}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/check_round_checked"
+                    android:visibility="@{viewModel.selectedReasonIndex == 3 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/reasonOption5"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                android:background="@{viewModel.selectedReasonIndex == 4 ? @drawable/background_st_primary100_s_primary10_r4 : @drawable/background_st_b10_s_w_r4}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="기타 (직접 입력)"
+                    android:textColor="@{viewModel.selectedReasonIndex == 4 ? @color/primary_100 : @color/black_80}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/check_round_checked"
+                    android:visibility="@{viewModel.selectedReasonIndex == 4 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etReasonDetail"
+                style="@style/Paragraph17R"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/background_st_b10_s_w_r4"
+                android:gravity="top|start"
+                android:hint="사유를 입력해주세요"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="12dp"
+                android:textColor="@color/black_80"
+                android:textColorHint="@color/black_40"
+                android:text="@={viewModel.reasonDetail}" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Description13R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="end"
+                android:text='@{String.valueOf(viewModel.reasonLength) + "/30"}'
+                android:textColor="@color/black_40" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btnComplete"
+            style="@style/Paragraph16B"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/background_s_p100_r4"
+            android:gravity="center"
+            android:text="선택 후 완료 처리"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

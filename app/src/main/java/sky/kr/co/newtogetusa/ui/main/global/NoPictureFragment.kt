@@ -1,4 +1,60 @@
 package sky.kr.co.newtogetusa.ui.main.global
 
-class NoPictureFragment {
+import android.text.Editable
+import android.text.TextWatcher
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
+import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.databinding.FragmentNoPictureBinding
+import sky.kr.co.newtogetusa.ui.base.BaseFragment
+
+@AndroidEntryPoint
+class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() {
+
+    override val layoutId: Int
+        get() = R.layout.fragment_no_picture
+
+    override val viewModel: NoPictureVM by viewModels()
+
+    override fun init() {
+        bindClicks()
+        bindTextWatcher()
+    }
+
+    private fun bindClicks() {
+        dataBinding.ivBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        dataBinding.reasonOption1.setOnClickListener { viewModel.selectReason(0) }
+        dataBinding.reasonOption2.setOnClickListener { viewModel.selectReason(1) }
+        dataBinding.reasonOption3.setOnClickListener { viewModel.selectReason(2) }
+        dataBinding.reasonOption4.setOnClickListener { viewModel.selectReason(3) }
+        dataBinding.reasonOption5.setOnClickListener { viewModel.selectReason(4) }
+
+        dataBinding.btnComplete.setOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
+
+    private fun bindTextWatcher() {
+        dataBinding.etReasonDetail.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
+            override fun afterTextChanged(s: Editable?) {
+                val currentText = s?.toString().orEmpty()
+                if (currentText.length > NoPictureVM.MAX_REASON_LENGTH) {
+                    val trimmed = currentText.take(NoPictureVM.MAX_REASON_LENGTH)
+                    dataBinding.etReasonDetail.setText(trimmed)
+                    dataBinding.etReasonDetail.setSelection(trimmed.length)
+                    viewModel.updateReasonDetail(trimmed)
+                } else {
+                    viewModel.updateReasonDetail(currentText)
+                }
+            }
+        })
+    }
 }
