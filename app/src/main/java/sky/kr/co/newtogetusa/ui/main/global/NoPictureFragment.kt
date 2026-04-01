@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.global
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +23,25 @@ class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() 
         bindTextWatcher()
     }
 
+    override fun initObserver() {
+        viewModel.event.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                NoPictureVM.Event.CompleteSuccess -> {
+                    Toast.makeText(requireContext(), "완료 처리되었습니다.", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                }
+
+                NoPictureVM.Event.CompleteFailed -> {
+                    Toast.makeText(requireContext(), "완료 처리에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                }
+
+                NoPictureVM.Event.InvalidDeliveryId -> {
+                    Toast.makeText(requireContext(), "배송 정보를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     private fun bindClicks() {
         dataBinding.ivBack.setOnClickListener {
             findNavController().popBackStack()
@@ -34,7 +54,8 @@ class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() 
         dataBinding.reasonOption5.setOnClickListener { viewModel.selectReason(4) }
 
         dataBinding.btnComplete.setOnClickListener {
-            findNavController().popBackStack()
+            val deliveryId = arguments?.getLong(KEY_DELIVERY_ID, -1L) ?: -1L
+            viewModel.requestCompleteWithoutPicture(deliveryId)
         }
     }
 
@@ -56,5 +77,9 @@ class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() 
                 }
             }
         })
+    }
+
+    companion object {
+        private const val KEY_DELIVERY_ID = "deliveryId"
     }
 }
