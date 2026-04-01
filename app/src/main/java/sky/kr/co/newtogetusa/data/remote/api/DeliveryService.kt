@@ -15,6 +15,7 @@ import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryUploadPictureRequest
 
 interface DeliveryService {
 
@@ -114,6 +115,12 @@ interface DeliveryService {
     suspend fun postDeliveryPictures(
         @Path("delivery_id") delivery_id: Long,
         @Body body: List<DeliveryRegPhoto>
+    ): Boolean
+
+    @PUT("api/deliverys/v1/{delivery_id}/player/complete_picture") //동행완료 촬영하기
+    suspend fun putDeliveryCompletePicture(
+        @Path("delivery_id") delivery_id: Long,
+        @Body body: DeliveryUploadPictureRequest
     ): Boolean
 
     @PUT("api/deliverys/v1/{delivery_id}/requester/cancel")//취소하기

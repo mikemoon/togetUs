@@ -1,44 +1,43 @@
 {
   "project_info": {
-    "project_number": "714408641644",
-    "firebase_url": "https://togetus-99c59.firebaseio.com",
-    "project_id": "togetus-99c59",
-    "storage_bucket": "togetus-99c59.firebasestorage.app"
+    "project_number": "1039642495651",
+    "project_id": "togetus2",
+    "storage_bucket": "togetus2.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:714408641644:android:20b221564d210b03908449",
+        "mobilesdk_app_id": "1:1039642495651:android:a1a20aa3d46be4f73d4d16",
         "android_client_info": {
           "package_name": "sky.kr.co.newtogetusa"
         }
       },
       "oauth_client": [
         {
-          "client_id": "714408641644-238dlsvko359m120sh5p6tg06ocfp711.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "sky.kr.co.newtogetusa",
-            "certificate_hash": "e74fd7ada0b7ce69b9e33d40b86cd9cbf767a142"
-          }
-        },
-        {
-          "client_id": "714408641644-vl4r3v545qifrc7i82e2mdq9aah93jb5.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "sky.kr.co.newtogetusa",
-            "certificate_hash": "933ef16bc1478cca6b2cd72f918dc4875456c963"
-          }
+          "client_id": "1039642495651-i0l44dtcd353p7g2dtdv7foequhj80gb.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBknul01Nz_nmMZn3boCtnp1UmFvMLnPYk"
+          "current_key": "AIzaSyADq_goAsY774FR5B2iutJl3oehEMRtKyg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1039642495651-i0l44dtcd353p7g2dtdv7foequhj80gb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1039642495651-15u0okjamlk4126sgqnqe8j4p13qn1oo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.kr.TogetUsI.togetus.dev"
+              }
+            }
+          ]
         }
       }
     }

@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryUploadPictureRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
 import sky.kr.co.newtogetusa.repository.page.DeliveryPagingSource
 import sky.kr.co.newtogetusa.repository.page.DeliveryPlayerPagingSource
@@ -56,6 +57,11 @@ class DeliveryRepository @Inject constructor(
     suspend fun postDeliveryPictures(deliveryId: Long, photoList: List<DeliveryRegPhoto>) = safeApiCall<Boolean>(
         Dispatchers.IO){
         apiService.postDeliveryPictures(deliveryId, photoList)
+    }
+
+    suspend fun putDeliveryCompletePicture(deliveryId: Long, body: DeliveryUploadPictureRequest) = safeApiCall<Boolean>(
+        Dispatchers.IO) {
+        apiService.putDeliveryCompletePicture(deliveryId, body)
     }
 
     suspend fun cancelDelivery(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO){
