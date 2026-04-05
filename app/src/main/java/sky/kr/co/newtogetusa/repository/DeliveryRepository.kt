@@ -68,6 +68,10 @@ class DeliveryRepository @Inject constructor(
         apiService.cancelDelivery(deliveryId)
     }
 
+    suspend fun putApply(deliveryId: Long) = safeApiCall(Dispatchers.IO){
+        apiService.putApply(deliveryId)
+    }
+
     fun getDeliveryPagingFlow(type: String, title: String) =
         Pager(
             config = PagingConfig(

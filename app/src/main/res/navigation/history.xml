@@ -18,7 +18,18 @@
         android:label="HistoryDeliveryFragment" >
         <action
             android:id="@+id/action_historyDeliveryFragment_to_historyFragment"
-            app:destination="@id/historyFragment" />
+            app:destination="@id/historyFragment" /><action
+        android:id="@+id/action_historyDeliveryFragment_to_playerHistoryDetailFragment"
+        app:destination="@id/playerHistoryDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/playerHistoryDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.player.PlayerHistoryDetailFragment"
+        android:label="PlayerHistoryDetailFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
     </fragment>
 
 

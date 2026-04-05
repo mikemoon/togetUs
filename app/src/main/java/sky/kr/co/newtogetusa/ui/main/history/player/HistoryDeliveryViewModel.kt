@@ -45,9 +45,9 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     private val _topMenu = MutableStateFlow("ALL")
     private val _keyword = MutableStateFlow("")
 
-    private val _itemCancelLiveData = SingleLiveEvent<String>()
-    val itemCancelLiveData: LiveData<String> = _itemCancelLiveData
-    fun onItemCancel(item:String){
+    private val _itemCancelLiveData = SingleLiveEvent<DeliverySummaryDto>()
+    val itemCancelLiveData: LiveData<DeliverySummaryDto> = _itemCancelLiveData
+    fun onItemCancel(item:DeliverySummaryDto){
         _itemCancelLiveData.value = item
     }
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
             name="item"
-            type="String" />
+            type="sky.kr.co.newtogetusa.data.remote.dto.player.DeliverySummaryDto" />
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.history.player.HistoryDeliveryViewModel" />
@@ -67,18 +68,20 @@
                 android:gravity="center_vertical"
                 android:layout_marginStart="76dp">
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/Paragraph14R"
-                    android:text="노트북 좀 전달해 주세요."
+                    android:text="@{item.title}"
                     android:textColor="@color/black_80"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     style="@style/HeadLine18B"
-                    android:text="23,000원"
+                    tools:text="23,000원"
                     android:textColor="@color/black_80"
                     />
             </LinearLayout>
@@ -112,10 +115,11 @@
                 style="@style/Paragraph12B"
                 />
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPickupDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:text="2025년 5월 1일(목) 오전 10:30"
+                tools:text="2025년 5월 1일(목) 오전 10:30"
                 android:textColor="@color/black_80"
                 style="@style/Paragraph12R"
                 />

@@ -34,11 +34,6 @@ interface DeliveryService {
         @Path("delivery_id") delivery_id: Int,
     ):Boolean
 
-    @PUT("api/deliveries/v1/{delivery_id}/apply") //플레이어가 거래요청
-    suspend fun putApply(
-        @Path("delivery_id") delivery_id: Int,
-    ):Boolean
-
     @PUT("/api/deliverys/v1/{delivery_id}/requester/suggest") //플레이어에게 배송요청 제안
     suspend fun putSuggest(
         @Path("delivery_id") delivery_id: Long,
@@ -133,5 +128,10 @@ interface DeliveryService {
     suspend fun postPlayerDeliverySearch(
         @Body body: DeliverySearchReq
     ): DeliverySearchResponse
+
+    @PUT("/api/deliverys/v1/{delivery_id}/player/apply") //지원하기
+    suspend fun putApply(
+        @Path("delivery_id") deliveryId: Long,
+    ):Boolean
 
 }

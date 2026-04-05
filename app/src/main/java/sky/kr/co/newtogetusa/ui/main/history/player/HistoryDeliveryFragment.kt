@@ -51,7 +51,16 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
         super.init()
         dataBinding.viewModel = viewModel
         dataBinding.tvTopAll.isSelected = true
-        historyAdapter = HistoryDeliverAdapter(viewModel)
+        historyAdapter = HistoryDeliverAdapter(viewModel) { selectedItem ->
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.historyDeliveryFragment) {
+                val action = HistoryDeliveryFragmentDirections
+                    .actionHistoryDeliveryFragmentToPlayerHistoryDetailFragment(
+                        selectedItem.deliveryId.toLong()
+                    )
+                navController.navigate(action)
+            }
+        }
 
         dataBinding.rvHistory.apply {
             adapter = historyAdapter
