@@ -67,7 +67,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     fun onPrimaryClick() {
         val detail = deliveryDetail.value ?: return
         when (buttonState.value) {
-            ButtonState.MatchBefore -> requestApply(detail.delivery_id)
+            ButtonState.MatchBefore -> _event.value = Event.ShowApplyDialog
             ButtonState.PickupReady -> requestPickupComplete(detail.delivery_id)
             ButtonState.DeliveryProgress -> requestDeliveryComplete(detail.delivery_id)
             ButtonState.Done -> _event.value = Event.DoneInfo
@@ -200,10 +200,16 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         Hidden(primaryText = "", secondaryText = "", showSecondary = false),
     }
 
+    fun confirmApply() {
+        val detail = deliveryDetail.value ?: return
+        requestApply(detail.delivery_id)
+    }
+
     sealed class Event {
         object Back : Event()
         object Chat : Event()
         object DoneInfo : Event()
+        object ShowApplyDialog : Event()
         object ActionFail : Event()
         data class ActionSuccess(val msg: String) : Event()
     }

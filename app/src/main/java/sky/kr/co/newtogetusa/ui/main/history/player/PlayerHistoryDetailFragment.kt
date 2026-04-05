@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryDeliveryDetailBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.player.BottomDeliveryApplyDialog
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -87,6 +88,13 @@ class PlayerHistoryDetailFragment :
                 is PlayerHistoryDetailViewModel.Event.Back -> findNavController().popBackStack()
                 is PlayerHistoryDetailViewModel.Event.ActionSuccess -> requireContext().toast(event.msg)
                 is PlayerHistoryDetailViewModel.Event.ActionFail -> requireContext().toast("요청 처리에 실패했어요.")
+                is PlayerHistoryDetailViewModel.Event.ShowApplyDialog -> {
+                    val nickname = viewModel.deliveryDetail.value?.requester_rating?.nickname.orEmpty()
+                    BottomDeliveryApplyDialog().apply {
+                        requesterNickname = nickname
+                        confirmCallback = { this@PlayerHistoryDetailFragment.viewModel.confirmApply() }
+                    }.show(childFragmentManager, "BottomDeliveryApplyDialog")
+                }
                 is PlayerHistoryDetailViewModel.Event.Chat -> requireContext().toast("채팅 기능을 준비중입니다.")
                 is PlayerHistoryDetailViewModel.Event.DoneInfo -> requireContext().toast("이미 완료된 요청입니다.")
             }
