@@ -19,6 +19,7 @@ class BottomDeliveryApplyDialog : BottomBaseDialog<DialogBottomDeliveryApplyBind
 
     var requesterNickname: String = ""
     var confirmCallback: (() -> Unit)? = null
+    var noticeCallback: (() -> Unit)? = null
 
     override fun init() {
         super.init()
@@ -28,6 +29,9 @@ class BottomDeliveryApplyDialog : BottomBaseDialog<DialogBottomDeliveryApplyBind
         dataBinding.ivClose.setOnClickListener { viewModel.onCloseClick() }
         dataBinding.tvApply.setOnClickListener { viewModel.onApplyClick() }
         dataBinding.cbAgree.setOnCheckedChangeListener { _, isChecked -> viewModel.onAgreeChanged(isChecked) }
+        dataBinding.ivNoticeArrow.setOnClickListener {
+            noticeCallback?.invoke()
+        }
     }
 
     override fun initObserver() {

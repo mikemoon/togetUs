@@ -93,6 +93,12 @@ class PlayerHistoryDetailFragment :
                     BottomDeliveryApplyDialog().apply {
                         requesterNickname = nickname
                         confirmCallback = { this@PlayerHistoryDetailFragment.viewModel.confirmApply() }
+                        noticeCallback = {
+                            dismissAllowingStateLoss()
+                            findNavController().navigate(
+                                PlayerHistoryDetailFragmentDirections.actionPlayerHistoryDetailFragmentToPlayerDeliveryNoticeFragment()
+                            )
+                        }
                     }.show(childFragmentManager, "BottomDeliveryApplyDialog")
                 }
                 is PlayerHistoryDetailViewModel.Event.Chat -> requireContext().toast("채팅 기능을 준비중입니다.")
