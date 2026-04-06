@@ -103,6 +103,11 @@ class PlayerHistoryDetailFragment :
                 }
                 is PlayerHistoryDetailViewModel.Event.Chat -> requireContext().toast("채팅 기능을 준비중입니다.")
                 is PlayerHistoryDetailViewModel.Event.DoneInfo -> requireContext().toast("이미 완료된 요청입니다.")
+                is PlayerHistoryDetailViewModel.Event.OpenReport -> {
+                    findNavController().navigate(
+                        PlayerHistoryDetailFragmentDirections.actionPlayerHistoryDetailFragmentToReportFragment()
+                    )
+                }
             }
         }
     }

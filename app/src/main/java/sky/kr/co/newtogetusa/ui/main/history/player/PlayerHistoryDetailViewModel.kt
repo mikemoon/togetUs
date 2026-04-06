@@ -70,7 +70,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             ButtonState.MatchBefore -> _event.value = Event.ShowApplyDialog
             ButtonState.PickupReady -> requestPickupComplete(detail.delivery_id)
             ButtonState.DeliveryProgress -> requestDeliveryComplete(detail.delivery_id)
-            ButtonState.Done -> _event.value = Event.DoneInfo
+            ButtonState.Done -> _event.value = Event.OpenReport
             else -> Unit
         }
     }
@@ -196,7 +196,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         MatchBefore(primaryText = "지원하기", secondaryText = "문의하기", showSecondary = true),
         PickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
         DeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
-        Done(primaryText = "완료됨", secondaryText = "", showSecondary = false),
+        Done(primaryText = "등록하기", secondaryText = "", showSecondary = false),
         Hidden(primaryText = "", secondaryText = "", showSecondary = false),
     }
 
@@ -209,6 +209,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         object Back : Event()
         object Chat : Event()
         object DoneInfo : Event()
+        object OpenReport : Event()
         object ShowApplyDialog : Event()
         object ActionFail : Event()
         data class ActionSuccess(val msg: String) : Event()

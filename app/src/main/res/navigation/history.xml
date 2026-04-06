@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_playerHistoryDetailFragment_to_playerDeliveryNoticeFragment"
             app:destination="@id/playerDeliveryNoticeFragment" />
+        <action
+            android:id="@+id/action_playerHistoryDetailFragment_to_reportFragment"
+            app:destination="@id/reportFragment" />
         <argument
             android:name="deliveryId"
             app:argType="long" />
@@ -39,5 +42,34 @@
         android:id="@+id/playerDeliveryNoticeFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.player.PlayerDeliveryNoticeFragment"
         android:label="PlayerDeliveryNoticeFragment" />
+
+    <fragment
+        android:id="@+id/reportFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.report.ReportFragment"
+        android:label="ReportFragment">
+        <action
+            android:id="@+id/action_reportFragment_to_reportResultFragment"
+            app:destination="@id/reportResultFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportResultFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.report.ReportResultFragment"
+        android:label="ReportResultFragment">
+        <argument
+            android:name="reasons"
+            app:argType="string[]"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="message"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="showBottomButton"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
 
 </navigation>

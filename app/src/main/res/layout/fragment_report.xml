@@ -1,9 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.history.report.ReportVM.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.history.report.ReportVM" />
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="16dp"
+            android:onClick="@{()->viewModel.onBackClick()}"
+            android:src="@drawable/close" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/HeadLine18B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="홍길동님의 동행요청은 만족스러우셨나요?"
+            android:textColor="@color/black_80" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="별점으로 평가해주세요."
+            android:textColor="@color/black_40" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvStar1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="★"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/tvStar2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="★"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/tvStar3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="★"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/tvStar4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="★"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/tvStar5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="★"
+                android:textSize="32sp" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph14B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="좋았던 부분을 선택해주세요. (선택)"
+            android:textColor="@color/black_80" />
+
+        <LinearLayout
+            android:id="@+id/groupReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnReasonTime"
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_bg_b5_p5_r4"
+                android:gravity="center"
+                android:paddingVertical="12dp"
+                android:text="시간 약속을 잘 지켰어요."
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnReasonFast"
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/selector_bg_b5_p5_r4"
+                android:gravity="center"
+                android:paddingVertical="12dp"
+                android:text="빠르게 응답했어요."
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnReasonManner"
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/selector_bg_b5_p5_r4"
+                android:gravity="center"
+                android:paddingVertical="12dp"
+                android:text="매너가 좋았어요."
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnReasonProduct"
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/selector_bg_b5_p5_r4"
+                android:gravity="center"
+                android:paddingVertical="12dp"
+                android:text="물품 정보가 정확했어요."
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph14B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="거래 후기를 남겨주세요. (선택)"
+            android:textColor="@color/black_80" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etReview"
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:gravity="top"
+            android:hint="(선택) 남겨주신 후기는 상대방의 프로필에 공개돼요\n잘못된 정보나 욕설·비방하는 내용은 통보없이\n삭제될 수 있어요."
+            android:maxLength="100"
+            android:onTextChanged="@{(s,st,b,c)->viewModel.onContentChanged(s)}"
+            android:padding="12dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph12R"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="@{viewModel.contentCountFlow}"
+            android:textColor="@color/black_20" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/background_s_p100_r4"
+            android:gravity="center"
+            android:paddingVertical="14dp"
+            android:text="등록하기"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
 </layout>
