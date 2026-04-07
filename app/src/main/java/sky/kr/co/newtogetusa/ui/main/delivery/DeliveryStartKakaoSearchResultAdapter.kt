@@ -26,10 +26,14 @@ class DeliveryStartKakaoSearchResultAdapter(
 
     inner class VH(private val binding: ItemSearchResultBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(doc: KakaoSearchModel) {
-            val name = doc.subtitle
-            binding.tvSearchAddress.text = name
+            binding.tvSearchAddress.text = doc.subtitle ?: doc.name
             binding.tvRoadAddress.text = if(doc.roadAddress == "") doc.name else doc.roadAddress
             binding.tvJibun.text = doc.name
+            binding.tvDistance.text = doc.distance?.let { "${it}m" }.orEmpty()
+            val hasDistance = !doc.distance.isNullOrBlank()
+            binding.vDot.isVisible = hasDistance
+            binding.tvDistance.isVisible = hasDistance
+
 
             // 좌표가 필요하면 여기서 변환
             val lat = doc.lat

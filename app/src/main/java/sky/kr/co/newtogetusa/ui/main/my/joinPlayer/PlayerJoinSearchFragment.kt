@@ -110,6 +110,17 @@ class PlayerJoinSearchFragment : BaseFragment<FragmentPlayerJoinSearchBinding, P
                 }
 
                 launch {
+                    viewModel.query.collectLatest { query ->
+                        val current = dataBinding.etSearch.text?.toString().orEmpty()
+                        if (current != query) {
+                            dataBinding.etSearch.setText(query)
+                            dataBinding.etSearch.setSelection(query.length)
+                        }
+                        dataBinding.ivDelete.isVisible = query.isNotBlank()
+                    }
+                }
+
+                launch {
                     viewModel.areaRadius.collectLatest { km ->
                         dataBinding.tvAreaDistance.text = "${km}km"
                     }

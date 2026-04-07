@@ -22,6 +22,7 @@ class KakaoLocalRepositoryImpl @Inject constructor(
             lat = lat,
             lng = lng,
             subtitle = "",
+            distance = null,
             source = "ADDRESS")
     }
 

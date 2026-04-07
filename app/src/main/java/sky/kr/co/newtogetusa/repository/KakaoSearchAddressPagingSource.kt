@@ -27,6 +27,7 @@ class KakaoSearchAddressPagingSource(
                     lat = doc.y?.toDoubleOrNull(),
                     lng = doc.x?.toDoubleOrNull(),
                     subtitle = null,
+                    distance = null,
                     roadAddress = doc.roadAddress?.roadName,
                     source = "ADDRESS"
                 )

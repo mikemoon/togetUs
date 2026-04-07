@@ -88,6 +88,17 @@ class PlayerJoinSearchVM @Inject constructor(
         setQuery(s.toString())
     }
 
+    fun onDeleteSearchText() {
+        searchAddress.value = ""
+        setQuery("")
+        searchStep.value = SearchStep.NONE
+    }
+
+    fun onModifyClick() {
+        setEditMode(true)
+        searchStep.value = SearchStep.NONE
+    }
+
     val isEditMode = MutableStateFlow(true)
     fun setEditMode(isEditMode : Boolean){
         this.isEditMode.value = isEditMode

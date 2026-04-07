@@ -34,6 +34,7 @@ class KakaoKeywordAddressPagingSource(
                     lng = p.x?.toDoubleOrNull(),
                     subtitle = p.place_name,
                     roadAddress = p.road_address_name,
+                    distance = p.distance,
                     source = "KEYWORD",
                 )
             }
