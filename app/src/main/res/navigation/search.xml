@@ -52,5 +52,17 @@
     <fragment
         android:id="@+id/deliveryAreaRequirementSetFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryAreaRequirementSetFragment"
-        android:label="DeliveryAreaRequirementSetFragment" />
+        android:label="DeliveryAreaRequirementSetFragment" >
+        <action
+            android:id="@+id/action_deliveryAreaRequirementSetFragment_to_deliveryAreaLocationSearchFragment"
+            app:destination="@id/deliveryAreaLocationSearchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/deliveryAreaLocationSearchFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryAreaLocationSearchFragment"
+        android:label="DeliveryAreaLocationSearchFragment" >
+        <argument
+            android:name="isDeparture"
+            app:argType="boolean" />
+    </fragment>
 </navigation>

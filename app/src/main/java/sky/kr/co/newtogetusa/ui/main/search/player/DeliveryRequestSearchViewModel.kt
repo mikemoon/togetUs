@@ -78,6 +78,18 @@ class DeliveryRequestSearchViewModel @Inject constructor(
         )
     }
 
+    fun updateAreaCondition(
+        myArea: Boolean,
+        departCd: List<String>,
+        destCd: List<String>
+    ) {
+        searchCondition.value = searchCondition.value.copy(
+            myArea = myArea,
+            departCd = departCd,
+            destCd = destCd
+        )
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event) {

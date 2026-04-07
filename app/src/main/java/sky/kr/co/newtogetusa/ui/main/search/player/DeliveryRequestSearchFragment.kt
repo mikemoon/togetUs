@@ -39,6 +39,21 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
     override fun initObserver() {
         super.initObserver()
 
+        parentFragmentManager.setFragmentResultListener(
+            DeliveryAreaRequirementSetFragment.KEY_AREA_REQUIREMENT_RESULT,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val departSelection = bundle.getParcelable<DeliveryAreaSelection>(DeliveryAreaRequirementSetFragment.KEY_DEPART_SELECTION)
+            val destSelection = bundle.getParcelable<DeliveryAreaSelection>(DeliveryAreaRequirementSetFragment.KEY_DEST_SELECTION)
+            val myArea = bundle.getBoolean(DeliveryAreaRequirementSetFragment.KEY_MY_AREA, false)
+
+            viewModel.updateAreaCondition(
+                myArea = myArea,
+                departCd = departSelection?.let { listOf(it.name) } ?: emptyList(),
+                destCd = destSelection?.let { listOf(it.name) } ?: emptyList()
+            )
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.deliveryRequestPagingData.collectLatest { pagingData ->

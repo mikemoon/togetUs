@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryAreaLocationSearchViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryAreaLocationSearchViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="픽업 가능 지역"
+                android:textColor="@color/black_80"
+                style="@style/Paragraph16B" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_margin="20dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clEdit"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/selector_bg_st_b10_b80_s_w_r4"
+                android:layout_marginEnd="8dp"
+                android:padding="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="주소 검색"
+                    android:onTextChanged="@{viewModel::onTextChanged}"
+                    android:textColor="@color/black_80"
+                    style="@style/Paragraph17R"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/ivDelete" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivDelete"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:onClick="@{()-> viewModel.onDeleteSearchText()}"
+                    android:src="@drawable/fillcircle_close_gray"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSearchResult"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/selector_bg_st_b10_b80_s_w_r4"
+                android:padding="16dp"
+                android:textColor="@color/black_80"
+                style="@style/Paragraph17R"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tvModify" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvModify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_s_b5_r4"
+                android:onClick="@{()-> viewModel.onModifyClick()}"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="16dp"
+                android:text="수정"
+                android:textColor="@color/black_80"
+                style="@style/Paragraph17B"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="@color/black_2" />
+
+        <LinearLayout
+            android:id="@+id/llSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:layout_marginStart="20dp"
+                android:gravity="center_vertical"
+                android:text="검색 결과"
+                android:textColor="@color/black_60"
+                style="@style/Paragraph17R" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black_5" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAreaSet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="반경 설정"
+                android:textColor="@color/black_60"
+                style="@style/Paragraph17R"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAreaDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="20dp"
+                android:text="3km"
+                android:textColor="@color/black_80"
+                style="@style/Paragraph17B"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="20dp"
+                android:value="3"
+                android:valueFrom="1"
+                android:valueTo="10"
+                android:stepSize="1"
+                app:labelBehavior="gone"
+                app:thumbColor="@color/white"
+                app:tickVisible="false"
+                app:trackColorActive="@color/black_80"
+                app:trackColorInactive="@color/black_20"
+                app:layout_constraintTop_toBottomOf="@id/tvAreaDistance" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:text="설정한 주소지 기준으로 가능한 범위를 설정해주세요."
+                android:textColor="@color/black_80"
+                style="@style/Paragraph15R"
+                app:layout_constraintTop_toBottomOf="@id/slide" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/background_s_b5_r4"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:paddingVertical="16dp"
+                app:layout_constraintTop_toBottomOf="@id/slide">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/target" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="지도에서 주소 찾기"
+                    android:textColor="@color/black_80"
+                    style="@style/Paragraph17B" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/selector_b20_p100_r4"
+                android:gravity="center"
+                android:onClick="@{()-> viewModel.onEventClick(Event.SelectedComplete.INSTANCE)}"
+                android:paddingVertical="16dp"
+                android:text="선택 완료"
+                android:textColor="@color/white"
+                style="@style/HeadLine18B"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</layout>
