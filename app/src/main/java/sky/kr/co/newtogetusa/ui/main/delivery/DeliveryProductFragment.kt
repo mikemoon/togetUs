@@ -141,12 +141,19 @@ class DeliveryProductFragment :
                 }
 
                 DeliveryProductViewModel.Event.SelectedComplete -> {
+                    val selectedTypeCode = viewModel.productType.value
+                    val selectedWeightCode = viewModel.productWeight.value
+                    val selectedVolumeCode = viewModel.productVolume.value
+
                     sharedViewModel.updateProductInfo(
                         viewModel.productTitle.value,
                         viewModel.productDescription.value,
-                        viewModel.productType.value,
-                        viewModel.productWeight.value,
-                        viewModel.productVolume.value
+                        selectedTypeCode,
+                        selectedWeightCode,
+                        selectedVolumeCode,
+                        typeLabel = findLabelByCode(viewModel.productTypes.value, selectedTypeCode),
+                        weightLabel = findLabelByCode(viewModel.productWeights.value, selectedWeightCode),
+                        volumeLabel = findLabelByCode(viewModel.productVolumes.value, selectedVolumeCode)
                     )
                     findNavController().popBackStack()
                 }
@@ -292,5 +299,9 @@ class DeliveryProductFragment :
             viewMap[dto.code] = tv
             container.addView(tv)
         }
+    }
+
+    private fun findLabelByCode(items: List<BaseCommonDto>, code: String): String {
+        return items.firstOrNull { it.code == code }?.name ?: code
     }
 }

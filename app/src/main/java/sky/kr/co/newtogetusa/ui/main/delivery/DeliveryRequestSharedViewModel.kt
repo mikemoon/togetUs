@@ -72,7 +72,10 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
         description: String,
         type: String,
         weight: String,
-        volume: String
+        volume: String,
+        typeLabel: String = type,
+        weightLabel: String = weight,
+        volumeLabel: String = volume
     ) {
         _state.update {
             it.copy(
@@ -80,7 +83,10 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
                 productDescription = description,
                 productType = type,
                 productWeight = weight,
-                productVolume = volume
+                productVolume = volume,
+                productTypeLabel = typeLabel,
+                productWeightLabel = weightLabel,
+                productVolumeLabel = volumeLabel
             )
         }
     }
@@ -181,6 +187,9 @@ data class DeliveryRequestState(
     val productType:  String? = null,
     val productWeight: String? = null,
     val productVolume: String? = null,
+    val productTypeLabel: String? = null,
+    val productWeightLabel: String? = null,
+    val productVolumeLabel: String? = null,
 
     val name: String? = null,
     val phone: String? = null,

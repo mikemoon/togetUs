@@ -87,6 +87,9 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
                 sharedViewModel.state.collect { state ->
                     val hasLocationSummary = !state.startAddress.isNullOrBlank() && !state.destinationAddress.isNullOrBlank()
                     dataBinding.layoutLocationSummary.isVisible = hasLocationSummary
+                    dataBinding.ivLocation.setImageResource(
+                        if (hasLocationSummary) R.drawable.pin_fill_primary else R.drawable.pin_fill_gray
+                    )
                     if (hasLocationSummary) {
                         dataBinding.tvStartAddress.text = state.startAddress.orEmpty()
                         dataBinding.tvDestinationAddress.text = state.destinationAddress.orEmpty()
@@ -94,6 +97,9 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
 
                     val hasPickupSummary = !state.pickupDate.isNullOrBlank() && !state.pickupTime.isNullOrBlank()
                     dataBinding.layoutDateSummary.isVisible = hasPickupSummary
+                    dataBinding.ivDate.setImageResource(
+                        if (hasPickupSummary) R.drawable.calendar_fill_primary else R.drawable.calendar_fill_gray
+                    )
                     if (hasPickupSummary) {
                         dataBinding.tvPickupDateSummary.text = "${formatKoreanDate(state.pickupDate.orEmpty())} ${formatTimeToKorean(state.pickupTime.orEmpty())}"
                         dataBinding.tvPickupMethodSummary.text = "픽업 전달 방식  ${if (state.pickupIsFaceToFace) "대면" else "비대면"}"
@@ -101,11 +107,14 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
 
                     val hasProductSummary = !state.productTitle.isNullOrBlank() && !state.productType.isNullOrBlank() && !state.productWeight.isNullOrBlank() && !state.productVolume.isNullOrBlank()
                     dataBinding.layoutProductSummary.isVisible = hasProductSummary
+                    dataBinding.ivProduct.setImageResource(
+                        if (hasProductSummary) R.drawable.box_fill_primary else R.drawable.box_fill_gray
+                    )
                     if (hasProductSummary) {
                         dataBinding.tvProductTitleSummary.text = state.productTitle.orEmpty()
-                        dataBinding.tvProductTypeSummary.text = state.productType.orEmpty()
-                        dataBinding.tvProductWeightSummary.text = state.productWeight.orEmpty()
-                        dataBinding.tvProductVolumeSummary.text = state.productVolume.orEmpty()
+                        dataBinding.tvProductTypeSummary.text = state.productTypeLabel ?: state.productType.orEmpty()
+                        dataBinding.tvProductWeightSummary.text = state.productWeightLabel ?: state.productWeight.orEmpty()
+                        dataBinding.tvProductVolumeSummary.text = state.productVolumeLabel ?: state.productVolume.orEmpty()
                     }
                 }
             }
