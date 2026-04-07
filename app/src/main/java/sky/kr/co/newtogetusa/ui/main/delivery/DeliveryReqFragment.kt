@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +19,10 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.AbroadGuideDialog
 import sky.kr.co.newtogetusa.utils.dpToPx
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @AndroidEntryPoint
 class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReqViewModel>() {
@@ -80,7 +85,28 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 sharedViewModel.state.collect { state ->
+                    val hasLocationSummary = !state.startAddress.isNullOrBlank() && !state.destinationAddress.isNullOrBlank()
+                    dataBinding.layoutLocationSummary.isVisible = hasLocationSummary
+                    if (hasLocationSummary) {
+                        dataBinding.tvStartAddress.text = state.startAddress.orEmpty()
+                        dataBinding.tvDestinationAddress.text = state.destinationAddress.orEmpty()
+                    }
 
+                    val hasPickupSummary = !state.pickupDate.isNullOrBlank() && !state.pickupTime.isNullOrBlank()
+                    dataBinding.layoutDateSummary.isVisible = hasPickupSummary
+                    if (hasPickupSummary) {
+                        dataBinding.tvPickupDateSummary.text = "${formatKoreanDate(state.pickupDate.orEmpty())} ${formatTimeToKorean(state.pickupTime.orEmpty())}"
+                        dataBinding.tvPickupMethodSummary.text = "픽업 전달 방식  ${if (state.pickupIsFaceToFace) "대면" else "비대면"}"
+                    }
+
+                    val hasProductSummary = !state.productTitle.isNullOrBlank() && !state.productType.isNullOrBlank() && !state.productWeight.isNullOrBlank() && !state.productVolume.isNullOrBlank()
+                    dataBinding.layoutProductSummary.isVisible = hasProductSummary
+                    if (hasProductSummary) {
+                        dataBinding.tvProductTitleSummary.text = state.productTitle.orEmpty()
+                        dataBinding.tvProductTypeSummary.text = state.productType.orEmpty()
+                        dataBinding.tvProductWeightSummary.text = state.productWeight.orEmpty()
+                        dataBinding.tvProductVolumeSummary.text = state.productVolume.orEmpty()
+                    }
                 }
             }
         }
@@ -119,6 +145,23 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
         val animator = ObjectAnimator.ofFloat(dataBinding.tvIndicator, "translationX", target.x - 4.dpToPx())
         animator.duration = 250
         animator.start()
+    }
+
+    private fun formatKoreanDate(input: String): String {
+        return runCatching {
+            val inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+            val outputFormatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일", Locale.KOREAN)
+            LocalDate.parse(input, inputFormatter).format(outputFormatter)
+        }.getOrElse { input }
+    }
+
+    private fun formatTimeToKorean(time: String): String {
+        return runCatching {
+            val inputFormatter = DateTimeFormatter.ofPattern("HHmm")
+            val outputFormatter = DateTimeFormatter.ofPattern("a h시", Locale.KOREAN)
+            val normalized = time.padStart(4, '0').takeLast(4)
+            LocalTime.parse(normalized, inputFormatter).format(outputFormatter)
+        }.getOrElse { time }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

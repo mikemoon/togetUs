@@ -29,7 +29,7 @@ class DeliveryRequestSearchViewModel @Inject constructor(
 
     val searchCondition = MutableStateFlow(
         SearchCondition(
-            myArea = true,
+            myArea = false,
             departCd = emptyList(),
             destCd = emptyList(),
             sortType = SORT_TYPE_NEWEST,

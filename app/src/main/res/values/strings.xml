@@ -16,5 +16,5 @@
     <string name="album">앨범</string>
     <string name="video">동영상</string>
     <string name="no_list_chat">채팅 내역이 존재하지 않아요.</string>
-    <string name="request_delivery">배송 요청하기</string>
+    <string name="request_delivery">동행 요청하기</string>
 </resources>

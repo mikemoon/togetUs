@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             style="@style/Paragraph16B"
             android:layout_gravity="center"
-            android:text="해외 배송 안내"
+            android:text="해외 동행 안내"
             android:textColor="@color/black_80"
             android:layout_marginTop="20dp"
             />

@@ -130,6 +130,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
+                android:id="@+id/layoutLocationSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -157,6 +158,7 @@
                         android:textSize="14dp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvStartAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_60"
@@ -168,7 +170,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="56dp"
@@ -190,7 +193,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="56dp"
@@ -223,6 +227,7 @@
                         android:textSize="14dp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvDestinationAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_60"
@@ -273,6 +278,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
+                android:id="@+id/layoutDateSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -285,6 +291,7 @@
                     android:layout_height="1dp"
                     android:background="@color/black_5" />
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPickupDateSummary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -292,10 +299,20 @@
                     android:textSize="14dp"
                     tools:text="2025년 4월 29일 오전 11시"
                     />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPickupMethodSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/black_60"
+                    android:textSize="14dp"
+                    tools:text="픽업 전달 방식  대면" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clProduct"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
@@ -310,7 +327,6 @@
                 android:id="@+id/ivProduct"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginStart="20dp"
                 android:src="@drawable/box_fill_gray"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -335,6 +351,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
+                android:id="@+id/layoutProductSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -362,6 +379,7 @@
                         android:textSize="14dp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvProductTitleSummary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_60"
@@ -384,6 +402,7 @@
                         android:textSize="14dp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvProductTypeSummary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_60"
@@ -406,6 +425,7 @@
                         android:textSize="14dp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvProductWeightSummary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_60"
@@ -428,6 +448,7 @@
                         android:textSize="14dp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvProductVolumeSummary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black_60"
@@ -444,7 +465,7 @@
             android:layout_marginBottom="20dp"
             android:background="@drawable/selector_p40_p100_r4"
             android:gravity="center"
-            android:text="요금확인"
+            android:text="요금 확인"
             android:textColor="@color/selector_wopa40_wopa100"
             android:textSize="20dp"
             android:textStyle="bold"
