@@ -8,5 +8,6 @@ data class DeliveryAreaSelection(
     val name: String,
     val radiusKm: Int,
     val lat: Double?,
-    val lng: Double?
+    val lng: Double?,
+    val areaCodes: List<String> = emptyList()
 ) : Parcelable

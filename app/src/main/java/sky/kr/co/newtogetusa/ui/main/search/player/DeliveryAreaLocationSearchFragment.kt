@@ -112,7 +112,8 @@ class DeliveryAreaLocationSearchFragment :
                         name = address,
                         radiusKm = viewModel.areaRadius.value,
                         lat = selected.lat,
-                        lng = selected.lng
+                        lng = selected.lng,
+                        areaCodes = viewModel.getSelectedAreaCodes()
                     )
                     findNavController().previousBackStackEntry?.savedStateHandle?.set(
                         if (args.isDeparture) KEY_DEPART_RESULT else KEY_DEST_RESULT,

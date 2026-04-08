@@ -20,6 +20,10 @@ class ConfigRepository @Inject constructor(
         apiService.getDomesticSubAreas()
     }
 
+    suspend fun getOverseasAreas() = safeApiCall(Dispatchers.IO){
+        apiService.getOverseas()
+    }
+
     suspend fun getProductWeightList() = safeApiCall(Dispatchers.IO){
         apiService.getWeight()
     }

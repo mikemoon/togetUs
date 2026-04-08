@@ -49,8 +49,8 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
 
             viewModel.updateAreaCondition(
                 myArea = myArea,
-                departCd = departSelection?.let { listOf(it.name) } ?: emptyList(),
-                destCd = destSelection?.let { listOf(it.name) } ?: emptyList()
+                departCd = departSelection?.areaCodes ?: emptyList(),
+                destCd = destSelection?.areaCodes ?: emptyList()
             )
         }
 
