@@ -50,7 +50,7 @@ interface UserService {
     @GET("/api/users/v1/{user_id}/reviews")//리뷰보기
     suspend fun getReviews(
         @Path("user_id") userId: Int
-    ):PlayerInfoDto
+    ):List<PlayerInfoDto>
 
     @POST("/api/users/v1/{user_id}/reviews")//리뷰등록
     suspend fun postReview(

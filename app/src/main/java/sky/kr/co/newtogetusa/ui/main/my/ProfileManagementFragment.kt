@@ -81,6 +81,7 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         customTabBinding1 = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.tab_my_profile_custom, dataBinding.tabLayout, false)
         dataBinding.tabLayout.getTabAt(1)?.customView = customTabBinding1?.root
         updateReviewCount(0)
+        viewModel.getPlayerReviews()
     }
 
     override fun initObserver() {
@@ -117,6 +118,14 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                     viewModel.deliveryRequestTotalCount.collectLatest {
                         updateDeliveryRequestCount(it)
                     }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.playerReviewCount.collectLatest {
+                    updateReviewCount(it)
                 }
             }
         }

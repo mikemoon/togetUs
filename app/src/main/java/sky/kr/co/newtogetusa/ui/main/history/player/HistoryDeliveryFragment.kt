@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.ui.main.history.player
 
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.forEachIndexed
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -8,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
@@ -43,9 +45,13 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
     override val viewModel: HistoryDeliveryViewModel by viewModels()
 
     private lateinit var historyAdapter: HistoryDeliverAdapter
+    private lateinit var calendarBottomSheetAdapter: HistoryDeliveryCalendarDummyAdapter
     private val todayDate = LocalDate.now()
     private var selectedDate: LocalDate? = null
     private var currentMonth: YearMonth = YearMonth.now()
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<android.widget.LinearLayout>
+    private var bottomSheetExpandedTop = 0
+    private var bottomSheetCollapsedTop = 0
 
     override fun init() {
         super.init()
@@ -66,8 +72,46 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             adapter = historyAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
         }
+        calendarBottomSheetAdapter = HistoryDeliveryCalendarDummyAdapter()
+        dataBinding.rvCalendarBottomSheet.apply {
+            adapter = calendarBottomSheetAdapter
+            addItemDecoration(VerticalSpaceItemDecoration(12.dpToPx()))
+        }
+        calendarBottomSheetAdapter.submitList(createDummyBottomSheetItems())
+        initBottomSheet()
         initCalendar()
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
+    }
+
+    private fun initBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(dataBinding.calendarBottomSheet).apply {
+            isFitToContents = false
+            isHideable = false
+            skipCollapsed = false
+            state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: android.view.View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                    snapBottomSheet(bottomSheet.top)
+                }
+            }
+
+            override fun onSlide(bottomSheet: android.view.View, slideOffset: Float) = Unit
+        })
+        dataBinding.calendarBottomSheet.setOnTouchListener { _, event ->
+            if (event.action == android.view.MotionEvent.ACTION_UP ||
+                event.action == android.view.MotionEvent.ACTION_CANCEL
+            ) {
+                dataBinding.calendarBottomSheet.post {
+                    snapBottomSheet(dataBinding.calendarBottomSheet.top)
+                }
+            }
+            false
+        }
+        dataBinding.root.doOnLayout { updateBottomSheetLayout() }
+        dataBinding.icCalendar.calendarContentContainer.doOnLayout { updateBottomSheetLayout() }
     }
 
     private fun initCalendar() {
@@ -107,7 +151,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 container.day = data
                 val isSelectedDay = data.date == selectedDate
                 val isToday = data.date == todayDate
-                val hasDelivery = viewModel.monthDeliveryDates.value.contains(data.date)
+                val deliveryDots = getDummyDeliveryDots(data.date, data.position == DayPosition.MonthDate)
 
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
@@ -130,11 +174,8 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                             }
                         )
                     )
-
-                    container.binding.vDeliveryDot.visibility =
-                        if (data.position == DayPosition.MonthDate && hasDelivery) android.view.View.VISIBLE
-                        else android.view.View.INVISIBLE
                 }
+                bindDeliveryDots(container.binding, deliveryDots)
             }
         }
 
@@ -154,6 +195,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             dataBinding.icCalendar.tvYearMonth.text = "${month.yearMonth.year}년 ${month.yearMonth.month.getDisplayName(
                 TextStyle.FULL, Locale.KOREAN)}"
             viewModel.getMonthInfo(month.yearMonth.year, month.yearMonth.monthValue)
+            dataBinding.calendarBottomSheet.post { updateBottomSheetLayout() }
         }
     }
 
@@ -189,16 +231,20 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 launch {
                     viewModel.isShowCalendar
                         .collectLatest { isShowCalendar ->
-                            if (isShowCalendar) {
-                                viewModel.getMonthInfo(currentMonth.year, currentMonth.monthValue)
-                                val targetDate = selectedDate ?: todayDate
-                                selectedDate = targetDate
-                                dataBinding.icCalendar.calendarView.notifyDateChanged(targetDate)
-                                viewModel.getDayInfo(targetDate.year, targetDate.monthValue, targetDate.dayOfMonth)
-                            } else {
-                                dataBinding.tvCalendarEmpty.visibility = android.view.View.GONE
+                        if (isShowCalendar) {
+                            viewModel.getMonthInfo(currentMonth.year, currentMonth.monthValue)
+                            val targetDate = selectedDate ?: todayDate
+                            selectedDate = targetDate
+                            dataBinding.icCalendar.calendarView.notifyDateChanged(targetDate)
+                            viewModel.getDayInfo(targetDate.year, targetDate.monthValue, targetDate.dayOfMonth)
+                            dataBinding.calendarBottomSheet.post {
+                                updateBottomSheetLayout()
+                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                             }
+                        } else {
+                            dataBinding.tvCalendarEmpty.visibility = android.view.View.GONE
                         }
+                    }
                 }
 
                 launch {
@@ -246,5 +292,108 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
     inner class MonthViewContainer(view: android.view.View) : ViewContainer(view) {
         val binding = CalendarDayTitleContainerBinding.bind(view)
         val titlesContainer = binding.root
+    }
+
+    private fun updateBottomSheetLayout() {
+        if (!viewModel.isShowCalendar.value) return
+
+        val parentHeight = (dataBinding.calendarBottomSheet.parent as? android.view.View)?.height ?: return
+        val headerBottom = dataBinding.icCalendar.calendarHeaderContainer.bottom
+        val calendarBottom = dataBinding.icCalendar.calendarContentContainer.bottom
+        if (parentHeight == 0 || headerBottom == 0 || calendarBottom == 0) return
+
+        bottomSheetBehavior.expandedOffset = headerBottom
+        val peekTop = (calendarBottom - 8.dpToPx()).coerceAtLeast(headerBottom)
+        bottomSheetBehavior.peekHeight = (parentHeight - peekTop).coerceAtLeast(240.dpToPx())
+        bottomSheetBehavior.halfExpandedRatio =
+            1f - (bottomSheetBehavior.peekHeight.toFloat() / parentHeight.toFloat())
+        bottomSheetExpandedTop = headerBottom
+        bottomSheetCollapsedTop = parentHeight - bottomSheetBehavior.peekHeight
+    }
+
+    private fun snapBottomSheet(currentTop: Int) {
+        if (!::bottomSheetBehavior.isInitialized) return
+        if (bottomSheetExpandedTop == 0 && bottomSheetCollapsedTop == 0) return
+
+        val targetState = if (
+            kotlin.math.abs(currentTop - bottomSheetExpandedTop) <=
+            kotlin.math.abs(currentTop - bottomSheetCollapsedTop)
+        ) {
+            BottomSheetBehavior.STATE_EXPANDED
+        } else {
+            BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        if (bottomSheetBehavior.state != targetState) {
+            bottomSheetBehavior.state = targetState
+        }
+    }
+
+    private fun bindDeliveryDots(
+        binding: CalendarDayLayoutBinding,
+        dots: Set<DeliveryDotType>
+    ) {
+        binding.llDeliveryDots.visibility =
+            if (dots.isEmpty()) android.view.View.INVISIBLE else android.view.View.VISIBLE
+        binding.vDeliveryDotRed.visibility =
+            if (dots.contains(DeliveryDotType.RED)) android.view.View.VISIBLE else android.view.View.GONE
+        binding.vDeliveryDotGreen.visibility =
+            if (dots.contains(DeliveryDotType.GREEN)) android.view.View.VISIBLE else android.view.View.GONE
+        binding.vDeliveryDotGray.visibility =
+            if (dots.contains(DeliveryDotType.GRAY)) android.view.View.VISIBLE else android.view.View.GONE
+    }
+
+    private fun getDummyDeliveryDots(
+        date: LocalDate,
+        isMonthDate: Boolean
+    ): Set<DeliveryDotType> {
+        if (!isMonthDate) return emptySet()
+
+        return when (date.dayOfMonth % 6) {
+            0 -> setOf(DeliveryDotType.RED, DeliveryDotType.GREEN, DeliveryDotType.GRAY)
+            1 -> setOf(DeliveryDotType.RED)
+            2 -> setOf(DeliveryDotType.GREEN)
+            3 -> setOf(DeliveryDotType.GRAY)
+            4 -> setOf(DeliveryDotType.RED, DeliveryDotType.GRAY)
+            else -> emptySet()
+        }
+    }
+
+    private fun createDummyBottomSheetItems(): List<HistoryDeliveryCalendarDummyItem> {
+        return listOf(
+            HistoryDeliveryCalendarDummyItem(
+                status = "매칭 진행중",
+                date = "2025.04.29",
+                title = "노트북 좀 전달해 주세요.",
+                price = "23,000원",
+                pickupDate = "2025년 5월 1일(목) 오전 10:30",
+                pickupAddress = "서울 강서구 공항대로 631",
+                arrivalAddress = "서울 마포구 월드컵로 240"
+            ),
+            HistoryDeliveryCalendarDummyItem(
+                status = "매칭 진행중",
+                date = "2025.04.30",
+                title = "서류 봉투 전달 부탁드려요.",
+                price = "18,000원",
+                pickupDate = "2025년 5월 2일(금) 오후 1:30",
+                pickupAddress = "서울 영등포구 여의대로 24",
+                arrivalAddress = "서울 서초구 서초대로 77"
+            ),
+            HistoryDeliveryCalendarDummyItem(
+                status = "거래 완료",
+                date = "2025.05.01",
+                title = "작은 화분 배송 부탁해요.",
+                price = "15,000원",
+                pickupDate = "2025년 5월 3일(토) 오전 9:00",
+                pickupAddress = "서울 성동구 왕십리로 83",
+                arrivalAddress = "서울 송파구 올림픽로 300"
+            )
+        )
+    }
+
+    private enum class DeliveryDotType {
+        RED,
+        GREEN,
+        GRAY
     }
 }

@@ -70,7 +70,7 @@ interface PlayerService {
     @GET("/api/players/v1/{player_id}/reviews")
     suspend fun getReviews(
         @Path("player_id") playerId: Int
-    ):PlayerInfoDto
+    ):List<PlayerInfoDto>
 
     @POST("/api/players/v1/{player_id}/reviews")
     suspend fun postReview(

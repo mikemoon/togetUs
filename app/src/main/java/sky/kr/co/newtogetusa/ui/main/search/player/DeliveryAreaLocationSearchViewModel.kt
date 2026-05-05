@@ -35,7 +35,6 @@ class DeliveryAreaLocationSearchViewModel @Inject constructor(
 
     private var domesticAreas: List<RegionDto> = emptyList()
     private var domesticSubAreas: List<RegionDto> = emptyList()
-    private var overseasAreas: List<RegionDto> = emptyList()
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
 
@@ -92,21 +91,19 @@ class DeliveryAreaLocationSearchViewModel @Inject constructor(
         val matchedDomestic = domesticAreas
             .filter { normalizedAddress.contains(it.name.normalizeAreaText()) }
             .sortedByDescending { it.name.length }
-        val matchedDomesticCodes = matchedDomestic.map { it.code }
 
-        val matchedDomesticSubCodes = domesticSubAreas
-            .filter { sub ->
-                val isParentMatched = matchedDomesticCodes.isNotEmpty() && sub.cate in matchedDomesticCodes
-                val matchesText = normalizedAddress.contains(sub.name.normalizeAreaText())
-                isParentMatched || matchesText
-            }
-            .map { it.code }
+        val selectedDomestic = matchedDomestic.firstOrNull()
+        if (selectedDomestic != null) {
+            val selectedDomesticSub = domesticSubAreas
+                .asSequence()
+                .filter { it.cate == selectedDomestic.code }
+                .filter { normalizedAddress.contains(it.name.normalizeAreaText()) }
+                .maxByOrNull { it.name.length }
 
-        val matchedOverseasCodes = overseasAreas
-            .filter { normalizedAddress.contains(it.name.normalizeAreaText()) }
-            .map { it.code }
+            return listOfNotNull(selectedDomestic.code, selectedDomesticSub?.code)
+        }
 
-        return (matchedDomesticCodes + matchedDomesticSubCodes + matchedOverseasCodes).distinct()
+        return emptyList()
     }
 
     private fun fetchAreaConfigs() = viewModelScope.launch {
@@ -117,11 +114,6 @@ class DeliveryAreaLocationSearchViewModel @Inject constructor(
 
         when (val domesticSubResponse = configRepository.getDomesticSubAreas()) {
             is ResultWrapper.Success -> domesticSubAreas = domesticSubResponse.data
-            else -> Unit
-        }
-
-        when (val overseasResponse = configRepository.getOverseasAreas()) {
-            is ResultWrapper.Success -> overseasAreas = overseasResponse.data
             else -> Unit
         }
     }

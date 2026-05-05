@@ -71,7 +71,7 @@ interface ConfigService {
     @GET("/api/configs/v1/review/player")//플레이어리뷰를 위한 평가항목
     suspend fun getPlayerReview(
 
-    ):Any
+    ):List<BaseCommonDto>
 
     @POST("/api/mys/v1/push/device") //디바이스 토큰 등록
     suspend fun postPushToken(

@@ -109,7 +109,8 @@ class DeliveryRequestSearchViewModel @Inject constructor(
         val sortType: String,
         val fee: Int,
         val face2Face: Boolean?,
-        val immediately: String
+        val immediately: String,
+        val isDomestic: Boolean = true
     )
 
     companion object {

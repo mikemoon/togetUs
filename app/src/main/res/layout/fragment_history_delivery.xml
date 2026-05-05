@@ -24,147 +24,184 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="@color/black_5">
 
-            <LinearLayout
-                android:id="@+id/llTab"
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:gravity="center_vertical"
-                app:layout_constraintTop_toTopOf="parent"
-                android:visibility="@{viewModel.isShowCalendar? View.GONE : View.VISIBLE}"
-                android:layout_marginHorizontal="20dp"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvTopAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
-                    android:text="전체"
-                    android:textColor="@color/selector_b40_white"
-                    android:textSize="12dp"
-                    android:textStyle="bold"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="16dp"
-                    android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuAll)}"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvTopDoing"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
-                    android:text="거래진행"
-                    android:textColor="@color/selector_b40_white"
-                    android:textSize="12dp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="16dp"
-                    android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuDoing)}"
-                    />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvTopEnd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
-                    android:text="거래종료"
-                    android:textColor="@color/selector_b40_white"
-                    android:textSize="12dp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="16dp"
-                    android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuEnd)}"
-                    />
-            </LinearLayout>
-
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clSearch"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="20dp"
-                app:layout_constraintTop_toBottomOf="@id/llTab"
-                android:background="@drawable/background_st_b10_s_w_r4"
-                android:visibility="@{viewModel.isShowCalendar? View.GONE : View.VISIBLE}"
-                >
+                android:layout_height="match_parent">
 
-                <androidx.appcompat.widget.AppCompatEditText
+                <LinearLayout
+                    android:id="@+id/llTab"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingVertical="14dp"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="42dp"
-                    android:textColorHint="@color/black_40"
-                    android:hint="제목 검색"
-                    style="@style/Paragraph14R"
-                    android:background="@null"
-                    />
-                
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_search"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="64dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginHorizontal="20dp"
+                    android:orientation="horizontal"
+                    android:visibility="@{viewModel.isShowCalendar? View.GONE : View.VISIBLE}"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvTopAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+                        android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuAll)}"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:text="전체"
+                        android:textColor="@color/selector_b40_white"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvTopDoing"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+                        android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuDoing)}"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:text="거래진행"
+                        android:textColor="@color/selector_b40_white"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvTopEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
+                        android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuEnd)}"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:text="거래종료"
+                        android:textColor="@color/selector_b40_white"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:visibility="@{viewModel.isShowCalendar? View.GONE : View.VISIBLE}"
+                    app:layout_constraintTop_toBottomOf="@id/llTab">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        style="@style/Paragraph14R"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="제목 검색"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="42dp"
+                        android:paddingVertical="14dp"
+                        android:textColorHint="@color/black_40" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="12dp"
+                        android:src="@drawable/ic_search"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <include
+                    android:id="@+id/icCalendar"
+                    layout="@layout/include_calendar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.isShowCalendar? View.VISIBLE : View.GONE}"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/topContentBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="clSearch,icCalendar" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvHistory"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:visibility="@{viewModel.isShowCalendar? View.GONE : View.VISIBLE}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/topContentBarrier" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvCalendarEmpty"
+                    style="@style/Paragraph14R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:text="동행내역이 존재하지 않아요"
+                    android:textColor="@color/black_40"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="12dp"
-                    />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/topContentBarrier" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <include
-                android:id="@+id/icCalendar"
-                layout="@layout/include_calendar"
-                app:layout_constraintTop_toTopOf="parent"
+            <LinearLayout
+                android:id="@+id/calendarBottomSheet"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/black_2"
+                android:orientation="vertical"
                 android:visibility="@{viewModel.isShowCalendar? View.VISIBLE : View.GONE}"
-                />
+                app:behavior_fitToContents="false"
+                app:behavior_hideable="false"
+                app:behavior_peekHeight="260dp"
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black_10"
+                    android:layout_marginBottom="8dp"
+                    />
 
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/topContentBarrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="clSearch,icCalendar" />
+                <View
+                    android:id="@+id/bottomSheetHandle"
+                    android:layout_width="48dp"
+                    android:layout_height="4dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/background_s_b10_r4" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvHistory"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintTop_toBottomOf="@id/topContentBarrier"
-                android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="20dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvCalendarEmpty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="동행내역이 존재하지 않아요"
-                android:textColor="@color/black_40"
-                android:visibility="gone"
-                style="@style/Paragraph14R"
-                app:layout_constraintTop_toBottomOf="@id/topContentBarrier"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="40dp"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCalendarBottomSheet"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="120dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/bottomToggleContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_gravity="bottom"
                 android:layout_marginBottom="29dp"
-                >
+                android:elevation="12dp">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="44dp"
@@ -193,7 +230,7 @@
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     </LinearLayout>
 </layout>

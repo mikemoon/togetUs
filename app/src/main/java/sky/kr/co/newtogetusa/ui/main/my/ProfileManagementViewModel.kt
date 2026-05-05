@@ -12,10 +12,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
+import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
+import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
@@ -24,6 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
                                                      private val userRepository: UserRepository,
+                                                     private val playerRepository: PlayerRepository,
+                                                     private val configRepository: ConfigRepository,
     private val deliveryRepository: DeliveryRepository
 )
     : BaseViewModel(baseViewModelDependenciesFactory.create()) {
@@ -40,6 +47,38 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         }
     }
 
+    fun getPlayerProfile(result: (PlayerProfileDto) -> Unit = {}) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        when(val res = playerRepository.getProfile(playerId)){
+            is ResultWrapper.Success ->{
+                result.invoke(res.data)
+            }
+            else -> {}
+        }
+    }
+
+    fun getPlayerReviews(result: (List<PlayerInfoDto>) -> Unit = {}) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        when(val res = playerRepository.getReviews(playerId)){
+            is ResultWrapper.Success ->{
+                playerReviewCount.value = res.data.size
+                result.invoke(res.data)
+            }
+            else -> {
+
+            }
+        }
+    }
+
+    fun getPlayerReviewCodes(result: (List<BaseCommonDto>) -> Unit = {}) = viewModelScope.launch {
+        when(val res = configRepository.getPlayerReview()){
+            is ResultWrapper.Success ->{
+                result.invoke(res.data)
+            }
+            else -> {}
+        }
+    }
+
     val menuAll = TopMenu.All
     val menuDoing = TopMenu.Doing
     val menuEnd = TopMenu.End
@@ -52,6 +91,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     val suggestDeliveryResult: LiveData<Boolean> = _suggestDeliveryResult
 
     val deliveryRequestTotalCount = MutableStateFlow(0)
+    val playerReviewCount = MutableStateFlow(0)
 
     private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
     private val _topMenuLiveData = SingleLiveEvent<TopMenu>()
