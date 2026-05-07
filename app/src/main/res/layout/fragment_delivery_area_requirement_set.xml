@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <import type="sky.kr.co.newtogetusa.ui.main.search.player.DeliveryAreaRequirementSetViewModel.Event"/>
@@ -26,7 +27,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="20dp"
                 android:onClick="@{()->viewModel.onEventClick(Event.Close.INSTANCE)}"
-                android:src="@drawable/left_l" />
+                android:src="@drawable/close" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -61,7 +62,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="내 배송 가능 지역"
+                android:text="내 동행 가능 지역"
                 android:textColor="@color/black_80"
                 style="@style/Paragraph16R" />
 
@@ -91,42 +92,205 @@
             android:padding="12dp"
             app:layout_constraintTop_toBottomOf="@id/vDiv">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="출발 가능지역"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph14R" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/pin_fill_primary"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="픽업 가능 지역"
+                    android:textColor="@color/black_80"
+                    android:layout_marginStart="8dp"
+                    style="@style/Paragraph17B" />
+            </LinearLayout>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvDepartArea"
+
+            <FrameLayout
+                android:id="@+id/flDepartArea"
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:gravity="center"
-                android:text="지역을 선택해 주세요"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph14R" />
+                android:background="@drawable/background_s_b5_r4">
 
-            <androidx.appcompat.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDepartArea"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="선택"
+                    android:textColor="@color/black_80"
+                    style="@style/Paragraph14R" />
+
+                <LinearLayout
+                    android:id="@+id/llDepartAreaInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    tools:visibility="visible"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="76dp"
+                            android:layout_height="wrap_content"
+                            android:text="출발지"
+                            android:textColor="@color/black_80"
+                            style="@style/Paragraph17B" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDepartAddress"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="@color/black_80"
+                            tools:text="12312"
+                            android:gravity="end"
+                            style="@style/Paragraph14R" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="서비스 반경"
+                            android:textColor="@color/black_80"
+                            style="@style/Paragraph17B" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDepartRadius"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:textColor="@color/black_80"
+                            style="@style/Paragraph14R" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="도착 가능지역"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph14R" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/pin_fill_primary"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="도착 가능 지역"
+                    android:textColor="@color/black_80"
+                    android:layout_marginStart="8dp"
+                    style="@style/Paragraph17B" />
+            </LinearLayout>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvDestArea"
+            <FrameLayout
+                android:id="@+id/flDestArea"
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:gravity="center"
-                android:text="지역을 선택해 주세요"
-                android:textColor="@color/black_80"
-                style="@style/Paragraph14R" />
+                android:background="@drawable/background_s_b5_r4">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDestArea"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="선택"
+                    android:textColor="@color/black_80"
+                    style="@style/Paragraph14R" />
+
+                <LinearLayout
+                    android:id="@+id/llDestAreaInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="76dp"
+                            android:layout_height="wrap_content"
+                            android:text="출발지"
+                            android:textColor="@color/black_80"
+                            style="@style/Paragraph17B" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDestAddress"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:textColor="@color/black_80"
+                            android:gravity="end"
+                            style="@style/Paragraph17R" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="76dp"
+                            android:layout_height="wrap_content"
+                            android:text="서비스 반경"
+                            android:textColor="@color/black_80"
+                            style="@style/Paragraph17B" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDestRadius"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:textColor="@color/black_80"
+                            style="@style/Paragraph17R" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView

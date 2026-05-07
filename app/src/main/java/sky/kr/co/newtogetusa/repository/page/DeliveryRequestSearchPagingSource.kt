@@ -15,7 +15,7 @@ class DeliveryRequestSearchPagingSource(
     private val sortType: String,
     private val fee: Int,
     private val face2Face: Boolean?,
-    private val immediately: String,
+    private val immediately: String?,
     private val pageSize: Int
 ) : PagingSource<Int, DeliveryItem>() {
 

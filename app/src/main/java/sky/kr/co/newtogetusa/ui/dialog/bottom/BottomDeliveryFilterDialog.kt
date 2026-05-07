@@ -17,7 +17,7 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
 
     private var myArea: Boolean = true
     private var face2Face: Boolean? = null
-    private var immediately: String = IMMEDIATELY_ALL
+    private var immediately: String? = null
 
     override fun init() {
         super.init()
@@ -72,7 +72,7 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
 
     private fun setupImmediatelyUi() {
         dataBinding.tvPickupAll.setOnClickListener {
-            immediately = IMMEDIATELY_ALL
+            immediately = null
             renderImmediatelyUi()
         }
         dataBinding.tvPickupReserve.setOnClickListener {
@@ -92,7 +92,7 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
     }
 
     private fun renderImmediatelyUi() {
-        setSelectedChip(dataBinding.tvPickupAll, immediately == IMMEDIATELY_ALL)
+        setSelectedChip(dataBinding.tvPickupAll, immediately == null)
         setSelectedChip(dataBinding.tvPickupReserve, immediately == IMMEDIATELY_RESERVE)
         setSelectedChip(dataBinding.tvPickupImmediate, immediately == IMMEDIATELY_IMMEDIATE)
     }
@@ -111,11 +111,10 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
     data class FilterOption(
         val myArea: Boolean = true,
         val face2Face: Boolean? = null,
-        val immediately: String = IMMEDIATELY_ALL
+        val immediately: String? = null
     )
 
     companion object {
-        const val IMMEDIATELY_ALL = "ALL"
         const val IMMEDIATELY_RESERVE = "SCHEDULED"
         const val IMMEDIATELY_IMMEDIATE = "IMMEDIATE"
     }

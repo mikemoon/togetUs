@@ -1,201 +1,380 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
+        <import type="sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel.MapShow" />
+
         <variable
             name="viewModel"
             type="sky.kr.co.newtogetusa.ui.main.history.player.PlayerHistoryDetailViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
-        android:orientation="vertical">
+        android:background="@color/white">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <FrameLayout
+            android:id="@+id/frMap"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:paddingHorizontal="20dp">
+            android:layout_height="match_parent">
+
+            <com.kakao.vectormap.MapView
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:visibility="@{viewModel.mapShowState == MapShow.KAKAO_MAP ? View.VISIBLE : View.GONE}" />
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/googleMap"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:visibility="@{viewModel.mapShowState == MapShow.GOOGLE_MAP ? View.VISIBLE : View.GONE}" />
+        </FrameLayout>
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/white"
+            android:visibility="gone">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivBack"
+                android:id="@+id/ivToolbarBack"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/left_l"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:src="@drawable/left_l" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="0dp"
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="20dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@{viewModel.deliveryData.title}"
                 android:textColor="@color/black_80"
-                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="노트북 좀 전달해주세요." />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/more_vertical" />
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivBack"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/left_back"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="62dp"
+                android:layout_height="62dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="78dp"
+                android:src="@drawable/ic_heart"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/ivBack"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="62dp"
+                android:layout_height="62dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/more_overlay"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
+            android:id="@+id/bottomSheet"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:fillViewport="true">
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="vertical"
+            app:behavior_hideable="false"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_height="match_parent"
+                android:layout_marginBottom="95dp"
+                android:fillViewport="true"
+                android:paddingBottom="76dp">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/background_s_b5_r4"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:text="@{viewModel.deliveryData.statusText}"
-                    android:textColor="@color/black_60" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/HeadLine20B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@{viewModel.deliveryData.title}"
-                    android:textColor="@color/black_80" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/HeadLine18R"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@{viewModel.deliveryData.priceText}"
-                    android:textColor="@color/black_80" />
-
-                <androidx.appcompat.widget.AppCompatTextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text='@{"픽업  " + viewModel.deliveryData.pickupDateText}'
-                    android:textColor="@color/black_80" />
+                    android:orientation="vertical">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@color/black_10" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/HeadLine18B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="이동경로" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text='@{"예상 주행거리  " + viewModel.deliveryData.distanceText}' />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{viewModel.deliveryData.requesterNickname}"
+                                android:textColor="@color/black_80"
+                                tools:text="홍길동" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text='@{"예상 소요 시간  " + viewModel.deliveryData.estimatedTimeText}' />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph12R"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="@{viewModel.deliveryData.requesterRatingText}"
+                                android:textColor="@color/black_40"
+                                tools:text="★ 4.3 (1,208)" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text='@{"픽업지  " + viewModel.deliveryData.pickupAddressText}' />
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph12B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_b5_r4"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                android:text="@{viewModel.deliveryData.statusText}"
+                                android:textColor="@color/black_60"
+                                android:visibility="gone"
+                                tools:text="매칭 대기중" />
+                        </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text='@{"도착지  " + viewModel.deliveryData.destinationAddressText}' />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine20B"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text="@{viewModel.deliveryData.title}"
+                            android:textColor="@color/black_80"
+                            tools:text="노트북 좀 전달해주세요." />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@color/black_10" />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@{viewModel.deliveryData.priceText}"
+                            android:textColor="@color/black_80"
+                            tools:text="23,000원" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/HeadLine18B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="요청사항" />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text='@{"픽업    " + viewModel.deliveryData.pickupDateText}'
+                            android:textColor="@color/black_80"
+                            tools:text="픽업    5월 1일(목) 오전 10:30" />
+                    </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@{viewModel.deliveryData.productDesc}" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/black_10" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/HeadLine18B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="물품 정보" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text='@{"종류  " + viewModel.deliveryData.productType}' />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="이동경로"
+                            android:textColor="@color/black_80" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text='@{"무게  " + viewModel.deliveryData.productWeight}' />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text='@{"예상 주행거리    " + viewModel.deliveryData.distanceText}'
+                            android:textColor="@color/black_80" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text='@{"부피  " + viewModel.deliveryData.productVolume}' />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text='@{"예상 소요 시간    " + viewModel.deliveryData.estimatedTimeText}'
+                            android:textColor="@color/black_80" />
 
-            </LinearLayout>
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text='@{"픽업지    " + viewModel.deliveryData.pickupAddressText}'
+                            android:textColor="@color/black_80" />
 
-        </androidx.core.widget.NestedScrollView>
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text='@{"도착지    " + viewModel.deliveryData.destinationAddressText}'
+                            android:textColor="@color/black_80" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llPhotos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="물품 사진"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvPhotos"
+                            android:layout_width="match_parent"
+                            android:layout_height="88dp"
+                            android:layout_marginTop="12dp"
+                            android:clipToPadding="false"
+                            android:orientation="horizontal"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            tools:listitem="@layout/item_history_detail_photos" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="요청사항"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@{viewModel.deliveryData.productDesc}"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:text="물품 정보"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text='@{"제목    " + viewModel.deliveryData.title}'
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text='@{"종류    " + viewModel.deliveryData.productType}'
+                            android:textColor="@color/primary_100" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text='@{"무게    " + viewModel.deliveryData.productWeight}'
+                            android:textColor="@color/primary_100" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text='@{"부피    " + viewModel.deliveryData.productVolume}'
+                            android:textColor="@color/primary_100" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/vBottomDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="96dp"
+            android:background="@color/black_5" />
 
         <LinearLayout
             android:id="@+id/llBottomButtonContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="96dp"
+            android:layout_gravity="bottom"
             android:background="@color/white"
             android:orientation="horizontal"
-            android:padding="20dp">
+            android:paddingHorizontal="20dp">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvBottomSecondaryButton"
+                style="@style/HeadLine18B"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/background_s_b5_r4"
                 android:gravity="center"
-                android:paddingVertical="14dp"
+                android:paddingVertical="16dp"
                 android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvBottomPrimaryButton"
+                style="@style/HeadLine18B"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="2"
                 android:background="@drawable/background_s_p100_r4"
                 android:gravity="center"
-                android:paddingVertical="14dp"
+                android:paddingVertical="16dp"
                 android:textColor="@color/white" />
         </LinearLayout>
-
-    </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

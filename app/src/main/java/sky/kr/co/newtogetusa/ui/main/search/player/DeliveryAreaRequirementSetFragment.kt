@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.ui.main.search.player
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -35,14 +36,14 @@ class DeliveryAreaRequirementSetFragment : BaseFragment<FragmentDeliveryAreaRequ
             renderSelection()
         }
 
-        dataBinding.tvDepartArea.setOnClickListener {
+        dataBinding.flDepartArea.setOnClickListener {
             findNavController().navigate(
                 DeliveryAreaRequirementSetFragmentDirections
                     .actionDeliveryAreaRequirementSetFragmentToDeliveryAreaLocationSearchFragment(true)
             )
         }
 
-        dataBinding.tvDestArea.setOnClickListener {
+        dataBinding.flDestArea.setOnClickListener {
             findNavController().navigate(
                 DeliveryAreaRequirementSetFragmentDirections
                     .actionDeliveryAreaRequirementSetFragmentToDeliveryAreaLocationSearchFragment(false)
@@ -87,8 +88,35 @@ class DeliveryAreaRequirementSetFragment : BaseFragment<FragmentDeliveryAreaRequ
     }
 
     private fun renderSelection() {
-        dataBinding.tvDepartArea.text = departSelection?.name ?: "지역을 선택해 주세요"
-        dataBinding.tvDestArea.text = destSelection?.name ?: "지역을 선택해 주세요"
+        renderAreaSelection(
+            selection = departSelection,
+            selectView = dataBinding.tvDepartArea,
+            infoView = dataBinding.llDepartAreaInfo,
+            addressView = dataBinding.tvDepartAddress,
+            radiusView = dataBinding.tvDepartRadius
+        )
+        renderAreaSelection(
+            selection = destSelection,
+            selectView = dataBinding.tvDestArea,
+            infoView = dataBinding.llDestAreaInfo,
+            addressView = dataBinding.tvDestAddress,
+            radiusView = dataBinding.tvDestRadius
+        )
+    }
+
+    private fun renderAreaSelection(
+        selection: DeliveryAreaSelection?,
+        selectView: android.widget.TextView,
+        infoView: View,
+        addressView: android.widget.TextView,
+        radiusView: android.widget.TextView
+    ) {
+        val hasSelection = selection != null
+        selectView.visibility = if (hasSelection) View.GONE else View.VISIBLE
+        infoView.visibility = if (hasSelection) View.VISIBLE else View.GONE
+        selectView.text = "선택"
+        addressView.text = selection?.name.orEmpty()
+        radiusView.text = selection?.radiusKm?.let { "${it}KM" }.orEmpty()
     }
 
     companion object {

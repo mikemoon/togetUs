@@ -17,8 +17,10 @@ import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatPickupDateTime
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatWon
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.ceil
 
@@ -30,6 +32,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
 ) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
     val deliveryDetail = MutableStateFlow<DeliveryDetailResponse?>(null)
+    val mapShowState = MutableStateFlow<HomeTabViewModel.MapShow>(HomeTabViewModel.MapShow.LOCAL_IMAGE)
 
     private val productTypes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
     private val productWeights = MutableStateFlow<List<BaseCommonDto>>(emptyList())
@@ -42,6 +45,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         getConfigProductType()
         getConfigProductWeight()
         getConfigProductVolume()
+        decideMapProvider()
     }
 
     fun getDeliveryDetailInfo(deliveryId: Long) = viewModelScope.launch {
@@ -141,7 +145,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
 
         DeliverySummaryUiModel(
             title = detail.title,
-            statusText = detail.status_cd,
+            statusText = formatStatus(detail.status_cd),
             priceText = formatWon(detail.fee.fee_final),
             distanceText = "${detail.expected.expected_distance}km",
             estimatedTimeText = formatExpectedTimeInMinutes(detail.expected.expected_time),
@@ -155,6 +159,11 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             productType = typeName,
             productWeight = weightName,
             productVolume = volumeName,
+            requesterNickname = detail.requester_rating.nickname,
+            requesterRatingText = "★ ${detail.requester_rating.star_rating} (${detail.requester_rating.deliveries})",
+            departContactName = detail.depart_contact.name.orEmpty(),
+            departContactPhone = detail.depart_contact.phone.orEmpty(),
+            pictures = detail.product.pictures,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -188,12 +197,34 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         return "${expectedMinutes}분"
     }
 
+    private fun decideMapProvider() {
+        val isKorea = Locale.getDefault().country.equals("KR", ignoreCase = true)
+        mapShowState.value = if (isKorea) {
+            HomeTabViewModel.MapShow.KAKAO_MAP
+        } else {
+            HomeTabViewModel.MapShow.GOOGLE_MAP
+        }
+    }
+
+    private fun formatStatus(statusCd: String): String =
+        when (statusCd) {
+            "REGISTER_ING" -> "작성중"
+            "MATCH_BEFORE" -> "매칭 대기중"
+            "MATCH_ING" -> "매칭 진행중"
+            "DELIVERY_BEFORE" -> "동행 대기중"
+            "DELIVERY_START" -> "픽업 출발"
+            "DELIVERY_ING" -> "동행중"
+            "DELIVERY_END" -> "동행 완료"
+            "CANCEL" -> "취소완료"
+            else -> statusCd
+        }
+
     enum class ButtonState(
         val primaryText: String,
         val secondaryText: String,
         val showSecondary: Boolean,
     ) {
-        MatchBefore(primaryText = "지원하기", secondaryText = "문의하기", showSecondary = true),
+        MatchBefore(primaryText = "지원하기", secondaryText = "채팅하기", showSecondary = true),
         PickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
         DeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
         Done(primaryText = "등록하기", secondaryText = "", showSecondary = false),
@@ -228,5 +259,10 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         val productType: String,
         val productWeight: String,
         val productVolume: String,
+        val requesterNickname: String,
+        val requesterRatingText: String,
+        val departContactName: String,
+        val departContactPhone: String,
+        val pictures: List<String>,
     )
 }

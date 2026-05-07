@@ -35,7 +35,7 @@ class DeliveryRequestSearchViewModel @Inject constructor(
             sortType = SORT_TYPE_NEWEST,
             fee = 0,
             face2Face = null,
-            immediately = IMMEDIATELY_ALL
+            immediately = null
         )
     )
 
@@ -69,7 +69,7 @@ class DeliveryRequestSearchViewModel @Inject constructor(
     fun updateFilterCondition(
         myArea: Boolean,
         face2Face: Boolean?,
-        immediately: String
+        immediately: String?
     ) {
         searchCondition.value = searchCondition.value.copy(
             myArea = myArea,
@@ -109,13 +109,12 @@ class DeliveryRequestSearchViewModel @Inject constructor(
         val sortType: String,
         val fee: Int,
         val face2Face: Boolean?,
-        val immediately: String,
+        val immediately: String?,
         val isDomestic: Boolean = true
     )
 
     companion object {
         const val SORT_TYPE_NEWEST = "NEWEST"
         const val SORT_TYPE_DEADLINE = "DEADLINE"
-        const val IMMEDIATELY_ALL = "ALL"
     }
 }

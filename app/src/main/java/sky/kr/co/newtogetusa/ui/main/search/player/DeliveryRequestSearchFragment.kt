@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.search.player
 
+import android.net.Uri
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +30,12 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
     override fun init() {
         super.init()
 
-        deliveryRequestSearchAdapter = DeliveryRequestSearchAdapter()
+        deliveryRequestSearchAdapter = DeliveryRequestSearchAdapter { item ->
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.deliveryRequestSearchFragment) {
+                navController.navigate(Uri.parse("togetus://player-history-detail/${item.delivery_id}"))
+            }
+        }
         dataBinding.rv.apply {
             adapter = deliveryRequestSearchAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))

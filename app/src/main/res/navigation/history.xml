@@ -27,6 +27,7 @@
         android:id="@+id/playerHistoryDetailFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.player.PlayerHistoryDetailFragment"
         android:label="PlayerHistoryDetailFragment">
+        <deepLink app:uri="togetus://player-history-detail/{deliveryId}" />
         <action
             android:id="@+id/action_playerHistoryDetailFragment_to_playerDeliveryNoticeFragment"
             app:destination="@id/playerDeliveryNoticeFragment" />

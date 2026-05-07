@@ -61,7 +61,7 @@ class UserRepository @Inject constructor(
         sortType: String,
         fee: Int,
         face2Face: Boolean?,
-        immediately: String,
+        immediately: String?,
         pageSize: Int = 10
     ): Flow<PagingData<DeliveryItem>> =
         Pager(

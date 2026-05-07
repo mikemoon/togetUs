@@ -18,6 +18,7 @@ data class DeliveryItem(
     val dest_address: String,
     val pickup_immediately: Boolean,
     val pickup_date: String,       // "yyyyMMdd HHmm"
+    val pickup_time: String? = null,
     val fee_final: Int,
     val regist_date: String?,      // nullable
     val apply_date: String?        // nullable

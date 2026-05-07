@@ -7,7 +7,7 @@ data class DeliveryListSearchRequest(
     val sort_type: String,
     val fee: Int,
     val face2face: Boolean?,   // nullable
-    val immediately: String,
+    val immediately: String?,
     val page_no: Int,
     val page_size: Int
 )
