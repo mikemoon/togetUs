@@ -1,0 +1,67 @@
+package sky.kr.co.newtogetusa.repository
+
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
+import sky.kr.co.newtogetusa.data.remote.api.ChatService
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomDto
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchResponseDto
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchRoomDto
+import sky.kr.co.newtogetusa.data.remote.request.chat.ChatRoomSearchRequest
+import sky.kr.co.newtogetusa.di.NetworkModule
+import sky.kr.co.newtogetusa.repository.page.ChatRoomPagingSource
+import javax.inject.Inject
+
+class ChatRepository @Inject constructor(
+    @NetworkModule.ChatApi private val apiService: ChatService
+) : BaseNetRepo() {
+
+    suspend fun getChatRooms() = safeApiCall<List<ChatRoomDto>>(Dispatchers.IO){
+        apiService.getChatRooms()
+    }
+
+    suspend fun searchPlayerRooms(request: ChatRoomSearchRequest) = safeApiCall<ChatRoomSearchResponseDto>(Dispatchers.IO){
+        apiService.searchPlayerRooms(request)
+    }
+
+    suspend fun searchUserRooms(request: ChatRoomSearchRequest) = safeApiCall<ChatRoomSearchResponseDto>(Dispatchers.IO){
+        apiService.searchUserRooms(request)
+    }
+
+    fun getPlayerRoomPagingFlow(type: String, pageSize: Int = 10): Flow<PagingData<ChatRoomSearchRoomDto>> =
+        Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                initialLoadSize = pageSize,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                ChatRoomPagingSource(
+                    chatRepository = this,
+                    type = type,
+                    pageSize = pageSize,
+                    isPlayerMode = true
+                )
+            }
+        ).flow
+
+    fun getUserRoomPagingFlow(type: String, pageSize: Int = 10): Flow<PagingData<ChatRoomSearchRoomDto>> =
+        Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                initialLoadSize = pageSize,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                ChatRoomPagingSource(
+                    chatRepository = this,
+                    type = type,
+                    pageSize = pageSize,
+                    isPlayerMode = false
+                )
+            }
+        ).flow
+}

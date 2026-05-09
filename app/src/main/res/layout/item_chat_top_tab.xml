@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTabTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black_40"
+        style="@style/Paragraph14B" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTabBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/background_s_b5_r4"
+        android:gravity="center"
+        android:minWidth="24dp"
+        android:paddingHorizontal="6dp"
+        android:textColor="@color/black_40"
+        style="@style/Paragraph12B" />
+</LinearLayout>

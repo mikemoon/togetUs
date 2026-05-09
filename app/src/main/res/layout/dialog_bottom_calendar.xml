@@ -55,12 +55,14 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     >
                     <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivPrevMonth"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:src="@drawable/left_gray"
                         android:layout_marginEnd="4dp"
                         />
                     <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivNextMonth"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:src="@drawable/right"

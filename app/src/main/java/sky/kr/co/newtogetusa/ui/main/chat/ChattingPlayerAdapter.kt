@@ -2,61 +2,48 @@ package sky.kr.co.newtogetusa.ui.main.chat
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.databinding.ItemChatPlayerBinding
-import sky.kr.co.newtogetusa.databinding.ItemChatPlayerEmptyBinding
-import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 import sky.kr.co.newtogetusa.ui.main.chat.data.ChatListItem
+import sky.kr.co.newtogetusa.utils.loadImage
 
-class ChattingPlayerAdapter(private val viewModel: ChattingPlayerViewModel) :
-    RecyclerView.Adapter<BaseViewHolder>() {
-    var items = mutableListOf<ChatListItem>()
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return if (items.isEmpty()) {
-            EmptyViewHolder(
-                ItemChatPlayerEmptyBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
-        } else {
-            ViewHolder(
-                ItemChatPlayerBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return if (items.isEmpty()) 1 else items.size
-    }
-
-    override fun onBindViewHolder(holder: BaseViewHolder, position: Int){
-        if(items.isEmpty()){
-            holder.onBindViewHolder(null, position)
-        }else{
-            holder.onBindViewHolder(items[position], position)
-        }
-    }
+class ChattingPlayerAdapter(
+    private val onItemClick: (ChatListItem) -> Unit
+) : PagingDataAdapter<ChatListItem, ChattingPlayerAdapter.ViewHolder>(diff) {
 
     inner class ViewHolder(private val binding: ItemChatPlayerBinding) :
-        BaseViewHolder(binding.root) {
-        override fun onBindViewHolder(data: Any?, position: Int) {
-            super.onBindViewHolder(data, position)
-            if (data !is ChatListItem) return
-            binding.item = data
-            binding.viewModel = viewModel
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: ChatListItem?) {
+            if (item == null) return
+            binding.item = item
+            binding.ivProfile.loadImage(item.profileUrl, error = sky.kr.co.newtogetusa.R.drawable.profile)
+            binding.root.setOnClickListener { onItemClick(item) }
         }
     }
 
-    inner class EmptyViewHolder(private val binding: ItemChatPlayerEmptyBinding) :
-        BaseViewHolder(binding.root) {
-        override fun onBindViewHolder(data: Any?, position: Int) {
-            super.onBindViewHolder(data, position)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(
+            ItemChatPlayerBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    companion object {
+        private val diff = object : DiffUtil.ItemCallback<ChatListItem>() {
+            override fun areItemsTheSame(oldItem: ChatListItem, newItem: ChatListItem): Boolean =
+                oldItem.roomId == newItem.roomId
+
+            override fun areContentsTheSame(oldItem: ChatListItem, newItem: ChatListItem): Boolean =
+                oldItem == newItem
         }
     }
 }

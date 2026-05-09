@@ -15,6 +15,7 @@ import sky.kr.co.newtogetusa.data.remote.AuthInterceptor
 import sky.kr.co.newtogetusa.data.remote.api.APiService
 import sky.kr.co.newtogetusa.data.remote.api.AddressSearchService
 import sky.kr.co.newtogetusa.data.remote.api.AdminApiService
+import sky.kr.co.newtogetusa.data.remote.api.ChatService
 import sky.kr.co.newtogetusa.data.remote.api.ConfigService
 import sky.kr.co.newtogetusa.data.remote.api.DeliveryService
 import sky.kr.co.newtogetusa.data.remote.api.DirectionsApiService
@@ -52,6 +53,10 @@ class NetworkModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class ConfigApi
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ChatApi
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
@@ -252,6 +257,13 @@ class NetworkModule {
     @Provides
     fun provideConfigService(@ApiServer retrofit: Retrofit): ConfigService {
         return retrofit.create(ConfigService::class.java)
+    }
+
+    @ChatApi
+    @Singleton
+    @Provides
+    fun provideChatService(@ApiServer retrofit: Retrofit): ChatService{
+        return retrofit.create(ChatService::class.java)
     }
 
     @UserApi

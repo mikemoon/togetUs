@@ -6,44 +6,47 @@
     <LinearLayout
         android:id="@+id/llType"
         android:layout_width="wrap_content"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:gravity="center_vertical"
         >
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFilterAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/background_st_b10_s_w_r24"
-            android:textSize="12dp"
             android:textColor="@color/black_40"
             android:text="@string/all"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:layout_marginStart="20dp"
+            style="@style/Paragraph12R"
             />
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFilterProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_st_b10_s_w_r24"
-            android:textSize="12dp"
-            android:textColor="@color/black_40"
+            android:background="@drawable/background_s_b80_r24"
+            android:textColor="@color/white"
             android:text="@string/deal_processing"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:layout_marginStart="8dp"
+            style="@style/Paragraph12B"
             />
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFilterEnd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/background_st_b10_s_w_r24"
-            android:textSize="12dp"
             android:textColor="@color/black_40"
             android:text="@string/deal_end"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:layout_marginStart="8dp"
+            style="@style/Paragraph12R"
             />
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
@@ -54,5 +57,29 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         />
+
+    <LinearLayout
+        android:id="@+id/llEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/llType">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="61dp"
+            android:layout_height="60dp"
+            android:src="@drawable/no_chat" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="채팅 내역이 존재하지 않아요."
+            android:textColor="@color/black_40"
+            style="@style/Paragraph16R" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

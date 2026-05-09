@@ -24,7 +24,6 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
-import java.util.Calendar
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -35,6 +34,9 @@ class BottomCalendarDialog :
     override val viewModel: BottomCalendarViewModel by viewModels()
 
     private lateinit var todayDate: LocalDate
+    private lateinit var startMonth: YearMonth
+    private lateinit var endMonth: YearMonth
+    private lateinit var currentMonth: YearMonth
     var selectedDate: LocalDate? = null
     var daySelectCallback: ((LocalDate) -> Unit)? = null
 
@@ -42,11 +44,10 @@ class BottomCalendarDialog :
     override fun init() {
         super.init()
         todayDate = LocalDate.now()
-
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH) + 1
-        dataBinding.tvYearMonth.text = "${year}년 ${month}월"
+        currentMonth = YearMonth.now()
+        startMonth = currentMonth
+        endMonth = currentMonth.plusMonths(12)
+        dataBinding.tvYearMonth.text = "${currentMonth.year}년 ${currentMonth.monthValue}월"
 
         dataBinding.calendarView.monthHeaderBinder =
             object : MonthHeaderFooterBinder<MonthViewContainer> {
@@ -112,17 +113,7 @@ class BottomCalendarDialog :
         }
 
 
-        val startMonthCalendar = Calendar.getInstance()
-        val endMonth = YearMonth.now()
-        val currentMonth = YearMonth.now()
         val firstDayOfWeek = firstDayOfWeekFromLocale()
-        val startMonth = YearMonth.of(
-            startMonthCalendar.get(
-                Calendar.YEAR
-            ), startMonthCalendar.get(
-                Calendar.MONTH
-            ) + 1
-        )
         dataBinding.calendarView.setup(startMonth, endMonth, firstDayOfWeek)
         dataBinding.calendarView.scrollToMonth(currentMonth)
     }
@@ -130,11 +121,25 @@ class BottomCalendarDialog :
     override fun initObserver() {
         super.initObserver()
 
-        dataBinding.calendarView.monthScrollListener = {
-            val month = dataBinding.calendarView.findFirstVisibleMonth()?.yearMonth
-            Timber.d("year ${month?.year}, month ${month?.month}")
-            dataBinding.tvYearMonth.text = "${month?.year.toString()}년 ${
-                month?.month?.getDisplayName(
+        dataBinding.ivPrevMonth.setOnClickListener {
+            val prevMonth = currentMonth.minusMonths(1)
+            if (!prevMonth.isBefore(startMonth)) {
+                dataBinding.calendarView.smoothScrollToMonth(prevMonth)
+            }
+        }
+
+        dataBinding.ivNextMonth.setOnClickListener {
+            val nextMonth = currentMonth.plusMonths(1)
+            if (!nextMonth.isAfter(endMonth)) {
+                dataBinding.calendarView.smoothScrollToMonth(nextMonth)
+            }
+        }
+
+        dataBinding.calendarView.monthScrollListener = { month ->
+            currentMonth = month.yearMonth
+            Timber.d("year ${currentMonth.year}, month ${currentMonth.month}")
+            dataBinding.tvYearMonth.text = "${currentMonth.year}년 ${
+                currentMonth.month.getDisplayName(
                     TextStyle.SHORT,
                     Locale.getDefault()
                 )
