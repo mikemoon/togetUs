@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeAgreementViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeAgreementViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="동행 요금 결제 동의"
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:paddingHorizontal="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="28dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/HeadLine20B"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="플레이어 선택 시점에\n요금을 결제하실 수 있습니다."
+                    android:textColor="@color/black_80" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph15R"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="동행 요청 등록 전 결제 및 취소 정책을 확인해 주세요."
+                    android:textColor="@color/black_60" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/background_s_b2_r4"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="동행 요청 자동 취소 정책"
+                        android:textColor="@color/black_80" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph16R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="· 동행 요청 등록 후 30일 내 플레이어의 지원이 없으면 자동으로 취소처리 됩니다.\n· 지정한 픽업 요청일까지 플레이어가 확정되지 않은 동행 요청은 자동으로 취소처리 됩니다."
+                        android:textColor="@color/black_40" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@color/black_10" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="주의사항"
+                        android:textColor="@color/black_80" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph16R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="· 고가의 물품 또는 비대면 요청 시 주의해 주세요.\n· 분쟁 또는 사고 발생 시 거래 당사자 간의 협의를 우선하며, 필요 시 플랫폼은 중재를 위한 정보 제공만 지원합니다.\n· 국내 및 각 국가별 규정 미확인으로 인한 문제(세관 반입 불가, 압류, 지연, 벌금 등)는 해당 거래 당사자 간 책임이며, 플랫폼은 이에 대한 책임을 지지 않습니다."
+                        android:textColor="@color/black_40" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llAgree"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center_vertical"
+                    android:onClick="@{()-> viewModel.onAgree()}"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatCheckBox
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/checkbox_selector"
+                        android:button="@null"
+                        android:checked="@{viewModel.isAgreeChecked}"
+                        android:clickable="false"
+                        android:focusable="false" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph15R"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="위 안내 및 주의사항을 확인하였습니다."
+                        android:textColor="@color/black_60" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvConfirm"
+                    style="@style/HeadLine18B"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="32dp"
+                    android:background="@drawable/selector_p40_p100_r4"
+                    android:enabled="@{viewModel.isAgreeChecked}"
+                    android:gravity="center"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.Confirm.INSTANCE)}"
+                    android:text="확인"
+                    android:textColor="@color/selector_wopa40_wopa100"
+                    tools:enabled="true" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+</layout>

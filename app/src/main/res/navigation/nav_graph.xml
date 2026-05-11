@@ -85,6 +85,15 @@
         android:id="@+id/action_global_deliveryFeeFragment"
         app:destination="@id/deliveryFeeFragment" />
 
+    <action
+        android:id="@+id/action_global_deliveryFeeAgreementFragment"
+        app:destination="@id/deliveryFeeAgreementFragment" />
+
+    <fragment
+        android:id="@+id/deliveryFeeAgreementFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeAgreementFragment"
+        android:label="DeliveryFeeAgreementFragment" />
+
     <fragment
         android:id="@+id/photoFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.PhotoFragment"

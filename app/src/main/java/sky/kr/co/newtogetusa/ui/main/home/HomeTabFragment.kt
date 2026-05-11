@@ -259,6 +259,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 HomeTabViewModel.Event.RequestDelivery ->{
                     findNavController().navigate(R.id.action_homeTabFragment_to_deliveryReqFragment)
                 }
+                HomeTabViewModel.Event.Alarm -> {
+                    findNavController().navigate(R.id.action_homeTabFragment_to_homeNotificationFragment)
+                }
             }
         }
 
@@ -633,6 +636,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.getNotificationUnreadCount()
         runCatching {
             if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
                 dataBinding.googleMap.onResume()

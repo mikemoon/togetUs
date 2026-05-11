@@ -10,6 +10,22 @@ class MyRepository @Inject constructor(
     @NetworkModule.MyApi private val apiService: MyService
 ): BaseNetRepo() {
 
+    suspend fun getNotifications(pageNo: Int, pageSize: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.getNotifications(pageNo, pageSize)
+    }
+
+    suspend fun getNotificationUnreadCount() = safeApiCall(Dispatchers.IO) {
+        apiService.getNotificationUnreadCount()
+    }
+
+    suspend fun putNotificationsReadAll() = safeApiCall(Dispatchers.IO) {
+        apiService.putNotificationsReadAll()
+    }
+
+    suspend fun putNotificationRead(notificationId: Long) = safeApiCall(Dispatchers.IO) {
+        apiService.putNotificationRead(notificationId)
+    }
+
     suspend fun putNoticeList(hashMap: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.putNoticeList(hashMap)
     }

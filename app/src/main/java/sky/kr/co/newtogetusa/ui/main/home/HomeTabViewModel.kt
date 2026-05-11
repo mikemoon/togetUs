@@ -19,6 +19,7 @@ import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.repository.KakaoLocalRepository
+import sky.kr.co.newtogetusa.repository.MyRepository
 import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
@@ -31,10 +32,13 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
                                            private val configRepository: ConfigRepository,
                                            private val kakaoRepo: KakaoLocalRepository,
                                            private val userRepository: UserRepository,
-                                           private val deliveryRepo : DeliveryRepository) : BaseViewModel(baseViewModelFactory.create()) {
+                                           private val deliveryRepo : DeliveryRepository,
+                                           private val myRepository: MyRepository) : BaseViewModel(baseViewModelFactory.create()) {
 
     val isModePlayer = MutableStateFlow(false)
     val mapShowState = MutableStateFlow<MapShow>(MapShow.LOCAL_IMAGE)
+    val unreadNotificationCount = MutableStateFlow(0)
+    val unreadNotificationText = MutableStateFlow("")
 
     init {
         viewModelScope.launch {
@@ -47,6 +51,21 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         }
 
         decideMapProvider()
+        getNotificationUnreadCount()
+    }
+
+    fun getNotificationUnreadCount() = viewModelScope.launch {
+        when (val res = myRepository.getNotificationUnreadCount()) {
+            is ResultWrapper.Success -> {
+                val count = res.data.unreadCount
+                unreadNotificationCount.value = count
+                unreadNotificationText.value = if (count > 99) "99+" else count.toString()
+            }
+            else -> {
+                unreadNotificationCount.value = 0
+                unreadNotificationText.value = ""
+            }
+        }
     }
 
     val doingDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
@@ -134,6 +153,7 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     sealed class Event {
         object JoinPlayer : Event()
         object RequestDelivery : Event()
+        object Alarm : Event()
     }
 
     /**

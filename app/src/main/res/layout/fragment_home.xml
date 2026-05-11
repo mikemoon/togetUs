@@ -32,9 +32,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clAlarm"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginEnd="20dp"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Alarm.INSTANCE)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -49,8 +51,10 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clAlarmBadge"
                     android:layout_width="19dp"
                     android:layout_height="19dp"
+                    android:visibility="@{viewModel.unreadNotificationCount > 0 ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -64,7 +68,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="3"
+                        android:text="@{viewModel.unreadNotificationText}"
                         android:textColor="@color/white"
                         tools:text="3" />
                 </androidx.constraintlayout.widget.ConstraintLayout>

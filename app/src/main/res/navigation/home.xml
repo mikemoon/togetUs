@@ -12,7 +12,14 @@
         <action
             android:id="@+id/action_homeTabFragment_to_deliveryReqFragment"
             app:destination="@id/deliveryReqFragment" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_homeNotificationFragment"
+            app:destination="@id/homeNotificationFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/homeNotificationFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.home.HomeNotificationFragment"
+        android:label="HomeNotificationFragment" />
     <fragment
         android:id="@+id/deliveryReqFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryReqFragment"
