@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +14,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.badge.BadgeDrawable
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -90,7 +92,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
             setOf(R.id.home, R.id.search, R.id.history, R.id.chat, R.id.my)
         )
 
-        //chatClient.connect()
+        viewModel.connect()
     }
 
     override fun initObserver() {
@@ -120,11 +122,19 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
             }
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                viewModel.hasUnreadChatFlow.collectLatest { hasUnread ->
+                    updateChatTabBadge(hasUnread)
+                }
+            }
+        }
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        //chatClient.disconnect()
+        viewModel.disconnect()
     }
 
     private fun setFirebaseToken(){
@@ -143,6 +153,18 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     fun showChangeModeAnimation(isShow:Boolean){
         viewModel.onModeChange(isShow)
+    }
+
+    private fun updateChatTabBadge(hasUnread: Boolean) {
+        val badge = dataBinding.bottomNavigation.getOrCreateBadge(R.id.chat).apply {
+            clearNumber()
+            backgroundColor = ContextCompat.getColor(this@MainActivity, R.color.red_100)
+            badgeGravity = BadgeDrawable.TOP_END
+            isVisible = hasUnread
+        }
+        if (!hasUnread) {
+            dataBinding.bottomNavigation.removeBadge(R.id.chat)
+        }
     }
 
 }

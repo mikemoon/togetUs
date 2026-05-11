@@ -217,6 +217,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="6dp"
                     android:src="@{viewModel.sendMessageEnable? @drawable/send : @drawable/send_dim}"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.InputSend.INSTANCE)}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

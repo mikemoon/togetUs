@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.chat.ChatClient
+import sky.kr.co.newtogetusa.chat.MqttChatCategory
 import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
@@ -86,6 +87,37 @@ class ChattingConversationViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 chatClient.sendMessage(content)
             }
+            addMessage(
+                ChatMessage(
+                    id = System.currentTimeMillis(),
+                    sender = "me",
+                    content = content,
+                    messageType = 0,
+                    isMyMessage = true
+                )
+            )
+        }
+    }
+
+    fun publishRead(payload: String) {
+        publish(MqttChatCategory.READ, payload)
+    }
+
+    fun publishAttach(payload: String) {
+        publish(MqttChatCategory.ATTACH, payload)
+    }
+
+    fun publishGps(payload: String) {
+        publish(MqttChatCategory.GPS, payload)
+    }
+
+    private fun publish(category: MqttChatCategory, payload: String) {
+        if (payload.isBlank()) return
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                chatClient.publish(category, payload)
+            }
         }
     }
 
@@ -105,20 +137,32 @@ class ChattingConversationViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        disconnect()
         callbackManager.unregisterCallback(this)
     }
 
     override fun handleIncomingMessage(sender: String, content: String) {
-        TODO("Not yet implemented")
+        val messageType = when (sender) {
+            MqttChatCategory.ATTACH.topicName -> 1
+            MqttChatCategory.GPS.topicName -> 3
+            else -> 0
+        }
+        addMessage(
+            ChatMessage(
+                id = System.currentTimeMillis(),
+                sender = sender,
+                content = content,
+                messageType = messageType,
+                isMyMessage = false
+            )
+        )
     }
 
     override fun onConnectionLost(cause: Throwable?) {
-        TODO("Not yet implemented")
+        _connectionState.postValue(ConnectionState.DISCONNECTED)
     }
 
     override fun onDeliveryComplete(token: IMqttDeliveryToken?) {
-        TODO("Not yet implemented")
+        // Delivery acknowledgement is currently reflected by optimistic UI append.
     }
 
     val sendMessageEnable = MutableStateFlow(false)

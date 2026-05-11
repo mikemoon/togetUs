@@ -7,6 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import timber.log.Timber
 import javax.inject.Inject
 
 class MqttChatClientImpl @Inject constructor(
@@ -21,9 +22,9 @@ class MqttChatClientImpl @Inject constructor(
         client = MqttClient(config.brokerUrl, config.clientId, persistence)
         connectOptions.apply {
             isCleanSession = true
-            connectionTimeout = 60
+            connectionTimeout = 30
+            keepAliveInterval = 30
             isAutomaticReconnect = true
-            userName = config.username
         }
 
         client.setCallback(object : MqttCallback {
@@ -32,22 +33,14 @@ class MqttChatClientImpl @Inject constructor(
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
-                message?.let {
-                    val payload = String(it.payload)
-                    if (topic == config.chatTopic) {
-                        try {
-                            val parts = payload.split(":", limit = 2)
-                            if (parts.size == 2) {
-                                val sender = parts[0].trim()
-                                val content = parts[1].trim()
-                                messageHandler.handleIncomingMessage(sender, content)
-                            } else {
-                                messageHandler.handleIncomingMessage("알 수 없음", payload)
-                            }
-                        } catch (e: Exception) {
-                            println("메시지 처리 중 오류: ${e.message}")
-                        }
-                    }
+                if (topic == null || message == null) return
+
+                try {
+                    val category = topic.toMqttChatCategory()
+                    val payload = String(message.payload, Charsets.UTF_8)
+                    messageHandler.handleIncomingMessage(category?.topicName ?: topic, payload)
+                } catch (e: Exception) {
+                    Timber.e(e, "MQTT message handling failed. topic=%s", topic)
                 }
             }
 
@@ -59,13 +52,14 @@ class MqttChatClientImpl @Inject constructor(
 
     override fun connect() {
         try {
-            println("MQTT 브로커에 연결 중...")
-            client.connect(connectOptions)
-            client.subscribe(config.chatTopic, 1) // QoS 1로 구독
-            println("채팅방 '${config.chatTopic}'에 연결되었습니다.")
+            if (!client.isConnected) {
+                Timber.d("MQTT connecting. broker=%s clientId=%s", config.brokerUrl, config.clientId)
+                client.connect(connectOptions)
+            }
+            client.subscribe(config.subscribeTopic, config.qos)
+            Timber.d("MQTT subscribed. topic=%s", config.subscribeTopic)
         } catch (e: MqttException) {
-            println("연결 실패: ${e.message}")
-            e.printStackTrace()
+            Timber.e(e, "MQTT connect failed")
         }
     }
 
@@ -73,25 +67,45 @@ class MqttChatClientImpl @Inject constructor(
         try {
             if (client.isConnected) {
                 client.disconnect()
-                println("연결이 종료되었습니다.")
+                Timber.d("MQTT disconnected")
             }
         } catch (e: MqttException) {
-            println("연결 종료 중 오류: ${e.message}")
+            Timber.e(e, "MQTT disconnect failed")
         }
     }
 
     override fun sendMessage(message: String) {
+        publish(MqttChatCategory.MSG, message)
+    }
+
+    override fun publish(category: MqttChatCategory, payload: String) {
         try {
-            val content = "${config.username}: $message"
-            val mqttMessage = MqttMessage(content.toByteArray())
-            mqttMessage.qos = 1
-            client.publish(config.chatTopic, mqttMessage)
+            if (!client.isConnected) {
+                connect()
+            }
+
+            val mqttMessage = MqttMessage(payload.toByteArray(Charsets.UTF_8)).apply {
+                qos = config.qos
+                isRetained = false
+            }
+            val topic = config.publishTopic(category)
+            client.publish(topic, mqttMessage)
+            Timber.d("MQTT published. topic=%s", topic)
         } catch (e: MqttException) {
-            println("메시지 전송 실패: ${e.message}")
+            Timber.e(e, "MQTT publish failed. category=%s", category.topicName)
         }
     }
 
     override fun isConnected(): Boolean {
         return client.isConnected
+    }
+
+    private fun String.toMqttChatCategory(): MqttChatCategory? {
+        val parts = split("/")
+        return if (parts.size >= 3 && parts[0] == "togetus-sub") {
+            MqttChatCategory.fromTopicName(parts[2])
+        } else {
+            null
+        }
     }
 }

@@ -112,19 +112,10 @@ class ChattingConversationFragment :
     override fun initObserver() {
         super.initObserver()
 
-        adapter.setMessages(
-            listOf(
-                ChatMessage(id = 1, sender = "", "안녕하세요", isMyMessage = true, timestamp = 123029, messageType = 0),
-                ChatMessage(id = 2, sender = "", "배달은요?", isMyMessage = false, timestamp = 123132, messageType = 0),
-                ChatMessage(id = 3, sender = "", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 0),
-                ChatMessage(id = 4, sender = "", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 2, messageImageUrl = "https://cdn.pixabay.com/photo/2017/03/19/21/21/luwak-2157626_1280.jpg",
-                    messageVieoUrl = "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"),
-                ChatMessage(id = 5, sender = "", "배달은요??", isMyMessage = false, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg"),
-                        ChatMessage(id = 6, sender = "", "배달은요??", isMyMessage = true, timestamp = 123132, messageType = 2, messageImageUrl = "https://cdn.pixabay.com/photo/2017/03/19/21/21/luwak-2157626_1280.jpg",
-                messageVieoUrl = "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"),
-            ChatMessage(id= 6, sender = "", "배달은요??", isMyMessage = true, timestamp = 123132, messageType = 1, messageImageUrl = "https://dimg.donga.com/wps/NEWS/IMAGE/2024/01/25/123232196.4.jpg")
-            )
-        )
+        viewModel.messages.observe(viewLifecycleOwner) { messages ->
+            adapter.setMessages(messages)
+            dataBinding.recyclerViewMessages.scrollToPosition(messages.lastIndex.coerceAtLeast(0))
+        }
 
         viewModel.event.observe(viewLifecycleOwner) { event ->
             Timber.d("event $event")
@@ -166,7 +157,9 @@ class ChattingConversationFragment :
                 }
 
                 ChattingConversationViewModel.Event.InputSend -> {
-
+                    val message = dataBinding.editTextMessage.text?.toString().orEmpty()
+                    viewModel.sendMessage(message)
+                    dataBinding.editTextMessage.text = null
                 }
 
                 ChattingConversationViewModel.Event.InputCamera -> {

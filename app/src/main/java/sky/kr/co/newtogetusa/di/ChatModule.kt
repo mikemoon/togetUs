@@ -16,41 +16,38 @@ import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.chat.MqttChatClientImpl
 import sky.kr.co.newtogetusa.chat.MqttConnectionConfig
 import sky.kr.co.newtogetusa.di.NetworkModule.BrokerUrl
-import sky.kr.co.newtogetusa.di.NetworkModule.ChatTopic
-import sky.kr.co.newtogetusa.di.NetworkModule.Username
-import sky.kr.co.newtogetusa.ui.main.chat.ChattingTabViewModel
 import timber.log.Timber
-import javax.inject.Named
-import javax.inject.Provider
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 class ChatModule {
 
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class MqttUserNumber
+
     @Provides
     @Singleton
     @BrokerUrl
-    fun provideBrokerUrl(): String = "tcp://broker.hivemq.com:1883"
+    fun provideBrokerUrl(): String = DefaultMqttConnectionConfig.BROKER_URL
 
     @Provides
     @Singleton
-    @Username
-    fun provideUsername(): String = "User-${System.currentTimeMillis() % 1000}"
-
-    @Provides
-    @Singleton
-    @ChatTopic
-    fun provideChatTopic(): String = "kotlin/mqtt/chat"
+    @MqttUserNumber
+    fun provideMqttUserNumber(): Long = 111L
 
     @Provides
     @Singleton
     fun provideMqttConnectionConfig(
         @BrokerUrl brokerUrl: String,
-        @Username username: String,
-        @ChatTopic chatTopic: String
+        @MqttUserNumber userNumber: Long
     ): MqttConnectionConfig {
-        return DefaultMqttConnectionConfig(brokerUrl, username, chatTopic)
+        return DefaultMqttConnectionConfig(
+            brokerUrl = brokerUrl,
+            userNumber = userNumber
+        )
     }
 
     @Provides
