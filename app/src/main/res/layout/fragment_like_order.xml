@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.likeorder.LikeOrderViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.likeorder.LikeOrderViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_2">
+
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="좋아요 한 배송요청"
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llStatus"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/black_2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            app:layout_constraintTop_toBottomOf="@id/clTop">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAll"
+                style="@style/Paragraph14B"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:background="@drawable/background_st_b10_s_w_r40"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:text="전체"
+                android:textColor="@color/black_40" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvProgress"
+                style="@style/Paragraph14B"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/background_st_b10_s_w_r40"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:text="거래 진행"
+                android:textColor="@color/black_40" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvComplete"
+                style="@style/Paragraph14B"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/background_st_b10_s_w_r40"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:text="거래 종료"
+                android:textColor="@color/black_40" />
+        </LinearLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/llStatus">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOrders"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="16dp"
+                android:paddingBottom="20dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_delivery_request" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <LinearLayout
+            android:id="@+id/emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/llStatus"
+            tools:visibility="visible">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/no_chat" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="아직 좋아요한 동행요청이 없어요.&#10;관심 가는 동행요청을 좋아요 하면&#10;다음에 쉽게 찾을 수 있어요."
+                android:textColor="@color/black_40" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

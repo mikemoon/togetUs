@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.chat
 
+import com.google.gson.Gson
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
@@ -16,6 +17,7 @@ class MqttChatClientImpl @Inject constructor(
 ): ChatClient{
     private val client: MqttClient
     private val connectOptions = MqttConnectOptions()
+    private val gson = Gson()
     private val persistence = MemoryPersistence()
 
     init {
@@ -78,6 +80,40 @@ class MqttChatClientImpl @Inject constructor(
         publish(MqttChatCategory.MSG, message)
     }
 
+    override fun sendMessage(roomId: Long, message: String, mimeType: String, messagePointerId: Long) {
+        val payload = MqttMessagePayload(
+            roomId = roomId,
+            messagePointerId = messagePointerId,
+            mimeType = mimeType,
+            message = message
+        )
+        publish(MqttChatCategory.MSG, gson.toJson(payload))
+    }
+
+    override fun sendAttach(roomId: Long, mimeType: String, base64: String, messagePointerId: Long) {
+        val payload = MqttMessagePayload(
+            roomId = roomId,
+            messagePointerId = messagePointerId,
+            mimeType = mimeType,
+            message = base64
+        )
+        publish(MqttChatCategory.ATTACH, gson.toJson(payload))
+    }
+
+    override fun sendRead(roomId: Long, messageId: Long) {
+        publish(
+            MqttChatCategory.READ,
+            gson.toJson(MqttReadPayload(roomId = roomId, messageId = messageId))
+        )
+    }
+
+    override fun sendGps(roomId: Long, latitude: Double, longitude: Double) {
+        publish(
+            MqttChatCategory.GPS,
+            gson.toJson(MqttGpsPayload(roomId = roomId, latitude = latitude, longitude = longitude))
+        )
+    }
+
     override fun publish(category: MqttChatCategory, payload: String) {
         try {
             if (!client.isConnected) {
@@ -102,8 +138,8 @@ class MqttChatClientImpl @Inject constructor(
 
     private fun String.toMqttChatCategory(): MqttChatCategory? {
         val parts = split("/")
-        return if (parts.size >= 3 && parts[0] == "togetus-sub") {
-            MqttChatCategory.fromTopicName(parts[2])
+        return if (parts.size >= 3 && parts[0] == "togetus-sub" && parts[1] == config.userNumber.toString()) {
+            parts.lastOrNull { it.isNotEmpty() }?.let(MqttChatCategory::fromTopicName)
         } else {
             null
         }

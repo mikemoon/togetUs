@@ -25,18 +25,38 @@ class HomeNotificationViewModel @Inject constructor(
     val isLoading = MutableStateFlow(false)
     val isEmpty = MutableStateFlow(false)
 
+    private var pageNo = FIRST_PAGE
+    private var hasMore = false
+
     init {
-        getNotifications()
+        refreshNotifications()
     }
 
-    fun getNotifications(pageNo: Int = 0, pageSize: Int = 20) {
+    fun refreshNotifications() {
+        getNotifications(FIRST_PAGE, reset = true)
+    }
+
+    fun loadMoreNotifications() {
+        if (isLoading.value || !hasMore) return
+        getNotifications(pageNo, reset = false)
+    }
+
+    fun getNotifications(pageNo: Int = FIRST_PAGE, pageSize: Int = PAGE_SIZE, reset: Boolean = pageNo == FIRST_PAGE) {
+        if (isLoading.value) return
+
         viewModelScope.launch {
             isLoading.value = true
             when (val result = myRepository.getNotifications(pageNo, pageSize)) {
                 is ResultWrapper.Success -> {
-                    notifications.value = result.data.notifications
+                    notifications.value = if (reset) {
+                        result.data.notifications
+                    } else {
+                        notifications.value + result.data.notifications
+                    }
                     unreadCount.value = result.data.unreadCount
-                    isEmpty.value = result.data.notifications.isEmpty()
+                    hasMore = result.data.hasMore
+                    this@HomeNotificationViewModel.pageNo = result.data.pageNo + 1
+                    isEmpty.value = notifications.value.isEmpty()
                 }
                 is ResultWrapper.GenericError -> {
                     Timber.e("notification load failed ${result.code} ${result.message}")
@@ -102,5 +122,10 @@ class HomeNotificationViewModel @Inject constructor(
         object Back : Event()
         object Setting : Event()
         object ReadAll : Event()
+    }
+
+    companion object {
+        private const val FIRST_PAGE = 0
+        private const val PAGE_SIZE = 20
     }
 }

@@ -17,6 +17,7 @@ import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryUploadPictureRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
 import sky.kr.co.newtogetusa.repository.page.DeliveryPagingSource
+import sky.kr.co.newtogetusa.repository.page.DeliveryLikePagingSource
 import sky.kr.co.newtogetusa.repository.page.DeliveryPlayerPagingSource
 import javax.inject.Inject
 
@@ -92,6 +93,10 @@ class DeliveryRepository @Inject constructor(
         apiService.postPlayerDeliverySearch(deliverySearchReq)
     }
 
+    suspend fun postPlayerDeliveryLikeSearch(deliverySearchReq: DeliverySearchReq) = safeApiCall<DeliverySearchResponse>(Dispatchers.IO){
+        apiService.postPlayerDeliveryLikeSearch(deliverySearchReq)
+    }
+
     fun getPlayerDeliveryPagingFlow(type: String, title: String) =
         Pager(
             config = PagingConfig(
@@ -100,6 +105,17 @@ class DeliveryRepository @Inject constructor(
             ),
             pagingSourceFactory = {
                 DeliveryPlayerPagingSource(this, type, title)
+            }
+        ).flow
+
+    fun getPlayerDeliveryLikePagingFlow(type: String, title: String) =
+        Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                DeliveryLikePagingSource(this, type, title)
             }
         ).flow
 

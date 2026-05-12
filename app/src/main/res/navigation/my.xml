@@ -46,6 +46,9 @@
             android:id="@+id/action_myFragment_to_favorPlayerFragment"
             app:destination="@id/favorPlayerFragment" />
         <action
+            android:id="@+id/action_myFragment_to_likeOrderFragment"
+            app:destination="@id/likeOrderFragment" />
+        <action
             android:id="@+id/action_myFragment_to_playerJoinFragment2"
             app:destination="@id/playerJoinFragment2" />
         <action
@@ -161,6 +164,10 @@
         android:id="@+id/favorPlayerFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.favor.FavorPlayerFragment"
         android:label="FavorPlayerFragment" />
+    <fragment
+        android:id="@+id/likeOrderFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.likeorder.LikeOrderFragment"
+        android:label="LikeOrderFragment" />
     <fragment
         android:id="@+id/accountInfoFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.settle.AccountInfoFragment"

@@ -73,7 +73,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.Favor -> {
-                    findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
+                    findNavController().navigate(R.id.action_myFragment_to_likeOrderFragment)
                 }
 
                 MyViewModel.Event.JoinPlayer -> {
@@ -124,7 +124,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.FavorPlayer -> {
-
+                    findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
                 }
             }
         }

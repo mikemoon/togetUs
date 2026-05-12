@@ -129,6 +129,11 @@ interface DeliveryService {
         @Body body: DeliverySearchReq
     ): DeliverySearchResponse
 
+    @POST("api/deliverys/v1/search/player/likes") //좋아요 한 배송요청 검색
+    suspend fun postPlayerDeliveryLikeSearch(
+        @Body body: DeliverySearchReq
+    ): DeliverySearchResponse
+
     @PUT("/api/deliverys/v1/{delivery_id}/player/apply") //지원하기
     suspend fun putApply(
         @Path("delivery_id") deliveryId: Long,

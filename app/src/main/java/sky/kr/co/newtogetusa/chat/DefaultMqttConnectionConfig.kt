@@ -9,7 +9,7 @@ data class DefaultMqttConnectionConfig(
     override val subscribeTopic: String = "$SUB_PREFIX/$userNumber/#"
 
     override fun publishTopic(category: MqttChatCategory): String =
-        "$PUB_PREFIX/$userNumber/${category.topicName}"
+        "$PUB_PREFIX/$userNumber/${category.topicName}/"
 
     companion object {
         const val BROKER_URL = "tcp://www.togetus.net:1883"

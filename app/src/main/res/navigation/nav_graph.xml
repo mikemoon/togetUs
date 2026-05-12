@@ -89,10 +89,42 @@
         android:id="@+id/action_global_deliveryFeeAgreementFragment"
         app:destination="@id/deliveryFeeAgreementFragment" />
 
+    <action
+        android:id="@+id/action_global_deliveryPayFragment"
+        app:destination="@id/deliveryPayFragment" />
+
+    <action
+        android:id="@+id/action_global_takePhotoFragment"
+        app:destination="@id/takePhotoFragment" />
+
+    <action
+        android:id="@+id/action_global_noPictureFragment"
+        app:destination="@id/noPictureFragment" />
+
     <fragment
         android:id="@+id/deliveryFeeAgreementFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeAgreementFragment"
         android:label="DeliveryFeeAgreementFragment" />
+
+    <fragment
+        android:id="@+id/deliveryPayFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryPayFragment"
+        android:label="DeliveryPayFragment" />
+
+    <fragment
+        android:id="@+id/takePhotoFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.global.TakePhotoFragment"
+        android:label="TakePhotoFragment" />
+
+    <fragment
+        android:id="@+id/noPictureFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.global.NoPictureFragment"
+        android:label="NoPictureFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
 
     <fragment
         android:id="@+id/photoFragment"
