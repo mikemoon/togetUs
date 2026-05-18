@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,12 +21,11 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
 import sky.kr.co.newtogetusa.databinding.FragmentModifyProfileBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.utils.bitmapToBase64
-import sky.kr.co.newtogetusa.utils.dpToPx
-import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.loadProfile
 import sky.kr.co.newtogetusa.utils.resizeImageUri
 import sky.kr.co.newtogetusa.utils.toast
@@ -42,6 +40,8 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+    private val isPlayerMode: Boolean
+        get() = args.isPlayer
 
 
 
@@ -93,26 +93,32 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
                 is ModifyProfileViewModel.Event.Save -> {
                     profile?.user?.let { user ->
                         val userId = user.user_id
-                        viewModel.setNickName(
-                            userId,
-                            hashMapOf("nickname" to dataBinding.etName.text.toString())
-                        ){ result ->
-                            if(result){
-                                if(viewModel.isProfileImageChanged.value){
-                                    viewModel.setProfileImage(userId,
-                                        ProfileImageRequest("image/jpg", bitmapToBase64(dataBinding.ivProfile.drawable.toBitmap()))
-                                    ){ imageSetResult ->
-                                        if(imageSetResult){
+                        val nickname = dataBinding.etName.text.toString()
+                        val isNicknameChanged = nickname != user.nickname
+                        val isProfileImageChanged = viewModel.isProfileImageChanged.value
+
+                        when {
+                            isNicknameChanged -> {
+                                viewModel.setNickName(
+                                    userId,
+                                    hashMapOf("nickname" to nickname)
+                                ) { result ->
+                                    if (result) {
+                                        if (isProfileImageChanged) {
+                                            saveProfileImage(user)
+                                        } else {
                                             saveSuccess()
                                         }
                                     }
-                                }else{
-                                    saveSuccess()
                                 }
                             }
-                            viewModel.isProfileImageChanged.value = false
+                            isProfileImageChanged -> {
+                                saveProfileImage(user)
+                            }
+                            else -> {
+                                saveSuccess()
+                            }
                         }
-
                     }
                 }
                 is ModifyProfileViewModel.Event.ProfileImage -> {
@@ -125,6 +131,37 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.errorMsg.filter { it.isNotEmpty() }.collectLatest {
                     requireContext().toast(it)
+                }
+            }
+        }
+    }
+
+    private fun saveProfileImage(user: ProfileDto.User) {
+        val profileImageBase64 = bitmapToBase64(dataBinding.ivProfile.drawable.toBitmap())
+        if (isPlayerMode) {
+            viewModel.setPlayerProfileImage(
+                user.player_id,
+                PlayerProfileImageRequest(
+                    mime = "image/jpeg",
+                    base64 = profileImageBase64
+                )
+            ) { imageSetResult ->
+                if (imageSetResult) {
+                    viewModel.isProfileImageChanged.value = false
+                    saveSuccess()
+                }
+            }
+        } else {
+            viewModel.setProfileImage(
+                user.user_id,
+                ProfileImageRequest(
+                    mime = "image/jpeg",
+                    base64 = profileImageBase64
+                )
+            ) { imageSetResult ->
+                if (imageSetResult) {
+                    viewModel.isProfileImageChanged.value = false
+                    saveSuccess()
                 }
             }
         }

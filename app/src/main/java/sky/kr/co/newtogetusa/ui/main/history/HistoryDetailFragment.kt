@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryDetailBinding
 import sky.kr.co.newtogetusa.repository.DirectionsRepository
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomMoreDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
@@ -218,8 +219,12 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     cancelRequest()
                 }
 
-                "Modify" -> {}
-                "Chatting" -> {}
+                "Modify" -> {
+                    viewModel.onEventClick(HistoryDetailViewModel.Event.Modify)
+                }
+                "Chatting" -> {
+                    (requireActivity() as MainActivity).selectMainTab(R.id.chat)
+                }
             }
         }
 

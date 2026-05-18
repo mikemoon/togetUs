@@ -16,6 +16,7 @@ import sky.kr.co.newtogetusa.databinding.FragmentMyBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -27,10 +28,17 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
     override fun init() {
         super.init()
 
-        viewModel.getMyProfile() {
+        viewModel.refreshProfileForMode {
             dataBinding.profile = it
         }
         viewModel.getPlayerInfo()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshProfileForMode {
+            dataBinding.profile = it
+        }
     }
 
     override fun initObserver() {
@@ -38,8 +46,17 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isModeChanging.drop(1).filter { it }.collectLatest {
-                    (requireActivity() as MainActivity).showChangeModeAnimation(!viewModel.isPlayerModeFlow.value)
+                launch {
+                    viewModel.isModeChanging.drop(1).filter { it }.collectLatest {
+                        (requireActivity() as MainActivity).showChangeModeAnimation(!viewModel.isPlayerModeFlow.value)
+                    }
+                }
+                launch {
+                    viewModel.isPlayerModeFlow.collectLatest {
+                        viewModel.refreshProfileForMode { profile ->
+                            dataBinding.profile = profile
+                        }
+                    }
                 }
             }
         }
@@ -89,7 +106,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                             rightBtn = "예",
                             leftBtn = "아니오"
                         ).onRightBtn {
-
+                            findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
                         }
                             .onLeftBtn {
 
@@ -112,7 +129,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.AccompanyCredit -> {
-
+                    requireContext().toast("동행 크레딧 안내 화면은 준비 중입니다.")
                 }
 
                 MyViewModel.Event.Term -> {
@@ -120,7 +137,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.UseHistory -> {
-
+                    (requireActivity() as MainActivity).selectMainTab(R.id.history)
                 }
 
                 MyViewModel.Event.FavorPlayer -> {

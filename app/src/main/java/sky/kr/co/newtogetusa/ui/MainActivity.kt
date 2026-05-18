@@ -155,6 +155,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         viewModel.onModeChange(isShow)
     }
 
+    fun selectMainTab(itemId: Int) {
+        dataBinding.bottomNavigation.selectedItemId = itemId
+    }
+
     private fun updateChatTabBadge(hasUnread: Boolean) {
         val badge = dataBinding.bottomNavigation.getOrCreateBadge(R.id.chat).apply {
             clearNumber()

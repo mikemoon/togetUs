@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
+import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ModifyProfileViewModel @Inject constructor(
     baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val playerRepository: PlayerRepository
 ) :
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
@@ -46,7 +49,30 @@ class ModifyProfileViewModel @Inject constructor(
             is ResultWrapper.Success -> {
                 callback.invoke(response.data)
             }
-            else -> {}
+            is ResultWrapper.GenericError -> {
+                errorMsg.value = response.message.toString()
+                Timber.e("setProfileImage error ${response.code}: ${response.message}")
+            }
+            is ResultWrapper.NetworkError -> {
+                errorMsg.value = "네트워크 연결을 확인해주세요."
+                Timber.e("setProfileImage network error")
+            }
+        }
+    }
+
+    fun setPlayerProfileImage(playerId: Int, req: PlayerProfileImageRequest, callback: (Boolean) -> Unit) = viewModelScope.launch {
+        when (val response = playerRepository.postProfileImage(playerId, req)) {
+            is ResultWrapper.Success -> {
+                callback.invoke(response.data)
+            }
+            is ResultWrapper.GenericError -> {
+                errorMsg.value = response.message.toString()
+                Timber.e("setPlayerProfileImage error ${response.code}: ${response.message}")
+            }
+            is ResultWrapper.NetworkError -> {
+                errorMsg.value = "네트워크 연결을 확인해주세요."
+                Timber.e("setPlayerProfileImage network error")
+            }
         }
     }
 

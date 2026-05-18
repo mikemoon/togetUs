@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryBinding
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.ReceiveConfirmDialog
@@ -118,6 +119,9 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                         R.id.action_global_to_home_for_delivery,
                         bundleOf("openDeliveryReq" to true)
                     )
+                }
+                HistoryViewModel.MenuButton.MenuChat -> {
+                    (requireActivity() as MainActivity).selectMainTab(R.id.chat)
                 }
             }
         }

@@ -106,5 +106,6 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
 
     sealed class MenuButton{
         data class MenuModify(val item: DeliverySummaryDto) : MenuButton()
+        object MenuChat : MenuButton()
     }
 }

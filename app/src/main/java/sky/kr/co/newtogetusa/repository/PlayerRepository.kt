@@ -32,6 +32,10 @@ class PlayerRepository @Inject constructor(
         apiService.postProfileImage(playerId, file)
     }
 
+    suspend fun postProfileImage(playerId: Int, request: PlayerProfileImageRequest) = safeApiCall(Dispatchers.IO){
+        apiService.postProfileImage(playerId, request)
+    }
+
     suspend fun postIntroduction(playerId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.postIntroduction(playerId, request)
     }

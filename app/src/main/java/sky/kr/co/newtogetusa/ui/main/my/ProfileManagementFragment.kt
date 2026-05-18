@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentProfileManagementBinding
 import sky.kr.co.newtogetusa.databinding.TabMyProfileCustomBinding
@@ -43,7 +44,11 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         dataBinding.profile = profileDto
         dataBinding.isFromSearchResult = isFromSearchResult
 
-        if (!isFromSearchResult) {
+        if (isPlayerMode) {
+            viewModel.getPlayerProfile {
+                applyPlayerProfile(it)
+            }
+        } else if (!isFromSearchResult) {
             viewModel.getMyProfile {
                 viewModel.profileDto.value = it
                 dataBinding.profile = it
@@ -93,7 +98,12 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                     findNavController().popBackStack()
                 }
                 is ProfileManagementViewModel.Event.ModifyProfile -> {
-                    findNavController().navigate(ProfileManagementFragmentDirections.actionProfileManagementFragmentToModifyProfileFragment(profileDto))
+                    findNavController().navigate(
+                        ProfileManagementFragmentDirections.actionProfileManagementFragmentToModifyProfileFragment(
+                            profileDto = profileDto,
+                            isPlayer = isPlayerMode
+                        )
+                    )
                 }
                 is ProfileManagementViewModel.Event.PasswordSet -> {
                     findNavController().navigate(R.id.action_profileManagementFragment_to_passwordSetFragment)
@@ -147,5 +157,37 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
 
     private fun updateReviewCount(count:Int){
         customTabBinding1?.tvCount?.text = count.toString()
+    }
+
+    private fun applyPlayerProfile(playerProfile: PlayerProfileDto) {
+        val currentProfile = profileDto ?: return
+        val reviewCount = playerProfile.rating?.review_count
+            ?: playerProfile.evaluation?.review_count
+            ?: currentProfile.review_count
+        val starAverage = playerProfile.evaluation?.start_average
+            ?: playerProfile.rating?.star_average?.toInt()
+            ?: currentProfile.evaluation.start_average
+        val cancelCount = playerProfile.evaluation?.cancel_count
+            ?: playerProfile.rating?.cancel_count
+            ?: currentProfile.evaluation.cancel_count
+
+        val updatedProfile = currentProfile.copy(
+            user = currentProfile.user.copy(
+                player_id = playerProfile.player.player_id,
+                nickname = playerProfile.player.nickname,
+                profile_image = playerProfile.player.profile_image,
+                enable = playerProfile.player.enable
+            ),
+            evaluation = currentProfile.evaluation.copy(
+                start_average = starAverage,
+                cancel_count = cancelCount
+            ),
+            review_count = reviewCount
+        )
+
+        viewModel.profileDto.value = updatedProfile
+        profileDto = updatedProfile
+        dataBinding.profile = updatedProfile
+        dataBinding.tvScore.text = "$starAverage ($reviewCount)"
     }
 }

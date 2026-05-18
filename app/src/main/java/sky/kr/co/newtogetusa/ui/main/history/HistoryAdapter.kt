@@ -96,7 +96,9 @@ class HistoryAdapter(private val viewModel: HistoryViewModel) : PagingDataAdapte
                 llBottomButtons.visibility = View.GONE
             }
 
-            val chatPending = { root.context.toast("채팅 기능을 준비중입니다.") }
+            val openChat = {
+                this@HistoryAdapter.viewModel.onMenuBottonClick(HistoryViewModel.MenuButton.MenuChat)
+            }
             val pending = { root.context.toast("준비중인 기능입니다.") }
             val modifyPending: (DeliverySummaryDto) -> Unit = { item ->
                 this@HistoryAdapter.viewModel.onMenuBottonClick(
@@ -123,25 +125,25 @@ class HistoryAdapter(private val viewModel: HistoryViewModel) : PagingDataAdapte
                     secondaryText = "취소하기",
                     primaryText = "채팅확인",
                     secondaryAction = { this@HistoryAdapter.viewModel.onItemCancel(item) },
-                    primaryAction = chatPending
+                    primaryAction = openChat
                 )
 
                 item.status_cd == "DELIVERY_BEFORE" || item.status_cd == "DELIVERY_WAIT" -> setSinglePrimaryButton(
                     primaryText = "채팅하기",
-                    primaryAction = chatPending
+                    primaryAction = openChat
                 )
 
                 item.status_cd == "DELIVERY_START" || item.status_cd == "PICKUP_START" || item.status_cd == "DELIVERY_DEPART" -> setDualButtons(
                     secondaryText = "채팅하기",
                     primaryText = "픽업확인",
-                    secondaryAction = chatPending,
+                    secondaryAction = openChat,
                     primaryAction = pending
                 )
 
                 item.status_cd == "DELIVERY_ING" || item.status_cd.startsWith("ING") -> setDualButtons(
                     secondaryText = "채팅하기",
                     primaryText = "동행현황",
-                    secondaryAction = chatPending,
+                    secondaryAction = openChat,
                     primaryAction = pending
                 )
 

@@ -15,7 +15,6 @@ import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerSearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
-import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
@@ -29,6 +28,12 @@ interface PlayerService {
     suspend fun postProfileImage(
         @Path("player_id") playerId: Int,
         @Part file: MultipartBody.Part
+    ):Boolean
+
+    @POST("/api/players/v1/{player_id}/profile_image")
+    suspend fun postProfileImage(
+        @Path("player_id") playerId: Int,
+        @Body request: PlayerProfileImageRequest
     ):Boolean
 
     @POST("/api/players/v1/{player_id}/introduction")//자기소개등록

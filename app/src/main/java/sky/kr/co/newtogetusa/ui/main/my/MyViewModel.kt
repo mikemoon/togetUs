@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
@@ -52,23 +53,88 @@ class MyViewModel @Inject constructor(
     }
 
     val profileDto = MutableStateFlow<ProfileDto?>(null)
+    private var userProfileDto: ProfileDto? = null
+
     fun getMyProfile(result: (ProfileDto) -> Unit) = viewModelScope.launch {
+        val profileData = getUserProfile()
+        if (profileData != null) {
+            profileDto.value = profileData
+            result.invoke(profileData)
+        }
+    }
+
+    fun refreshProfileForMode(result: (ProfileDto) -> Unit) = viewModelScope.launch {
+        val userProfile = getUserProfile() ?: return@launch
+        if (!isPlayerModeFlow.value) {
+            profileDto.value = userProfile
+            result.invoke(userProfile)
+            return@launch
+        }
+
+        val playerId = userProfile.user.player_id
+        if (playerId <= 0) {
+            profileDto.value = userProfile
+            result.invoke(userProfile)
+            return@launch
+        }
+
+        when (val response = playerRepository.getProfile(playerId)) {
+            is ResultWrapper.Success -> {
+                val displayProfile = userProfile.withPlayerProfile(response.data)
+                profileDto.value = displayProfile
+                result.invoke(displayProfile)
+            }
+            else -> {
+                profileDto.value = userProfile
+                result.invoke(userProfile)
+            }
+        }
+    }
+
+    private suspend fun getUserProfile(): ProfileDto? {
+        userProfileDto?.let { return it }
+
         val profileData = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
         if (profileData != null) {
             Timber.d("profileAlreadyHas profileData $profileData")
-            result.invoke(profileData)
-            profileDto.value = profileData
-        } else {
-            when (val response = userRepository.getMyProfile()) {
-                is ResultWrapper.Success -> {
-                    dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
-                    profileDto.value = response.data
-                    result.invoke(response.data)
-                }
-
-                else -> {}
-            }
+            userProfileDto = profileData
+            return profileData
         }
+
+        return when (val response = userRepository.getMyProfile()) {
+            is ResultWrapper.Success -> {
+                dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
+                userProfileDto = response.data
+                response.data
+            }
+            else -> null
+        }
+    }
+
+    private fun ProfileDto.withPlayerProfile(playerProfile: PlayerProfileDto): ProfileDto {
+        val reviewCount = playerProfile.rating?.review_count
+            ?: playerProfile.evaluation?.review_count
+            ?: review_count
+        val starAverage = playerProfile.evaluation?.start_average
+            ?: playerProfile.rating?.star_average?.toInt()
+            ?: evaluation.start_average
+        val cancelCount = playerProfile.evaluation?.cancel_count
+            ?: playerProfile.rating?.cancel_count
+            ?: evaluation.cancel_count
+
+        return copy(
+            user = user.copy(
+                player_id = playerProfile.player.player_id,
+                nickname = playerProfile.player.nickname,
+                profile_image = playerProfile.player.profile_image,
+                enable = playerProfile.player.enable
+            ),
+            evaluation = evaluation.copy(
+                start_average = starAverage,
+                cancel_count = cancelCount
+            ),
+            review_count = reviewCount
+        )
     }
 
     val hasPlayerApplyRequest = MutableStateFlow(false)
