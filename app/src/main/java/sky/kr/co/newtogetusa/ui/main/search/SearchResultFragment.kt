@@ -10,7 +10,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
@@ -105,7 +104,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             requst_count = 0,
             review_count = player.complete_count
         )
-        val action = NavGraphDirections.actionGlobalProfileManagementFragment(
+        val action = SearchResultFragmentDirections.actionSearchResultFragmentToProfileManagementFragment(
             profileDto = profileDto,
             isPlayer = true,
             isFromSearchResult = true

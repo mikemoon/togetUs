@@ -29,6 +29,47 @@
             android:name="isDomestic"
             android:defaultValue="true"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_searchResultFragment_to_profileManagementFragment"
+            app:destination="@id/profileManagementFragment">
+            <argument
+                android:name="profileDto"
+                app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+                app:nullable="true" />
+            <argument
+                android:name="isPlayer"
+                app:argType="boolean"
+                android:defaultValue="false" />
+            <argument
+                android:name="isFromSearchResult"
+                app:argType="boolean"
+                android:defaultValue="false" />
+            <argument
+                android:name="deliveryId"
+                app:argType="long"
+                android:defaultValue="-1L" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/profileManagementFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementFragment"
+        android:label="ProfileManagementFragment" >
+        <argument
+            android:name="profileDto"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+            app:nullable="true" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="isFromSearchResult"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
     </fragment>
     <fragment
         android:id="@+id/playerTermFragment"

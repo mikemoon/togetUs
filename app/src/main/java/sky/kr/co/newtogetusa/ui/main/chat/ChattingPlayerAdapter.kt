@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.databinding.ItemChatPlayerBinding
 import sky.kr.co.newtogetusa.ui.main.chat.data.ChatListItem
-import sky.kr.co.newtogetusa.utils.loadImage
+import sky.kr.co.newtogetusa.utils.loadProfile
 
 class ChattingPlayerAdapter(
     private val onItemClick: (ChatListItem) -> Unit
@@ -18,7 +18,7 @@ class ChattingPlayerAdapter(
         fun bind(item: ChatListItem?) {
             if (item == null) return
             binding.item = item
-            binding.ivProfile.loadImage(item.profileUrl, error = sky.kr.co.newtogetusa.R.drawable.profile)
+            binding.ivProfile.loadProfile(item.profileUrl)
             binding.root.setOnClickListener { onItemClick(item) }
         }
     }
