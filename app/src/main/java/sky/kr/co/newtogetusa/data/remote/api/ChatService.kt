@@ -4,6 +4,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatMessageResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.Room
@@ -21,6 +23,13 @@ interface ChatService {
         @Path("user_id") userId: Int,
         @Path("room_id") roomId: Int
     )
+
+    @GET("/api/chats/v1/rooms/{room_id}/msgs")
+    suspend fun getRoomMessages(
+        @Path("room_id") roomId: Long,
+        @Query("since_id") sinceId: Long = 1,
+        @Query("count") count: Int = 100
+    ): ChatMessageResponseDto
 
     @GET("/api/chats/v1/rooms")
     suspend fun getChatRooms(): List<ChatRoomDto>

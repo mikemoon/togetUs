@@ -23,6 +23,10 @@ class ChatRepository @Inject constructor(
         apiService.getChatRooms()
     }
 
+    suspend fun getRoomMessages(roomId: Long, sinceId: Long = 1, count: Int = 100) = safeApiCall(Dispatchers.IO) {
+        apiService.getRoomMessages(roomId, sinceId, count)
+    }
+
     suspend fun searchPlayerRooms(request: ChatRoomSearchRequest) = safeApiCall<ChatRoomSearchResponseDto>(Dispatchers.IO){
         apiService.searchPlayerRooms(request)
     }

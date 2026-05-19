@@ -18,6 +18,10 @@
         android:id="@+id/chattingConversationFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationFragment"
         android:label="ChattingConversationFragment" >
+        <argument
+            android:name="roomId"
+            app:argType="long"
+            android:defaultValue="-1L" />
         <action
             android:id="@+id/action_chattingConversationFragment_to_chattingImageDetailFragment"
             app:destination="@id/chattingImageDetailFragment" >

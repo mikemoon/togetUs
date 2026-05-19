@@ -25,6 +25,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import androidx.core.net.toUri
+import androidx.navigation.fragment.navArgs
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -33,6 +34,7 @@ class ChattingConversationFragment :
     override val layoutId: Int
         get() = R.layout.fragment_chatting_conversation
     override val viewModel: ChattingConversationViewModel by viewModels()
+    private val args: ChattingConversationFragmentArgs by navArgs()
 
     private lateinit var adapter: ChatMessageAdapter
 
@@ -97,6 +99,7 @@ class ChattingConversationFragment :
     override fun init() {
         super.init()
         viewModel.connect()
+        viewModel.loadRoomMessages(args.roomId)
 
         dataBinding.viewModel = viewModel
         dataBinding.ivProduct.apply {

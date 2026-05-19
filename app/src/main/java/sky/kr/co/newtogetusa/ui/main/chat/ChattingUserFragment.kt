@@ -36,8 +36,12 @@ class ChattingUserFragment @Inject constructor(
         super.init()
 
         setupFilterTabs()
-        chatAdapter = ChattingPlayerAdapter {
-            findNavController().navigate(ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment())
+        chatAdapter = ChattingPlayerAdapter { item ->
+            findNavController().navigate(
+                ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment(
+                    item.roomId.toLong()
+                )
+            )
         }
         dataBinding.rvList.adapter = chatAdapter
     }

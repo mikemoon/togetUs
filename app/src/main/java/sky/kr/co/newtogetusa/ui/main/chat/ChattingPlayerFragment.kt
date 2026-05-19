@@ -51,7 +51,11 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
             when(event){
                 is ChattingPlayerViewModel.Event.ChattingSelect ->{
                     Timber.d("ChattingSel")
-                    findNavController().navigate(ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment())
+                    findNavController().navigate(
+                        ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment(
+                            event.item.roomId.toLong()
+                        )
+                    )
                 }
             }
         }
