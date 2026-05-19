@@ -117,7 +117,10 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                 is HistoryViewModel.MenuButton.MenuModify -> {
                     findNavController().navigate(
                         R.id.action_global_to_home_for_delivery,
-                        bundleOf("openDeliveryReq" to true)
+                        bundleOf(
+                            "openDeliveryReq" to true,
+                            "returnToHistory" to true
+                        )
                     )
                 }
                 HistoryViewModel.MenuButton.MenuChat -> {

@@ -262,10 +262,12 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     val detail = viewModel.deliveryDetail.value ?: return@observe
                     populateDeliverySharedState()
 
-                    // 9️⃣ DeliveryReqFragment로 이동
                     findNavController().navigate(
                         R.id.action_global_to_home_for_delivery,
-                        bundleOf("openDeliveryReq" to true)
+                        bundleOf(
+                            "openDeliveryReq" to true,
+                            "returnToHistory" to true
+                        )
                     )
                 }
 
@@ -276,7 +278,10 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     populateDeliverySharedState()
                     findNavController().navigate(
                         R.id.action_global_to_home_for_delivery,
-                        bundleOf("openDeliveryFee" to true)
+                        bundleOf(
+                            "openDeliveryFee" to true,
+                            "returnToHistory" to true
+                        )
                     )
                 }
             }

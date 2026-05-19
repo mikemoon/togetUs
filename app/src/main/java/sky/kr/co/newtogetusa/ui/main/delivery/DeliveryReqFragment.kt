@@ -10,11 +10,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryReqBinding
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.AbroadGuideDialog
 import sky.kr.co.newtogetusa.utils.dpToPx
@@ -29,6 +31,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
     override val layoutId: Int
         get() = R.layout.fragment_delivery_req
     override val viewModel: DeliveryReqViewModel by viewModels()
+    private val args: DeliveryReqFragmentArgs by navArgs()
 
     private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
@@ -72,8 +75,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    sharedViewModel.clearState()
-                    findNavController().popBackStack()
+                    handleBack()
                 }
             }
         )
@@ -131,8 +133,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
         viewModel.event.observe(viewLifecycleOwner){event ->
             when(event){
                 DeliveryReqViewModel.Event.Back ->{
-                    sharedViewModel.clearState()
-                    findNavController().popBackStack()
+                    handleBack()
                 }
                 DeliveryReqViewModel.Event.Charge ->{
                     findNavController().navigate(DeliveryReqFragmentDirections.actionDeliveryReqFragmentToDeliveryFeeFragment())
@@ -147,6 +148,18 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
                     findNavController().navigate(R.id.action_deliveryReqFragment_to_deliveryProductFragment)
                 }
             }
+        }
+    }
+
+    private fun handleBack() {
+        sharedViewModel.clearState()
+        if (args.returnToHistory) {
+            val popped = findNavController().popBackStack(R.id.historyFragment, false)
+            if (!popped) {
+                (requireActivity() as MainActivity).selectMainTab(R.id.history)
+            }
+        } else {
+            findNavController().popBackStack()
         }
     }
 

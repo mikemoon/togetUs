@@ -24,6 +24,10 @@
         android:id="@+id/deliveryReqFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryReqFragment"
         android:label="DeliveryReqFragment" >
+        <argument
+            android:name="returnToHistory"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_deliveryReqFragment_to_deliveryProductFragment"
             app:destination="@id/deliveryProductFragment" />

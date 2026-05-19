@@ -102,13 +102,18 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         super.init()
         arguments?.getBoolean("openDeliveryReq")?.let { open ->
             if (open) {
+                val returnToHistory = arguments?.getBoolean("returnToHistory") == true
                 arguments?.remove("openDeliveryReq")
+                arguments?.remove("returnToHistory")
 
                 val navController = findNavController()
 
                 // 1️⃣ DeliveryReq로 이동
                 navController.navigate(
-                    R.id.action_homeTabFragment_to_deliveryReqFragment
+                    R.id.action_homeTabFragment_to_deliveryReqFragment,
+                    Bundle().apply {
+                        putBoolean("returnToHistory", returnToHistory)
+                    }
                 )
                 return
             }
@@ -116,10 +121,15 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
         arguments?.getBoolean("openDeliveryFee")?.let { open ->
             if (open) {
+                val returnToHistory = arguments?.getBoolean("returnToHistory") == true
                 arguments?.remove("openDeliveryFee")
+                arguments?.remove("returnToHistory")
 
                 findNavController().navigate(
-                    R.id.action_homeTabFragment_to_deliveryReqFragment
+                    R.id.action_homeTabFragment_to_deliveryReqFragment,
+                    Bundle().apply {
+                        putBoolean("returnToHistory", returnToHistory)
+                    }
                 )
                 findNavController().navigate(
                     R.id.action_deliveryReqFragment_to_deliveryFeeFragment
