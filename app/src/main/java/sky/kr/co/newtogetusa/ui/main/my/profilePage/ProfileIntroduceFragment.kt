@@ -3,6 +3,8 @@ package sky.kr.co.newtogetusa.ui.main.my.profilePage
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import android.widget.TextView
+import androidx.navigation.fragment.findNavController
+import androidx.core.os.bundleOf
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
@@ -27,6 +29,18 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
 
     private fun bindPlayerProfile(profile: PlayerProfileDto) = with(dataBinding) {
         tvIntroduce.text = profile.introduction.orEmpty()
+        btnEditIntroduction.setOnClickListener {
+            findNavController().navigate(
+                R.id.writeIntroductionFragment,
+                bundleOf(
+                    "playerId" to (profile.player_id ?: profile.player.player_id),
+                    "introduction" to profile.introduction.orEmpty()
+                )
+            )
+        }
+        btnEditArea.setOnClickListener {
+            findNavController().navigate(R.id.playerAreaSettingFragment)
+        }
 
         bindBasicArea(profile.areas_basic?.getOrNull(0), tvArea1)
         bindBasicArea(profile.areas_basic?.getOrNull(1), tvArea2)

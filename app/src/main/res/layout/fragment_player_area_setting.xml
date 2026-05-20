@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/left_l" />
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="지역 설정"
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph16B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="동행 가능지역"
+            android:textColor="@color/black_80" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvBasicAreas"
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:textColor="@color/black_80" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/black_2" />
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph16B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="추가 지역 설정"
+            android:textColor="@color/black_80" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvAddedAreas"
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:textColor="@color/black_80" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/black_2" />
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph16B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="지역 추가"
+            android:textColor="@color/black_80" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etDepart"
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:hint="출발지 주소"
+            android:paddingHorizontal="12dp" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etDest"
+            style="@style/Paragraph14R"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:hint="도착지 주소"
+            android:paddingHorizontal="12dp" />
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swDomestic"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:checked="true"
+            android:text="국내 지역"
+            android:textColor="@color/black_80" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btnAddBasic"
+            style="@style/Paragraph16B"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_margin="20dp"
+            android:background="@drawable/background_s_p100_r4"
+            android:gravity="center"
+            android:text="기본 지역 등록"
+            android:textColor="@color/white" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etStartDate"
+                style="@style/Paragraph14R"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_st_b10_s_w_r4"
+                android:hint="시작일 yyyyMMdd"
+                android:inputType="number"
+                android:maxLength="8"
+                android:paddingHorizontal="12dp" />
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etEndDate"
+                style="@style/Paragraph14R"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_st_b10_s_w_r4"
+                android:hint="종료일 yyyyMMdd"
+                android:inputType="number"
+                android:maxLength="8"
+                android:paddingHorizontal="12dp" />
+        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btnAddAdded"
+            style="@style/Paragraph16B"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_margin="20dp"
+            android:background="@drawable/background_s_p100_r4"
+            android:gravity="center"
+            android:text="기간 추가 지역 등록"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</layout>

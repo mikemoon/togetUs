@@ -16,7 +16,9 @@ import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerSearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
@@ -109,6 +111,18 @@ interface PlayerService {
         @Path("player_id") playerId: Int,
         @Body request: HashMap<String, String>
     ):Boolean
+
+    @POST("/api/players/v1/{player_id}/area")
+    suspend fun postPlayerArea(
+        @Path("player_id") playerId: Int,
+        @Body request: PlayerAreaAddRequest
+    ):Boolean
+
+    @POST("/api/players/v1/{player_id}/area/added")
+    suspend fun postPlayerAreaAdded(
+        @Path("player_id") playerId: Int,
+        @Body request: PlayerAreaAddedRequest
+    ): Int
 
     @POST("/api/players/v1/{player_id}/apply") //등록심사 요청
     suspend fun postPlayerApply(

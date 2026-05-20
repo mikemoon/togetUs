@@ -33,7 +33,14 @@ class ReportResultFragment : BaseFragment<FragmentReportResultBinding, ReportRes
             when (event) {
                 ReportResultVM.Event.Back -> findNavController().popBackStack()
                 ReportResultVM.Event.OpenReceivedReview -> {
-                    requireContext().toast("받은 후기 화면은 준비 중입니다.")
+                    if (args.deliveryId > 0L) {
+                        findNavController().navigate(
+                            ReportResultFragmentDirections.actionReportResultFragmentToReceivedReviewFragment(
+                                args.deliveryId,
+                                args.isPlayer
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -45,7 +52,7 @@ class ReportResultFragment : BaseFragment<FragmentReportResultBinding, ReportRes
         dataBinding.tvMessage.isVisible = !args.message.isNullOrBlank()
         dataBinding.tvMessage.text = args.message
 
-        dataBinding.btnReceivedReview.isVisible = args.showBottomButton
+        dataBinding.btnReceivedReview.isVisible = args.showBottomButton && args.deliveryId > 0L
 
         dataBinding.cgReasons.removeAllViews()
         args.reasons.orEmpty().forEach { reason ->

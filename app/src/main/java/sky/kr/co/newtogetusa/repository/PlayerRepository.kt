@@ -11,7 +11,9 @@ import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.PlayerService
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
@@ -46,6 +48,14 @@ class PlayerRepository @Inject constructor(
 
     suspend fun postPlayerArea(playerId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.postPlayerArea(playerId, request)
+    }
+
+    suspend fun postPlayerArea(playerId: Int, request: PlayerAreaAddRequest) = safeApiCall(Dispatchers.IO){
+        apiService.postPlayerArea(playerId, request)
+    }
+
+    suspend fun postPlayerAreaAdded(playerId: Int, request: PlayerAreaAddedRequest) = safeApiCall(Dispatchers.IO){
+        apiService.postPlayerAreaAdded(playerId, request)
     }
 
     suspend fun getProfile(playerId: Int) = safeApiCall(Dispatchers.IO){

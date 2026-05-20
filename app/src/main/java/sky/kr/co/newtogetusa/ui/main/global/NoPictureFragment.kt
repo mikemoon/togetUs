@@ -5,6 +5,7 @@ import android.text.TextWatcher
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentNoPictureBinding
@@ -17,6 +18,7 @@ class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() 
         get() = R.layout.fragment_no_picture
 
     override val viewModel: NoPictureVM by viewModels()
+    private val args: NoPictureFragmentArgs by navArgs()
 
     override fun init() {
         bindClicks()
@@ -54,8 +56,7 @@ class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() 
         dataBinding.reasonOption5.setOnClickListener { viewModel.selectReason(4) }
 
         dataBinding.btnComplete.setOnClickListener {
-            val deliveryId = arguments?.getLong(KEY_DELIVERY_ID, -1L) ?: -1L
-            viewModel.requestCompleteWithoutPicture(deliveryId)
+            viewModel.requestCompleteWithoutPicture(args.deliveryId, args.proofType)
         }
     }
 
@@ -79,7 +80,4 @@ class NoPictureFragment : BaseFragment<FragmentNoPictureBinding, NoPictureVM>() 
         })
     }
 
-    companion object {
-        private const val KEY_DELIVERY_ID = "deliveryId"
-    }
 }

@@ -61,7 +61,9 @@ class HomeNotificationFragment :
         viewModel.event.observe(viewLifecycleOwner) { event ->
             when (event) {
                 HomeNotificationViewModel.Event.Back -> findNavController().popBackStack()
-                HomeNotificationViewModel.Event.Setting -> requireContext().toast("알림 설정 화면을 준비중입니다.")
+                HomeNotificationViewModel.Event.Setting -> findNavController().navigate(
+                    HomeNotificationFragmentDirections.actionHomeNotificationFragmentToHomeNotificationSettingFragment()
+                )
                 HomeNotificationViewModel.Event.ReadAll -> {
                     viewModel.readAllNotifications { success ->
                         requireContext().toast(

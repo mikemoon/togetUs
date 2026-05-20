@@ -72,8 +72,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         val detail = deliveryDetail.value ?: return
         when (buttonState.value) {
             ButtonState.MatchBefore -> _event.value = Event.ShowApplyDialog
-            ButtonState.PickupReady -> requestPickupComplete(detail.delivery_id)
-            ButtonState.DeliveryProgress -> requestDeliveryComplete(detail.delivery_id)
+            ButtonState.PickupReady -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "pickup")
+            ButtonState.DeliveryProgress -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
             ButtonState.Done -> _event.value = Event.OpenReport
             else -> Unit
         }
@@ -97,23 +97,23 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     }
 
     private fun requestPickupComplete(deliveryId: Long) = viewModelScope.launch {
-        /*when (deliveryRepo.putPickupComplete(deliveryId)) {
+        when (deliveryRepo.putPickupComplete(deliveryId)) {
             is ResultWrapper.Success -> {
                 _event.value = Event.ActionSuccess("픽업 완료 처리되었어요.")
-                getDeliveryDetailInfo(deliveryId.toLong())
+                getDeliveryDetailInfo(deliveryId)
             }
             else -> _event.value = Event.ActionFail
-        }*/
+        }
     }
 
     private fun requestDeliveryComplete(deliveryId: Long) = viewModelScope.launch {
-        /*when (deliveryRepo.putDeliveryComplete(deliveryId)) {
+        when (deliveryRepo.putDeliveryComplete(deliveryId)) {
             is ResultWrapper.Success -> {
                 _event.value = Event.ActionSuccess("동행 완료 처리되었어요.")
-                getDeliveryDetailInfo(deliveryId.toLong())
+                getDeliveryDetailInfo(deliveryId)
             }
             else -> _event.value = Event.ActionFail
-        }*/
+        }
     }
 
     val buttonState = deliveryDetail.map { detail ->
@@ -244,6 +244,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         object ShowApplyDialog : Event()
         object ActionFail : Event()
         data class ActionSuccess(val msg: String) : Event()
+        data class OpenProofPhoto(val deliveryId: Long, val proofType: String) : Event()
     }
 
     data class DeliverySummaryUiModel(

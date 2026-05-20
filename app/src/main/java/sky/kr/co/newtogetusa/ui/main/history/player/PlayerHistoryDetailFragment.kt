@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryDeliveryDetailBinding
 import sky.kr.co.newtogetusa.repository.DirectionsRepository
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.player.BottomDeliveryApplyDialog
 import sky.kr.co.newtogetusa.ui.main.history.HistoryDetailPhotoAdapter
@@ -165,11 +167,20 @@ class PlayerHistoryDetailFragment :
                         }
                     }.show(childFragmentManager, "BottomDeliveryApplyDialog")
                 }
-                is PlayerHistoryDetailViewModel.Event.Chat -> requireContext().toast("채팅 기능을 준비중입니다.")
+                is PlayerHistoryDetailViewModel.Event.Chat -> (requireActivity() as MainActivity).selectMainTab(R.id.chat)
                 is PlayerHistoryDetailViewModel.Event.DoneInfo -> requireContext().toast("이미 완료된 요청입니다.")
                 is PlayerHistoryDetailViewModel.Event.OpenReport -> {
                     findNavController().navigate(
-                        PlayerHistoryDetailFragmentDirections.actionPlayerHistoryDetailFragmentToReportFragment()
+                        PlayerHistoryDetailFragmentDirections.actionPlayerHistoryDetailFragmentToDeliveryReviewFragment(
+                            args.deliveryId,
+                            true
+                        )
+                    )
+                }
+                is PlayerHistoryDetailViewModel.Event.OpenProofPhoto -> {
+                    findNavController().navigate(
+                        R.id.action_global_takePhotoFragment,
+                        bundleOf("deliveryId" to event.deliveryId, "proofType" to event.proofType)
                     )
                 }
             }

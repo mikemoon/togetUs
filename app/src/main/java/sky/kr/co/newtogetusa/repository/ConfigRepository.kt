@@ -65,4 +65,8 @@ class ConfigRepository @Inject constructor(
         apiService.getPlayerReview()
     }
 
+    suspend fun getUserReview() = safeApiCall<List<BaseCommonDto>>(Dispatchers.IO){
+        apiService.getUserReview()
+    }
+
 }

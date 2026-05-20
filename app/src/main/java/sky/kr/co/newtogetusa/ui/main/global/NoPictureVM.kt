@@ -38,16 +38,14 @@ class NoPictureVM @Inject constructor(
         reasonLength.value = trimmed.length
     }
 
-    fun requestCompleteWithoutPicture(deliveryId: Long) = viewModelScope.launch {
+    fun requestCompleteWithoutPicture(deliveryId: Long, proofType: String) = viewModelScope.launch {
         if (deliveryId <= 0L) {
             _event.value = Event.InvalidDeliveryId
             return@launch
         }
 
         loadingState.value = true
-        val res = deliveryRepository.putDeliveryCompletePicture(
-            deliveryId = deliveryId,
-            body = DeliveryUploadPictureRequest(
+        val request = DeliveryUploadPictureRequest(
                 mime = "",
                 base64 = "",
                 latitude = 0.0,
@@ -55,8 +53,12 @@ class NoPictureVM @Inject constructor(
                 picture_date = "",
                 no_picture_cd = selectedReasonCode(),
                 no_picture_reason = reasonDetail.value.orEmpty()
-            )
         )
+        val res = if (proofType == TakePhotoVM.PROOF_PICKUP) {
+            deliveryRepository.putPickupDonePicture(deliveryId, request)
+        } else {
+            deliveryRepository.putDeliveryCompletePicture(deliveryId, request)
+        }
 
         when (res) {
             is ResultWrapper.Success -> _event.value = Event.CompleteSuccess

@@ -2,19 +2,24 @@ package sky.kr.co.newtogetusa.data.remote.api
 
 import com.squareup.okhttp.ResponseBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.ChatInProgressDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryDetailResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryReviewDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.ReviewCheckDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryReviewRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryUploadPictureRequest
 
@@ -96,6 +101,32 @@ interface DeliveryService {
         @Path("delivery_id") delivery_id: Long,
     ): List<DeliveryStatusLogDto>
 
+    @PUT("api/deliverys/v1/{delivery_id}/requester/pickup")
+    suspend fun putRequesterPickup(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
+    @GET("api/deliverys/v1/{delivery_id}/requester/chatrooms")
+    suspend fun getChatInProgressList(
+        @Path("delivery_id") deliveryId: Long,
+    ): List<ChatInProgressDto>
+
+    @GET("api/deliverys/v1/{delivery_id}/requester/review/check")
+    suspend fun checkReviewRequester(
+        @Path("delivery_id") deliveryId: Long,
+    ): ReviewCheckDto
+
+    @POST("api/deliverys/v1/{delivery_id}/requester/review")
+    suspend fun writeReviewRequester(
+        @Path("delivery_id") deliveryId: Long,
+        @Body body: DeliveryReviewRequest,
+    ): Boolean
+
+    @GET("api/deliverys/v1/{delivery_id}/requester/reviewed")
+    suspend fun getReviewedRequester(
+        @Path("delivery_id") deliveryId: Long,
+    ): DeliveryReviewDto
+
     @POST("api/deliverys/v1/search/requester") //검색하기
     suspend fun postDeliverySearch(
         @Body body: DeliverySearchReq
@@ -118,6 +149,28 @@ interface DeliveryService {
         @Path("delivery_id") delivery_id: Long,
         @Body body: DeliveryUploadPictureRequest
     ): Boolean
+
+    @PUT("api/deliverys/v1/{delivery_id}/player/pickup_done_picture")
+    suspend fun putPickupDonePicture(
+        @Path("delivery_id") deliveryId: Long,
+        @Body body: DeliveryUploadPictureRequest,
+    ): Boolean
+
+    @GET("api/deliverys/v1/{delivery_id}/player/review/check")
+    suspend fun checkReviewPlayer(
+        @Path("delivery_id") deliveryId: Long,
+    ): ReviewCheckDto
+
+    @POST("api/deliverys/v1/{delivery_id}/player/review")
+    suspend fun writeReviewPlayer(
+        @Path("delivery_id") deliveryId: Long,
+        @Body body: DeliveryReviewRequest,
+    ): Boolean
+
+    @GET("api/deliverys/v1/{delivery_id}/player/reviewed")
+    suspend fun getReviewedPlayer(
+        @Path("delivery_id") deliveryId: Long,
+    ): DeliveryReviewDto
 
     @PUT("api/deliverys/v1/{delivery_id}/requester/cancel")//취소하기
     suspend fun cancelDelivery(

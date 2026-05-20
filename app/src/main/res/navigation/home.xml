@@ -19,7 +19,15 @@
     <fragment
         android:id="@+id/homeNotificationFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.home.HomeNotificationFragment"
-        android:label="HomeNotificationFragment" />
+        android:label="HomeNotificationFragment">
+        <action
+            android:id="@+id/action_homeNotificationFragment_to_homeNotificationSettingFragment"
+            app:destination="@id/homeNotificationSettingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeNotificationSettingFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.home.HomeNotificationSettingFragment"
+        android:label="HomeNotificationSettingFragment" />
     <fragment
         android:id="@+id/deliveryReqFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryReqFragment"

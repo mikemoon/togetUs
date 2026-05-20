@@ -17,6 +17,8 @@ import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
 import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
@@ -90,6 +92,9 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     private val _suggestDeliveryResult = SingleLiveEvent<Boolean>()
     val suggestDeliveryResult: LiveData<Boolean> = _suggestDeliveryResult
 
+    private val _areaAddResult = SingleLiveEvent<Boolean>()
+    val areaAddResult: LiveData<Boolean> = _areaAddResult
+
     val deliveryRequestTotalCount = MutableStateFlow(0)
     val playerReviewCount = MutableStateFlow(0)
 
@@ -148,6 +153,22 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         when (deliveryRepository.putSuggest(deliveryId = deliveryId, hashMapOf("player_id" to playerId.toString()))) {
             is ResultWrapper.Success -> _suggestDeliveryResult.value = true
             else -> _suggestDeliveryResult.value = false
+        }
+    }
+
+    fun addPlayerArea(request: PlayerAreaAddRequest) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        when (playerRepository.postPlayerArea(playerId, request)) {
+            is ResultWrapper.Success -> _areaAddResult.value = true
+            else -> _areaAddResult.value = false
+        }
+    }
+
+    fun addPlayerAreaAdded(request: PlayerAreaAddedRequest) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        when (playerRepository.postPlayerAreaAdded(playerId, request)) {
+            is ResultWrapper.Success -> _areaAddResult.value = true
+            else -> _areaAddResult.value = false
         }
     }
 

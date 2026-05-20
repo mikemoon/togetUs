@@ -97,6 +97,13 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
         _menuButtonLiveData.value = menuAction
     }
 
+    fun confirmRequesterPickup(item: DeliverySummaryDto) = viewModelScope.launch {
+        when (deliveryRepo.putRequesterPickup(item.delivery_id)) {
+            is ResultWrapper.Success -> _menuButtonLiveData.value = MenuButton.MenuRefresh("수령 확인이 완료되었어요.")
+            else -> _menuButtonLiveData.value = MenuButton.MenuError("수령 확인에 실패했습니다.")
+        }
+    }
+
     sealed class TopMenu {
         object All : TopMenu()
         object Doing : TopMenu()
@@ -107,6 +114,9 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
     sealed class MenuButton{
         data class MenuModify(val item: DeliverySummaryDto) : MenuButton()
         data class MenuDeliveryStatus(val item: DeliverySummaryDto) : MenuButton()
-        object MenuChat : MenuButton()
+        data class MenuChat(val item: DeliverySummaryDto) : MenuButton()
+        data class MenuReview(val item: DeliverySummaryDto) : MenuButton()
+        data class MenuRefresh(val message: String) : MenuButton()
+        data class MenuError(val message: String) : MenuButton()
     }
 }

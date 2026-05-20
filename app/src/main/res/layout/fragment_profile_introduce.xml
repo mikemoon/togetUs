@@ -20,6 +20,19 @@
                 android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnEditIntroduction"
+                style="@style/Paragraph14B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/background_s_b5_r4"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:text="자기소개 수정"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvIntroduce"
                 style="@style/Paragraph14R"
                 android:layout_width="match_parent"
@@ -42,6 +55,19 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="동행 가능지역"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnEditArea"
+                style="@style/Paragraph14B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/background_s_b5_r4"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:text="지역 설정"
                 android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatTextView

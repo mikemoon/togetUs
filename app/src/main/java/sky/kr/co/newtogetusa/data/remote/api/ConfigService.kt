@@ -66,7 +66,7 @@ interface ConfigService {
 
     @GET("/api/configs/v1/review/user")//사용자리뷰를 위한 평가항목
     suspend fun getUserReview(
-    ):Any
+    ):List<BaseCommonDto>
 
     @GET("/api/configs/v1/review/player")//플레이어리뷰를 위한 평가항목
     suspend fun getPlayerReview(

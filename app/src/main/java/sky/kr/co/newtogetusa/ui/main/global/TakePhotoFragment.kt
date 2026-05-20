@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -33,6 +34,7 @@ class TakePhotoFragment : BaseFragment<FragmentTakePhotoBinding, TakePhotoVM>() 
     override val layoutId: Int
         get() = R.layout.fragment_take_photo
     override val viewModel: TakePhotoVM by viewModels()
+    private val args: TakePhotoFragmentArgs by navArgs()
 
     private var imageCapture: ImageCapture? = null
 
@@ -70,11 +72,27 @@ class TakePhotoFragment : BaseFragment<FragmentTakePhotoBinding, TakePhotoVM>() 
         }
 
         dataBinding.btnUpload.setOnClickListener {
-            Toast.makeText(requireContext(), "업로드 준비중입니다.", Toast.LENGTH_SHORT).show()
+            viewModel.uploadCapturedPhoto(args.deliveryId, args.proofType)
         }
 
         dataBinding.tvUnableTakePhoto.setOnClickListener {
-            Toast.makeText(requireContext(), "고객센터로 문의해 주세요.", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(
+                TakePhotoFragmentDirections.actionGlobalNoPictureFragment(args.deliveryId, args.proofType)
+            )
+        }
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+        viewModel.event.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                TakePhotoVM.Event.UploadSuccess -> {
+                    Toast.makeText(requireContext(), "촬영 정보가 등록되었습니다.", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                }
+                TakePhotoVM.Event.UploadFailed -> Toast.makeText(requireContext(), "촬영 정보 등록에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                TakePhotoVM.Event.Invalid -> Toast.makeText(requireContext(), "촬영 정보를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

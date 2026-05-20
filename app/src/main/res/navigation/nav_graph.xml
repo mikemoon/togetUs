@@ -95,7 +95,16 @@
     <fragment
         android:id="@+id/takePhotoFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.global.TakePhotoFragment"
-        android:label="TakePhotoFragment" />
+        android:label="TakePhotoFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="proofType"
+            app:argType="string"
+            android:defaultValue="complete" />
+    </fragment>
 
     <fragment
         android:id="@+id/noPictureFragment"
@@ -105,6 +114,10 @@
             android:name="deliveryId"
             app:argType="long"
             android:defaultValue="-1L" />
+        <argument
+            android:name="proofType"
+            app:argType="string"
+            android:defaultValue="complete" />
     </fragment>
 
     <fragment

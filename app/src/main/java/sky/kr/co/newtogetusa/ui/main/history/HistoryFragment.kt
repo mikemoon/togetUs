@@ -29,6 +29,7 @@ import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRequestSharedViewModel
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 import kotlin.getValue
 
@@ -130,8 +131,27 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                         )
                     )
                 }
-                HistoryViewModel.MenuButton.MenuChat -> {
-                    (requireActivity() as MainActivity).selectMainTab(R.id.chat)
+                is HistoryViewModel.MenuButton.MenuChat -> {
+                    findNavController().navigate(
+                        HistoryFragmentDirections.actionHistoryFragmentToChatInProgressFragment(
+                            menuAction.item.delivery_id
+                        )
+                    )
+                }
+                is HistoryViewModel.MenuButton.MenuReview -> {
+                    findNavController().navigate(
+                        HistoryFragmentDirections.actionHistoryFragmentToDeliveryReviewFragment(
+                            menuAction.item.delivery_id,
+                            false
+                        )
+                    )
+                }
+                is HistoryViewModel.MenuButton.MenuRefresh -> {
+                    requireContext().toast(menuAction.message)
+                    historyAdapter.refresh()
+                }
+                is HistoryViewModel.MenuButton.MenuError -> {
+                    requireContext().toast(menuAction.message)
                 }
             }
         }

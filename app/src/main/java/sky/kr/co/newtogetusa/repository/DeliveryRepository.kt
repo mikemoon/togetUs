@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryReviewRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryUploadPictureRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
@@ -70,8 +71,40 @@ class DeliveryRepository @Inject constructor(
         apiService.cancelDelivery(deliveryId)
     }
 
+    suspend fun putPickupComplete(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putPickupComplete(deliveryId.toInt())
+    }
+
+    suspend fun putDeliveryComplete(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putDeliveryComplete(deliveryId.toInt())
+    }
+
     suspend fun getDeliveryStatusList(deliveryId: Long) = safeApiCall<List<DeliveryStatusLogDto>>(Dispatchers.IO) {
         apiService.getDeliveryStatusList(deliveryId)
+    }
+
+    suspend fun putRequesterPickup(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putRequesterPickup(deliveryId)
+    }
+
+    suspend fun getChatInProgressList(deliveryId: Long) = safeApiCall(Dispatchers.IO) {
+        apiService.getChatInProgressList(deliveryId)
+    }
+
+    suspend fun checkReview(deliveryId: Long, isPlayer: Boolean) = safeApiCall(Dispatchers.IO) {
+        if (isPlayer) apiService.checkReviewPlayer(deliveryId) else apiService.checkReviewRequester(deliveryId)
+    }
+
+    suspend fun writeReview(deliveryId: Long, isPlayer: Boolean, request: DeliveryReviewRequest) = safeApiCall<Boolean>(Dispatchers.IO) {
+        if (isPlayer) apiService.writeReviewPlayer(deliveryId, request) else apiService.writeReviewRequester(deliveryId, request)
+    }
+
+    suspend fun getReviewed(deliveryId: Long, isPlayer: Boolean) = safeApiCall(Dispatchers.IO) {
+        if (isPlayer) apiService.getReviewedPlayer(deliveryId) else apiService.getReviewedRequester(deliveryId)
+    }
+
+    suspend fun putPickupDonePicture(deliveryId: Long, body: DeliveryUploadPictureRequest) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putPickupDonePicture(deliveryId, body)
     }
 
     suspend fun putApply(deliveryId: Long) = safeApiCall(Dispatchers.IO){
