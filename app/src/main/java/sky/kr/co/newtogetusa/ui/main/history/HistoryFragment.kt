@@ -123,6 +123,13 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                         )
                     )
                 }
+                is HistoryViewModel.MenuButton.MenuDeliveryStatus -> {
+                    findNavController().navigate(
+                        HistoryFragmentDirections.actionHistoryFragmentToDeliveryStatusFragment(
+                            menuAction.item.delivery_id
+                        )
+                    )
+                }
                 HistoryViewModel.MenuButton.MenuChat -> {
                     (requireActivity() as MainActivity).selectMainTab(R.id.chat)
                 }

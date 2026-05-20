@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:minHeight="88dp">
+
+        <View
+            android:id="@+id/vTopLine"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/black_5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvStatus"
+            style="@style/Paragraph16R"
+            android:layout_width="100dp"
+            android:layout_height="0dp"
+            android:background="@color/black_2"
+            android:gravity="center"
+            android:paddingHorizontal="8dp"
+            android:textColor="@color/black_80"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vTopLine"
+            tools:text="픽업 완료" />
+
+        <LinearLayout
+            android:id="@+id/llRight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvStatus"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDate"
+                style="@style/Paragraph16R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black_80"
+                tools:text="2026-04-09 14:30:00" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvActor"
+                style="@style/Paragraph12R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black_40"
+                tools:text="PLAYER" />
+
+            <LinearLayout
+                android:id="@+id/llPictures"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivPhoto1"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/no_img" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivPhoto2"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginStart="8dp"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/no_img" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivPhoto3"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginStart="8dp"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/no_img" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvMoreCount"
+                    style="@style/Paragraph14B"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/background_s_b5_r24"
+                    android:gravity="center"
+                    android:textColor="@color/black_60"
+                    android:visibility="gone"
+                    tools:text="+2" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/black_5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

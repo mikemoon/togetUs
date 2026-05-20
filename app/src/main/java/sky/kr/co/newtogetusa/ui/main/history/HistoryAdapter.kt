@@ -105,6 +105,11 @@ class HistoryAdapter(private val viewModel: HistoryViewModel) : PagingDataAdapte
                     HistoryViewModel.MenuButton.MenuModify(item)
                 )
             }
+            val openDeliveryStatus: (DeliverySummaryDto) -> Unit = { item ->
+                this@HistoryAdapter.viewModel.onMenuBottonClick(
+                    HistoryViewModel.MenuButton.MenuDeliveryStatus(item)
+                )
+            }
 
             when {
                 item.status_cd == "REGISTER_ING" -> setDualButtons(
@@ -144,7 +149,7 @@ class HistoryAdapter(private val viewModel: HistoryViewModel) : PagingDataAdapte
                     secondaryText = "채팅하기",
                     primaryText = "동행현황",
                     secondaryAction = openChat,
-                    primaryAction = pending
+                    primaryAction = { openDeliveryStatus(item) }
                 )
 
                 item.status_cd.startsWith("DONE") -> setSinglePrimaryButton(

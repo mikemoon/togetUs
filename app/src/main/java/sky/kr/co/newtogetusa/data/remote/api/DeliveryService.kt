@@ -11,6 +11,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
@@ -93,7 +94,7 @@ interface DeliveryService {
     @GET("api/deliverys/v1/{delivery_id}/requester/status_log") //현황조회
     suspend fun getDeliveryStatusList(
         @Path("delivery_id") delivery_id: Long,
-    )
+    ): List<DeliveryStatusLogDto>
 
     @POST("api/deliverys/v1/search/requester") //검색하기
     suspend fun postDeliverySearch(

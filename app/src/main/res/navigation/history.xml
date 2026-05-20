@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_historyFragment_to_historyDeliveryFragment"
             app:destination="@id/historyDeliveryFragment" />
+        <action
+            android:id="@+id/action_historyFragment_to_deliveryStatusFragment"
+            app:destination="@id/deliveryStatusFragment" />
     </fragment>
     <fragment
         android:id="@+id/historyDeliveryFragment"
@@ -71,6 +74,15 @@
             android:name="showBottomButton"
             app:argType="boolean"
             android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deliveryStatusFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.status.DeliveryStatusFragment"
+        android:label="DeliveryStatusFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
     </fragment>
 
 </navigation>

@@ -10,6 +10,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
@@ -67,6 +68,10 @@ class DeliveryRepository @Inject constructor(
 
     suspend fun cancelDelivery(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO){
         apiService.cancelDelivery(deliveryId)
+    }
+
+    suspend fun getDeliveryStatusList(deliveryId: Long) = safeApiCall<List<DeliveryStatusLogDto>>(Dispatchers.IO) {
+        apiService.getDeliveryStatusList(deliveryId)
     }
 
     suspend fun putApply(deliveryId: Long) = safeApiCall(Dispatchers.IO){
