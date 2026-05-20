@@ -21,8 +21,10 @@ import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatMessageDto
 import sky.kr.co.newtogetusa.repository.ChatRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
+import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -33,6 +35,7 @@ class ChattingConversationViewModel @Inject constructor(
     private val chatClient: ChatClient,
     private val callbackManager: MessageCallbackManager,
     private val chatRepository: ChatRepository,
+    private val deliveryRepository: DeliveryRepository,
     baseViewModelFactory: BaseViewModelDependenciesFactory
 ) : BaseViewModel(baseViewModelFactory.create()), MessageHandler {
 
@@ -48,6 +51,11 @@ class ChattingConversationViewModel @Inject constructor(
     private var myUserId: Long = 0
 
     val sendMessageEnable = MutableStateFlow(false)
+    val roomNameFlow = MutableStateFlow("")
+    val deliveryTitleFlow = MutableStateFlow("")
+    val deliveryStatusFlow = MutableStateFlow("")
+    val deliveryFeeFlow = MutableStateFlow("")
+    val deliveryImageFlow = MutableStateFlow<String?>(null)
 
     init {
         callbackManager.registerCallback(this)
@@ -78,6 +86,7 @@ class ChattingConversationViewModel @Inject constructor(
         currentRoomId = roomId
 
         viewModelScope.launch {
+            loadRoomHeader(roomId)
             myUserId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)?.user?.user_id?.toLong() ?: 0
             when (val response = chatRepository.getRoomMessages(roomId, sinceId, count)) {
                 is ResultWrapper.Success -> {
@@ -95,6 +104,61 @@ class ChattingConversationViewModel @Inject constructor(
                 is ResultWrapper.NetworkError -> {
                     Timber.e("getRoomMessages network error")
                 }
+            }
+        }
+    }
+
+    private suspend fun loadRoomHeader(roomId: Long) {
+        when (val room = chatRepository.getChatRoom(roomId)) {
+            is ResultWrapper.Success -> {
+                roomNameFlow.value = room.data.room_name
+                deliveryStatusFlow.value = room.data.delivery.status_cd
+                val deliveryId = room.data.delivery.delivery_id.toLong()
+                if (deliveryId > 0L) loadDeliveryHeader(deliveryId)
+            }
+            else -> {}
+        }
+    }
+
+    private suspend fun loadDeliveryHeader(deliveryId: Long) {
+        when (val delivery = deliveryRepository.getDeliveryDetail(deliveryId)) {
+            is ResultWrapper.Success -> {
+                deliveryTitleFlow.value = delivery.data.title
+                deliveryStatusFlow.value = delivery.data.status_cd
+                deliveryFeeFlow.value = delivery.data.fee.fee_final.toWon()
+                deliveryImageFlow.value = delivery.data.product.pictures.firstOrNull()
+            }
+            else -> {}
+        }
+    }
+
+    fun setChatRoomNotificationOff() = runChatRoomSetting(
+        action = { chatRepository.chatRoomNotiOff(currentRoomId) },
+        success = Event.ChatActionSuccess("채팅방의 알림이 꺼졌습니다."),
+    )
+
+    fun blockChatRoom() = runChatRoomSetting(
+        action = { chatRepository.chatRoomBlock(currentRoomId) },
+        success = Event.ChatActionSuccess("채팅방이 차단되었습니다."),
+    )
+
+    fun exitChatRoom() = runChatRoomSetting(
+        action = { chatRepository.chatRoomExit(currentRoomId) },
+        success = Event.ChatRoomExited,
+    )
+
+    private fun runChatRoomSetting(
+        action: suspend () -> ResultWrapper<Boolean>,
+        success: Event,
+    ) {
+        if (currentRoomId <= 0) {
+            _event.value = Event.ChatActionFailed("채팅방 정보를 확인할 수 없습니다.")
+            return
+        }
+        viewModelScope.launch {
+            when (action()) {
+                is ResultWrapper.Success -> _event.value = success
+                else -> _event.value = Event.ChatActionFailed("요청 처리에 실패했습니다.")
             }
         }
     }
@@ -220,6 +284,9 @@ class ChattingConversationViewModel @Inject constructor(
         object InputCamera : Event()
         object InputAlbum : Event()
         object InputMovie : Event()
+        data class ChatActionSuccess(val message: String) : Event()
+        data class ChatActionFailed(val message: String) : Event()
+        object ChatRoomExited : Event()
     }
 
     private fun ChatMessageDto.toChatMessage(): ChatMessage {

@@ -23,6 +23,10 @@ class ChatRepository @Inject constructor(
         apiService.getChatRooms()
     }
 
+    suspend fun getChatRoom(roomId: Long) = safeApiCall<ChatRoomDto>(Dispatchers.IO) {
+        apiService.getChatRoom(roomId)
+    }
+
     suspend fun getRoomMessages(roomId: Long, sinceId: Long = 1, count: Int = 100) = safeApiCall(Dispatchers.IO) {
         apiService.getRoomMessages(roomId, sinceId, count)
     }
@@ -33,6 +37,22 @@ class ChatRepository @Inject constructor(
 
     suspend fun searchUserRooms(request: ChatRoomSearchRequest) = safeApiCall<ChatRoomSearchResponseDto>(Dispatchers.IO){
         apiService.searchUserRooms(request)
+    }
+
+    suspend fun chatRoomNotiOff(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.chatRoomNotiOff(roomId)
+    }
+
+    suspend fun chatRoomReport(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.chatRoomReport(roomId)
+    }
+
+    suspend fun chatRoomBlock(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.chatRoomBlock(roomId)
+    }
+
+    suspend fun chatRoomExit(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.chatRoomExit(roomId)
     }
 
     fun getPlayerRoomPagingFlow(type: String, pageSize: Int = 10): Flow<PagingData<ChatRoomSearchRoomDto>> =

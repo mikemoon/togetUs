@@ -2,20 +2,22 @@ package sky.kr.co.newtogetusa.ui.main.chat
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
-import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreDialog
@@ -24,8 +26,6 @@ import sky.kr.co.newtogetusa.utils.loadImage
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
-import androidx.core.net.toUri
-import androidx.navigation.fragment.navArgs
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -102,11 +102,7 @@ class ChattingConversationFragment :
         viewModel.loadRoomMessages(args.roomId)
 
         dataBinding.viewModel = viewModel
-        dataBinding.ivProduct.apply {
-            loadImage(
-                "https://img.danawa.com/prod_img/500000/065/932/img/19932065_1.jpg?shrink=330:*&_v=20230425180255"
-            )
-        }
+        dataBinding.ivProduct.setImageResource(R.drawable.no_img)
 
         setupRecyclerView()
     }
@@ -120,6 +116,20 @@ class ChattingConversationFragment :
             dataBinding.recyclerViewMessages.scrollToPosition(messages.lastIndex.coerceAtLeast(0))
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.deliveryImageFlow.collect { imageUrl ->
+                        if (imageUrl.isNullOrBlank()) {
+                            dataBinding.ivProduct.setImageResource(R.drawable.no_img)
+                        } else {
+                            dataBinding.ivProduct.loadImage(imageUrl, placeholder = R.drawable.no_img, error = R.drawable.no_img)
+                        }
+                    }
+                }
+            }
+        }
+
         viewModel.event.observe(viewLifecycleOwner) { event ->
             Timber.d("event $event")
             when (event) {
@@ -128,9 +138,7 @@ class ChattingConversationFragment :
                 }
 
                 ChattingConversationViewModel.Event.PhoneCall ->{
-                    val phoneNumber = "tel:114"  // 전화번호 설정
-                    val intent = Intent(Intent.ACTION_DIAL, phoneNumber.toUri())
-                    startActivity(intent)
+                    requireContext().toast("전화번호 정보가 없습니다.")
                 }
 
                 ChattingConversationViewModel.Event.More -> {
@@ -138,10 +146,18 @@ class ChattingConversationFragment :
                         childFragmentManager,
                         BottomChatMoreDialog().apply {
                             reportAction = {
-                                this@ChattingConversationFragment.findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingReportFragment())
+                                this@ChattingConversationFragment.findNavController().navigate(
+                                    ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingReportFragment(args.roomId)
+                                )
+                            }
+                            alarmOffAction = {
+                                this@ChattingConversationFragment.viewModel.setChatRoomNotificationOff()
+                            }
+                            blockAction = {
+                                this@ChattingConversationFragment.viewModel.blockChatRoom()
                             }
                             exitAction = {
-                                this@ChattingConversationFragment.findNavController().popBackStack()
+                                this@ChattingConversationFragment.viewModel.exitChatRoom()
                             }
                         }
                     )
@@ -181,6 +197,12 @@ class ChattingConversationFragment :
                         add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         add(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }.toTypedArray())
+                }
+                is ChattingConversationViewModel.Event.ChatActionSuccess -> requireContext().toast(event.message)
+                is ChattingConversationViewModel.Event.ChatActionFailed -> requireContext().toast(event.message)
+                ChattingConversationViewModel.Event.ChatRoomExited -> {
+                    requireContext().toast("채팅방을 나갔습니다.")
+                    findNavController().popBackStack()
                 }
             }
         }

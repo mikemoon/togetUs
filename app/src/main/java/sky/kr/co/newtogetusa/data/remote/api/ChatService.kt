@@ -34,6 +34,11 @@ interface ChatService {
     @GET("/api/chats/v1/rooms")
     suspend fun getChatRooms(): List<ChatRoomDto>
 
+    @GET("/api/chats/v1/rooms/{room_id}")
+    suspend fun getChatRoom(
+        @Path("room_id") roomId: Long
+    ): ChatRoomDto
+
     @POST("api/chats/v1/search/player")
     suspend fun searchPlayerRooms(
         @Body body : ChatRoomSearchRequest
@@ -43,5 +48,30 @@ interface ChatService {
     suspend fun searchUserRooms(
         @Body body : ChatRoomSearchRequest
     ): ChatRoomSearchResponseDto
+
+    @POST("api/chats/v1/rooms/{room_id}/setting/noti_y")
+    suspend fun chatRoomNotiOn(
+        @Path("room_id") roomId: Long
+    ): Boolean
+
+    @POST("api/chats/v1/rooms/{room_id}/setting/noti_n")
+    suspend fun chatRoomNotiOff(
+        @Path("room_id") roomId: Long
+    ): Boolean
+
+    @POST("api/chats/v1/rooms/{room_id}/setting/report")
+    suspend fun chatRoomReport(
+        @Path("room_id") roomId: Long
+    ): Boolean
+
+    @POST("api/chats/v1/rooms/{room_id}/setting/block")
+    suspend fun chatRoomBlock(
+        @Path("room_id") roomId: Long
+    ): Boolean
+
+    @POST("api/chats/v1/rooms/{room_id}/setting/exit")
+    suspend fun chatRoomExit(
+        @Path("room_id") roomId: Long
+    ): Boolean
 
 }

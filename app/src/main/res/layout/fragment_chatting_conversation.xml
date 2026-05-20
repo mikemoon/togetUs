@@ -30,12 +30,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoomName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black_80"
                 android:textSize="16dp"
                 android:textStyle="bold"
-                android:text="홍길동"
+                android:text="@{viewModel.roomNameFlow}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +92,7 @@
                 android:textColor="@color/black_60"
                 android:textSize="12dp"
                 android:textStyle="bold"
-                android:text="진행중"
+                android:text="@{viewModel.deliveryStatusFlow}"
                 app:layout_constraintStart_toEndOf="@id/ivProduct"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="상태값" />
@@ -104,12 +105,13 @@
                 android:layout_marginTop="10dp"
                 android:textColor="@color/black_80"
                 android:textSize="14dp"
-                android:text="반찬통 배달해주세요."
+                android:text="@{viewModel.deliveryTitleFlow}"
                 app:layout_constraintStart_toEndOf="@id/tvState"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="반찬통 배달해주세요." />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
@@ -117,7 +119,7 @@
                 android:textColor="@color/black_80"
                 android:textSize="20dp"
                 android:textStyle="bold"
-                android:text="8000원"
+                android:text="@{viewModel.deliveryFeeFlow}"
                 app:layout_constraintStart_toEndOf="@id/ivProduct"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 tools:text="8000원" />

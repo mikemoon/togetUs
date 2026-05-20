@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.chat.detail
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +17,7 @@ class ChattingReportFragment : BaseFragment<FragmentChattingReportBinding, Chatt
     override val layoutId: Int
         get() = R.layout.fragment_chatting_report
     override val viewModel: ChattingReportViewModel by viewModels()
+    private val args: ChattingReportFragmentArgs by navArgs()
 
     override fun init() {
         super.init()
@@ -39,7 +41,13 @@ class ChattingReportFragment : BaseFragment<FragmentChattingReportBinding, Chatt
                     findNavController().popBackStack()
                 }
                 is ChattingReportViewModel.Event.Reason -> {
-                    findNavController().navigate(ChattingReportFragmentDirections.actionChattingReportFragmentToChattingReportDetailFragment(event.reasonType, event.reason))
+                    findNavController().navigate(
+                        ChattingReportFragmentDirections.actionChattingReportFragmentToChattingReportDetailFragment(
+                            args.roomId,
+                            event.reasonType,
+                            event.reason,
+                        )
+                    )
                 }
             }
         }

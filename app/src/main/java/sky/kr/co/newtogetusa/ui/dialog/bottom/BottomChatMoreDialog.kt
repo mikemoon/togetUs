@@ -15,6 +15,8 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
         get() = R.layout.dialog_bottom_chat_more
 
     var reportAction = {}
+    var alarmOffAction = {}
+    var blockAction = {}
     var exitAction = {}
 
     override fun init() {
@@ -28,15 +30,7 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
         viewModel.event.observe(viewLifecycleOwner){ event ->
             when(event){
                 BottomChatMoreViewModel.Event.AlarmOff -> {
-                    requireContext().toast("채팅방의 알림이 꺼졌습니다.")
-                    dialogFragmentShow(
-                        requireActivity().supportFragmentManager,
-                        MessageDialog.newInstance(
-                            "안정적인 배송을 위해, 배송이 완료되기 전까지는 알림을 끌 수 없어요.",
-                            rightBtn = "확인",
-                            msgTitle = "배송이 진행중이에요."
-                        )
-                    )
+                    alarmOffAction.invoke()
                     dismissAllowingStateLoss()
                 }
                 BottomChatMoreViewModel.Event.Block -> {
@@ -47,7 +41,7 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
                             rightBtn = "차단하기",
                             leftBtn = "취소",
                             msgTitle = "정말 차단하시겠어요?"
-                        )
+                        ).onRightBtn { blockAction.invoke() }
                     )
                     dismissAllowingStateLoss()
                 }
