@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.AccompanyCreditViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onBackClick()}"
+                android:src="@drawable/left_l"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="동행 크레딧 안내"
+                android:textColor="@color/black_80"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/HeadLine18B"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="동행 크레딧이란?"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:lineSpacingExtra="4dp"
+                android:text="동행 크레딧은 서비스 이용 과정에서 결제, 정산, 혜택 안내 등에 활용될 수 있는 크레딧 정보입니다."
+                android:textColor="@color/black_60" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/black_5" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14B"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="확인 사항"
+                android:textColor="@color/black_80" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph14R"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:lineSpacingExtra="4dp"
+                android:text="· 보유/사용 내역은 서비스 정책에 따라 제공됩니다.&#10;· 크레딧 정책과 상세 기능은 추후 공지에 따라 변경될 수 있습니다."
+                android:textColor="@color/black_60" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

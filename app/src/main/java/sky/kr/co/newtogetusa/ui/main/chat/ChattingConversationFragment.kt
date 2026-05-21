@@ -168,8 +168,8 @@ class ChattingConversationFragment :
                 is ChattingConversationViewModel.Event .MessageVideoSelect ->{
                     findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingVideoDetailFragment(event.url))
                 }
-                is ChattingConversationViewModel.Event.MessageResend ->{}
-                is ChattingConversationViewModel.Event.MessageDelete ->{}
+                is ChattingConversationViewModel.Event.MessageResend -> viewModel.resendMessage(event.id)
+                is ChattingConversationViewModel.Event.MessageDelete -> viewModel.removeMessage(event.id)
 
                 ChattingConversationViewModel.Event.InputMore -> {
                     dataBinding.clInputTools.isVisible = !dataBinding.clInputTools.isVisible

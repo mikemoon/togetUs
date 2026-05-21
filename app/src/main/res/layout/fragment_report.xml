@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="홍길동님의 동행요청은 만족스러우셨나요?"
+            android:text="동행요청은 만족스러우셨나요?"
             android:textColor="@color/black_80" />
 
         <androidx.appcompat.widget.AppCompatTextView

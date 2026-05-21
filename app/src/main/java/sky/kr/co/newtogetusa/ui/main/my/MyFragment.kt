@@ -129,7 +129,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.AccompanyCredit -> {
-                    requireContext().toast("동행 크레딧 안내 화면은 준비 중입니다.")
+                    findNavController().navigate(R.id.action_myFragment_to_accompanyCreditFragment)
                 }
 
                 MyViewModel.Event.Term -> {

@@ -112,8 +112,9 @@ class ChattingConversationViewModel @Inject constructor(
         when (val room = chatRepository.getChatRoom(roomId)) {
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
-                deliveryStatusFlow.value = room.data.delivery.status_cd
-                val deliveryId = room.data.delivery.delivery_id.toLong()
+                val roomDelivery = room.data.delivery ?: return
+                deliveryStatusFlow.value = roomDelivery.status_cd
+                val deliveryId = roomDelivery.delivery_id.toLong()
                 if (deliveryId > 0L) loadDeliveryHeader(deliveryId)
             }
             else -> {}
@@ -190,6 +191,19 @@ class ChattingConversationViewModel @Inject constructor(
                     isMyMessage = true
                 )
             )
+        }
+    }
+
+    fun resendMessage(id: Long) {
+        val message = messagesList.firstOrNull { it.id == id } ?: return
+        removeMessage(id)
+        sendMessage(message.content)
+    }
+
+    fun removeMessage(id: Long) {
+        val removed = messagesList.removeAll { it.id == id }
+        if (removed) {
+            _messages.value = messagesList.sortedBy { it.timestamp }
         }
     }
 

@@ -57,6 +57,9 @@
         <action
             android:id="@+id/action_myFragment_to_playerJoinCompleteFragment"
             app:destination="@id/playerJoinCompleteFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_accompanyCreditFragment"
+            app:destination="@id/accompanyCreditFragment" />
     </fragment>
     <fragment
         android:id="@+id/modifyProfileFragment"
@@ -274,4 +277,8 @@
         android:id="@+id/playerAreaSettingFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaSettingFragment"
         android:label="PlayerAreaSettingFragment" />
+    <fragment
+        android:id="@+id/accompanyCreditFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.AccompanyCreditFragment"
+        android:label="AccompanyCreditFragment" />
 </navigation>

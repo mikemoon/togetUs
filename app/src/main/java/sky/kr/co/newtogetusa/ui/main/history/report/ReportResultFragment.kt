@@ -47,7 +47,7 @@ class ReportResultFragment : BaseFragment<FragmentReportResultBinding, ReportRes
     }
 
     private fun bindContent() {
-        dataBinding.tvTitle.text = "홍길동님에게 거래 후기를 남겼어요."
+        dataBinding.tvTitle.text = "거래 후기를 남겼어요."
 
         dataBinding.tvMessage.isVisible = !args.message.isNullOrBlank()
         dataBinding.tvMessage.text = args.message
