@@ -75,6 +75,7 @@ class MySettingViewModel @Inject constructor(
     fun logout(callback: () -> Unit) = viewModelScope.launch {
         dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
         dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
+        dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
         when (val res = configRepository.deletePushToken(
             hashMapOf(
                 "device_token" to dataStoreRepository.getString(

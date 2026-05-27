@@ -175,6 +175,11 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                                     dataBinding.icStep4.clDepart.isVisible = true
                                     dataBinding.icStep4.tvDepartValue.text = area.name
                                     dataBinding.icStep4.tvDepartAreaValue.text = "${viewModel.startAreaRadius.value}km"
+                                } else {
+                                    dataBinding.icStep4.tvDepart.isVisible = true
+                                    dataBinding.icStep4.clDepart.isVisible = false
+                                    dataBinding.icStep4.tvDepartValue.text = ""
+                                    dataBinding.icStep4.tvDepartAreaValue.text = ""
                                 }
                             }
                         }
@@ -186,6 +191,11 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                                     dataBinding.icStep4.clArrive.isVisible = true
                                     dataBinding.icStep4.tvArriveValue.text = area.name
                                     dataBinding.icStep4.tvArriveAreaValue.text = "${viewModel.destAreaRadius.value}km"
+                                } else {
+                                    dataBinding.icStep4.tvArrive.isVisible = true
+                                    dataBinding.icStep4.clArrive.isVisible = false
+                                    dataBinding.icStep4.tvArriveValue.text = ""
+                                    dataBinding.icStep4.tvArriveAreaValue.text = ""
                                 }
                             }
                         }
@@ -197,6 +207,8 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                                  dataBinding.icStep4.clDepart2.isVisible = true
                                  dataBinding.icStep4.tvDepartValue2.text = area.name
                                  dataBinding.icStep4.tvDepartAreaValue2.text = "${viewModel.startAreaRadius2.value}km"
+                               } else {
+                                   resetSecondaryDepartUi()
                                }
                             }
                         }
@@ -208,6 +220,8 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                                     dataBinding.icStep4.clArrive2.isVisible = true
                                     dataBinding.icStep4.tvArriveValue2.text = area.name
                                     dataBinding.icStep4.tvArriveAreaValue2.text = "${viewModel.destAreaRadius2.value}km"
+                                } else {
+                                    resetSecondaryArriveUi()
                                 }
                             }
                         }
@@ -215,13 +229,20 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                         launch {
                             viewModel.deleteArea.collectLatest {
                                 if(it) {
+                                    viewModel.onDeleteArea(false)
                                     MessageDialog.newInstance(
                                         msg = "정말 삭제하시겠어요?",
                                         rightBtn = "네",
                                         leftBtn = "아니오"
                                     ).onRightBtn {
-                                        viewModel.onAddArea(false)
-                                        requireContext().toast("삭제가 완료되었습니다.")
+                                        viewModel.deleteSecondaryArea { success ->
+                                            if (success) {
+                                                resetSecondaryAreaUi()
+                                                requireContext().toast("삭제가 완료되었습니다.")
+                                            } else {
+                                                requireContext().toast("삭제에 실패했습니다.")
+                                            }
+                                        }
                                     }.show(
                                         childFragmentManager,
                                         ""
@@ -260,6 +281,7 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 if(isSecondary){
                     viewModel.setStartAreaRadius2(areaRadius)
                     viewModel.setStartArea2(result)
+                    saveSecondaryAreaIfReady()
                 }else{
                     viewModel.setStartAreaRadius(areaRadius)
                     viewModel.setStartArea(result)
@@ -268,6 +290,7 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 if(isSecondary){
                     viewModel.setDestAreaRadius2(areaRadius)
                     viewModel.setDestArea2(result)
+                    saveSecondaryAreaIfReady()
                 }else{
                     viewModel.setDestAreaRadius(areaRadius)
                     viewModel.setDestArea(result)
@@ -371,10 +394,24 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                     findNavController().navigate(action)
                 }
                 PlayerJoinViewModel.Event.Complete ->{
-                    viewModel.requestPlayerApply(viewModel.playerApplyedInfo.value?.player_id ?: return@observe){ result ->
+                    val playerId = viewModel.playerApplyedInfo.value?.player_id
+                    if (playerId == null) {
+                        requireContext().toast("플레이어 신청 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.")
+                        viewModel.getPlayers()
+                        return@observe
+                    }
+
+                    viewModel.getApplyValidationMessage()?.let { message ->
+                        requireContext().toast(message)
+                        return@observe
+                    }
+
+                    viewModel.requestPlayerApply(playerId){ result ->
                         if(result){
                             val action = PlayerJoinFragmentDirections.actionPlayerJoinFragment2ToPlayerJoinCompleteFragment()
                             findNavController().navigate(action)
+                        } else {
+                            requireContext().toast("플레이어 신청 제출에 실패했습니다.")
                         }
                     }
                 }
@@ -411,6 +448,16 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 viewModel.documentFileName.value = getFileNameFromUri(requireContext(), uri)
                 viewModel.setCrcFile(uri)
             }
+    }
+
+    private fun saveSecondaryAreaIfReady() {
+        if (viewModel.startArea2.value == null || viewModel.destArea2.value == null) return
+
+        viewModel.saveSecondaryAreaIfReady { success ->
+            if (!success) {
+                requireContext().toast("동행범위2 저장에 실패했습니다.")
+            }
+        }
     }
 
     private fun openCamera() {
@@ -472,6 +519,25 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
             }
         }.onFailure { e -> e.printStackTrace() }
         return name
+    }
+
+    private fun resetSecondaryAreaUi() {
+        resetSecondaryDepartUi()
+        resetSecondaryArriveUi()
+    }
+
+    private fun resetSecondaryDepartUi() {
+        dataBinding.icStep4.tvDepart2.isVisible = true
+        dataBinding.icStep4.clDepart2.isVisible = false
+        dataBinding.icStep4.tvDepartValue2.text = ""
+        dataBinding.icStep4.tvDepartAreaValue2.text = ""
+    }
+
+    private fun resetSecondaryArriveUi() {
+        dataBinding.icStep4.tvArrive2.isVisible = true
+        dataBinding.icStep4.clArrive2.isVisible = false
+        dataBinding.icStep4.tvArriveValue2.text = ""
+        dataBinding.icStep4.tvArriveAreaValue2.text = ""
     }
 
     private fun convertUriToBase64(uri: Uri?): String {

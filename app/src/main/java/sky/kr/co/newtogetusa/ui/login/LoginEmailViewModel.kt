@@ -8,9 +8,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
 import sky.kr.co.newtogetusa.repository.AuthRepository
+import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import timber.log.Timber
@@ -18,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-                                              private val authRepository: AuthRepository
+                                              private val authRepository: AuthRepository,
+                                              private val tokenStore: TokenStore
 )
     :BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
@@ -39,8 +42,12 @@ class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: 
         )
         when(response){
             is ResultWrapper.Success -> {
-                dataStoreRepository.putInt(sky.kr.co.newtogetusa.repository.DataStoreKey.RECENT_LOGIN_TYPE, LoginViewModel.EMAIL)
-                dataStoreRepository.putString(sky.kr.co.newtogetusa.repository.DataStoreKey.KEY_LOGIN_EMAIL, email)
+                tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
+                dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
+                dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
+                dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, LoginViewModel.EMAIL)
+                dataStoreRepository.putString(DataStoreKey.KEY_LOGIN_EMAIL, email)
                 _loginResult.value = response.data
             }
             else ->{

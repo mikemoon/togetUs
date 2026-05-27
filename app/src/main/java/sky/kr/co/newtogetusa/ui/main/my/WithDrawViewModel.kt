@@ -52,6 +52,7 @@ class WithDrawViewModel @Inject constructor(
     fun clearSessionData(callback: () -> Unit) = viewModelScope.launch {
         dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
         dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
+        dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
         dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_MODE_PLAYER, false)
         callback()
     }

@@ -3,28 +3,24 @@ package sky.kr.co.newtogetusa.ui.main.my
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
-import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
-import sky.kr.co.newtogetusa.repository.MyRepository
 import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartViewModel.Event
-import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
 import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.uuid.Uuid
 
 @HiltViewModel
 class MyViewModel @Inject constructor(
@@ -78,21 +74,28 @@ class MyViewModel @Inject constructor(
             return@launch
         }
 
-        when (val response = playerRepository.getProfile(playerId)) {
-            is ResultWrapper.Success -> {
-                val displayProfile = userProfile.withPlayerProfile(response.data)
-                profileDto.value = displayProfile
-                result.invoke(displayProfile)
-            }
-            else -> {
-                profileDto.value = userProfile
-                result.invoke(userProfile)
-            }
+        val approvedPlayerProfile = getApprovedPlayerProfile(playerId)
+        if (approvedPlayerProfile != null) {
+            val displayProfile = userProfile.withPlayerProfile(approvedPlayerProfile)
+            profileDto.value = displayProfile
+            result.invoke(displayProfile)
+        } else {
+            dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_MODE_PLAYER, false)
+            isPlayerModeFlow.value = false
+            profileDto.value = userProfile
+            result.invoke(userProfile)
         }
     }
 
     private suspend fun getUserProfile(): ProfileDto? {
-        userProfileDto?.let { return it }
+        when (val response = userRepository.getMyProfile()) {
+            is ResultWrapper.Success -> {
+                dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
+                userProfileDto = response.data
+                return response.data
+            }
+            else -> Unit
+        }
 
         val profileData = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
         if (profileData != null) {
@@ -101,14 +104,7 @@ class MyViewModel @Inject constructor(
             return profileData
         }
 
-        return when (val response = userRepository.getMyProfile()) {
-            is ResultWrapper.Success -> {
-                dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
-                userProfileDto = response.data
-                response.data
-            }
-            else -> null
-        }
+        return null
     }
 
     private fun ProfileDto.withPlayerProfile(playerProfile: PlayerProfileDto): ProfileDto {
@@ -139,27 +135,88 @@ class MyViewModel @Inject constructor(
 
     val hasPlayerApplyRequest = MutableStateFlow(false)
     val playerApplyedInfoDto = MutableStateFlow<PlayerApplyedInfoDto?>(null)
+
     fun getPlayerInfo() = viewModelScope.launch {
-        val res = playerRepository.getPlayers()
-        when(res){
-            is ResultWrapper.Success ->{
+        val myProfile = getUserProfile()
+        val playerId = myProfile?.user?.player_id ?: 0
+        if (playerId <= 0) {
+            playerApplyedInfoDto.value = null
+            applyPlayerState(
+                canUsePlayerMode = false,
+                showPlayerApplyButton = true,
+                hasInProgressApply = false
+            )
+            return@launch
+        }
+
+        val approvedPlayerProfile = getApprovedPlayerProfile(playerId)
+        if (approvedPlayerProfile != null) {
+            val displayProfile = myProfile?.withPlayerProfile(approvedPlayerProfile)
+            if (displayProfile != null) {
+                profileDto.value = displayProfile
+            }
+            applyPlayerState(
+                canUsePlayerMode = true,
+                showPlayerApplyButton = false,
+                hasInProgressApply = false
+            )
+            return@launch
+        }
+
+        when (val res = playerRepository.getPlayers()) {
+            is ResultWrapper.Success -> {
                 val dto = res.data
-                isPlayerRequestBtnVisible.value = dto.certi_res_date.isNullOrEmpty()
-                isPlayerModeChangeBtnVisible.value = !isPlayerRequestBtnVisible.value
-                playerApplyedInfoDto.value = res.data
+                val isUnderReview = !dto.certi_req_date.isNullOrBlank() && dto.certi_res_date.isNullOrBlank()
+                playerApplyedInfoDto.value = dto
+                applyPlayerState(
+                    canUsePlayerMode = false,
+                    showPlayerApplyButton = true,
+                    hasInProgressApply = !isUnderReview
+                )
             }
-            is ResultWrapper.GenericError ->{
-                if(res.code?.toInt() == 404){ //신청 정보가 없음
-                    isPlayerRequestBtnVisible.value = true
-                }
-                Timber.d("GenericError ${res}")
+            is ResultWrapper.GenericError -> {
+                playerApplyedInfoDto.value = null
+                applyPlayerState(
+                    canUsePlayerMode = false,
+                    showPlayerApplyButton = true,
+                    hasInProgressApply = false
+                )
+                Timber.d("GenericError $res")
             }
-            is ResultWrapper.NetworkError ->{
-                Timber.d("NetworkError ${res}")
+            is ResultWrapper.NetworkError -> {
+                applyPlayerState(
+                    canUsePlayerMode = false,
+                    showPlayerApplyButton = true,
+                    hasInProgressApply = false
+                )
+                Timber.d("NetworkError $res")
             }
-            else -> {
-                hasPlayerApplyRequest.value = false
+        }
+    }
+
+    private suspend fun getApprovedPlayerProfile(playerId: Int): PlayerProfileDto? {
+        return when (val response = playerRepository.getProfile(playerId)) {
+            is ResultWrapper.Success -> {
+                val playerProfile = response.data
+                val isApprovedPlayer = playerProfile.player.player_id > 0 && playerProfile.player.enable
+                playerProfile.takeIf { isApprovedPlayer }
             }
+            else -> null
+        }
+    }
+
+    private suspend fun applyPlayerState(
+        canUsePlayerMode: Boolean,
+        showPlayerApplyButton: Boolean,
+        hasInProgressApply: Boolean
+    ) {
+        isPlayerModeChangeBtnVisible.value = canUsePlayerMode
+        isPlayerRequestBtnVisible.value = showPlayerApplyButton
+        hasPlayerApplyRequest.value = hasInProgressApply
+
+        if (!canUsePlayerMode && isPlayerModeFlow.value) {
+            dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_MODE_PLAYER, false)
+            isPlayerModeFlow.value = false
         }
     }
 

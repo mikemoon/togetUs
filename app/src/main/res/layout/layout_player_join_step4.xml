@@ -345,7 +345,7 @@
                             android:layout_marginTop="12dp"
                             android:background="@drawable/background_s_b5_r4"
                             android:gravity="center"
-                            android:onClick="@{()-> viewModel.onEventClick(Event.StartArea.INSTANCE)}"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.StartArea2.INSTANCE)}"
                             android:text="선택"
                             android:textColor="@color/black_80" />
 
@@ -437,7 +437,7 @@
                             android:layout_marginTop="12dp"
                             android:background="@drawable/background_s_b5_r4"
                             android:gravity="center"
-                            android:onClick="@{()-> viewModel.onEventClick(Event.DestinaitonArea.INSTANCE)}"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.DestinaitonArea2.INSTANCE)}"
                             android:text="선택"
                             android:textColor="@color/black_80" />
 

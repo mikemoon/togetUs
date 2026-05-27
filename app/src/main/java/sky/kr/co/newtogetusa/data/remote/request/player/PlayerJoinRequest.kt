@@ -26,9 +26,17 @@ data class CriminalRequest(
 )
 
 data class AreaRequest(
+    val enable: Boolean = true,
+    val is_domestic: Boolean = true,
+    val area_type: String = AREA_TYPE_BASIC,
+    val areaType: String = AREA_TYPE_BASIC,
     val depart: LocationRequest,
     val dest: LocationRequest
-)
+) {
+    companion object {
+        const val AREA_TYPE_BASIC = "B"
+    }
+}
 
 data class LocationRequest(
     val address: String,

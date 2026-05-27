@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.repository.AuthRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginNicknameViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-                                                 private val authRepository: AuthRepository
+                                                 private val authRepository: AuthRepository,
+                                                 private val tokenStore: TokenStore
 )
     :BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
@@ -61,6 +63,8 @@ class LoginNicknameViewModel @Inject constructor(baseViewModelDependenciesFactor
         )
         when(response){
             is ResultWrapper.Success -> {
+                tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 callback.invoke(true)

@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
 import sky.kr.co.newtogetusa.repository.AuthRepository
+import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import timber.log.Timber
@@ -18,7 +20,8 @@ import kotlin.random.Random
 
 @HiltViewModel
 class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val tokenStore: TokenStore
 )
     :BaseViewModel(baseViewModelDependenciesFactory.create()){
 
@@ -85,6 +88,10 @@ class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFac
         )
         when(response) {
             is ResultWrapper.Success -> {
+                tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
+                dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
+                dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 _joinResult.value = response.data
             }
 

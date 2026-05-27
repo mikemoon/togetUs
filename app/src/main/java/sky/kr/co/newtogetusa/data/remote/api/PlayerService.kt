@@ -4,6 +4,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -19,6 +20,7 @@ import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaDeleteRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
@@ -110,13 +112,19 @@ interface PlayerService {
     suspend fun postPlayerArea(
         @Path("player_id") playerId: Int,
         @Body request: HashMap<String, String>
-    ):Boolean
+    ): Int
 
     @POST("/api/players/v1/{player_id}/area")
     suspend fun postPlayerArea(
         @Path("player_id") playerId: Int,
         @Body request: PlayerAreaAddRequest
-    ):Boolean
+    ): Int
+
+    @HTTP(method = "DELETE", path = "/api/players/v1/{player_id}/area", hasBody = true)
+    suspend fun deletePlayerArea(
+        @Path("player_id") playerId: Int,
+        @Body request: PlayerAreaDeleteRequest
+    )
 
     @POST("/api/players/v1/{player_id}/area/added")
     suspend fun postPlayerAreaAdded(
@@ -128,7 +136,7 @@ interface PlayerService {
     suspend fun postPlayerApply(
         @Path("player_id") playerId: Int,
         @Body request: HashMap<String, String>
-    ):Boolean
+    )
 
     @Multipart
     @POST("/api/players/v1/{player_id}/apply_batch") //등록심사 일괄요청

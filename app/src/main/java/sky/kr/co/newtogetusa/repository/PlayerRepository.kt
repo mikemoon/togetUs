@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerDeliveryHistoryReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaDeleteRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerJoinRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerSearchRequest
@@ -58,6 +59,10 @@ class PlayerRepository @Inject constructor(
         apiService.postPlayerAreaAdded(playerId, request)
     }
 
+    suspend fun deletePlayerArea(playerId: Int, areaId: Int) = safeApiCall(Dispatchers.IO){
+        apiService.deletePlayerArea(playerId, PlayerAreaDeleteRequest(areaId))
+    }
+
     suspend fun getProfile(playerId: Int) = safeApiCall(Dispatchers.IO){
         apiService.getProfile(playerId)
     }
@@ -95,6 +100,10 @@ class PlayerRepository @Inject constructor(
             profile_image = profilePart,
             criminal_record = criminalPart
         )
+    }
+
+    suspend fun postPlayerApply(playerId: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.postPlayerApply(playerId, hashMapOf())
     }
 
     suspend fun verifyImpUid(request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){

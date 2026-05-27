@@ -39,6 +39,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
         viewModel.refreshProfileForMode {
             dataBinding.profile = it
         }
+        viewModel.getPlayerInfo()
     }
 
     override fun initObserver() {

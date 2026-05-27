@@ -69,6 +69,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
                     resp.body()?.let { joinResponse ->
                         dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, joinResponse.accessToken)
                         dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, joinResponse.refreshToken)
+                        dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
                         tokenStore.setTokens(joinResponse.accessToken, joinResponse.refreshToken)
                         true
                     } ?: false
@@ -91,6 +92,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
         when(response){
             is ResultWrapper.Success -> {
                 tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, KAKAO)
@@ -116,6 +118,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
             is ResultWrapper.Success -> {
                 Timber.d("naver login success $response")
                 tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, NAVER)
@@ -139,6 +142,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
         when(response){
             is ResultWrapper.Success -> {
                 tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
                 dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
                 dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
                 dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, GOOGLE)
