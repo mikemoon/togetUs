@@ -15,9 +15,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreDialog
@@ -37,6 +39,8 @@ class ChattingConversationFragment :
     private val args: ChattingConversationFragmentArgs by navArgs()
 
     private lateinit var adapter: ChatMessageAdapter
+    private var hasLoadedInitialMessages = false
+    private var lastDisplayedMessageId: Long? = null
 
     // 카메라를 실행한 후 찍은 사진을 저장
     var pictureUri: Uri? = null
@@ -112,8 +116,25 @@ class ChattingConversationFragment :
         super.initObserver()
 
         viewModel.messages.observe(viewLifecycleOwner) { messages ->
+            val wasAtBottom = isMessageListAtBottom()
+            val shouldScrollToBottom = !hasLoadedInitialMessages || wasAtBottom
+            val newLastMessage = messages.lastOrNull()
+            val shouldShowNewMessagePopup =
+                hasLoadedInitialMessages &&
+                    !wasAtBottom &&
+                    newLastMessage != null &&
+                    newLastMessage.id != lastDisplayedMessageId &&
+                    !newLastMessage.isMyMessage
             adapter.setMessages(messages)
-            dataBinding.recyclerViewMessages.scrollToPosition(messages.lastIndex.coerceAtLeast(0))
+            hasLoadedInitialMessages = true
+            lastDisplayedMessageId = newLastMessage?.id
+            if (shouldScrollToBottom) {
+                scrollToLatestMessage()
+            } else if (shouldShowNewMessagePopup) {
+                showNewMessagePopup(newLastMessage)
+            } else {
+                updateScrollToBottomButton()
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -215,7 +236,58 @@ class ChattingConversationFragment :
             layoutManager = LinearLayoutManager(requireContext()).apply {
                 stackFromEnd = true // 아래에서부터 쌓기
             }
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    updateScrollToBottomButton()
+                }
+            })
         }
+        dataBinding.fabScrollToBottom.setOnClickListener {
+            scrollToLatestMessage()
+        }
+        dataBinding.tvNewMessagePopup.setOnClickListener {
+            scrollToLatestMessage()
+        }
+    }
+
+    private fun scrollToLatestMessage() {
+        val lastPosition = adapter.itemCount - 1
+        if (lastPosition < 0) {
+            dataBinding.fabScrollToBottom.isVisible = false
+            dataBinding.tvNewMessagePopup.isVisible = false
+            return
+        }
+
+        dataBinding.recyclerViewMessages.scrollToPosition(lastPosition)
+        dataBinding.fabScrollToBottom.isVisible = false
+        dataBinding.tvNewMessagePopup.isVisible = false
+    }
+
+    private fun updateScrollToBottomButton() {
+        val isAtBottom = isMessageListAtBottom()
+        if (isAtBottom) {
+            dataBinding.tvNewMessagePopup.isVisible = false
+        }
+        dataBinding.fabScrollToBottom.isVisible = !isAtBottom && !dataBinding.tvNewMessagePopup.isVisible
+    }
+
+    private fun showNewMessagePopup(message: ChatMessage) {
+        val popupText = listOf(message.sender, message.content)
+            .filter { it.isNotBlank() }
+            .joinToString(": ")
+
+        dataBinding.tvNewMessagePopup.text = popupText
+        dataBinding.tvNewMessagePopup.isVisible = popupText.isNotBlank()
+        dataBinding.fabScrollToBottom.isVisible = false
+    }
+
+    private fun isMessageListAtBottom(): Boolean {
+        val layoutManager = dataBinding.recyclerViewMessages.layoutManager as? LinearLayoutManager ?: return true
+        val lastItemPosition = adapter.itemCount - 1
+        if (lastItemPosition < 0) return true
+
+        return layoutManager.findLastCompletelyVisibleItemPosition() >= lastItemPosition
     }
 
     private fun createImageFile(): Uri? {

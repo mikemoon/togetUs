@@ -146,6 +146,7 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
                 }*/
 
                 tvTimeMy.text = formatTime(message.timestamp)
+                tvMyRead.isVisible = message.isMyMessage && message.isUnread
 
                 //보내기 실패
                 ivSendFailed.setOnTouchListener { view, event ->

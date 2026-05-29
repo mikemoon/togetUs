@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.chat
 
 interface ChatClient {
+    fun setSession(userNumber: Long, accessToken: String? = null)
     fun connect()
     fun disconnect()
     fun sendMessage(message: String)

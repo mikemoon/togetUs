@@ -53,6 +53,14 @@ class MainViewModel @Inject constructor(
 
     fun connect() {
         viewModelScope.launch(Dispatchers.IO) {
+            val profile = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+            val userId = profile?.user?.user_id?.toLong() ?: 0
+            if (userId > 0) {
+                chatClient.setSession(
+                    userNumber = userId,
+                    accessToken = dataStoreRepository.getString(DataStoreKey.KEY_TOKEN)
+                )
+            }
             chatClient.connect()
         }
     }

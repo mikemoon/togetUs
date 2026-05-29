@@ -4,6 +4,7 @@ data class ChatRoomDto(
     val room_id: Int,
     val room_name: String,
     val read_msg_id: Int,
+    val partner_read_msg_id: Int = 0,
     val unread_cnt: Int,
     val delivery: ChatRoomDeliveryDto?,
     val last_msg: ChatRoomLastMessageDto?

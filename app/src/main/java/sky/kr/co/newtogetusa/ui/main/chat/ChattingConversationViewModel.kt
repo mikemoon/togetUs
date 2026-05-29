@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.chat.ChatClient
 import sky.kr.co.newtogetusa.chat.MqttChatCategory
 import sky.kr.co.newtogetusa.chat.MqttMessagePayload
+import sky.kr.co.newtogetusa.chat.MqttReadPayload
 import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
@@ -22,6 +23,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatMessageDto
 import sky.kr.co.newtogetusa.repository.ChatRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
+import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
@@ -29,6 +31,8 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.abs
+import kotlin.math.max
 
 @HiltViewModel
 class ChattingConversationViewModel @Inject constructor(
@@ -36,6 +40,7 @@ class ChattingConversationViewModel @Inject constructor(
     private val callbackManager: MessageCallbackManager,
     private val chatRepository: ChatRepository,
     private val deliveryRepository: DeliveryRepository,
+    private val userRepository: UserRepository,
     baseViewModelFactory: BaseViewModelDependenciesFactory
 ) : BaseViewModel(baseViewModelFactory.create()), MessageHandler {
 
@@ -49,6 +54,7 @@ class ChattingConversationViewModel @Inject constructor(
     private val gson = Gson()
     private var currentRoomId: Long = -1
     private var myUserId: Long = 0
+    private var partnerReadMessageId: Long = 0
 
     val sendMessageEnable = MutableStateFlow(false)
     val roomNameFlow = MutableStateFlow("")
@@ -65,6 +71,7 @@ class ChattingConversationViewModel @Inject constructor(
     fun connect() {
         viewModelScope.launch {
             _connectionState.value = ConnectionState.CONNECTING
+            configureChatSession()
 
             withContext(Dispatchers.IO) {
                 try {
@@ -87,7 +94,12 @@ class ChattingConversationViewModel @Inject constructor(
 
         viewModelScope.launch {
             loadRoomHeader(roomId)
-            myUserId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)?.user?.user_id?.toLong() ?: 0
+            configureChatSession()
+            if (!chatClient.isConnected()) {
+                withContext(Dispatchers.IO) {
+                    chatClient.connect()
+                }
+            }
             when (val response = chatRepository.getRoomMessages(roomId, sinceId, count)) {
                 is ResultWrapper.Success -> {
                     messagesList.clear()
@@ -108,10 +120,35 @@ class ChattingConversationViewModel @Inject constructor(
         }
     }
 
+    private suspend fun configureChatSession() {
+        var profile = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+        if (profile == null) {
+            when (val response = userRepository.getMyProfile()) {
+                is ResultWrapper.Success -> {
+                    profile = response.data
+                    dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
+                }
+                else -> Unit
+            }
+        }
+
+        myUserId = profile?.user?.user_id?.toLong() ?: 0
+        if (myUserId > 0) {
+            chatClient.setSession(
+                userNumber = myUserId,
+                accessToken = dataStoreRepository.getString(DataStoreKey.KEY_TOKEN)
+            )
+        }
+    }
+
     private suspend fun loadRoomHeader(roomId: Long) {
         when (val room = chatRepository.getChatRoom(roomId)) {
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
+                partnerReadMessageId = max(
+                    room.data.read_msg_id.toLong(),
+                    room.data.partner_read_msg_id.toLong()
+                )
                 val roomDelivery = room.data.delivery ?: return
                 deliveryStatusFlow.value = roomDelivery.status_cd
                 val deliveryId = roomDelivery.delivery_id.toLong()
@@ -179,16 +216,23 @@ class ChattingConversationViewModel @Inject constructor(
         if (content.isBlank() || currentRoomId <= 0) return
 
         viewModelScope.launch {
+            val messagePointerId = System.currentTimeMillis()
             withContext(Dispatchers.IO) {
-                chatClient.sendMessage(currentRoomId, content)
+                chatClient.sendMessage(
+                    roomId = currentRoomId,
+                    message = content,
+                    messagePointerId = 0
+                )
             }
             addMessage(
                 ChatMessage(
-                    id = System.currentTimeMillis(),
+                    id = -messagePointerId,
+                    messagePointerId = messagePointerId,
                     sender = "me",
                     content = content,
                     messageType = MESSAGE_TYPE_TEXT,
-                    isMyMessage = true
+                    isMyMessage = true,
+                    isUnread = true
                 )
             )
         }
@@ -232,6 +276,26 @@ class ChattingConversationViewModel @Inject constructor(
     fun addMessage(message: ChatMessage) {
         viewModelScope.launch {
             if (messagesList.any { it.id == message.id }) return@launch
+            val pendingIndex = messagesList.indexOfFirst {
+                it.messagePointerId > 0 && it.messagePointerId == message.messagePointerId
+            }
+            if (pendingIndex >= 0) {
+                messagesList[pendingIndex] = message
+                _messages.value = messagesList.sortedBy { it.timestamp }
+                return@launch
+            }
+            val fallbackPendingIndex = messagesList.indexOfFirst {
+                message.isMyMessage &&
+                    it.id < 0 &&
+                    it.isMyMessage &&
+                    it.content == message.content &&
+                    abs(it.timestamp - message.timestamp) < PENDING_MESSAGE_MATCH_WINDOW_MS
+            }
+            if (fallbackPendingIndex >= 0) {
+                messagesList[fallbackPendingIndex] = message
+                _messages.value = messagesList.sortedBy { it.timestamp }
+                return@launch
+            }
             messagesList.add(message)
             _messages.value = messagesList.sortedBy { it.timestamp }
         }
@@ -243,10 +307,20 @@ class ChattingConversationViewModel @Inject constructor(
     }
 
     override fun handleIncomingMessage(sender: String, content: String) {
+        when (sender) {
+            MqttChatCategory.READ.topicName -> {
+                handleReadMessage(content)
+                return
+            }
+            MqttChatCategory.MSG.topicName, MqttChatCategory.ATTACH.topicName -> Unit
+            else -> return
+        }
+
         runCatching {
             val payload = gson.fromJson(content, MqttMessagePayload::class.java)
             if (payload.roomId != currentRoomId) return
             addMessage(payload.toChatMessage(sender))
+            publishReadForIncomingMessage(payload)
         }.onFailure {
             addMessage(
                 ChatMessage(
@@ -257,6 +331,39 @@ class ChattingConversationViewModel @Inject constructor(
                     isMyMessage = false
                 )
             )
+        }
+    }
+
+    private fun publishReadForIncomingMessage(payload: MqttMessagePayload) {
+        if (payload.messageId <= 0) return
+        if (payload.senderUserId == 0L || payload.senderUserId == myUserId) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            chatClient.sendRead(payload.roomId, payload.messageId)
+        }
+    }
+
+    private fun handleReadMessage(content: String) {
+        runCatching {
+            val payload = gson.fromJson(content, MqttReadPayload::class.java)
+            if (payload.roomId != currentRoomId || payload.readUserId == myUserId) return
+            applyPartnerRead(payload.messageId)
+        }
+    }
+
+    private fun applyPartnerRead(messageId: Long) {
+        partnerReadMessageId = max(partnerReadMessageId, messageId)
+        var changed = false
+        messagesList.replaceAll { message ->
+            if (message.isMyMessage && message.id > 0 && message.id <= partnerReadMessageId && message.isUnread) {
+                changed = true
+                message.copy(isUnread = false)
+            } else {
+                message
+            }
+        }
+        if (changed) {
+            _messages.postValue(messagesList.sortedBy { it.timestamp })
         }
     }
 
@@ -307,13 +414,15 @@ class ChattingConversationViewModel @Inject constructor(
         val messageType = mimetype.toMessageType()
         return ChatMessage(
             id = msg_id,
+            messagePointerId = msg_ptr_id,
             sender = send_uname.orEmpty().ifBlank { if (send_uid == 0L) "시스템" else send_uid.toString() },
             content = msg,
             messageType = messageType,
             messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) msg else null,
             messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) msg else null,
             timestamp = send_date.toTimestamp(),
-            isMyMessage = send_uid != 0L && send_uid == myUserId
+            isMyMessage = send_uid != 0L && send_uid == myUserId,
+            isUnread = send_uid != 0L && send_uid == myUserId && msg_id > partnerReadMessageId
         )
     }
 
@@ -322,6 +431,7 @@ class ChattingConversationViewModel @Inject constructor(
         val resolvedMessageId = if (messageId > 0) messageId else System.currentTimeMillis()
         return ChatMessage(
             id = resolvedMessageId,
+            messagePointerId = messagePointerId,
             sender = senderUserName.orEmpty().ifBlank {
                 if (senderUserId == 0L) "시스템" else senderUserId.toString()
             },
@@ -330,7 +440,8 @@ class ChattingConversationViewModel @Inject constructor(
             messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) message else null,
             messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) message else null,
             timestamp = sendDate?.toTimestamp() ?: System.currentTimeMillis(),
-            isMyMessage = senderUserId != 0L && senderUserId == myUserId
+            isMyMessage = senderUserId != 0L && senderUserId == myUserId,
+            isUnread = senderUserId != 0L && senderUserId == myUserId && resolvedMessageId > partnerReadMessageId
         )
     }
 
@@ -371,5 +482,6 @@ class ChattingConversationViewModel @Inject constructor(
         private const val MESSAGE_TYPE_TEXT = 0
         private const val MESSAGE_TYPE_IMAGE = 1
         private const val MESSAGE_TYPE_VIDEO = 2
+        private const val PENDING_MESSAGE_MATCH_WINDOW_MS = 30_000
     }
 }

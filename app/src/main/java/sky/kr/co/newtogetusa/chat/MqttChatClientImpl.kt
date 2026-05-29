@@ -15,20 +15,54 @@ class MqttChatClientImpl @Inject constructor(
     private val config: MqttConnectionConfig,
     private val messageHandler: MessageHandler
 ): ChatClient{
-    private val client: MqttClient
-    private val connectOptions = MqttConnectOptions()
+    private var client: MqttClient
+    private var connectOptions = createConnectOptions()
     private val gson = Gson()
     private val persistence = MemoryPersistence()
+    private var userNumber: Long = config.userNumber
+    private var accessToken: String? = null
+    private val clientLock = Any()
 
     init {
-        client = MqttClient(config.brokerUrl, config.clientId, persistence)
-        connectOptions.apply {
+        client = createClient()
+        bindCallback()
+    }
+
+    override fun setSession(userNumber: Long, accessToken: String?) {
+        if (userNumber <= 0) return
+
+        synchronized(clientLock) {
+            val sessionChanged = this.userNumber != userNumber || this.accessToken != accessToken
+            this.userNumber = userNumber
+            this.accessToken = accessToken
+
+            if (sessionChanged && client.isConnected) {
+                disconnectLocked()
+            }
+        }
+    }
+
+    private fun createClient(): MqttClient {
+        val clientId = "TogetUs-AOS-$userNumber-${System.currentTimeMillis()}"
+        return MqttClient(config.brokerUrl, clientId, persistence)
+    }
+
+    private fun createConnectOptions(): MqttConnectOptions {
+        return MqttConnectOptions().apply {
             isCleanSession = true
             connectionTimeout = 30
             keepAliveInterval = 30
             isAutomaticReconnect = true
-        }
+            userName = userNumber.toString()
 
+            val token = accessToken
+            if (!token.isNullOrBlank()) {
+                password = token.toCharArray()
+            }
+        }
+    }
+
+    private fun bindCallback() {
         client.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
                 messageHandler.onConnectionLost(cause)
@@ -53,19 +87,39 @@ class MqttChatClientImpl @Inject constructor(
     }
 
     override fun connect() {
+        synchronized(clientLock) {
+            connectLocked()
+        }
+    }
+
+    private fun connectLocked() {
         try {
+            if (!client.isConnected && !client.clientId.contains("-$userNumber-")) {
+                client = createClient()
+                bindCallback()
+            }
+
+            connectOptions = createConnectOptions()
+
             if (!client.isConnected) {
-                Timber.d("MQTT connecting. broker=%s clientId=%s", config.brokerUrl, config.clientId)
+                Timber.d("MQTT connecting. broker=%s clientId=%s", config.brokerUrl, client.clientId)
                 client.connect(connectOptions)
             }
-            client.subscribe(config.subscribeTopic, config.qos)
-            Timber.d("MQTT subscribed. topic=%s", config.subscribeTopic)
+            val subscribeTopic = "$SUB_PREFIX/$userNumber/#"
+            client.subscribe(subscribeTopic, config.qos)
+            Timber.d("MQTT subscribed. topic=%s", subscribeTopic)
         } catch (e: MqttException) {
             Timber.e(e, "MQTT connect failed")
         }
     }
 
     override fun disconnect() {
+        synchronized(clientLock) {
+            disconnectLocked()
+        }
+    }
+
+    private fun disconnectLocked() {
         try {
             if (client.isConnected) {
                 client.disconnect()
@@ -115,20 +169,27 @@ class MqttChatClientImpl @Inject constructor(
     }
 
     override fun publish(category: MqttChatCategory, payload: String) {
-        try {
-            if (!client.isConnected) {
-                connect()
-            }
+        synchronized(clientLock) {
+            try {
+                if (!client.isConnected) {
+                    connectLocked()
+                }
 
-            val mqttMessage = MqttMessage(payload.toByteArray(Charsets.UTF_8)).apply {
-                qos = config.qos
-                isRetained = false
+                if (!client.isConnected) {
+                    Timber.e("MQTT publish skipped. client is not connected. category=%s", category.topicName)
+                    return
+                }
+
+                val mqttMessage = MqttMessage(payload.toByteArray(Charsets.UTF_8)).apply {
+                    qos = config.qos
+                    isRetained = false
+                }
+                val topic = "$PUB_PREFIX/$userNumber/${category.topicName}/"
+                client.publish(topic, mqttMessage)
+                Timber.d("MQTT published. topic=%s", topic)
+            } catch (e: MqttException) {
+                Timber.e(e, "MQTT publish failed. category=%s", category.topicName)
             }
-            val topic = config.publishTopic(category)
-            client.publish(topic, mqttMessage)
-            Timber.d("MQTT published. topic=%s", topic)
-        } catch (e: MqttException) {
-            Timber.e(e, "MQTT publish failed. category=%s", category.topicName)
         }
     }
 
@@ -138,10 +199,15 @@ class MqttChatClientImpl @Inject constructor(
 
     private fun String.toMqttChatCategory(): MqttChatCategory? {
         val parts = split("/")
-        return if (parts.size >= 3 && parts[0] == "togetus-sub" && parts[1] == config.userNumber.toString()) {
+        return if (parts.size >= 3 && parts[0] == SUB_PREFIX && parts[1] == userNumber.toString()) {
             parts.lastOrNull { it.isNotEmpty() }?.let(MqttChatCategory::fromTopicName)
         } else {
             null
         }
+    }
+
+    private companion object {
+        const val PUB_PREFIX = "togetus-pub"
+        const val SUB_PREFIX = "togetus-sub"
     }
 }

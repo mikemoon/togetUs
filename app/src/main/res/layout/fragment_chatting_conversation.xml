@@ -153,6 +153,47 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/vDivider" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabScrollToBottom"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="최신 메시지로 이동"
+            android:visibility="gone"
+            app:backgroundTint="@color/white"
+            app:borderWidth="1dp"
+            app:elevation="2dp"
+            app:fabCustomSize="44dp"
+            app:layout_constraintBottom_toTopOf="@+id/clInputGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/down_gray"
+            app:tint="@color/black_60"
+            tools:visibility="visible" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNewMessagePopup"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/background_st_b10_s_w_r24"
+            android:elevation="6dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/black_80"
+            android:textSize="14dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/clInputGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="곰돌이_카카오: 메시지가 도착했습니다. 긴 메시지는 말줄임으로 표시됩니다."
+            tools:visibility="visible" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clInputGroup"
             android:layout_width="match_parent"
