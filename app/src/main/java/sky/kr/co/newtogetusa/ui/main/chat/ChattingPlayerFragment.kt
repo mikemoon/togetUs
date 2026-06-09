@@ -44,6 +44,13 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (::chatAdapter.isInitialized) {
+            chatAdapter.refresh()
+        }
+    }
+
     override fun initObserver() {
         super.initObserver()
 

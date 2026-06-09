@@ -46,6 +46,13 @@ class ChattingUserFragment @Inject constructor(
         dataBinding.rvList.adapter = chatAdapter
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (::chatAdapter.isInitialized) {
+            chatAdapter.refresh()
+        }
+    }
+
     override fun initObserver() {
         super.initObserver()
 

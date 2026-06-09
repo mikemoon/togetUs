@@ -18,6 +18,7 @@ import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.repository.ChatRepository
 import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
@@ -31,7 +32,8 @@ class MainViewModel @Inject constructor(
     private val messageCallbackManager: MessageCallbackManager,
     private val tokenStore: TokenStore,
     baseViewModelFactory: BaseViewModelDependenciesFactory,
-    private val configRepository: ConfigRepository
+    private val configRepository: ConfigRepository,
+    private val chatRepository: ChatRepository
 ) : BaseViewModel(baseViewModelFactory.create()), MessageHandler {
 
     val isModeChanging = MutableStateFlow(false)
@@ -62,6 +64,7 @@ class MainViewModel @Inject constructor(
                 )
             }
             chatClient.connect()
+            refreshChatUnread()
         }
     }
 
@@ -79,6 +82,15 @@ class MainViewModel @Inject constructor(
 
     fun clearChatUnread() {
         hasUnreadChatFlow.value = false
+    }
+
+    fun refreshChatUnread() = viewModelScope.launch {
+        when (val response = chatRepository.getChatRooms()) {
+            is ResultWrapper.Success -> {
+                hasUnreadChatFlow.value = response.data.any { it.unread_cnt > 0 }
+            }
+            else -> Unit
+        }
     }
 
     fun postFCMToken(token: String) = viewModelScope.launch {

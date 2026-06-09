@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.ui.main.chat
 
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentChattingBinding
+import sky.kr.co.newtogetusa.ui.MainViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 
 @AndroidEntryPoint
@@ -18,6 +20,7 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
     override val layoutId: Int
         get() = R.layout.fragment_chatting
     override val viewModel: ChattingTabViewModel by viewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
 
 
@@ -59,6 +62,7 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
     override fun onResume() {
         super.onResume()
         viewModel.refreshPlayerApproval()
+        mainViewModel.refreshChatUnread()
     }
 
     override fun initObserver() {

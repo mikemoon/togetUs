@@ -2,12 +2,14 @@ package sky.kr.co.newtogetusa.ui.main.chat
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,11 +20,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.MainViewModel
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreDialog
+import sky.kr.co.newtogetusa.utils.ImageUtil
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.loadImage
 import timber.log.Timber
@@ -36,56 +42,29 @@ class ChattingConversationFragment :
     override val layoutId: Int
         get() = R.layout.fragment_chatting_conversation
     override val viewModel: ChattingConversationViewModel by viewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private val args: ChattingConversationFragmentArgs by navArgs()
 
     private lateinit var adapter: ChatMessageAdapter
     private var hasLoadedInitialMessages = false
     private var lastDisplayedMessageId: Long? = null
+    private var lastUnreadRefreshMessageId: Long = 0
+    private var pendingMediaType: PendingMediaType = PendingMediaType.IMAGE
 
     // 카메라를 실행한 후 찍은 사진을 저장
     var pictureUri: Uri? = null
     private val getTakePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
         if (it) {
-            pictureUri.let { }
+            pictureUri?.let(::sendPickedImage)
         }
     }
 
-    // 요청하고자 하는 권한들
-    private val permissionList = arrayOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    )
-
-    // 권한을 허용하도록 요청
-    private val requestMultiplePermission =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-            val granted = results.entries.all { it.value }
-            if (!granted) {
-                Toast.makeText(requireContext(), "권한을 허용해주세요.", Toast.LENGTH_SHORT).show()
+    private val requestCameraPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                launchCamera()
             } else {
-                pictureUri = createImageFile()
-                getTakePicture.launch(pictureUri)
-            }
-        }
-
-    private val galleryRequestMutiplePermission =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-            val granted = results.entries.all { it.value }
-            if (!granted) {
-                Toast.makeText(requireContext(), "권한을 허용해주세요.", Toast.LENGTH_SHORT).show()
-            } else {
-                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            }
-        }
-
-    private val videoRequestMutiplePermission =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-            val granted = results.entries.all { it.value }
-            if (!granted) {
-                Toast.makeText(requireContext(), "권한을 허용해주세요.", Toast.LENGTH_SHORT).show()
-            } else {
-                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
+                requireContext().toast("권한을 허용해주세요.")
             }
         }
 
@@ -94,6 +73,10 @@ class ChattingConversationFragment :
         // photo picker.
         if (uri != null) {
             Timber.tag("PhotoPicker").d("Selected URI: $uri")
+            when (pendingMediaType) {
+                PendingMediaType.IMAGE -> sendPickedImage(uri)
+                PendingMediaType.VIDEO -> requireContext().toast("동영상 전송은 준비 중입니다.")
+            }
         } else {
             Timber.tag("PhotoPicker").d("No media selected")
         }
@@ -135,6 +118,7 @@ class ChattingConversationFragment :
             } else {
                 updateScrollToBottomButton()
             }
+            refreshUnreadBadgeAfterRead(messages)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -203,21 +187,17 @@ class ChattingConversationFragment :
                 }
 
                 ChattingConversationViewModel.Event.InputCamera -> {
-                    requestMultiplePermission.launch(permissionList)
+                    openCamera()
                 }
 
                 ChattingConversationViewModel.Event.InputAlbum -> {
-                    galleryRequestMutiplePermission.launch(mutableListOf<String>().apply {
-                        add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        add(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }.toTypedArray())
+                    pendingMediaType = PendingMediaType.IMAGE
+                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
 
                 ChattingConversationViewModel.Event.InputMovie -> {
-                    videoRequestMutiplePermission.launch(mutableListOf<String>().apply {
-                        add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        add(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }.toTypedArray())
+                    pendingMediaType = PendingMediaType.VIDEO
+                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
                 }
                 is ChattingConversationViewModel.Event.ChatActionSuccess -> requireContext().toast(event.message)
                 is ChattingConversationViewModel.Event.ChatActionFailed -> requireContext().toast(event.message)
@@ -290,6 +270,53 @@ class ChattingConversationFragment :
         return layoutManager.findLastCompletelyVisibleItemPosition() >= lastItemPosition
     }
 
+    private fun sendPickedImage(uri: Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val encodedImage = withContext(Dispatchers.IO) {
+                ImageUtil.uriToJpegBase64(requireContext(), uri)
+            }
+
+            when {
+                encodedImage == null -> requireContext().toast("이미지를 불러오지 못했습니다.")
+                encodedImage.byteSize > MAX_CHAT_IMAGE_BYTES -> requireContext().toast("이미지 용량이 너무 큽니다.")
+                else -> {
+                    dataBinding.clInputTools.isVisible = false
+                    viewModel.sendImage(encodedImage.base64, encodedImage.mime)
+                }
+            }
+        }
+    }
+
+    private fun refreshUnreadBadgeAfterRead(messages: List<ChatMessage>) {
+        val lastMessageId = messages.lastOrNull { it.id > 0 }?.id ?: return
+        if (lastMessageId <= 0) return
+        if (lastMessageId == lastUnreadRefreshMessageId) return
+        lastUnreadRefreshMessageId = lastMessageId
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            kotlinx.coroutines.delay(READ_REFRESH_DELAY_MS)
+            mainViewModel.refreshChatUnread()
+        }
+    }
+
+    private fun openCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            launchCamera()
+        } else {
+            requestCameraPermission.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun launchCamera() {
+        pictureUri = createImageFile()
+        val uri = pictureUri
+        if (uri == null) {
+            requireContext().toast("이미지 파일을 생성하지 못했습니다.")
+            return
+        }
+        getTakePicture.launch(uri)
+    }
+
     private fun createImageFile(): Uri? {
         val now = SimpleDateFormat("yyMMdd_HHmmss").format(Date())
         val content = ContentValues().apply {
@@ -300,5 +327,15 @@ class ChattingConversationFragment :
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             content
         )
+    }
+
+    private companion object {
+        const val MAX_CHAT_IMAGE_BYTES = 100 * 1024 * 1024
+        const val READ_REFRESH_DELAY_MS = 500L
+    }
+
+    private enum class PendingMediaType {
+        IMAGE,
+        VIDEO
     }
 }

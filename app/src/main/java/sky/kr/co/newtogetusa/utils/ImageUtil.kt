@@ -11,6 +11,31 @@ import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import java.io.ByteArrayOutputStream
 
 object ImageUtil {
+    data class EncodedImage(
+        val mime: String,
+        val base64: String,
+        val byteSize: Int
+    )
+
+    fun uriToJpegBase64(
+        context: Context,
+        uri: Uri,
+        maxSize: Int = 1280,
+        quality: Int = 70
+    ): EncodedImage? {
+        val bitmap = uriToBitmap(context, uri) ?: return null
+        val resized = resizeBitmap(bitmap, maxSize)
+        val output = ByteArrayOutputStream()
+
+        resized.compress(Bitmap.CompressFormat.JPEG, quality, output)
+        val bytes = output.toByteArray()
+
+        return EncodedImage(
+            mime = "image/jpeg",
+            base64 = Base64.encodeToString(bytes, Base64.NO_WRAP),
+            byteSize = bytes.size
+        )
+    }
 
     fun uriListToPhotos(
         context: Context,

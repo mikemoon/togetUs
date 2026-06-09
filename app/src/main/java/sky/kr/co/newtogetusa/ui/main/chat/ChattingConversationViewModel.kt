@@ -238,6 +238,34 @@ class ChattingConversationViewModel @Inject constructor(
         }
     }
 
+    fun sendImage(base64: String, mimeType: String) {
+        if (base64.isBlank() || currentRoomId <= 0) return
+
+        viewModelScope.launch {
+            val messagePointerId = System.currentTimeMillis()
+            withContext(Dispatchers.IO) {
+                chatClient.sendAttach(
+                    roomId = currentRoomId,
+                    mimeType = mimeType,
+                    base64 = base64,
+                    messagePointerId = 0
+                )
+            }
+            addMessage(
+                ChatMessage(
+                    id = -messagePointerId,
+                    messagePointerId = messagePointerId,
+                    sender = "me",
+                    content = base64,
+                    messageType = MESSAGE_TYPE_IMAGE,
+                    messageImageUrl = base64.toDisplayMediaSource(mimeType),
+                    isMyMessage = true,
+                    isUnread = true
+                )
+            )
+        }
+    }
+
     fun resendMessage(id: Long) {
         val message = messagesList.firstOrNull { it.id == id } ?: return
         removeMessage(id)
@@ -288,7 +316,10 @@ class ChattingConversationViewModel @Inject constructor(
                 message.isMyMessage &&
                     it.id < 0 &&
                     it.isMyMessage &&
-                    it.content == message.content &&
+                    (
+                        it.content == message.content ||
+                            (it.messageType == MESSAGE_TYPE_IMAGE && message.messageType == MESSAGE_TYPE_IMAGE)
+                        ) &&
                     abs(it.timestamp - message.timestamp) < PENDING_MESSAGE_MATCH_WINDOW_MS
             }
             if (fallbackPendingIndex >= 0) {
@@ -411,15 +442,15 @@ class ChattingConversationViewModel @Inject constructor(
     }
 
     private fun ChatMessageDto.toChatMessage(): ChatMessage {
-        val messageType = mimetype.toMessageType()
+        val messageType = resolveMessageType(mimetype, msg)
         return ChatMessage(
             id = msg_id,
             messagePointerId = msg_ptr_id,
             sender = send_uname.orEmpty().ifBlank { if (send_uid == 0L) "시스템" else send_uid.toString() },
             content = msg,
             messageType = messageType,
-            messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) msg else null,
-            messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) msg else null,
+            messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) msg.toDisplayMediaSource(mimetype) else null,
+            messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) msg.toDisplayMediaSource(mimetype) else null,
             timestamp = send_date.toTimestamp(),
             isMyMessage = send_uid != 0L && send_uid == myUserId,
             isUnread = send_uid != 0L && send_uid == myUserId && msg_id > partnerReadMessageId
@@ -427,7 +458,7 @@ class ChattingConversationViewModel @Inject constructor(
     }
 
     private fun MqttMessagePayload.toChatMessage(category: String): ChatMessage {
-        val messageType = mimeType.toMessageType(category)
+        val messageType = resolveMessageType(mimeType, message, category)
         val resolvedMessageId = if (messageId > 0) messageId else System.currentTimeMillis()
         return ChatMessage(
             id = resolvedMessageId,
@@ -437,8 +468,8 @@ class ChattingConversationViewModel @Inject constructor(
             },
             content = message,
             messageType = messageType,
-            messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) message else null,
-            messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) message else null,
+            messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) message.toDisplayMediaSource(mimeType) else null,
+            messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) message.toDisplayMediaSource(mimeType) else null,
             timestamp = sendDate?.toTimestamp() ?: System.currentTimeMillis(),
             isMyMessage = senderUserId != 0L && senderUserId == myUserId,
             isUnread = senderUserId != 0L && senderUserId == myUserId && resolvedMessageId > partnerReadMessageId
@@ -452,14 +483,33 @@ class ChattingConversationViewModel @Inject constructor(
         }
     }
 
-    private fun String.toMessageType(category: String? = null): Int {
+    private fun resolveMessageType(mimeType: String, message: String, category: String? = null): Int {
         return when {
-            category == MqttChatCategory.ATTACH.topicName && startsWith("image/") -> MESSAGE_TYPE_IMAGE
-            category == MqttChatCategory.ATTACH.topicName && startsWith("video/") -> MESSAGE_TYPE_VIDEO
-            startsWith("image/") -> MESSAGE_TYPE_IMAGE
-            startsWith("video/") -> MESSAGE_TYPE_VIDEO
+            mimeType.toMessageType(category) != MESSAGE_TYPE_TEXT -> mimeType.toMessageType(category)
+            message.isAttachUrl() -> MESSAGE_TYPE_IMAGE
+            category == MqttChatCategory.ATTACH.topicName -> MESSAGE_TYPE_IMAGE
             else -> MESSAGE_TYPE_TEXT
         }
+    }
+
+    private fun String.toMessageType(category: String? = null): Int {
+        return when {
+            startsWith("image/") -> MESSAGE_TYPE_IMAGE
+            startsWith("video/") -> MESSAGE_TYPE_VIDEO
+            category == MqttChatCategory.ATTACH.topicName && isBlank() -> MESSAGE_TYPE_IMAGE
+            else -> MESSAGE_TYPE_TEXT
+        }
+    }
+
+    private fun String.isAttachUrl(): Boolean {
+        return (startsWith("http://") || startsWith("https://")) && contains("/attach/")
+    }
+
+    private fun String.toDisplayMediaSource(mimeType: String): String {
+        if (startsWith("http://") || startsWith("https://") || startsWith("content://") || startsWith("data:")) {
+            return this
+        }
+        return "data:$mimeType;base64,$this"
     }
 
     private fun String.toTimestamp(): Long {

@@ -100,6 +100,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         navController.addOnDestinationChangedListener { _, destination, _ ->
             Timber.d("onDestion  ${destination.label} , ${destination.route}")
             dataBinding.bottomNavigation.isVisible = destination.id in mainTabFragments
+            if (destination.id in mainTabFragments) {
+                viewModel.refreshChatUnread()
+            }
         }
 
         lifecycleScope.launch {
@@ -130,6 +133,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshChatUnread()
     }
 
     override fun onDestroy() {
