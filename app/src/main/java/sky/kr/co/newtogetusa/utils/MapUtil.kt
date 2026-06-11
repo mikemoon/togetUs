@@ -31,26 +31,69 @@ object MapUtil {
     fun drawRouteOnKakaoMap(
         kakaoMap: com.kakao.vectormap.KakaoMap,
         points: List<com.kakao.vectormap.LatLng>,
-        summary: KakaoNaviDirectionsResponse.Summary?
+        summary: KakaoNaviDirectionsResponse.Summary?,
+        moveCamera: Boolean = true,
+        clearPrevious: Boolean = false,
+        animate: Boolean = false,
+        animationDurationMillis: Int = 1_000
     ) {
         if (points.isEmpty()) return
 
-        // 1) 스타일 준비
-        val stylesSet = com.kakao.vectormap.route.RouteLineStylesSet.from(
+        val routeLineManager = kakaoMap.routeLineManager ?: return
+        if (clearPrevious) {
+            routeLineManager.getAnimator(ROUTE_PROGRESS_ANIMATOR_ID)?.stop()
+            routeLineManager.getLayer()?.removeAll()
+        }
+
+        val baseStylesSet = com.kakao.vectormap.route.RouteLineStylesSet.from(
             com.kakao.vectormap.route.RouteLineStyles.from(
-                com.kakao.vectormap.route.RouteLineStyle.from(16f, Color.parseColor("#F9A1AC"))
+                com.kakao.vectormap.route.RouteLineStyle.from(16f, Color.parseColor(ROUTE_BASE_COLOR))
             )
         )
-        // 2) 세그먼트 생성
-        val segment = com.kakao.vectormap.route.RouteLineSegment.from(points, stylesSet.getStyles(0))
-        // 3) 레이어에 RouteLine 추가
-        val layer = kakaoMap.routeLineManager?.layer ?: kakaoMap.routeLineManager?.getLayer()
-        layer?.addRouteLine(
-            com.kakao.vectormap.route.RouteLineOptions.from(segment).setStylesSet(stylesSet)
+        val progressStylesSet = com.kakao.vectormap.route.RouteLineStylesSet.from(
+            com.kakao.vectormap.route.RouteLineStyles.from(
+                com.kakao.vectormap.route.RouteLineStyle.from(16f, Color.parseColor(ROUTE_PROGRESS_COLOR))
+            )
         )
+        val baseSegment = com.kakao.vectormap.route.RouteLineSegment.from(points, baseStylesSet.getStyles(0))
+        val progressSegment = com.kakao.vectormap.route.RouteLineSegment.from(points, progressStylesSet.getStyles(0))
+        val layer = routeLineManager.getLayer() ?: routeLineManager.addLayer()
+
+        if (animate) {
+            layer?.addRouteLine(
+                com.kakao.vectormap.route.RouteLineOptions.from(baseSegment)
+                    .setStylesSet(baseStylesSet)
+                    .setVisible(true)
+                    .setZOrder(0)
+            )
+        }
+
+        val routeLine = layer?.addRouteLine(
+            com.kakao.vectormap.route.RouteLineOptions.from(progressSegment)
+                .setStylesSet(progressStylesSet)
+                .setVisible(!animate)
+                .setZOrder(1)
+        )
+        if (animate && routeLine != null) {
+            routeLine.setProgress(0f)
+            routeLine.show()
+            routeLineManager.getAnimator(ROUTE_PROGRESS_ANIMATOR_ID)?.stop()
+            val animation = com.kakao.vectormap.route.animation.ProgressAnimation
+                .from(ROUTE_PROGRESS_ANIMATOR_ID, animationDurationMillis)
+                .setProgressType(com.kakao.vectormap.route.animation.ProgressType.ToShow)
+                .setProgressDirection(com.kakao.vectormap.route.animation.ProgressDirection.StartFirst)
+                .setInterpolation(com.kakao.vectormap.animation.Interpolation.CubicOut)
+                .setHideAtStop(false)
+                .setResetToInitialState(false)
+            routeLineManager.addAnimator(animation)
+                .apply { addRouteLines(routeLine) }
+                .start()
+        }
         // RouteLine 사용 가이드 참고. :contentReference[oaicite:6]{index=6}
 
         // 4) 카메라 경로 맞추기
+        if (!moveCamera) return
+
         //   a) API summary.bound 사용 (x=lng,y=lat)
         summary?.bound?.let { b ->
             val ne = com.kakao.vectormap.LatLng.from(b.max_y, b.max_x)
@@ -70,4 +113,8 @@ object MapUtil {
         )
         // fitMapPoints 사용 안내(DevTalk) :contentReference[oaicite:7]{index=7}
     }
+
+    private const val ROUTE_PROGRESS_ANIMATOR_ID = "delivery_route_progress"
+    private const val ROUTE_BASE_COLOR = "#999999"
+    private const val ROUTE_PROGRESS_COLOR = "#4F78FF"
 }

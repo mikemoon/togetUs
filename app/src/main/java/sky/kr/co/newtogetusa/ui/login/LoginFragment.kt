@@ -62,20 +62,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 launch {
-                    viewModel.recentLoginType.collect { loginType ->
-                        if (loginType != -1 && viewModel.refreshToken.value.isNotEmpty()) {
-                            viewModel.refreshToken(viewModel.refreshToken.value) { result ->
-                                if (result) requireContext().startActivity(
-                                    Intent(
-                                        requireActivity(),
-                                        MainActivity::class.java
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-                launch {
                     viewModel.uiErrorMsg.filter { it.isNotEmpty() }.collectLatest { msg ->
                         requireContext().toast(msg)
                     }

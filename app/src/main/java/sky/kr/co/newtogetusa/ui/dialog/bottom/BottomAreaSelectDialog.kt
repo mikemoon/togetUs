@@ -34,24 +34,33 @@ class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>
         viewModel.getDomesticSubAddressList()
 
         areaAdapter =
-            BottomAreaAdapter(viewModel.domesticAddressList.value, multiSelect = false) { selectRegion, isDetail ->
+            BottomAreaAdapter(regionItems(), multiSelect = false) { selectRegion, isDetail ->
                 if(selectRegion.isNotEmpty()) {
                     if (isDetail) {
                         dataBinding.tvRegion2.text = selectRegion[0].name
                         selectedSubRegion = selectRegion
                     } else {
-                        dataBinding.tvDetailDesc.apply {
-                            isVisible = true
-                            text =
-                                if (viewModel.isLocal.value) "시/군/구는 복수로 선택할 수 있어요" else "도시는 복수로 선택할 수 있어요"
-                        }
-                        dataBinding.tvRegion1.text = selectRegion[0].name
-                        (dataBinding.rvRegions.adapter as BottomAreaAdapter).update(
-                            if (viewModel.isLocal.value) viewModel.domesticSubAddressList.value.filter { it.cate == selectRegion[0].code } else viewModel.domesticSubAddressList.value,
-                            multiSelect = true,
-                            isDetail = true
-                        )
                         selectedRegion = selectRegion
+                        if (selectRegion[0].isAllRegion()) {
+                            dataBinding.tvDetailDesc.isVisible = false
+                            dataBinding.tvRegion1.text = if (viewModel.isLocal.value) "국내" else "해외"
+                            dataBinding.tvRegion2.text = ALL_REGION.name
+                            selectedSubRegion = listOf(ALL_REGION)
+                        } else {
+                            dataBinding.tvDetailDesc.apply {
+                                isVisible = true
+                                text =
+                                    if (viewModel.isLocal.value) "시/군/구는 복수로 선택할 수 있어요" else "도시는 복수로 선택할 수 있어요"
+                            }
+                            dataBinding.tvRegion1.text = selectRegion[0].name
+                            dataBinding.tvRegion2.text = if (viewModel.isLocal.value) "시/군/구" else "도시"
+                            selectedSubRegion = null
+                            (dataBinding.rvRegions.adapter as BottomAreaAdapter).update(
+                                subRegionItems(selectRegion[0]),
+                                multiSelect = true,
+                                isDetail = true
+                            )
+                        }
                     }
                 }
             }
@@ -71,13 +80,15 @@ class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>
                     dataBinding.tvLocal.isSelected = isLocal
                     dataBinding.tvForeign.isSelected = !isLocal
                     areaAdapter.update(
-                        if (isLocal) viewModel.domesticSubAddressList.value else viewModel.domesticSubAddressList.value,
+                        regionItems(),
                         multiSelect = false,
                         isDetail = false
                     )
                     dataBinding.tvRegion1.text = if (isLocal) "시/도" else "국가"
                     dataBinding.tvRegion2.text = if (isLocal) "시/군/구" else "도시"
                     dataBinding.tvDetailDesc.isVisible = false
+                    selectedRegion = null
+                    selectedSubRegion = null
                 }
             }
         }
@@ -87,19 +98,35 @@ class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>
                 launch {
                     viewModel.selectedCompleteFlow.collectLatest {
                         if(it){
-                            selectedRegionCallback(selectedRegion ?: emptyList(), selectedSubRegion ?: emptyList())
+                            selectedRegionCallback(selectedRegion ?: listOf(ALL_REGION), selectedSubRegion ?: emptyList())
                             dismissAllowingStateLoss()
                         }
                     }
                 }
                 launch {
                     viewModel.domesticAddressList.collectLatest {
-                        areaAdapter.setItems(it)
+                        areaAdapter.setItems(regionItems())
                     }
                 }
             }
         }
     }
+
+    private fun regionItems(): List<RegionDto> =
+        withAllRegion(viewModel.domesticAddressList.value)
+
+    private fun subRegionItems(region: RegionDto): List<RegionDto> =
+        withAllRegion(if (viewModel.isLocal.value) {
+            viewModel.domesticSubAddressList.value.filter { it.cate == region.code }
+        } else {
+            viewModel.domesticSubAddressList.value
+        })
+
+    private fun withAllRegion(items: List<RegionDto>): List<RegionDto> =
+        listOf(ALL_REGION) + items.filterNot { it.isAllRegion() }
+
+    private fun RegionDto.isAllRegion(): Boolean =
+        name == ALL_REGION.name || code.isBlank()
 
     class GridSpacingItemDecoration(
         private val spanCount: Int,
@@ -123,5 +150,9 @@ class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>
                 if (position >= spanCount) outRect.top = spacing
             }
         }
+    }
+
+    companion object {
+        private val ALL_REGION = RegionDto(cate = "", code = "", name = "전체", description = null)
     }
 }

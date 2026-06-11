@@ -80,6 +80,14 @@ class PlayerRepository @Inject constructor(
         apiService.postReqDelivery(playerId, request)
     }
 
+    suspend fun postLikePlayer(playerId: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.postLikePlayer(playerId)
+    }
+
+    suspend fun postUnlikePlayer(playerId: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.postUnlikePlayer(playerId)
+    }
+
     suspend fun getReviews(playerId: Int) = safeApiCall(Dispatchers.IO){
         apiService.getReviews(playerId)
     }

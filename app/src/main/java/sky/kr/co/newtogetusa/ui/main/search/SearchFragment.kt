@@ -9,6 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.search.RegionDto
 import sky.kr.co.newtogetusa.databinding.FragmentSearchBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelectDialog
@@ -53,9 +54,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomAreaSelectDialog{ selectedRegion, selectedSubRegion ->
-                            val subRegionText = selectedSubRegion.map { it.name }.toRegionSummary()
-                            dataBinding.tvStart.text = "${selectedRegion[0].name} > $subRegionText"
-                            departCd = selectedSubRegion.map { it.code }
+                            updateAreaSelection(
+                                isDepart = true,
+                                selectedRegion = selectedRegion,
+                                selectedSubRegion = selectedSubRegion
+                            )
                         }
                     )
                 }
@@ -63,9 +66,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomAreaSelectDialog{ selectedRegion, selectedSubRegion ->
-                            val subRegionText = selectedSubRegion.map { it.name }.toRegionSummary()
-                            dataBinding.tvDestination.text = "${selectedRegion[0].name} > ${subRegionText}"
-                            destCd = selectedSubRegion.map { it.code }
+                            updateAreaSelection(
+                                isDepart = false,
+                                selectedRegion = selectedRegion,
+                                selectedSubRegion = selectedSubRegion
+                            )
                         }
                     )
                 }
@@ -91,4 +96,37 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
             sorted.firstOrNull() ?: ""
         }
     }
+
+    private fun updateAreaSelection(
+        isDepart: Boolean,
+        selectedRegion: List<RegionDto>,
+        selectedSubRegion: List<RegionDto>
+    ) {
+        val isAllSelected = selectedRegion.any { it.isAllRegion() } || selectedSubRegion.any { it.isAllRegion() }
+        val regionName = selectedRegion.firstOrNull { !it.isAllRegion() }?.name ?: "국내"
+        val selectedCodes = if (isAllSelected) {
+            emptyList()
+        } else {
+            selectedSubRegion.map { it.code }.filter { it.isNotBlank() }
+        }
+        val subRegionText = if (isAllSelected) {
+            "전체"
+        } else {
+            selectedSubRegion.map { it.name }.toRegionSummary()
+        }
+        val hasSelection = isAllSelected || selectedCodes.isNotEmpty()
+
+        if (isDepart) {
+            dataBinding.tvStart.text = "$regionName > $subRegionText"
+            departCd = selectedCodes
+            viewModel.setDepartAreaSelected(hasSelection)
+        } else {
+            dataBinding.tvDestination.text = "$regionName > $subRegionText"
+            destCd = selectedCodes
+            viewModel.setDestinationAreaSelected(hasSelection)
+        }
+    }
+
+    private fun RegionDto.isAllRegion(): Boolean =
+        name == "전체" || code.isBlank()
 }

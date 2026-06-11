@@ -120,11 +120,7 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
                         s.destinationAddress != null &&
                         s.destinationDetail != null &&
                         s.destLat != null &&
-                        s.destLng != null &&
-
-                        s.name != null &&
-                        s.phone != null /*&&
-                        s.distanceKm.isNotBlank()*/
+                        s.destLng != null
             }
             .stateIn(
                 viewModelScope,

@@ -46,7 +46,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             departCd = args.departCd.toList(),
             destCd = args.destCd.toList(),
             isDomestic = args.isDomestic,
-            sortType = SORT_DISTANCE
+            sortType = SORT_STAR_RATING
         )
     }
 
@@ -62,6 +62,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomFilterDialog().apply {
+                            filterList = PLAYER_SEARCH_FILTERS
                             itemSelectCallback = { selectedItem ->
                                 this@SearchResultFragment.dataBinding.tvFilter.text = selectedItem
                                 this@SearchResultFragment.viewModel.updateSearchCondition(
@@ -84,7 +85,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             FILTER_STAR_RATING -> SORT_STAR_RATING
             FILTER_DEAL_COUNT -> SORT_DEAL_COUNT
             FILTER_LATEST_DEAL -> SORT_LATEST_DEAL
-            else -> SORT_DISTANCE
+            else -> SORT_STAR_RATING
         }
     }
 
@@ -117,6 +118,7 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         private const val FILTER_STAR_RATING = "별점순"
         private const val FILTER_DEAL_COUNT = "거래건순"
         private const val FILTER_LATEST_DEAL = "최근 거래순"
+        private val PLAYER_SEARCH_FILTERS = listOf(FILTER_STAR_RATING, FILTER_DEAL_COUNT, FILTER_LATEST_DEAL)
 
         private const val SORT_DISTANCE = "DISTANCE"
         private const val SORT_STAR_RATING = "STAR_RATING"

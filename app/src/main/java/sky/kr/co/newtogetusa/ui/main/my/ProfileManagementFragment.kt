@@ -19,7 +19,10 @@ import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentProfileManagementBinding
 import sky.kr.co.newtogetusa.databinding.TabMyProfileCustomBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomProfileMoreDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomSuggestDeliveryDialog
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -63,7 +66,12 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
 
         dataBinding.viewPager.apply {
             isUserInputEnabled = false
-            adapter = ProfileManagementPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, isPlayerMode)
+            adapter = ProfileManagementPagerAdapter(
+                childFragmentManager,
+                viewLifecycleOwner.lifecycle,
+                isPlayerMode,
+                isFromSearchResult
+            )
         }
 
         TabLayoutMediator(dataBinding.tabLayout, dataBinding.viewPager) { tab, pos ->
@@ -111,6 +119,12 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 is ProfileManagementViewModel.Event.SuggestDelivery -> {
                     showSuggestBottomDialog()
                 }
+                ProfileManagementViewModel.Event.More -> {
+                    showProfileMoreBottomDialog()
+                }
+                ProfileManagementViewModel.Event.ToggleLike -> {
+                    viewModel.togglePlayerLike()
+                }
             }
         }
 
@@ -134,8 +148,22 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.playerReviewCount.collectLatest {
-                    updateReviewCount(it)
+                launch {
+                    viewModel.playerReviewCount.collectLatest {
+                        updateReviewCount(it)
+                    }
+                }
+                launch {
+                    viewModel.isPlayerLiked.collectLatest { isLiked ->
+                        dataBinding.ivHeart.setImageResource(
+                            if (isLiked) R.drawable.heart_fill_primary else R.drawable.heart_line
+                        )
+                    }
+                }
+                launch {
+                    viewModel.profileActionMessage.collectLatest { message ->
+                        requireContext().toast(message)
+                    }
                 }
             }
         }
@@ -149,6 +177,40 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 this@ProfileManagementFragment.viewModel.requestSuggestDelivery(selectedItem.deliveryId)
             }
         }.show(parentFragmentManager, "BottomSuggestDeliveryDialog")
+    }
+
+    private fun showProfileMoreBottomDialog() {
+        dialogFragmentShow(
+            childFragmentManager,
+            BottomProfileMoreDialog().apply {
+                blockAction = {
+                    dialogFragmentShow(
+                        requireActivity().supportFragmentManager,
+                        MessageDialog.newInstance(
+                            msgTitle = "차단하기",
+                            msg = "이 사용자를 차단하시겠어요?",
+                            leftBtn = "취소",
+                            rightBtn = "확인"
+                        ).onRightBtn {
+                            this@ProfileManagementFragment.viewModel.blockPlayer()
+                        }
+                    )
+                }
+                reportAction = {
+                    dialogFragmentShow(
+                        requireActivity().supportFragmentManager,
+                        MessageDialog.newInstance(
+                            msgTitle = "신고하기",
+                            msg = "이 사용자를 신고하시겠어요?",
+                            leftBtn = "취소",
+                            rightBtn = "확인"
+                        ).onRightBtn {
+                            this@ProfileManagementFragment.viewModel.reportPlayer()
+                        }
+                    )
+                }
+            }
+        )
     }
 
     private fun updateDeliveryRequestCount(count: Int){
@@ -186,6 +248,7 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         )
 
         viewModel.profileDto.value = updatedProfile
+        viewModel.setPlayerLiked(playerProfile.is_like == true)
         profileDto = updatedProfile
         dataBinding.profile = updatedProfile
         dataBinding.tvScore.text = "$starAverage ($reviewCount)"

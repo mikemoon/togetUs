@@ -20,12 +20,15 @@ class BottomSuggestDeliveryDialog : BottomBaseDialog<DialogBottomSuggestDelivery
     var requestItems: List<SuggestRequestItem> = emptyList()
     var selectedRequestCallback: ((SuggestRequestItem) -> Unit)? = null
 
-    private val requestAdapter = BottomSuggestDeliveryAdapter()
+    private val requestAdapter = BottomSuggestDeliveryAdapter { selectedItem ->
+        selectedRequestCallback?.invoke(selectedItem)
+        dismissAllowingStateLoss()
+    }
 
     override fun init() {
         super.init()
 
-        dataBinding.tvDescription.text = "{배달왕}$nickname" + "님에게 배송을 제안하시겠어요?"
+        dataBinding.tvDescription.text = "$nickname 님에게 동행을 제안하시겠어요?"
 
         dataBinding.rvRequests.adapter = requestAdapter
         requestAdapter.submitList(requestItems)
@@ -46,12 +49,6 @@ class BottomSuggestDeliveryDialog : BottomBaseDialog<DialogBottomSuggestDelivery
         viewModel.event.observe(viewLifecycleOwner) { event ->
             when (event) {
                 BottomSuggestDeliveryViewModel.Event.Close -> dismissAllowingStateLoss()
-                BottomSuggestDeliveryViewModel.Event.Confirm -> {
-                    requestAdapter.getSelectedItem()?.let { selectedItem ->
-                        selectedRequestCallback?.invoke(selectedItem)
-                    }
-                    dismissAllowingStateLoss()
-                }
             }
         }
     }

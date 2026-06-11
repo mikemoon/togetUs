@@ -76,6 +76,16 @@ interface PlayerService {
         @Body request: HashMap<String, String>
     ): PlayerInfoDto
 
+    @POST("/api/players/v1/{player_id}/like")
+    suspend fun postLikePlayer(
+        @Path("player_id") playerId: Int
+    ): Boolean
+
+    @POST("/api/players/v1/{player_id}/unlike")
+    suspend fun postUnlikePlayer(
+        @Path("player_id") playerId: Int
+    ): Boolean
+
     @GET("/api/players/v1/{player_id}/reviews")
     suspend fun getReviews(
         @Path("player_id") playerId: Int

@@ -1,14 +1,14 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
-import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
-import androidx.paging.LoadState
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
@@ -23,6 +23,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryStartBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.hideKeyboard
 import timber.log.Timber
 import kotlin.getValue
 
@@ -58,6 +59,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
         //searchResultAdapter = DeliveryStartKakaoSearchResultAdapter(viewModel)
 
         //dataBinding.rvSearchResult.adapter = searchResultAdapter
+        setupHideKeyboardOnOutsideTouch(dataBinding.rootContainer)
 
         dataBinding.tvSearch.setOnClickListener {
             findNavController().navigate(DeliveryStartFragmentDirections.actionDeliveryStartFragment2ToDeliverySearchFragment(isStart = viewModel.isStart.value, isInternational = viewModel.isInternationalDelivery.value))
@@ -201,6 +203,27 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
             .addOnFailureListener { e ->
                 Timber.d("Autocomplete failed: ${e.message}")
             }*/
+    }
+
+    private fun setupHideKeyboardOnOutsideTouch(view: View) {
+        if (view is EditText) return
+
+        view.setOnTouchListener { _, _ ->
+            clearInputFocusAndHideKeyboard()
+            false
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                setupHideKeyboardOnOutsideTouch(view.getChildAt(i))
+            }
+        }
+    }
+
+    private fun clearInputFocusAndHideKeyboard() {
+        val focusedView = requireActivity().currentFocus ?: view?.findFocus() ?: dataBinding.root
+        focusedView.clearFocus()
+        requireContext().hideKeyboard(focusedView)
     }
 
 }

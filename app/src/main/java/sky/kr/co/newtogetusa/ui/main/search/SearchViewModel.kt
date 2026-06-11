@@ -4,15 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
-import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreViewModel.Event
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +29,28 @@ class SearchViewModel @Inject constructor(baseViewModelDependenciesFactory: Base
                     }
             }
         }
+
+    private val isDepartAreaSelected = MutableStateFlow(false)
+    private val isDestinationAreaSelected = MutableStateFlow(false)
+
+    val enablePlayerSearch = combine(
+        isDepartAreaSelected,
+        isDestinationAreaSelected
+    ) { isDepartSelected, isDestinationSelected ->
+        isDepartSelected && isDestinationSelected
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        false
+    )
+
+    fun setDepartAreaSelected(isSelected: Boolean) {
+        isDepartAreaSelected.value = isSelected
+    }
+
+    fun setDestinationAreaSelected(isSelected: Boolean) {
+        isDestinationAreaSelected.value = isSelected
+    }
 
 
     private val _search = SingleLiveEvent<Boolean>()

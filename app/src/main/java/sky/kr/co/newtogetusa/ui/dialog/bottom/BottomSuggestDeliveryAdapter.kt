@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.ItemBottomSuggestDeliveryBinding
 
-class BottomSuggestDeliveryAdapter : RecyclerView.Adapter<BottomSuggestDeliveryAdapter.VH>() {
+class BottomSuggestDeliveryAdapter(
+    private val onItemClick: (BottomSuggestDeliveryDialog.SuggestRequestItem) -> Unit
+) : RecyclerView.Adapter<BottomSuggestDeliveryAdapter.VH>() {
 
     private var items: List<BottomSuggestDeliveryDialog.SuggestRequestItem> = emptyList()
     private var selectedIndex: Int = 0
@@ -18,10 +20,6 @@ class BottomSuggestDeliveryAdapter : RecyclerView.Adapter<BottomSuggestDeliveryA
         this.items = items
         this.selectedIndex = selectedIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0))
         notifyDataSetChanged()
-    }
-
-    fun getSelectedItem(): BottomSuggestDeliveryDialog.SuggestRequestItem? {
-        return items.getOrNull(selectedIndex)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -52,6 +50,7 @@ class BottomSuggestDeliveryAdapter : RecyclerView.Adapter<BottomSuggestDeliveryA
                     notifyItemChanged(oldIndex)
                     notifyItemChanged(selectedIndex)
                 }
+                items.getOrNull(selectedIndex)?.let(onItemClick)
             }
         }
     }

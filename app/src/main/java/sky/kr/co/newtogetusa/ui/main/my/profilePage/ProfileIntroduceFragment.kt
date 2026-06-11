@@ -22,6 +22,9 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
 
     override fun init() {
         super.init()
+        val isFromSearchResult = arguments?.getBoolean(ARG_FROM_SEARCH_RESULT, false) ?: false
+        dataBinding.btnEditIntroduction.isVisible = !isFromSearchResult
+        dataBinding.btnEditArea.isVisible = !isFromSearchResult
         viewModel.getPlayerProfile { profile ->
             bindPlayerProfile(profile)
         }
@@ -65,9 +68,10 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
         areaView: TextView,
         dateView: TextView
     ) {
+        val isFromSearchResult = arguments?.getBoolean(ARG_FROM_SEARCH_RESULT, false) ?: false
         val isVisible = area != null
         areaView.isVisible = isVisible
-        dateView.isVisible = isVisible
+        dateView.isVisible = isVisible && !isFromSearchResult
         if (area == null) return
 
         areaView.text = formatRoute(area.depart_address, area.dest_address)
@@ -89,5 +93,9 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
         }
 
         return raw
+    }
+
+    companion object {
+        const val ARG_FROM_SEARCH_RESULT = "ARG_FROM_SEARCH_RESULT"
     }
 }

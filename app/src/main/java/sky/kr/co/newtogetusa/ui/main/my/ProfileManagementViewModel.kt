@@ -6,7 +6,10 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -88,6 +91,8 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     val eventBack = Event.Back
     val eventModifyProfile = Event.ModifyProfile
     val eventSuggestDelivery = Event.SuggestDelivery
+    val eventMore = Event.More
+    val eventToggleLike = Event.ToggleLike
 
     private val _suggestDeliveryResult = SingleLiveEvent<Boolean>()
     val suggestDeliveryResult: LiveData<Boolean> = _suggestDeliveryResult
@@ -97,6 +102,10 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
 
     val deliveryRequestTotalCount = MutableStateFlow(0)
     val playerReviewCount = MutableStateFlow(0)
+    private val _isPlayerLiked = MutableStateFlow(false)
+    val isPlayerLiked = _isPlayerLiked.asStateFlow()
+    private val _profileActionMessage = MutableSharedFlow<String>()
+    val profileActionMessage = _profileActionMessage.asSharedFlow()
 
     private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
     private val _topMenuLiveData = SingleLiveEvent<TopMenu>()
@@ -164,6 +173,41 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         }
     }
 
+    fun setPlayerLiked(isLiked: Boolean) {
+        _isPlayerLiked.value = isLiked
+    }
+
+    fun togglePlayerLike() = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        val nextLiked = !_isPlayerLiked.value
+        val result = if (nextLiked) {
+            playerRepository.postLikePlayer(playerId)
+        } else {
+            playerRepository.postUnlikePlayer(playerId)
+        }
+
+        when (result) {
+            is ResultWrapper.Success -> _isPlayerLiked.value = nextLiked
+            else -> _profileActionMessage.emit("좋아요 처리에 실패했습니다.")
+        }
+    }
+
+    fun blockPlayer() = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        when (playerRepository.postBlockPlayer(playerId, hashMapOf("block_cd" to "BLOCK"))) {
+            is ResultWrapper.Success -> _profileActionMessage.emit("차단되었습니다.")
+            else -> _profileActionMessage.emit("차단 처리에 실패했습니다.")
+        }
+    }
+
+    fun reportPlayer() = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch
+        when (playerRepository.postReportPlayer(playerId, hashMapOf("report_cd" to "REPORT", "content" to ""))) {
+            is ResultWrapper.Success -> _profileActionMessage.emit("신고가 접수되었습니다.")
+            else -> _profileActionMessage.emit("신고 접수에 실패했습니다.")
+        }
+    }
+
     fun addPlayerAreaAdded(request: PlayerAreaAddedRequest) = viewModelScope.launch {
         val playerId = profileDto.value?.user?.player_id ?: return@launch
         when (playerRepository.postPlayerAreaAdded(playerId, request)) {
@@ -184,6 +228,8 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         object ModifyProfile : Event()
         object SuggestDelivery : Event()
         object PasswordSet : Event()
+        object More : Event()
+        object ToggleLike : Event()
     }
 
     sealed class TopMenu {

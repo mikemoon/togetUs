@@ -24,7 +24,7 @@ class BottomSuggestDeliveryViewModel @Inject constructor(
     val requestItems: StateFlow<List<BottomSuggestDeliveryDialog.SuggestRequestItem>> = _requestItems
 
     fun loadRegisteredDeliveries() = viewModelScope.launch {
-        when (val res = deliveryRepo.postDeliverySearch(DeliverySearchReq(type = "DELIVERY|MATCH", title = "", page_no = 0))) {
+        when (val res = deliveryRepo.postDeliverySearch(DeliverySearchReq(type = "MATCH", title = "", page_no = 0, page_size = 100))) {
             is ResultWrapper.Success -> {
                 _requestItems.value = res.data.deliveries
                     .filter { it.status_cd.startsWith("MATCH") }
@@ -51,6 +51,5 @@ class BottomSuggestDeliveryViewModel @Inject constructor(
 
     sealed class Event {
         object Close : Event()
-        object Confirm : Event()
     }
 }

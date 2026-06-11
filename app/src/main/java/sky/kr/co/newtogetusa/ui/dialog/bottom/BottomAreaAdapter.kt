@@ -36,12 +36,20 @@ class BottomAreaAdapter(
 
             binding.chipRegion.setOnClickListener {
                 if (multiSelect) {
-                    // 토글
-                    if (!selectedPositions.remove(pos)) {
+                    val allPosition = regions.indexOfFirst { it.isAllRegion() }
+                    if (data.isAllRegion()) {
+                        selectedPositions.clear()
                         selectedPositions.add(pos)
+                        notifyDataSetChanged()
+                    } else {
+                        if (allPosition >= 0) selectedPositions.remove(allPosition)
+                        if (!selectedPositions.remove(pos)) {
+                            selectedPositions.add(pos)
+                        }
+                        // 클릭된 아이템만 갱신
+                        notifyItemChanged(pos)
+                        if (allPosition >= 0) notifyItemChanged(allPosition)
                     }
-                    // 클릭된 아이템만 갱신
-                    notifyItemChanged(pos)
 
                 } else {
                     // 기존 단일 선택 로직
@@ -88,4 +96,7 @@ class BottomAreaAdapter(
         selectedPositions.clear()
         notifyDataSetChanged()
     }
+
+    private fun RegionDto.isAllRegion(): Boolean =
+        name == "전체" || code.isBlank()
 }

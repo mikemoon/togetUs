@@ -1,33 +1,11 @@
 package sky.kr.co.newtogetusa.ui.login
 
-import android.app.AlertDialog
-import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.PasswordCredential
-import androidx.credentials.exceptions.GetCredentialCancellationException
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.navercorp.nid.NaverIdLoginSDK
-import com.navercorp.nid.oauth.NidOAuthLogin
-import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.ActivityLoginBinding
 import sky.kr.co.newtogetusa.ui.base.BaseActivity
-import timber.log.Timber
 
 @AndroidEntryPoint
 class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
@@ -38,10 +16,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     override fun init() {
         super.init()
 
-
-        NaverIdLoginSDK.initialize(this, "dc6y2eYKSjjh77N8TUsu", "ewIZbsx8F_", "투겟어스")
-        //NaverIdLoginSDK.logout()
-        //startActivity(Intent(this, MainActivity::class.java))
         setupNavigation()
     }
 
@@ -55,23 +29,16 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             .findFragmentById(R.id.fcv) as NavHostFragment
         val navController = navHostFragment.navController
         val navGraph = navController.navInflater.inflate(R.navigation.login)
-        //navController.setGraph(R.navigation.login)
-        lifecycleScope.launch {
-            // isFirstRun 값의 로드가 완료될 때까지 기다립니다. (예: DataStore에서 읽어오는 경우)
-            val isFirstRun = viewModel.isFirstRun.filterNotNull().first()
-            if (isFirstRun != null) { // null이 아닌 초기값이 설정되었을 때 한 번만 실행
-                if (isFirstRun) {
-                    viewModel.setFirstRun()
-                    // 앱 최초 실행 시: LoginPermission 프래그먼트에서 시작
-                    navGraph.setStartDestination(R.id.loginPermission)
-                } else {
-                    // 최초 실행이 아닐 시: LoginFragment에서 시작
-                    navGraph.setStartDestination(R.id.loginFragment)
-                }
-                navController.graph = navGraph
-            }
+        if (intent.getBooleanExtra(EXTRA_START_PERMISSION, false)) {
+            navGraph.setStartDestination(R.id.loginPermission)
+        } else {
+            navGraph.setStartDestination(R.id.loginFragment)
         }
+        navController.graph = navGraph
     }
 
+    companion object {
+        const val EXTRA_START_PERMISSION = "extra_start_permission"
+    }
 
 }

@@ -22,7 +22,8 @@ class ProfileReviewFragment : BaseFragment<FragmentProfileReviewBinding, Profile
 
     override fun init() {
         super.init()
-        reviewAdapter = ReviewAdapter()
+        val isFromSearchResult = arguments?.getBoolean(ARG_FROM_SEARCH_RESULT, false) ?: false
+        reviewAdapter = ReviewAdapter(hideAddress = isFromSearchResult)
         dataBinding.rv.apply {
             adapter = reviewAdapter
             setPadding(paddingLeft, paddingTop, paddingRight, 20.dpToPx())
@@ -45,5 +46,9 @@ class ProfileReviewFragment : BaseFragment<FragmentProfileReviewBinding, Profile
 
     private fun updateReviews() {
         reviewAdapter.setItems(reviews, reviewCodes)
+    }
+
+    companion object {
+        const val ARG_FROM_SEARCH_RESULT = "ARG_FROM_SEARCH_RESULT"
     }
 }

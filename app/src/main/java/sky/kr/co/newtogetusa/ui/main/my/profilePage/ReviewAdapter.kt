@@ -1,6 +1,8 @@
 package sky.kr.co.newtogetusa.ui.main.my.profilePage
 
 import android.annotation.SuppressLint
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -15,7 +17,9 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadProfile
 
-class ReviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ReviewAdapter(
+    private val hideAddress: Boolean = false
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val items = mutableListOf<PlayerInfoDto>()
     private var reviewCodeMap: Map<String, String> = emptyMap()
 
@@ -49,6 +53,7 @@ class ReviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             binding.tvDate.text = formatDate(review.reg_date)
             binding.tvDepartAddress.text = review.depart_address.orEmpty()
             binding.tvDestAddress.text = review.dest_address.orEmpty()
+            binding.layoutAddress.isVisible = !hideAddress
             binding.tvReview.text = review.contents.orEmpty()
             bindStars(review.stars)
 
@@ -72,14 +77,16 @@ class ReviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
 
         private fun bindStars(stars: Int) {
+            val red100 = ContextCompat.getColor(binding.root.context, R.color.red_100)
             listOf(binding.ivStar1, binding.ivStar2, binding.ivStar3, binding.ivStar4, binding.ivStar5)
                 .forEachIndexed { index, imageView ->
-                    val drawableRes = if (index < stars) {
-                        R.drawable.star_fill_priamry
+                    if (index < stars) {
+                        imageView.setImageResource(R.drawable.star_fill_priamry)
+                        imageView.setColorFilter(red100)
                     } else {
-                        R.drawable.star_fill_gray
+                        imageView.setImageResource(R.drawable.star_fill_gray)
+                        imageView.clearColorFilter()
                     }
-                    imageView.setImageResource(drawableRes)
                 }
         }
 

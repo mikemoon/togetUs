@@ -43,6 +43,7 @@ import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -59,6 +60,8 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.getValue
+
+private const val ROUTE_ANIMATION_START_DELAY_MS = 700L
 
 @AndroidEntryPoint
 class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMapViewModel>()  {
@@ -502,7 +505,6 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 return@launch
             }
             disableFollowMode()
-            drawRouteOnKakaoMap(map, points, summary)
 
             val startLL = com.kakao.vectormap.LatLng.from(start.latitude, start.longitude)
             val destLL  = com.kakao.vectormap.LatLng.from(dest.latitude,  dest.longitude)
@@ -522,9 +524,18 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 startLL = startLL,
                 destLL = destLL,
                 distanceMeters = summary?.distance,
-                paddingDp = 160,  // 바텀시트/상단바 있으면 120~160까지 늘려도 좋음
-                minZoom = 8f,
-                maxZoom = 18f
+                paddingDp = 160
+            )
+
+            delay(ROUTE_ANIMATION_START_DELAY_MS)
+            drawRouteOnKakaoMap(
+                kakaoMap = map,
+                points = points,
+                summary = summary,
+                moveCamera = false,
+                clearPrevious = true,
+                animate = true,
+                animationDurationMillis = 2_000
             )
         }
     }
@@ -667,42 +678,34 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     }
 
     //kakao
-    private fun preferredZoomFor(distanceMeters: Int): Float = when {
-        distanceMeters < 1_000   -> 15f
-        distanceMeters < 3_000   -> 14f
-        distanceMeters < 7_000   -> 13f
-        distanceMeters < 15_000  -> 12f
-        distanceMeters < 30_000  -> 11f
-        else                     -> 10f
-    }
-
-    /** 경로와 핀을 모두 포함시키고, 선호 줌으로 한 단계 조정 */
+    /** 경로와 핀을 지도 레이어 안에 모두 포함시킨다. */
     private fun fitRouteAndAdjustZoom(
         map: com.kakao.vectormap.KakaoMap,
         points: List<com.kakao.vectormap.LatLng>,
         startLL: com.kakao.vectormap.LatLng,
         destLL:  com.kakao.vectormap.LatLng,
-        distanceMeters: Int?,               // Kakao summary.distance
-        paddingDp: Int = 96,
-        minZoom: Float = 10f,
-        maxZoom: Float = 18f
+        distanceMeters: Int?,
+        paddingDp: Int = 96
     ) {
-        // 1) bounds 구성
         val bb = com.kakao.vectormap.LatLngBounds.Builder()
-        if (points.isNotEmpty()) points.forEach { bb.include(it) } else { bb.include(startLL); bb.include(destLL) }
+        bb.include(startLL)
+        bb.include(destLL)
+        points.forEach { bb.include(it) }
         val bounds = bb.build()
+        val routePaddingDp = routeFitPaddingDp(distanceMeters).coerceAtMost(paddingDp)
 
-        // 2) 먼저 fit (둘 다 화면에 보이게)
         map.moveCamera(
-            com.kakao.vectormap.camera.CameraUpdateFactory.fitMapPoints(bounds, dp(paddingDp))
+            com.kakao.vectormap.camera.CameraUpdateFactory.fitMapPoints(bounds, dp(routePaddingDp))
         )
+    }
 
-        // 3) 경로 길이에 따라 원하는 줌 레벨로 ‘한 번 더’ 세팅 (너무 가까우면 한 단계 낮추는 느낌)
-        distanceMeters?.let {
-            Timber.d("preferredZoomFor $distanceMeters")
-            val target = preferredZoomFor(it).coerceIn(minZoom, maxZoom)
-            map.moveCamera(com.kakao.vectormap.camera.CameraUpdateFactory.zoomTo(target.toInt()))
-        }
+    private fun routeFitPaddingDp(distanceMeters: Int?): Int = when {
+        distanceMeters == null -> 96
+        distanceMeters < 1_000 -> 32
+        distanceMeters < 3_000 -> 48
+        distanceMeters < 7_000 -> 64
+        distanceMeters < 15_000 -> 80
+        else -> 120
     }
 
     fun calcDistanceKm(

@@ -1,7 +1,9 @@
 package sky.kr.co.newtogetusa.ui.main.history
 
+import android.content.Context
 import android.os.Message
 import android.os.Parcelable
+import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -47,6 +49,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
     override fun init() {
         super.init()
         dataBinding.viewModel = viewModel
+        dataBinding.root.post { clearSearchFocus() }
         dataBinding.tvTopAll.isSelected = true
         historyAdapter = HistoryAdapter(viewModel)
         dataBinding.rvHistory.apply {
@@ -63,9 +66,14 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         historyAdapter.addLoadStateListener { loadState ->
             val isEmpty = loadState.refresh is LoadState.NotLoading && historyAdapter.itemCount == 0
             dataBinding.llEmpty.isVisible = isEmpty
+            setSearchEnabled(!isEmpty)
+            if (isEmpty && dataBinding.etSearch.text.isNullOrBlank()) {
+                clearSearchFocus()
+            }
         }
 
         dataBinding.ivSearch.setOnClickListener {
+            if (!dataBinding.etSearch.isEnabled) return@setOnClickListener
             viewModel.setKeyword(dataBinding.etSearch.text.toString())
         }
 
@@ -179,6 +187,25 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         dataBinding.tvTopAll.isSelected = topMenu == HistoryViewModel.TopMenu.All
         dataBinding.tvTopDoing.isSelected = topMenu == HistoryViewModel.TopMenu.Doing
         dataBinding.tvTopEnd.isSelected = topMenu == HistoryViewModel.TopMenu.End
+    }
+
+    private fun clearSearchFocus() {
+        dataBinding.etSearch.clearFocus()
+        dataBinding.root.requestFocus()
+        val inputMethodManager = requireContext()
+            .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(dataBinding.etSearch.windowToken, 0)
+    }
+
+    private fun setSearchEnabled(enabled: Boolean) {
+        dataBinding.etSearch.apply {
+            isEnabled = enabled
+            isFocusable = enabled
+            isFocusableInTouchMode = enabled
+            isCursorVisible = enabled
+            if (!enabled) clearFocus()
+        }
+        dataBinding.ivSearch.isEnabled = enabled
     }
 
     private fun populateDeliverySharedState() {

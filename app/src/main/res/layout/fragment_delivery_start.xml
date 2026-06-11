@@ -11,6 +11,7 @@
     </data>
 
     <LinearLayout
+        android:id="@+id/rootContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -107,6 +108,10 @@
             android:textColor="@color/black_80"
             android:hint="상세 주소 입력"
             android:textColorHint="@color/black_40"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:inputType="text"
+            android:imeOptions="actionNext"
             />
         
         <!-- 주소찾기 버튼 -->
@@ -261,6 +266,10 @@
                 android:paddingHorizontal="16dp"
                 android:textSize="14dp"
                 android:textColor="@color/black_80"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:inputType="textPersonName"
+                android:imeOptions="actionNext"
                 tools:text="홍길동"
                 />
 
@@ -283,6 +292,9 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="16dp"
                 android:inputType="phone"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
                 android:textColor="@color/black_80"
                 android:textSize="14dp"
                 tools:text="010-1234-5678" />
