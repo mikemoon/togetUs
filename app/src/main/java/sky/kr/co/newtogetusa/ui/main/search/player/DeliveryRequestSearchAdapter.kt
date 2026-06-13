@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.users.DeliveryItem
 import sky.kr.co.newtogetusa.databinding.ItemDeliveryRequestSearchBinding
+import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
 import sky.kr.co.newtogetusa.utils.loadImage
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -29,6 +30,7 @@ class DeliveryRequestSearchAdapter(
             if (item == null) return
 
             bind.tvStatus.text = formatStatus(item.status_cd)
+            DeliveryStatusBadgeUtil.apply(bind.tvStatus, item.status_cd)
             bind.tvDate.text = formatRegistDate(item.regist_date)
             bind.tvContent.text = item.title
             bind.tvFee.text = "${DecimalFormat("#,###").format(item.fee_final)}원"

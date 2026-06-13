@@ -62,6 +62,7 @@ class ChattingConversationViewModel @Inject constructor(
     val deliveryStatusFlow = MutableStateFlow("")
     val deliveryFeeFlow = MutableStateFlow("")
     val deliveryImageFlow = MutableStateFlow<String?>(null)
+    val isBlockedFlow = MutableStateFlow(false)
 
     init {
         callbackManager.registerCallback(this)
@@ -145,6 +146,7 @@ class ChattingConversationViewModel @Inject constructor(
         when (val room = chatRepository.getChatRoom(roomId)) {
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
+                isBlockedFlow.value = room.data.is_blocked
                 partnerReadMessageId = max(
                     room.data.read_msg_id.toLong(),
                     room.data.partner_read_msg_id.toLong()
@@ -177,7 +179,12 @@ class ChattingConversationViewModel @Inject constructor(
 
     fun blockChatRoom() = runChatRoomSetting(
         action = { chatRepository.chatRoomBlock(currentRoomId) },
-        success = Event.ChatActionSuccess("채팅방이 차단되었습니다."),
+        success = Event.ChatRoomBlocked,
+    )
+
+    fun unblockChatRoom() = runChatRoomSetting(
+        action = { chatRepository.chatRoomUnblock(currentRoomId) },
+        success = Event.ChatRoomUnblocked,
     )
 
     fun exitChatRoom() = runChatRoomSetting(
@@ -438,6 +445,8 @@ class ChattingConversationViewModel @Inject constructor(
         object InputMovie : Event()
         data class ChatActionSuccess(val message: String) : Event()
         data class ChatActionFailed(val message: String) : Event()
+        object ChatRoomBlocked : Event()
+        object ChatRoomUnblocked : Event()
         object ChatRoomExited : Event()
     }
 

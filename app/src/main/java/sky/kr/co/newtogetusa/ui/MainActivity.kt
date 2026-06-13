@@ -161,10 +161,24 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     fun showChangeModeAnimation(isShow:Boolean){
         viewModel.onModeChange(isShow)
+        navigateToHomeTabRoot()
     }
 
     fun selectMainTab(itemId: Int) {
         dataBinding.bottomNavigation.selectedItemId = itemId
+    }
+
+    private fun navigateToHomeTabRoot() {
+        if (!::navController.isInitialized) return
+
+        runCatching {
+            dataBinding.bottomNavigation.selectedItemId = R.id.home
+            if (navController.currentDestination?.id != R.id.homeTabFragment) {
+                navController.navigate(R.id.action_global_home)
+            }
+        }.onFailure {
+            Timber.e(it, "Failed to navigate home after mode change")
+        }
     }
 
     private fun isCurrentMainTabDestination(): Boolean {

@@ -69,6 +69,11 @@ interface ChatService {
         @Path("room_id") roomId: Long
     ): Boolean
 
+    @POST("api/chats/v1/rooms/{room_id}/setting/unblock")
+    suspend fun chatRoomUnblock(
+        @Path("room_id") roomId: Long
+    ): Boolean
+
     @POST("api/chats/v1/rooms/{room_id}/setting/exit")
     suspend fun chatRoomExit(
         @Path("room_id") roomId: Long

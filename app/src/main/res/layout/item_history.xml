@@ -28,6 +28,7 @@
                 android:textColor="@color/black_60"
                 style="@style/Paragraph12B"
                 android:background="@drawable/background_s_b5_r4"
+                app:deliveryStatusBadge="@{item.status_cd}"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:paddingHorizontal="8dp"

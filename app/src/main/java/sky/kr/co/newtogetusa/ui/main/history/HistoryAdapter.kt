@@ -14,7 +14,10 @@ import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.toast
 
-class HistoryAdapter(private val viewModel: HistoryViewModel) : PagingDataAdapter<DeliverySummaryDto, BaseViewHolder>(diffCallback) {
+class HistoryAdapter(
+    private val viewModel: HistoryViewModel,
+    private val onItemClick: (DeliverySummaryDto) -> Unit
+) : PagingDataAdapter<DeliverySummaryDto, BaseViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return ViewHolder((ItemHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)))
@@ -35,6 +38,7 @@ class HistoryAdapter(private val viewModel: HistoryViewModel) : PagingDataAdapte
 
             binding.item = item
             binding.viewModel = viewModel
+            binding.root.setOnClickListener { onItemClick(item) }
             binding.ivProduct.loadImage(item.prd_picture, error = R.drawable.no_img)
 
             updateBottomButtons(item)

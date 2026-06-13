@@ -112,13 +112,11 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
     val isMapConfirmReady: StateFlow<Boolean> =
         state
             .map { s ->
-                s.startAddress != null &&
-                        s.startDetail != null &&
+                !s.startAddress.isNullOrBlank() &&
                         s.startLat != null &&
                         s.startLng != null &&
 
-                        s.destinationAddress != null &&
-                        s.destinationDetail != null &&
+                        !s.destinationAddress.isNullOrBlank() &&
                         s.destLat != null &&
                         s.destLng != null
             }

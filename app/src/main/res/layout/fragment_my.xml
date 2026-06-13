@@ -297,7 +297,7 @@
                         android:layout_marginStart="20dp"
                         android:gravity="center_vertical"
                         android:onClick="@{()-> viewModel.onEventClick(Event.Favor.INSTANCE)}"
-                        android:text="좋아요 한 배송 내역"
+                        android:text="관심 동행요청"
                         android:textColor="@color/black_80"
                         android:visibility="@{viewModel.isPlayerModeFlow?View.VISIBLE:View.GONE}"
                         app:layout_constraintStart_toStartOf="parent"

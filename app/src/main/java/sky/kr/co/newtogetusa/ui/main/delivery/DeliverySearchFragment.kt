@@ -26,6 +26,8 @@ class DeliverySearchFragment :
 
     private lateinit var recentlyAdapter : DeliveryStartRecentlyAdapter
     private lateinit var searchResultAdapter: DeliveryStartKakaoSearchResultAdapter
+    private var hasRecentSearchItems = false
+    private var hasSearchResults = false
 
     private val args: DeliverySearchFragmentArgs by navArgs()
 
@@ -60,9 +62,9 @@ class DeliverySearchFragment :
         super.initObserver()
 
         viewModel.recentSearchList.observe(viewLifecycleOwner) { list ->
+            hasRecentSearchItems = list.isNotEmpty()
             recentlyAdapter.submitList(list)
-            dataBinding.rvRecently.visibility =
-                if (list.isEmpty()) View.GONE else View.VISIBLE
+            updateRecentSearchVisibility()
         }
 
         lifecycleScope.launch {
@@ -77,12 +79,14 @@ class DeliverySearchFragment :
             searchResultAdapter.loadStateFlow.collectLatest { loadStates ->
                 val isLoading = loadStates.refresh is LoadState.Loading
                 val isError = loadStates.refresh is LoadState.Error
-                val isEmpty = loadStates.refresh is LoadState.NotLoading &&
-                        searchResultAdapter.itemCount == 0
+                val isRefreshNotLoading = loadStates.refresh is LoadState.NotLoading
+                val isEmpty = isRefreshNotLoading && searchResultAdapter.itemCount == 0
+                hasSearchResults = isRefreshNotLoading && searchResultAdapter.itemCount > 0
 
                 //dataBinding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
                 dataBinding.rvSearchResult.visibility =
                     if (!isLoading && !isEmpty) View.VISIBLE else View.GONE
+                updateRecentSearchVisibility()
                 //dataBinding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
 
                 if (isError) {
@@ -109,5 +113,11 @@ class DeliverySearchFragment :
                 }
             }
         }
+    }
+
+    private fun updateRecentSearchVisibility() {
+        val showRecentSearch = hasRecentSearchItems && !hasSearchResults
+        dataBinding.llRecent.visibility = if (showRecentSearch) View.VISIBLE else View.GONE
+        dataBinding.rvRecently.visibility = if (showRecentSearch) View.VISIBLE else View.GONE
     }
 }

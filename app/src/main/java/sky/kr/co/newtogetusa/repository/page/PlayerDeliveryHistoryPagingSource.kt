@@ -28,8 +28,12 @@ class PlayerDeliveryHistoryPagingSource(
                 )
             ) {
                 is ResultWrapper.Success -> {
+                    val playerHistoryItems = response.data.deliveries.filter { delivery ->
+                        delivery.playerId != null || !delivery.applyDate.isNullOrBlank()
+                    }
+
                     LoadResult.Page(
-                        data = response.data.deliveries,
+                        data = playerHistoryItems,
                         prevKey = if (page == 0) null else page - 1,
                         nextKey = if (response.data.hasMore) page + 1 else null
                     )

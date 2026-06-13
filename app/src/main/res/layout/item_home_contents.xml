@@ -41,7 +41,8 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="@{data.status_text}"
-                android:textColor="@color/primary_100" />
+                android:textColor="@color/primary_100"
+                app:deliveryStatusBadge="@{data.status_cd}" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Paragraph14R"

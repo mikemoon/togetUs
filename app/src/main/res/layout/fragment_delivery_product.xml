@@ -84,10 +84,12 @@
                     android:layout_marginTop="12dp"
                     android:background="@drawable/selector_bg_st_b10_b80_s_w_r4"
                     android:gravity="top"
+                    android:hint="동행 요청 제목 입력"
                     android:padding="8dp"
                     android:maxLines="1"
                     android:singleLine="true"
                     android:textColor="@color/black_80"
+                    android:textColorHint="@color/black_40"
                     style="@style/Paragraph17R"
                     />
 

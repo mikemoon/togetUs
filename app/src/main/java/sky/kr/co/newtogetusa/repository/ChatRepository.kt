@@ -51,6 +51,10 @@ class ChatRepository @Inject constructor(
         apiService.chatRoomBlock(roomId)
     }
 
+    suspend fun chatRoomUnblock(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.chatRoomUnblock(roomId)
+    }
+
     suspend fun chatRoomExit(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
         apiService.chatRoomExit(roomId)
     }

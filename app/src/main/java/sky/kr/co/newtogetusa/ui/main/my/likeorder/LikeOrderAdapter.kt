@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemDeliveryRequestBinding
+import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
 import sky.kr.co.newtogetusa.utils.loadImage
 
 class LikeOrderAdapter(
@@ -35,6 +36,7 @@ class LikeOrderAdapter(
         fun bind(item: DeliverySummaryDto) {
             item.setUiValue()
             binding.tvStatus.text = item.status_text
+            DeliveryStatusBadgeUtil.apply(binding.tvStatus, item.status_cd)
             binding.tvDate.text = item.regist_date_text.ifBlank { item.regist_date.orEmpty() }
             binding.tvTitle.text = item.title
             binding.tvPrice.text = item.price_text

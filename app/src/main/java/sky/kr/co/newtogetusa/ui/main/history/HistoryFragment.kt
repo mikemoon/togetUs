@@ -51,7 +51,15 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         dataBinding.viewModel = viewModel
         dataBinding.root.post { clearSearchFocus() }
         dataBinding.tvTopAll.isSelected = true
-        historyAdapter = HistoryAdapter(viewModel)
+        historyAdapter = HistoryAdapter(viewModel) { selectedItem ->
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.historyFragment) {
+                navController.navigate(
+                    R.id.action_global_historyDetailFragment,
+                    bundleOf("delivery" to selectedItem)
+                )
+            }
+        }
         dataBinding.rvHistory.apply {
             adapter = historyAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))

@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
@@ -32,6 +34,7 @@ import sky.kr.co.newtogetusa.ui.main.delivery.product.ItemMoveCallback
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ProductPickImageAdapter
 import sky.kr.co.newtogetusa.utils.FileUtil.copyUriToTempFile
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.hideKeyboard
 import timber.log.Timber
 import java.io.File
 import java.util.UUID
@@ -59,6 +62,7 @@ class DeliveryProductFragment :
 
     override fun init() {
         super.init()
+        setupHideKeyboardOnOutsideTouch(dataBinding.root)
 
         imagePickerLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -303,5 +307,26 @@ class DeliveryProductFragment :
 
     private fun findLabelByCode(items: List<BaseCommonDto>, code: String): String {
         return items.firstOrNull { it.code == code }?.name ?: code
+    }
+
+    private fun setupHideKeyboardOnOutsideTouch(view: View) {
+        if (view is EditText) return
+
+        view.setOnTouchListener { _, _ ->
+            clearInputFocusAndHideKeyboard()
+            false
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                setupHideKeyboardOnOutsideTouch(view.getChildAt(i))
+            }
+        }
+    }
+
+    private fun clearInputFocusAndHideKeyboard() {
+        val focusedView = requireActivity().currentFocus ?: view?.findFocus() ?: dataBinding.root
+        focusedView.clearFocus()
+        requireContext().hideKeyboard(focusedView)
     }
 }

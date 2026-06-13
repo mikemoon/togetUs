@@ -318,6 +318,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             1f - (bottomSheetBehavior.peekHeight.toFloat() / parentHeight.toFloat())
         bottomSheetExpandedTop = headerBottom
         bottomSheetCollapsedTop = parentHeight - bottomSheetBehavior.peekHeight
+        updateCalendarEmptyPosition()
     }
 
     private fun snapBottomSheet(currentTop: Int) {
@@ -336,6 +337,18 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
         if (bottomSheetBehavior.state != targetState) {
             bottomSheetBehavior.state = targetState
         }
+    }
+
+    private fun updateCalendarEmptyPosition() {
+        val visibleContentHeight = bottomSheetBehavior.peekHeight - 120.dpToPx()
+        val topMargin = (visibleContentHeight / 2).coerceAtLeast(80.dpToPx())
+        val layoutParams = dataBinding.tvCalendarEmpty.layoutParams as? android.widget.FrameLayout.LayoutParams
+            ?: return
+
+        layoutParams.gravity =
+            android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
+        layoutParams.topMargin = topMargin
+        dataBinding.tvCalendarEmpty.layoutParams = layoutParams
     }
 
     private fun bindDeliveryDots(

@@ -161,6 +161,12 @@ object BindingUtils {
         setAnimation(resId); playAnimation()
     }
 
+    @JvmStatic
+    @BindingAdapter("deliveryStatusBadge")
+    fun setDeliveryStatusBadge(textView: TextView, statusCd: String?) {
+        DeliveryStatusBadgeUtil.apply(textView, statusCd)
+    }
+
     
     private fun String?.isEmptyProfileSrc(): Boolean {
         val value = this?.trim().orEmpty()

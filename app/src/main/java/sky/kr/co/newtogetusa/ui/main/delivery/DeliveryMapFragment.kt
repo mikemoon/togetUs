@@ -62,6 +62,7 @@ import kotlin.coroutines.resume
 import kotlin.getValue
 
 private const val ROUTE_ANIMATION_START_DELAY_MS = 700L
+private const val ROUTE_ANIMATION_DURATION_MS = 2_500
 
 @AndroidEntryPoint
 class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMapViewModel>()  {
@@ -357,15 +358,20 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.address.collectLatest { addr ->
-
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                sharedViewModel.isMapConfirmReady.collectLatest { isReady ->
-                    viewModel.updateConfirmButtonEnable(isReady)
+                    val currentLocation = lastKnownLocation ?: return@collectLatest
+                    val currentState = sharedViewModel.state.value
+                    if (
+                        addr.isUsableStartAddress() &&
+                        currentState.startLat == null &&
+                        currentState.startLng == null
+                    ) {
+                        sharedViewModel.updateStartLocation(
+                            address = addr.orEmpty(),
+                            detail = currentState.startDetail.orEmpty(),
+                            lat = currentLocation.latitude,
+                            lng = currentLocation.longitude
+                        )
+                    }
                 }
             }
         }
@@ -373,6 +379,8 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 sharedViewModel.state.collectLatest { state ->
+                    viewModel.updateConfirmButtonEnable(state.hasRequiredRouteLocations())
+
                     state.startLat?.let { loc ->
                         val loc = Location("kakao").apply {
                             latitude = state.startLat
@@ -535,7 +543,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 moveCamera = false,
                 clearPrevious = true,
                 animate = true,
-                animationDurationMillis = 2_000
+                animationDurationMillis = ROUTE_ANIMATION_DURATION_MS
             )
         }
     }
@@ -724,4 +732,17 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     }
 
     private fun dp(px: Int) = (px * resources.displayMetrics.density + 0.5f).toInt()
+
+    private fun DeliveryRequestState.hasRequiredRouteLocations(): Boolean {
+        return !startAddress.isNullOrBlank() &&
+            startLat != null &&
+            startLng != null &&
+            !destinationAddress.isNullOrBlank() &&
+            destLat != null &&
+            destLng != null
+    }
+
+    private fun String?.isUsableStartAddress(): Boolean {
+        return !isNullOrBlank() && this != "출발지 선택"
+    }
 }
