@@ -119,6 +119,12 @@ fun Context.downloadUrlWithDownloadManager(url: String, fileName: String) {
 fun ImageView.loadProfile(src: String?, radiusDp: Float = 40f, cacheKey: Any? = null,          // ex) user.updatedAt, user.revision 등
                           noCache: Boolean = false        // 강제 캐시 미사용 옵션
      ) {
+    if (src.isNullOrBlank()) {
+        Glide.with(context).clear(this)
+        setImageResource(R.drawable.profile)
+        return
+    }
+
     val radiusPx = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, radiusDp, resources.displayMetrics
     ).toInt()

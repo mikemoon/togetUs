@@ -46,17 +46,6 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
             }
         }.attach()
         dataBinding.vPager.setCurrentItem(USER_TAB_POSITION, false)
-        dataBinding.tab.setOnTouchListener { _, _ -> true }
-
-        for(i in 0 until dataBinding.tab.tabCount){
-            dataBinding.tab.getTabAt(i)?.view?.apply {
-                isClickable = false
-                isLongClickable = false
-                isEnabled = false
-                setOnLongClickListener { true }
-            }
-        }
-
     }
 
     override fun onResume() {

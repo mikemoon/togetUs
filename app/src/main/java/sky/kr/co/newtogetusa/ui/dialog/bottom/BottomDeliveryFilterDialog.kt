@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.ui.dialog.bottom
 
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
@@ -14,20 +15,35 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
 
     var initialFilterOption = FilterOption()
     var filterConfirmCallback: ((FilterOption) -> Unit)? = null
+    var showAreaFilter: Boolean = true
 
     private var myArea: Boolean = true
+    private var minFee: Int = 0
     private var face2Face: Boolean? = null
     private var immediately: String? = null
 
     override fun init() {
         super.init()
         myArea = initialFilterOption.myArea
+        minFee = initialFilterOption.minFee
         face2Face = initialFilterOption.face2Face
         immediately = initialFilterOption.immediately
 
         dataBinding.switchMyArea.isChecked = myArea
+        dataBinding.etMinFee.setText(minFee.takeIf { it > 0 }?.toString().orEmpty())
         dataBinding.switchMyArea.setOnCheckedChangeListener { _, isChecked ->
             myArea = isChecked
+        }
+        setAreaFilterVisible(showAreaFilter)
+        dataBinding.tvReset.setOnClickListener {
+            myArea = initialFilterOption.myArea
+            minFee = 0
+            face2Face = null
+            immediately = null
+            dataBinding.switchMyArea.isChecked = myArea
+            dataBinding.etMinFee.setText("")
+            renderFaceToFaceUi()
+            renderImmediatelyUi()
         }
 
         setupFaceToFaceUi()
@@ -42,9 +58,16 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
             when (event) {
                 BottomDeliveryFilterViewModel.Event.Back -> dismissAllowingStateLoss()
                 BottomDeliveryFilterViewModel.Event.Confirm -> {
+                    minFee = dataBinding.etMinFee.text
+                        ?.toString()
+                        .orEmpty()
+                        .filter { it.isDigit() }
+                        .toIntOrNull()
+                        ?: 0
                     filterConfirmCallback?.invoke(
                         FilterOption(
                             myArea = myArea,
+                            minFee = minFee,
                             face2Face = face2Face,
                             immediately = immediately
                         )
@@ -108,8 +131,17 @@ class BottomDeliveryFilterDialog : BottomBaseDialog<DialogBottomDeliveryFilterBi
         textView.setTextColor(requireContext().getColor(textColorRes))
     }
 
+    private fun setAreaFilterVisible(isVisible: Boolean) {
+        dataBinding.clAreaFilterTitle.isVisible = isVisible
+        dataBinding.llDepartAreaFilter.isVisible = isVisible
+        dataBinding.tvDepartAreaFilter.isVisible = isVisible
+        dataBinding.llDestAreaFilter.isVisible = isVisible
+        dataBinding.tvDestAreaFilter.isVisible = isVisible
+    }
+
     data class FilterOption(
         val myArea: Boolean = true,
+        val minFee: Int = 0,
         val face2Face: Boolean? = null,
         val immediately: String? = null
     )

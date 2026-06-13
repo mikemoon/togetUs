@@ -22,15 +22,25 @@ class TermFragment : BaseFragment<FragmentTermBinding, TermViewModel>()  {
                     findNavController().popBackStack()
                 }
                 TermViewModel.Event.UseTerm ->{
-
+                    navigateTermDetail(TermViewModel.TermType.USE)
                 }
                 TermViewModel.Event.PrivacyTerm ->{
-
+                    navigateTermDetail(TermViewModel.TermType.PRIVACY)
                 }
                 TermViewModel.Event.LocationTerm ->{
-
+                    navigateTermDetail(TermViewModel.TermType.LOCATION)
                 }
             }
         }
+    }
+
+    private fun navigateTermDetail(type: TermViewModel.TermType) {
+        val term = viewModel.findTerm(type)
+        findNavController().navigate(
+            TermFragmentDirections.actionTermFragmentToTermDetailFragment(
+                title = term?.name ?: type.title,
+                content = term?.description?.takeIf { it.isNotBlank() } ?: type.fallbackContent
+            )
+        )
     }
 }

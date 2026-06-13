@@ -45,7 +45,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
     override val viewModel: HistoryDeliveryViewModel by viewModels()
 
     private lateinit var historyAdapter: HistoryDeliverAdapter
-    private lateinit var calendarBottomSheetAdapter: HistoryDeliveryCalendarDummyAdapter
+    private lateinit var calendarBottomSheetAdapter: HistoryDeliverAdapter
     private val todayDate = LocalDate.now()
     private var selectedDate: LocalDate? = null
     private var currentMonth: YearMonth = YearMonth.now()
@@ -72,12 +72,20 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             adapter = historyAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
         }
-        calendarBottomSheetAdapter = HistoryDeliveryCalendarDummyAdapter()
+        calendarBottomSheetAdapter = HistoryDeliverAdapter(viewModel) { selectedItem ->
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.historyDeliveryFragment) {
+                val action = HistoryDeliveryFragmentDirections
+                    .actionHistoryDeliveryFragmentToPlayerHistoryDetailFragment(
+                        selectedItem.deliveryId.toLong()
+                    )
+                navController.navigate(action)
+            }
+        }
         dataBinding.rvCalendarBottomSheet.apply {
             adapter = calendarBottomSheetAdapter
             addItemDecoration(VerticalSpaceItemDecoration(12.dpToPx()))
         }
-        calendarBottomSheetAdapter.submitList(createDummyBottomSheetItems())
         initBottomSheet()
         initCalendar()
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
@@ -151,7 +159,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 container.day = data
                 val isSelectedDay = data.date == selectedDate
                 val isToday = data.date == todayDate
-                val deliveryDots = getDummyDeliveryDots(data.date, data.position == DayPosition.MonthDate)
+                val deliveryDots = getDeliveryDots(data.date, data.position == DayPosition.MonthDate)
 
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
@@ -242,6 +250,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                             }
                         } else {
+                            clearCalendarBottomSheet()
                             dataBinding.tvCalendarEmpty.visibility = android.view.View.GONE
                         }
                     }
@@ -256,7 +265,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 launch {
                     viewModel.calendarDayDeliveries.collectLatest { dayDeliveries ->
                         if (viewModel.isShowCalendar.value && dayDeliveries != null) {
-                            historyAdapter.submitData(PagingData.from(dayDeliveries))
+                            calendarBottomSheetAdapter.submitData(PagingData.from(dayDeliveries))
                             dataBinding.tvCalendarEmpty.visibility =
                                 if (dayDeliveries.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
                         }
@@ -343,52 +352,27 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             if (dots.contains(DeliveryDotType.GRAY)) android.view.View.VISIBLE else android.view.View.GONE
     }
 
-    private fun getDummyDeliveryDots(
+    private fun getDeliveryDots(
         date: LocalDate,
         isMonthDate: Boolean
     ): Set<DeliveryDotType> {
         if (!isMonthDate) return emptySet()
-
-        return when (date.dayOfMonth % 6) {
-            0 -> setOf(DeliveryDotType.RED, DeliveryDotType.GREEN, DeliveryDotType.GRAY)
-            1 -> setOf(DeliveryDotType.RED)
-            2 -> setOf(DeliveryDotType.GREEN)
-            3 -> setOf(DeliveryDotType.GRAY)
-            4 -> setOf(DeliveryDotType.RED, DeliveryDotType.GRAY)
-            else -> emptySet()
-        }
+        if (!viewModel.monthDeliveryDates.value.contains(date)) return emptySet()
+        return setOf(
+            when {
+                date < todayDate -> DeliveryDotType.GRAY
+                date == todayDate -> DeliveryDotType.GREEN
+                else -> DeliveryDotType.RED
+            }
+        )
     }
 
-    private fun createDummyBottomSheetItems(): List<HistoryDeliveryCalendarDummyItem> {
-        return listOf(
-            HistoryDeliveryCalendarDummyItem(
-                status = "매칭 진행중",
-                date = "2025.04.29",
-                title = "노트북 좀 전달해 주세요.",
-                price = "23,000원",
-                pickupDate = "2025년 5월 1일(목) 오전 10:30",
-                pickupAddress = "서울 강서구 공항대로 631",
-                arrivalAddress = "서울 마포구 월드컵로 240"
-            ),
-            HistoryDeliveryCalendarDummyItem(
-                status = "매칭 진행중",
-                date = "2025.04.30",
-                title = "서류 봉투 전달 부탁드려요.",
-                price = "18,000원",
-                pickupDate = "2025년 5월 2일(금) 오후 1:30",
-                pickupAddress = "서울 영등포구 여의대로 24",
-                arrivalAddress = "서울 서초구 서초대로 77"
-            ),
-            HistoryDeliveryCalendarDummyItem(
-                status = "거래 완료",
-                date = "2025.05.01",
-                title = "작은 화분 배송 부탁해요.",
-                price = "15,000원",
-                pickupDate = "2025년 5월 3일(토) 오전 9:00",
-                pickupAddress = "서울 성동구 왕십리로 83",
-                arrivalAddress = "서울 송파구 올림픽로 300"
-            )
-        )
+    private fun clearCalendarBottomSheet() {
+        if (::calendarBottomSheetAdapter.isInitialized) {
+            lifecycleScope.launch {
+                calendarBottomSheetAdapter.submitData(PagingData.empty())
+            }
+        }
     }
 
     private enum class DeliveryDotType {

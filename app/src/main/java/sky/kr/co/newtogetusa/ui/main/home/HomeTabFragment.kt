@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.MapLifeCycleCallback
+import com.kakao.vectormap.MapType
 import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
@@ -84,6 +85,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     private var kakaoLabelStyles: com.kakao.vectormap.label.LabelStyles? = null
     private var lastKnownLocation: Location? = null
     private var isFollowMode: Boolean = true
+    private var isNormalMapType: Boolean = true
 
     //구글
     private var googleMap: GoogleMap? = null
@@ -146,6 +148,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }else{
             setupKakaoMap()
         }
+        setupMapTypeToggle()
 
         prgAdapter = HomeProgressAdapter{
             selectedItem ->
@@ -338,7 +341,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             }
             maybeInitMapWithLocation()
         }
+    }
 
+    private fun setupMapTypeToggle() {
         dataBinding.tvIndicator.post {
             val params = dataBinding.tvIndicator.layoutParams
             params.width = dataBinding.tvMap.width
@@ -348,20 +353,22 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             isSelected = true
             setOnClickListener {
                 moveIndicatorTo(dataBinding.tvMap)
-                setSelectGoogleMapType(true)
+                setSelectMapType(true)
             }
         }
         dataBinding.tvSettle.apply {
             setOnClickListener {
                 moveIndicatorTo(dataBinding.tvSettle)
-                setSelectGoogleMapType(false)
+                setSelectMapType(false)
             }
         }
+        setSelectMapType(isNormalMapType)
     }
 
-    //구글맵
+    //구글맵/카카오맵
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun setSelectGoogleMapType(isMap: Boolean) {
+    private fun setSelectMapType(isMap: Boolean) {
+        isNormalMapType = isMap
         dataBinding.tvMap.apply {
             isSelected = isMap
             //background = if(isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
@@ -372,7 +379,15 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             //background = if(!isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
             setTextColor(requireContext().getColor(if (!isMap) R.color.white else R.color.black_80))
         }
-        googleMap?.mapType = if (isMap) GoogleMap.MAP_TYPE_NORMAL else GoogleMap.MAP_TYPE_SATELLITE
+        when (viewModel.mapShowState.value) {
+            HomeTabViewModel.MapShow.GOOGLE_MAP -> {
+                googleMap?.mapType = if (isMap) GoogleMap.MAP_TYPE_NORMAL else GoogleMap.MAP_TYPE_SATELLITE
+            }
+            HomeTabViewModel.MapShow.KAKAO_MAP -> {
+                kakaoMap?.changeMapType(if (isMap) MapType.NORMAL else MapType.SKYVIEW)
+            }
+            HomeTabViewModel.MapShow.LOCAL_IMAGE -> Unit
+        }
     }
 
     //구글맵
@@ -455,6 +470,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 Timber.d("onMapReady")
                 kakaoMap = map
                 isMapReady = true
+                setSelectMapType(isNormalMapType)
 
                 kakaoLabelStyles = kakaoMap!!.labelManager?.addLabelStyles(
                     com.kakao.vectormap.label.LabelStyles.from(

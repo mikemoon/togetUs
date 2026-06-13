@@ -145,9 +145,11 @@
                 />
 
             <View
+                android:id="@+id/vRouteLine"
                 android:layout_width="1dp"
-                android:layout_height="8dp"
+                android:layout_height="0dp"
                 app:layout_constraintTop_toBottomOf="@id/ivPickup"
+                app:layout_constraintBottom_toTopOf="@id/ivDestination"
                 app:layout_constraintStart_toStartOf="@id/ivPickup"
                 android:layout_marginStart="8dp"
                 android:background="@color/black_10"
@@ -157,8 +159,7 @@
                 android:id="@+id/ivDestination"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@id/ivPickup"
+                app:layout_constraintTop_toTopOf="@id/tvDestination"
                 app:layout_constraintStart_toStartOf="parent"
                 android:src="@drawable/placecircle_primary"
                 />
@@ -177,14 +178,16 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvPickup"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="16dp"
                 android:id="@+id/tvDepartAddress"
                 android:text="서울 강서구 공항대로 631"
                 android:textColor="@color/black_80"
+                android:maxLines="3"
                 style="@style/Paragraph12R"
                 />
 
@@ -196,22 +199,23 @@
                 android:text="도착지"
                 android:textColor="@color/black_40"
                 style="@style/Paragraph12R"
-                app:layout_constraintTop_toBottomOf="@id/tvPickup"
+                app:layout_constraintTop_toBottomOf="@id/tvDepartAddress"
                 app:layout_constraintStart_toEndOf="@id/ivPickup"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tvPickup"
+                app:layout_constraintTop_toTopOf="@id/tvDestination"
                 app:layout_constraintStart_toEndOf="@id/tvPickup"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
                 android:id="@+id/tvDestAddress"
                 android:text="서울 강서구 공항대로 631"
                 android:textColor="@color/black_80"
+                android:maxLines="3"
                 style="@style/Paragraph12R"
                 />
 

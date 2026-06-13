@@ -55,7 +55,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     private val backPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (navController.currentDestination?.id in mainTabFragments) {
+            if (isCurrentMainTabDestination()) {
                 if (System.currentTimeMillis() - backKeyPressedTime > finishDelayTime) {
                     backKeyPressedTime = System.currentTimeMillis()
                     toast("앱을 끄려면 한 번 더 눌러주세요.")
@@ -97,10 +97,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     override fun initObserver() {
         super.initObserver()
-        navController.addOnDestinationChangedListener { _, destination, _ ->
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
             Timber.d("onDestion  ${destination.label} , ${destination.route}")
-            dataBinding.bottomNavigation.isVisible = destination.id in mainTabFragments
-            if (destination.id in mainTabFragments) {
+            dataBinding.bottomNavigation.isVisible = isMainTabDestination(destination.id, arguments)
+            if (dataBinding.bottomNavigation.isVisible) {
                 viewModel.refreshChatUnread()
             }
         }
@@ -165,6 +165,19 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     fun selectMainTab(itemId: Int) {
         dataBinding.bottomNavigation.selectedItemId = itemId
+    }
+
+    private fun isCurrentMainTabDestination(): Boolean {
+        val destinationId = navController.currentDestination?.id ?: return false
+        return isMainTabDestination(destinationId, navController.currentBackStackEntry?.arguments)
+    }
+
+    private fun isMainTabDestination(destinationId: Int, arguments: android.os.Bundle?): Boolean {
+        if (destinationId !in mainTabFragments) return false
+        if (destinationId == R.id.historyFragment && arguments?.getBoolean("fromMySubMenu") == true) {
+            return false
+        }
+        return true
     }
 
     private fun updateChatTabBadge(hasUnread: Boolean) {

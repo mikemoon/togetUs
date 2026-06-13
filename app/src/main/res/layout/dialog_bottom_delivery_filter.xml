@@ -44,6 +44,7 @@
             />
         
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAreaFilterTitle"
             android:layout_width="match_parent"
             android:layout_height="31dp"
             android:layout_marginTop="20dp"
@@ -87,6 +88,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
+            android:id="@+id/llDepartAreaFilter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -109,6 +111,7 @@
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDepartAreaFilter"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="12dp"
@@ -121,6 +124,7 @@
             />
 
         <LinearLayout
+            android:id="@+id/llDestAreaFilter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -143,6 +147,7 @@
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDestAreaFilter"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="12dp"
@@ -164,15 +169,21 @@
             android:layout_marginTop="24dp"
             />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/etMinFee"
+            android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="8dp"
-            android:gravity="center"
+            android:background="@drawable/background_st_b10_s_w_r4"
+            android:gravity="center_vertical"
+            android:hint="0 원"
+            android:inputType="number"
+            android:maxLines="1"
+            android:paddingHorizontal="16dp"
             style="@style/Paragraph14R"
             android:textColor="@color/black_80"
-            android:text="0원"
+            android:textColorHint="@color/black_40"
             />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -286,6 +297,7 @@
             android:padding="20dp"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReset"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:paddingHorizontal="20dp"

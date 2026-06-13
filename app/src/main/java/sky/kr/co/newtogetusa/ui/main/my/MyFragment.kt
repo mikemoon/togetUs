@@ -1,15 +1,18 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentMyBinding
@@ -48,6 +51,11 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    viewModel.profileDto.filterNotNull().collectLatest { profile ->
+                        dataBinding.profile = profile
+                    }
+                }
+                launch {
                     viewModel.isModeChanging.drop(1).filter { it }.collectLatest {
                         (requireActivity() as MainActivity).showChangeModeAnimation(!viewModel.isPlayerModeFlow.value)
                     }
@@ -57,6 +65,12 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                         viewModel.refreshProfileForMode { profile ->
                             dataBinding.profile = profile
                         }
+                    }
+                }
+                launch {
+                    viewModel.isCompanyInfoExpanded.collectLatest { expanded ->
+                        dataBinding.tvCompanyDetail.isVisible = expanded
+                        dataBinding.ivCompanyArrow.rotation = if (expanded) 180f else 0f
                     }
                 }
             }
@@ -138,7 +152,12 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.UseHistory -> {
-                    (requireActivity() as MainActivity).selectMainTab(R.id.history)
+                    findNavController().navigate(
+                        R.id.action_global_historyFragment,
+                        bundleOf(
+                            "fromMySubMenu" to true
+                        )
+                    )
                 }
 
                 MyViewModel.Event.FavorPlayer -> {

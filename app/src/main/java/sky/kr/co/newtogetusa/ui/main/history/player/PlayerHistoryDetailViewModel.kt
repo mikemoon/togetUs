@@ -163,6 +163,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             requesterRatingText = "★ ${detail.requester_rating.star_rating} (${detail.requester_rating.deliveries})",
             departContactName = detail.depart_contact.name.orEmpty(),
             departContactPhone = detail.depart_contact.phone.orEmpty(),
+            destContactName = detail.dest_contact.name.orEmpty(),
+            destContactPhone = detail.dest_contact.phone.orEmpty(),
             pictures = detail.product.pictures,
         )
     }.stateIn(
@@ -264,6 +266,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         val requesterRatingText: String,
         val departContactName: String,
         val departContactPhone: String,
+        val destContactName: String,
+        val destContactPhone: String,
         val pictures: List<String>,
     )
 }

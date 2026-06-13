@@ -25,6 +25,8 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
         super.init()
 
         dataBinding.profile = args.profileDto
+        dataBinding.tvPhone.text = "-"
+        dataBinding.tvDate.text = "※ 최근 인증: -"
     }
 
     override fun initObserver() {
@@ -33,13 +35,13 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.loginEmail.collectLatest {
-                        //dataBinding.tvSnsValue.text = it
+                    viewModel.loginAccountText.collectLatest {
+                        dataBinding.tvEmail.text = it
                     }
                 }
                 launch {
                     viewModel.loginTypeLabel.collectLatest { type ->
-                        //dataBinding.tvSnsType.text = type
+                        dataBinding.tvSnsTitle.text = if (type == "이메일") "이메일 로그인" else "SNS 로그인"
                         val iconRes = when (type) {
                             "카카오" -> R.drawable.login_kakao
                             "네이버" -> R.drawable.login_naver
@@ -47,7 +49,7 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
                             "이메일" -> R.drawable.login_mail
                             else -> R.drawable.login_mail
                         }
-                        //dataBinding.ivSns.setImageResource(iconRes)
+                        dataBinding.ivSns.setImageResource(iconRes)
                     }
                 }
             }
@@ -60,6 +62,9 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
                 }
                 is ProfileManageSubVM.Event.ModifyProfile -> {
                     findNavController().navigate(ProfileManageSubFragmentDirections.actionProfileManageSubFragmentToModifyProfileFragment(args.profileDto))
+                }
+                is ProfileManageSubVM.Event.PasswordSet -> {
+                    findNavController().navigate(R.id.action_profileManageSubFragment_to_passwordSetFragment)
                 }
                 is ProfileManageSubVM.Event.Recertification -> {
 

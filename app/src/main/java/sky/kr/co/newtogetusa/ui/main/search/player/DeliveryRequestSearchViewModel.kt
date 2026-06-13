@@ -68,11 +68,13 @@ class DeliveryRequestSearchViewModel @Inject constructor(
 
     fun updateFilterCondition(
         myArea: Boolean,
+        fee: Int,
         face2Face: Boolean?,
         immediately: String?
     ) {
         searchCondition.value = searchCondition.value.copy(
             myArea = myArea,
+            fee = fee,
             face2Face = face2Face,
             immediately = immediately
         )

@@ -99,14 +99,17 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomDeliveryFilterDialog().apply {
+                            showAreaFilter = false
                             initialFilterOption = BottomDeliveryFilterDialog.FilterOption(
                                 myArea = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.myArea,
+                                minFee = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.fee,
                                 face2Face = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.face2Face,
                                 immediately = this@DeliveryRequestSearchFragment.viewModel.searchCondition.value.immediately
                             )
                             filterConfirmCallback = { option ->
                                 this@DeliveryRequestSearchFragment.viewModel.updateFilterCondition(
                                     myArea = option.myArea,
+                                    fee = option.minFee,
                                     face2Face = option.face2Face,
                                     immediately = option.immediately
                                 )

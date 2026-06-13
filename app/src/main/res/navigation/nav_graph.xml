@@ -57,6 +57,15 @@
     </action>
 
     <action
+        android:id="@+id/action_global_historyFragment"
+        app:destination="@id/history">
+        <argument
+            android:name="fromMySubMenu"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </action>
+
+    <action
         android:id="@+id/action_global_to_home_for_delivery"
         app:destination="@id/home"
         app:popUpTo="@id/historyDetailFragment"

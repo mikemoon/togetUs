@@ -129,9 +129,21 @@
                         android:orientation="vertical"
                         android:padding="20dp">
 
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph12B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/background_s_b5_r4"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="@{viewModel.deliveryData.statusText}"
+                            android:textColor="@color/black_60"
+                            tools:text="매칭 대기중" />
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
 
@@ -151,18 +163,6 @@
                                 android:text="@{viewModel.deliveryData.requesterRatingText}"
                                 android:textColor="@color/black_40"
                                 tools:text="★ 4.3 (1,208)" />
-
-                            <androidx.appcompat.widget.AppCompatTextView
-                                style="@style/Paragraph12B"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/background_s_b5_r4"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="2dp"
-                                android:text="@{viewModel.deliveryData.statusText}"
-                                android:textColor="@color/black_60"
-                                android:visibility="gone"
-                                tools:text="매칭 대기중" />
                         </LinearLayout>
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -211,37 +211,194 @@
                             android:text="이동경로"
                             android:textColor="@color/black_80" />
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text='@{"예상 주행거리    " + viewModel.deliveryData.distanceText}'
-                            android:textColor="@color/black_80" />
+                            android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
-                            android:layout_width="wrap_content"
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="70dp"
+                                android:layout_height="wrap_content"
+                                android:text="예상 주행거리"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14R"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@{viewModel.deliveryData.distanceText}"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text='@{"예상 소요 시간    " + viewModel.deliveryData.estimatedTimeText}'
-                            android:textColor="@color/black_80" />
+                            android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="70dp"
+                                android:layout_height="wrap_content"
+                                android:text="예상 소요 시간"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14R"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@{viewModel.deliveryData.estimatedTimeText}"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="20dp"
-                            android:text='@{"픽업지    " + viewModel.deliveryData.pickupAddressText}'
-                            android:textColor="@color/black_80" />
+                            android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
+                            <LinearLayout
+                                android:layout_width="16dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center_horizontal"
+                                android:orientation="vertical">
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/placecircle_primary" />
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/black_10" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="20dp"
+                                android:orientation="vertical"
+                                android:layout_weight="1">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph14B"
+                                        android:layout_width="54dp"
+                                        android:layout_height="wrap_content"
+                                        android:text="픽업지"
+                                        android:textColor="@color/black_80" />
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph14R"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="@{viewModel.deliveryData.pickupAddressText}"
+                                        android:textColor="@color/black_80" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/background_s_b5_r4"
+                                    android:orientation="horizontal"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="8dp">
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph12B"
+                                        android:layout_width="54dp"
+                                        android:layout_height="wrap_content"
+                                        android:text="연락처"
+                                        android:textColor="@color/black_60" />
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph12R"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text='@{viewModel.deliveryData.departContactName + "  " + viewModel.deliveryData.departContactPhone}'
+                                        android:textColor="@color/black_60" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text='@{"도착지    " + viewModel.deliveryData.destinationAddressText}'
-                            android:textColor="@color/black_80" />
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/placecircle_primary" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="20dp"
+                                android:orientation="vertical"
+                                android:layout_weight="1">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph14B"
+                                        android:layout_width="54dp"
+                                        android:layout_height="wrap_content"
+                                        android:text="도착지"
+                                        android:textColor="@color/black_80" />
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph14R"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="@{viewModel.deliveryData.destinationAddressText}"
+                                        android:textColor="@color/black_80" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/background_s_b5_r4"
+                                    android:orientation="horizontal"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="8dp">
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph12B"
+                                        android:layout_width="54dp"
+                                        android:layout_height="wrap_content"
+                                        android:text="연락처"
+                                        android:textColor="@color/black_60" />
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        style="@style/Paragraph12R"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text='@{viewModel.deliveryData.destContactName + "  " + viewModel.deliveryData.destContactPhone}'
+                                        android:textColor="@color/black_60" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <LinearLayout
@@ -298,37 +455,103 @@
                             android:text="물품 정보"
                             android:textColor="@color/black_80" />
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:text='@{"제목    " + viewModel.deliveryData.title}'
-                            android:textColor="@color/black_80" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
-                            android:layout_width="wrap_content"
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="42dp"
+                                android:layout_height="wrap_content"
+                                android:text="제목"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14R"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@{viewModel.deliveryData.title}"
+                                android:textColor="@color/black_80" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text='@{"종류    " + viewModel.deliveryData.productType}'
-                            android:textColor="@color/primary_100" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
-                            android:layout_width="wrap_content"
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="42dp"
+                                android:layout_height="wrap_content"
+                                android:text="종류"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_p10_r20"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:text="@{viewModel.deliveryData.productType}"
+                                android:textColor="@color/primary_100" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text='@{"무게    " + viewModel.deliveryData.productWeight}'
-                            android:textColor="@color/primary_100" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            style="@style/Paragraph14R"
-                            android:layout_width="wrap_content"
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="42dp"
+                                android:layout_height="wrap_content"
+                                android:text="무게"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_p10_r20"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:text="@{viewModel.deliveryData.productWeight}"
+                                android:textColor="@color/primary_100" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text='@{"부피    " + viewModel.deliveryData.productVolume}'
-                            android:textColor="@color/primary_100" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="42dp"
+                                android:layout_height="wrap_content"
+                                android:text="부피"
+                                android:textColor="@color/black_80" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/background_s_p10_r20"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:text="@{viewModel.deliveryData.productVolume}"
+                                android:textColor="@color/primary_100" />
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>

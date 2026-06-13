@@ -232,7 +232,22 @@
     <fragment
         android:id="@+id/termFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.term.TermFragment"
-        android:label="TermFragment" />
+        android:label="TermFragment" >
+        <action
+            android:id="@+id/action_termFragment_to_termDetailFragment"
+            app:destination="@id/termDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/termDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.term.TermDetailFragment"
+        android:label="TermDetailFragment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="content"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/playerJoinSearchFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinSearchFragment"
@@ -258,6 +273,9 @@
         <action
             android:id="@+id/action_profileManageSubFragment_to_modifyProfileFragment"
             app:destination="@id/modifyProfileFragment" />
+        <action
+            android:id="@+id/action_profileManageSubFragment_to_passwordSetFragment"
+            app:destination="@id/passwordSetFragment" />
     </fragment>
     <fragment
         android:id="@+id/writeIntroductionFragment"

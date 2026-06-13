@@ -35,6 +35,7 @@ class MyViewModel @Inject constructor(
 
     val isPlayerRequestBtnVisible = MutableStateFlow(false)
     val isPlayerModeChangeBtnVisible = MutableStateFlow(false)
+    val isCompanyInfoExpanded = MutableStateFlow(false)
 
     val impUidString = MutableStateFlow("")
 
@@ -255,6 +256,10 @@ class MyViewModel @Inject constructor(
             isPlayerModeFlow.value = isPlayerMode
             isModeChanging.value = false
         }*/
+    }
+
+    fun toggleCompanyInfo() {
+        isCompanyInfoExpanded.value = !isCompanyInfoExpanded.value
     }
 
     private val _event = SingleLiveEvent<Event>()

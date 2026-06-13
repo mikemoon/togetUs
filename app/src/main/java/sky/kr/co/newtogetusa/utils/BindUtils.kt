@@ -39,6 +39,12 @@ object BindingUtils {
     @JvmStatic
     @BindingAdapter(value = ["loadProfile", "loadProfileNoCache"], requireAll = false)
     fun setProfile(imageView: ImageView, src: String?, noCache: Boolean? = false) {
+        if (src.isEmptyProfileSrc()) {
+            Glide.with(imageView.context).clear(imageView)
+            imageView.setImageResource(R.drawable.profile)
+            return
+        }
+
         val radiusPx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, 40f, imageView.resources.displayMetrics
         ).toInt()
@@ -156,4 +162,12 @@ object BindingUtils {
     }
 
     
+    private fun String?.isEmptyProfileSrc(): Boolean {
+        val value = this?.trim().orEmpty()
+        return value.isBlank() ||
+                value.equals("null", ignoreCase = true) ||
+                value.equals("undefined", ignoreCase = true) ||
+                value.equals("none", ignoreCase = true) ||
+                value == "-"
+    }
 }

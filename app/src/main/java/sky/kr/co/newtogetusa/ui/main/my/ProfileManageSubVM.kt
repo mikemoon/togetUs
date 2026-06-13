@@ -24,17 +24,23 @@ class ProfileManageSubVM  @Inject constructor(baseViewModelDependenciesFactory: 
     private val _loginTypeLabel = MutableStateFlow("-")
     val loginTypeLabel = _loginTypeLabel.asStateFlow()
 
+    private val _loginAccountText = MutableStateFlow("-")
+    val loginAccountText = _loginAccountText.asStateFlow()
+
     init {
         viewModelScope.launch {
-            _loginEmail.value = dataStoreRepository.getString(DataStoreKey.KEY_LOGIN_EMAIL).orEmpty().ifBlank { "-" }
+            val email = dataStoreRepository.getString(DataStoreKey.KEY_LOGIN_EMAIL).orEmpty().ifBlank { "-" }
             val loginType = dataStoreRepository.getInt(DataStoreKey.RECENT_LOGIN_TYPE) ?: -1
-            _loginTypeLabel.value = when (loginType) {
+            val typeLabel = when (loginType) {
                 LoginViewModel.KAKAO -> "카카오"
                 LoginViewModel.NAVER -> "네이버"
                 LoginViewModel.GOOGLE -> "구글"
                 LoginViewModel.EMAIL -> "이메일"
                 else -> "-"
             }
+            _loginEmail.value = email
+            _loginTypeLabel.value = typeLabel
+            _loginAccountText.value = if (loginType == LoginViewModel.EMAIL) email else typeLabel
         }
     }
 
@@ -46,6 +52,7 @@ class ProfileManageSubVM  @Inject constructor(baseViewModelDependenciesFactory: 
     sealed class Event {
         object Back : Event()
         object ModifyProfile : Event()
+        object PasswordSet : Event()
 
         object Recertification : Event()
     }

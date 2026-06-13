@@ -12,6 +12,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
@@ -53,10 +54,11 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
             }
         } else if (!isFromSearchResult) {
             viewModel.getMyProfile {
-                viewModel.profileDto.value = it
-                dataBinding.profile = it
-                profileDto = it
-                dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"
+                val displayProfile = it.withFallbackProfileImage(profileDto)
+                viewModel.profileDto.value = displayProfile
+                dataBinding.profile = displayProfile
+                profileDto = displayProfile
+                dataBinding.tvScore.text = "${displayProfile.evaluation.start_average} (${displayProfile.review_count})"
             }
         } else {
             profileDto?.let {
@@ -148,6 +150,13 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.profileDto.filterNotNull().collectLatest { profile ->
+                        val displayProfile = profile.withFallbackProfileImage(profileDto)
+                        dataBinding.profile = displayProfile
+                        profileDto = displayProfile
+                    }
+                }
                 launch {
                     viewModel.playerReviewCount.collectLatest {
                         updateReviewCount(it)
@@ -252,5 +261,15 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         profileDto = updatedProfile
         dataBinding.profile = updatedProfile
         dataBinding.tvScore.text = "$starAverage ($reviewCount)"
+    }
+
+    private fun ProfileDto.withFallbackProfileImage(fallback: ProfileDto?): ProfileDto {
+        val currentImage = user.profile_image
+        val fallbackImage = fallback?.user?.profile_image
+        return if (currentImage.isNullOrBlank() && !fallbackImage.isNullOrBlank()) {
+            copy(user = user.copy(profile_image = fallbackImage))
+        } else {
+            this
+        }
     }
 }

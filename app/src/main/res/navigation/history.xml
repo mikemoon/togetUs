@@ -4,10 +4,19 @@
     android:id="@+id/history"
     app:startDestination="@id/historyFragment">
 
+    <argument
+        android:name="fromMySubMenu"
+        app:argType="boolean"
+        android:defaultValue="false" />
+
     <fragment
         android:id="@+id/historyFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.HistoryFragment"
         android:label="HistoryFragment" >
+        <argument
+            android:name="fromMySubMenu"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_historyFragment_to_historyDeliveryFragment"
             app:destination="@id/historyDeliveryFragment" />
