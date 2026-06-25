@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MultipartBody
 import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.ChatService
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomDto
@@ -57,6 +58,14 @@ class ChatRepository @Inject constructor(
 
     suspend fun chatRoomExit(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
         apiService.chatRoomExit(roomId)
+    }
+
+    suspend fun uploadChatAttach(roomId: Long, messagePointerId: Long, file: MultipartBody.Part) = safeApiCall(Dispatchers.IO) {
+        apiService.uploadChatAttach(
+            roomId = roomId,
+            messagePointerId = messagePointerId.takeIf { it > 0 },
+            file = file
+        )
     }
 
     fun getPlayerRoomPagingFlow(type: String, pageSize: Int = 10): Flow<PagingData<ChatRoomSearchRoomDto>> =

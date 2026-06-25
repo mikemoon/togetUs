@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +44,7 @@ class DeliveryAreaLocationSearchViewModel @Inject constructor(
     val areaRadius = MutableStateFlow(3)
     val isEditMode = MutableStateFlow(true)
 
-    @OptIn(FlowPreview::class)
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     val results: Flow<PagingData<KakaoSearchModel>> =
         _query
             .debounce(300)
@@ -66,6 +67,11 @@ class DeliveryAreaLocationSearchViewModel @Inject constructor(
     fun onDeleteSearchText() {
         _query.value = ""
         searchStep.value = SearchStep.NONE
+    }
+
+    fun setVoiceSearchText(text: String) {
+        _query.value = text
+        searchStep.value = SearchStep.SEARCH
     }
 
     fun onAddressSelected(model: KakaoSearchModel) {
@@ -129,6 +135,7 @@ class DeliveryAreaLocationSearchViewModel @Inject constructor(
 
     sealed class Event {
         object Back : Event()
+        object VoiceSearch : Event()
         object SelectedComplete : Event()
     }
 

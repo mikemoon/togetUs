@@ -83,3 +83,8 @@
 
 -keep class com.kakao.vectormap.** { *; }
 -keep interface com.kakao.vectormap.**
+
+# PortOne Android SDK
+-keep class io.portone.sdk.android.PortOne { *; }
+-keep class io.portone.sdk.android.** { *; }
+-dontwarn io.portone.sdk.android.**

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTitle"
+        style="@style/HeadLine24B"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="듣고 있어요"
+        android:textColor="@color/primary_100" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvSubtitle"
+        style="@style/Paragraph16R"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="장소나 주소를 말씀해 주세요."
+        android:textColor="@color/black_60" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/black_10" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:layout_marginTop="16dp">
+
+        <ProgressBar
+            android:id="@+id/progressListening"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary_100" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivVoice"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_voice_mike"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvStatus"
+        style="@style/Paragraph16R"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="음성 인식 진행 중..."
+        android:textColor="@color/black_40" />
+
+    <LinearLayout
+        android:id="@+id/llButtons"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btnCancel"
+            style="@style/HeadLine18B"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/background_s_b5_r4"
+            android:gravity="center"
+            android:text="취소"
+            android:textColor="@color/black_80" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btnRetry"
+            style="@style/HeadLine18B"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/selector_b20_p100_r4"
+            android:gravity="center"
+            android:text="다시 시도"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</LinearLayout>

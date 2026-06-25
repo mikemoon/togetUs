@@ -1,10 +1,14 @@
 package sky.kr.co.newtogetusa.data.remote.api
 
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatAttachUploadResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatMessageResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchResponseDto
@@ -78,5 +82,13 @@ interface ChatService {
     suspend fun chatRoomExit(
         @Path("room_id") roomId: Long
     ): Boolean
+
+    @Multipart
+    @POST("api/chats/v1/rooms/{room_id}/attach")
+    suspend fun uploadChatAttach(
+        @Path("room_id") roomId: Long,
+        @Query("msg_ptr_id") messagePointerId: Long? = null,
+        @Part file: MultipartBody.Part
+    ): ChatAttachUploadResponseDto
 
 }

@@ -11,15 +11,14 @@ import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
-import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartViewModel.Event
 import timber.log.Timber
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,8 +36,6 @@ class MyViewModel @Inject constructor(
     val isPlayerModeChangeBtnVisible = MutableStateFlow(false)
     val isCompanyInfoExpanded = MutableStateFlow(false)
 
-    val impUidString = MutableStateFlow("")
-
     init {
         viewModelScope.launch {
             dataStoreRepository.getBooleanFlow(DataStoreKey.KEY_IS_MODE_PLAYER).filterNotNull()
@@ -46,7 +43,6 @@ class MyViewModel @Inject constructor(
                     isPlayerModeFlow.value = it
                 }
         }
-        getImpUid()
     }
 
     val profileDto = MutableStateFlow<ProfileDto?>(null)
@@ -221,28 +217,41 @@ class MyViewModel @Inject constructor(
         }
     }
 
-
-    fun getImpUid() = viewModelScope.launch {
-        impUidString.value = dataStoreRepository.getString(DataStoreKey.KEY_IMP_UID).orEmpty()
-        //impUidString.value = "cert_1"+ UUID.randomUUID().toString()
-    }
-
-    //임시
-    fun setTempImpUid(){
-        impUidString.value = "cert_1"+ UUID.randomUUID().toString()
-    }
-
-    fun putImpUid(impUid:String) = viewModelScope.launch {
-        dataStoreRepository.putString(DataStoreKey.KEY_IMP_UID, impUid)
-    }
-
-    fun verifyImpUid(impUid:String, callback: (Int) -> Unit) = viewModelScope.launch {
-        val res = playerRepository.verifyImpUid(hashMapOf("imp_uid" to impUid))
-        when(res){
-            is ResultWrapper.Success ->{
-                callback(res.data)
+    fun startIdentityVerification() = viewModelScope.launch {
+        loadingState.value = true
+        when (val res = playerRepository.getPortOneConfig()) {
+            is ResultWrapper.Success -> {
+                loadingState.value = false
+                _event.value = Event.StartIdentityVerification(res.data)
             }
-            else -> {}
+            is ResultWrapper.GenericError -> {
+                loadingState.value = false
+                _event.value = Event.ShowMessage(res.message ?: "본인인증 설정을 불러오지 못했습니다.")
+            }
+            is ResultWrapper.NetworkError -> {
+                loadingState.value = false
+                _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
+            }
+        }
+    }
+
+    fun verifyIdentity(identityVerificationId: String, callback: () -> Unit) = viewModelScope.launch {
+        loadingState.value = true
+        when (val res = playerRepository.verifyIdentity(identityVerificationId)) {
+            is ResultWrapper.Success -> {
+                refreshProfileForMode {
+                    loadingState.value = false
+                    callback()
+                }
+            }
+            is ResultWrapper.GenericError -> {
+                loadingState.value = false
+                _event.value = Event.ShowMessage(res.message ?: "본인인증 검증에 실패했습니다.")
+            }
+            is ResultWrapper.NetworkError -> {
+                loadingState.value = false
+                _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
+            }
         }
     }
 
@@ -280,5 +289,7 @@ class MyViewModel @Inject constructor(
         object Term : Event()
         object JoinPlayer : Event()
         object AccompanyCredit : Event()
+        data class StartIdentityVerification(val config: PortOneConfigDto) : Event()
+        data class ShowMessage(val message: String) : Event()
     }
 }

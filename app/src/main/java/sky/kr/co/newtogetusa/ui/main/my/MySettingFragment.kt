@@ -102,6 +102,9 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
                 MySettingViewModel.Event.NightAlarm ->{
 
                 }
+                MySettingViewModel.Event.BlockManagement -> {
+                    findNavController().navigate(R.id.action_mySettingFragment_to_blockManagementFragment)
+                }
                 MySettingViewModel.Event.Logout ->{
                     MessageDialog.newInstance(
                         msgTitle = "로그아웃하시겠어요?",

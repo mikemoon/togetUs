@@ -4,6 +4,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.CommonBoolDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.BannerDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.BannerLandingDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.DeliverySearchListResponse
@@ -46,6 +47,14 @@ interface UserService {
         @Path("user_id") userId: Int,
         @Body request: HashMap<String, String>
     ): PlayerInfoDto
+
+    @POST("/api/users/v1/{user_id}/unblock")
+    suspend fun unblockUser(
+        @Path("user_id") userId: Int
+    ): CommonBoolDto
+
+    @GET("/api/users/v1/blocks")
+    suspend fun getBlockedUsers(): List<PlayerInfoDto.Player>
 
     @GET("/api/users/v1/{user_id}/reviews")//리뷰보기
     suspend fun getReviews(

@@ -63,7 +63,20 @@
                     android:textColor="@color/black_80"
                     style="@style/Paragraph17R"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/ivDelete" />
+                    app:layout_constraintEnd_toStartOf="@id/ivVoiceSearch" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivVoiceSearch"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="음성 검색"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.VoiceSearch.INSTANCE)}"
+                    android:padding="2dp"
+                    android:src="@drawable/ic_voice_gray"
+                    app:layout_constraintEnd_toStartOf="@id/ivDelete"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/ivDelete"

@@ -42,6 +42,14 @@ class UserRepository @Inject constructor(
         apiService.postBlockUser(userId, request)
     }
 
+    suspend fun unblockUser(userId: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.unblockUser(userId)
+    }
+
+    suspend fun getBlockedUsers() = safeApiCall(Dispatchers.IO) {
+        apiService.getBlockedUsers()
+    }
+
     suspend fun getReviews(userId: Int) = safeApiCall(Dispatchers.IO){
         apiService.getReviews(userId)
     }

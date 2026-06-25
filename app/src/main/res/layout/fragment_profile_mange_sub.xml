@@ -269,11 +269,13 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRecertification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="@id/tvPhone"
                 app:layout_constraintBottom_toBottomOf="@id/tvDate"
                 app:layout_constraintEnd_toEndOf="parent"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Recertification.INSTANCE)}"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
                 android:text="재인증"

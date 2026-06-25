@@ -105,6 +105,13 @@ class DeliveryAreaLocationSearchFragment :
         viewModel.event.observe(viewLifecycleOwner) { event ->
             when (event) {
                 DeliveryAreaLocationSearchViewModel.Event.Back -> findNavController().popBackStack()
+                DeliveryAreaLocationSearchViewModel.Event.VoiceSearch -> {
+                    SearchVoiceDialogFragment()
+                        .onRecognized { recognizedText ->
+                            viewModel.setVoiceSearchText(recognizedText)
+                        }
+                        .show(childFragmentManager, "SearchVoiceDialogFragment")
+                }
                 DeliveryAreaLocationSearchViewModel.Event.SelectedComplete -> {
                     val selected = viewModel.selectedAddress.value ?: return@observe
                     val address = selected.roadAddress?.takeIf { it.isNotBlank() } ?: selected.name

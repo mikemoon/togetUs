@@ -107,6 +107,7 @@ class MySettingViewModel @Inject constructor(
         object ChattingAlarm : Event()
         object MarkettingAlarm : Event()
         object NightAlarm : Event()
+        object BlockManagement : Event()
         object Logout : Event()
         object WithDraw : Event()
     }

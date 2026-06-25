@@ -3,12 +3,16 @@ package sky.kr.co.newtogetusa.ui.main.chat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import android.util.Base64
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.chat.ChatClient
@@ -250,12 +254,18 @@ class ChattingConversationViewModel @Inject constructor(
 
         viewModelScope.launch {
             val messagePointerId = System.currentTimeMillis()
+            val attachUrl = uploadAttach(base64, mimeType, messagePointerId)
+            if (attachUrl.isNullOrBlank()) {
+                _event.value = Event.ChatActionFailed("이미지 전송에 실패했습니다.")
+                return@launch
+            }
+
             withContext(Dispatchers.IO) {
                 chatClient.sendAttach(
                     roomId = currentRoomId,
                     mimeType = mimeType,
-                    base64 = base64,
-                    messagePointerId = 0
+                    url = attachUrl,
+                    messagePointerId = messagePointerId
                 )
             }
             addMessage(
@@ -263,13 +273,39 @@ class ChattingConversationViewModel @Inject constructor(
                     id = -messagePointerId,
                     messagePointerId = messagePointerId,
                     sender = "me",
-                    content = base64,
+                    content = attachUrl,
                     messageType = MESSAGE_TYPE_IMAGE,
-                    messageImageUrl = base64.toDisplayMediaSource(mimeType),
+                    messageImageUrl = attachUrl,
                     isMyMessage = true,
                     isUnread = true
                 )
             )
+        }
+    }
+
+    private suspend fun uploadAttach(base64: String, mimeType: String, messagePointerId: Long): String? {
+        val bytes = runCatching { Base64.decode(base64, Base64.NO_WRAP) }.getOrNull() ?: return null
+        val extension = when {
+            mimeType.contains("png", ignoreCase = true) -> "png"
+            mimeType.startsWith("video/", ignoreCase = true) -> "mp4"
+            else -> "jpg"
+        }
+        val body = bytes.toRequestBody(mimeType.toMediaType())
+        val part = MultipartBody.Part.createFormData(
+            name = "file",
+            filename = "chat_${messagePointerId}.$extension",
+            body = body
+        )
+        return when (val response = chatRepository.uploadChatAttach(currentRoomId, messagePointerId, part)) {
+            is ResultWrapper.Success -> response.data.url
+            is ResultWrapper.GenericError -> {
+                Timber.e("uploadChatAttach error ${response.code}: ${response.message}")
+                null
+            }
+            is ResultWrapper.NetworkError -> {
+                Timber.e("uploadChatAttach network error")
+                null
+            }
         }
     }
 

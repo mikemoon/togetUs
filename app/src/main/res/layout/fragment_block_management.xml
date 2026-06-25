@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="sky.kr.co.newtogetusa.ui.main.my.block.BlockManagementViewModel.Event" />
+
+        <variable
+            name="viewModel"
+            type="sky.kr.co.newtogetusa.ui.main.my.block.BlockManagementViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/clTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:onClick="@{()->viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="차단 관리"
+                android:textColor="@color/black_80"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBlocks"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clTop" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvEmpty"
+            style="@style/Paragraph14R"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="차단한 사용자가 없습니다."
+            android:textColor="@color/black_40"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clTop" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

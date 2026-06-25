@@ -144,12 +144,12 @@ class MqttChatClientImpl @Inject constructor(
         publish(MqttChatCategory.MSG, gson.toJson(payload))
     }
 
-    override fun sendAttach(roomId: Long, mimeType: String, base64: String, messagePointerId: Long) {
+    override fun sendAttach(roomId: Long, mimeType: String, url: String, messagePointerId: Long) {
         val payload = MqttMessagePayload(
             roomId = roomId,
             messagePointerId = messagePointerId,
             mimeType = mimeType,
-            message = base64
+            message = url
         )
         publish(MqttChatCategory.ATTACH, gson.toJson(payload))
     }

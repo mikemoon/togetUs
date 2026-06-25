@@ -127,6 +127,9 @@
             app:destination="@id/profileManageSubFragment" >
             <argument android:name="profileDto" app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto" app:nullable="true"/>
         </action>
+        <action
+            android:id="@+id/action_mySettingFragment_to_blockManagementFragment"
+            app:destination="@id/blockManagementFragment" />
     </fragment>
     <fragment
         android:id="@+id/withDrawFragment"
@@ -295,6 +298,10 @@
         android:id="@+id/playerAreaSettingFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaSettingFragment"
         android:label="PlayerAreaSettingFragment" />
+    <fragment
+        android:id="@+id/blockManagementFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.block.BlockManagementFragment"
+        android:label="BlockManagementFragment" />
     <fragment
         android:id="@+id/accompanyCreditFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.AccompanyCreditFragment"

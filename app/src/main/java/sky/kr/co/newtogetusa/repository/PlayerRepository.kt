@@ -63,6 +63,20 @@ class PlayerRepository @Inject constructor(
         apiService.deletePlayerArea(playerId, PlayerAreaDeleteRequest(areaId))
     }
 
+    suspend fun setPlayerGpsEnable(playerId: Int, enable: Boolean) = safeApiCall(Dispatchers.IO) {
+        apiService.setPlayerGpsEnable(playerId, hashMapOf("enable" to enable))
+    }
+
+    suspend fun refreshPlayerGps(playerId: Int, latitude: Double, longitude: Double) = safeApiCall(Dispatchers.IO) {
+        apiService.refreshPlayerGps(
+            playerId,
+            hashMapOf(
+                "latitude" to latitude,
+                "longitude" to longitude
+            )
+        )
+    }
+
     suspend fun getProfile(playerId: Int) = safeApiCall(Dispatchers.IO){
         apiService.getProfile(playerId)
     }
@@ -73,6 +87,14 @@ class PlayerRepository @Inject constructor(
 
     suspend fun postBlockPlayer(playerId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.postBlockPlayer(playerId, request)
+    }
+
+    suspend fun unblockPlayer(playerId: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.unblockPlayer(playerId)
+    }
+
+    suspend fun getBlockedPlayers() = safeApiCall(Dispatchers.IO) {
+        apiService.getBlockedPlayers()
     }
 
 
@@ -114,8 +136,17 @@ class PlayerRepository @Inject constructor(
         apiService.postPlayerApply(playerId, hashMapOf())
     }
 
-    suspend fun verifyImpUid(request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
-        apiService.verifyImpUid(request)
+    suspend fun getPortOneConfig() = safeApiCall(Dispatchers.IO) {
+        apiService.getPortOneConfig()
+    }
+
+    suspend fun verifyIdentity(identityVerificationId: String) = safeApiCall(Dispatchers.IO) {
+        apiService.verifyIdentity(
+            hashMapOf(
+                "identity_verification_id" to identityVerificationId,
+                "os" to "A"
+            )
+        )
     }
 
     suspend fun postPlayerBank(playerId: Int, request: BankRequestDto) = safeApiCall(Dispatchers.IO){

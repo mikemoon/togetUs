@@ -9,11 +9,15 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import sky.kr.co.newtogetusa.data.remote.dto.CommonBoolDto
+import sky.kr.co.newtogetusa.data.remote.dto.CommonIntDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryCalendarDayResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryCalendarResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryHistoryResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.VerifyIdentityDto
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerSearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
@@ -69,6 +73,14 @@ interface PlayerService {
         @Path("player_id") playerId: Int,
         @Body request: HashMap<String, String>
     ): PlayerInfoDto
+
+    @POST("/api/players/v1/{player_id}/unblock")
+    suspend fun unblockPlayer(
+        @Path("player_id") playerId: Int
+    ): CommonBoolDto
+
+    @GET("/api/players/v1/blocks")
+    suspend fun getBlockedPlayers(): PlayerSearchResponse
 
     @POST("/api/players/v1/{player_id}/req_delivery") //배송요청 제안
     suspend fun postReqDelivery(
@@ -136,6 +148,18 @@ interface PlayerService {
         @Body request: PlayerAreaDeleteRequest
     )
 
+    @POST("/api/players/v1/{player_id}/area/gps_enable")
+    suspend fun setPlayerGpsEnable(
+        @Path("player_id") playerId: Int,
+        @Body request: HashMap<String, Boolean>
+    ): CommonBoolDto
+
+    @POST("/api/players/v1/{player_id}/area/gps_refresh")
+    suspend fun refreshPlayerGps(
+        @Path("player_id") playerId: Int,
+        @Body request: HashMap<String, Double>
+    ): CommonIntDto
+
     @POST("/api/players/v1/{player_id}/area/added")
     suspend fun postPlayerAreaAdded(
         @Path("player_id") playerId: Int,
@@ -157,10 +181,13 @@ interface PlayerService {
         @Part criminal_record: MultipartBody.Part?
     )
 
-    @POST("/api/players/v1/verify-imp-uid") //본인인증
-    suspend fun verifyImpUid(
+    @GET("/api/players/v1/portone/config")
+    suspend fun getPortOneConfig(): PortOneConfigDto
+
+    @POST("/api/players/v1/verify-identity")
+    suspend fun verifyIdentity(
         @Body request: HashMap<String, String>
-    ): Int
+    ): VerifyIdentityDto
 
     @POST("/api/players/v1/search") //플레이어 검색하기
     suspend fun postPlayersSearch(

@@ -6,9 +6,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
+import io.portone.sdk.android.PortOne
+import io.portone.sdk.android.identityverification.IdentityVerificationCallback
+import io.portone.sdk.android.type.request.IdentityVerificationRequest
+import io.portone.sdk.android.type.response.IdentityVerificationResponse
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -21,12 +24,35 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
+import java.util.UUID
 
 @AndroidEntryPoint
 class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
     override val layoutId: Int
         get() = R.layout.fragment_my
     override val viewModel: MyViewModel by viewModels()
+
+    private val identityVerificationActivityResultLauncher =
+        PortOne.registerForIdentityVerificationActivity(
+            this,
+            callback = object : IdentityVerificationCallback {
+                override fun onSuccess(response: IdentityVerificationResponse) {
+                    Timber.d(
+                        "Identity verification success id=${response.identityVerificationId}, txId=${response.identityVerificationTxId}"
+                    )
+                    viewModel.verifyIdentity(response.identityVerificationId) {
+                        navigatePlayerJoin()
+                    }
+                }
+
+                override fun onFail(response: IdentityVerificationResponse) {
+                    Timber.d(
+                        "Identity verification failed code=${response.code}, message=${response.message}, pgCode=${response.pgCode}, pgMessage=${response.pgMessage}, id=${response.identityVerificationId}, txId=${response.identityVerificationTxId}"
+                    )
+                    confirmProceedWithoutIdentity(response.message ?: "본인인증에 실패했습니다.")
+                }
+            }
+        )
 
     override fun init() {
         super.init()
@@ -129,16 +155,10 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                             .show(childFragmentManager, "")
                     } else {
                         val profileId = viewModel.profileDto.value?.user?.player_id
-                        if(viewModel.impUidString.value.isEmpty() && (profileId == null || profileId == 0)) {
-                            //본인인증 flow
-
-                            //서버인증
-                            viewModel.setTempImpUid()
-                            viewModel.verifyImpUid(viewModel.impUidString.value){ playerId ->
-                                findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
-                            }
+                        if(profileId == null || profileId == 0) {
+                            viewModel.startIdentityVerification()
                         }else{
-                            findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+                            navigatePlayerJoin()
                         }
                     }
                 }
@@ -163,8 +183,48 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.FavorPlayer -> {
                     findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
                 }
+
+                is MyViewModel.Event.StartIdentityVerification -> {
+                    startPortOneIdentityVerification(it.config.storeId, it.config.channelKey)
+                }
+
+                is MyViewModel.Event.ShowMessage -> {
+                    requireContext().toast(it.message)
+                }
             }
         }
+    }
+
+    private fun startPortOneIdentityVerification(storeId: String, channelKey: String) {
+        val identityVerificationId = UUID.randomUUID().toString().replace("-", "")
+        Timber.d(
+            "Identity verification request storeId=$storeId, channelKey=$channelKey, identityVerificationId=$identityVerificationId"
+        )
+
+        PortOne.requestIdentityVerification(
+            requireActivity(),
+            request = IdentityVerificationRequest(
+                storeId = storeId,
+                identityVerificationId = identityVerificationId,
+                channelKey = channelKey
+            ),
+            resultLauncher = identityVerificationActivityResultLauncher
+        )
+    }
+
+    private fun confirmProceedWithoutIdentity(errorMessage: String) {
+        MessageDialog.newInstance(
+            msg = "$errorMessage\n\n그래도 진행하시겠어요?",
+            rightBtn = "진행",
+            leftBtn = "취소",
+            msgTitle = "본인인증 실패"
+        ).onRightBtn {
+            navigatePlayerJoin()
+        }.show(childFragmentManager, "")
+    }
+
+    private fun navigatePlayerJoin() {
+        findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
     }
 
 }
