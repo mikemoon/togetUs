@@ -35,13 +35,13 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.MapType
-import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
@@ -89,6 +89,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     //구글
     private var googleMap: GoogleMap? = null
+    private var googleCurrentLocationMarker: Marker? = null
 
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
 
@@ -143,11 +144,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
 
         checkLocationPermission()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            setupGoogleMap()
-        }else{
-            setupKakaoMap()
-        }
+        setupGoogleMap()
         setupMapTypeToggle()
 
         prgAdapter = HomeProgressAdapter{
@@ -279,11 +276,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }
 
         dataBinding.ivMyLocation.setOnClickListener {
-            if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
-                moveCameraToMyLocation()
-            }else{
-                moveToMyLocationKakao()
-            }
+            moveCameraToMyLocation()
         }
 
     }
@@ -313,7 +306,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            googleMap?.isMyLocationEnabled = true
+            googleMap?.isMyLocationEnabled = false
+            lastKnownLocation?.let { showGoogleCurrentLocation(it) }
         }
     }
 
@@ -402,7 +396,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     private fun maybeInitMapWithLocation() {
         if (googleMap != null && lastKnownLocation != null) {
             val latLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-            //googleMap?.addMarker(MarkerOptions().position(latLng).title("내 위치"))
+            showGoogleCurrentLocation(lastKnownLocation!!)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         }
         if (lastKnownLocation == null) {//서울
@@ -422,7 +416,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         // 1) 이미 위치를 알고 있으면 바로 이동
         lastKnownLocation?.let { loc ->
             val latLng = LatLng(loc.latitude, loc.longitude)
-            googleMap?.animateCamera(
+            showGoogleCurrentLocation(loc)
+            googleMap?.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(latLng, 15f)
             )
             return
@@ -437,7 +432,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             if (loc != null) {
                 lastKnownLocation = loc
                 val latLng = LatLng(loc.latitude, loc.longitude)
-                googleMap?.animateCamera(
+                showGoogleCurrentLocation(loc)
+                googleMap?.moveCamera(
                     CameraUpdateFactory.newLatLngZoom(latLng, 15f)
                 )
             }
@@ -520,7 +516,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             viewModel.fetchAddress(loc.latitude, loc.longitude)
             // 1) 마커(Label) 스타일/레이어
             val styles = kakaoMap!!.labelManager
-                ?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.kakao_my_loc))) // pin 아이콘
+                ?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.kakao_my_loc)))
 
             val layer = kakaoMap!!.labelManager?.layer
 
@@ -529,11 +525,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
             if (isFollowMode) {
                 kakaoMap?.moveCamera(
-                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here),
-                    CameraAnimation.from(500, true, true)
+                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here)
                 )
-                // 팔로우 모드일 때만 트래킹 시작
-                kakaoLabel?.let { kakaoMap?.trackingManager?.startTracking(it) }
+                kakaoMap?.trackingManager?.stopTracking()
             } else {
                 // 팔로우 꺼져 있으면 혹시 모를 트래킹 종료
                 kakaoMap?.trackingManager?.stopTracking()
@@ -559,12 +553,29 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 location.latitude,
                 location.longitude
             )
+            showKakaoCurrentLocation(latLng)
 
             kakaoMap?.moveCamera(
-                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(latLng),
-                CameraAnimation.from(500, true, true)
+                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(latLng)
             )
         }
+    }
+
+    private fun showGoogleCurrentLocation(location: Location) {
+        val latLng = LatLng(location.latitude, location.longitude)
+        val markerOptions = MarkerOptions()
+            .position(latLng)
+            .title("내 위치")
+            .anchor(0.5f, 1f)
+
+        googleCurrentLocationMarker?.remove()
+        googleCurrentLocationMarker = googleMap?.addMarker(markerOptions)
+    }
+
+    private fun showKakaoCurrentLocation(latLng: com.kakao.vectormap.LatLng) {
+        val layer = kakaoMap?.labelManager?.layer ?: return
+        kakaoLabel?.remove()
+        kakaoLabel = layer.addLabel(LabelOptions.from(latLng).setStyles(kakaoLabelStyles))
     }
 
     private fun setupBannerPager() {
@@ -646,16 +657,12 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
         setupBannerPager()
 
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onCreate(savedInstanceState)
-        }
+        dataBinding.googleMap.onCreate(savedInstanceState)
     }
 
     override fun onStart() {
         super.onStart()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onStart()
-        }
+        dataBinding.googleMap.onStart()
         startBannerAutoSwitch()
         //dataBinding.map.onStart()
     }
@@ -663,32 +670,20 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     override fun onResume() {
         super.onResume()
         viewModel.getNotificationUnreadCount()
-        runCatching {
-            if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
-                dataBinding.googleMap.onResume()
-            } else {
-                dataBinding.map.resume()
-            }
-        }.onFailure {  }
+        runCatching { dataBinding.googleMap.onResume() }.onFailure {  }
         //showStartLocation()
     }
 
     override fun onPause() {
         super.onPause()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onPause()
-        }else {
-            dataBinding.map.pause()
-        }
+        dataBinding.googleMap.onPause()
         isMapReady = false
     }
 
     override fun onStop() {
         super.onStop()
         stopBannerAutoSwitch()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onStop()
-        }
+        dataBinding.googleMap.onStop()
     }
 
     override fun onDestroyView() {
@@ -696,16 +691,12 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         bannerPageChangeCallback?.let { dataBinding.vpBanner.unregisterOnPageChangeCallback(it) }
         bannerPageChangeCallback = null
         super.onDestroyView()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onDestroy()
-        }
+        dataBinding.googleMap.onDestroy()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        if(viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP){
-            dataBinding.googleMap.onLowMemory()
-        }
+        dataBinding.googleMap.onLowMemory()
     }
 
     override fun onRequestPermissionsResult(

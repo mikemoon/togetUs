@@ -34,7 +34,7 @@ object FileUtil {
     ): MultipartBody.Part {
 
         val requestFile =
-            file.asRequestBody("multipart/form-data".toMediaType())
+            file.asRequestBody(file.guessMimeType().toMediaType())
 
         return MultipartBody.Part.createFormData(
             partName,
@@ -90,4 +90,13 @@ object FileUtil {
         }.onFailure { e -> e.printStackTrace() }
         return name
     }
+
+    private fun File.guessMimeType(): String =
+        when (extension.lowercase()) {
+            "pdf" -> "application/pdf"
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
+            "webp" -> "image/webp"
+            else -> "multipart/form-data"
+        }
 }

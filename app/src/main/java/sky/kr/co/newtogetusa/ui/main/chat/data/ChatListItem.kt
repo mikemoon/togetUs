@@ -5,6 +5,7 @@ data class ChatListItem(
     val name:String,
     val date: String,
     val profileUrl: String,
+    val deliveryImageUrl: String? = null,
     val unReadCount:Int,
     val message: String = "안녕하세요."
 )

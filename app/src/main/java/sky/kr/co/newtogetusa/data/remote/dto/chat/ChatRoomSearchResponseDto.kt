@@ -24,7 +24,8 @@ data class ChatRoomSearchRoomDto(
 
 data class ChatRoomSearchDeliveryDto(
     val delivery_id: Int,
-    val status_cd: String
+    val status_cd: String,
+    val prd_picture: String? = null
 )
 
 data class ChatRoomParticipantDto(

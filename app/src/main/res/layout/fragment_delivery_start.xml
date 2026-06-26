@@ -67,7 +67,6 @@
                 android:gravity="center_vertical"
                 android:hint="주소 검색"
                 android:textColorHint="@color/black_40"
-                android:onTextChanged="@{viewModel::onTextChanged}"
                 />
 
             <androidx.appcompat.widget.AppCompatImageView

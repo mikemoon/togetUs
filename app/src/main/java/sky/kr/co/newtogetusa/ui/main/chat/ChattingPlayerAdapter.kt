@@ -2,11 +2,15 @@ package sky.kr.co.newtogetusa.ui.main.chat
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.ItemChatPlayerBinding
 import sky.kr.co.newtogetusa.ui.main.chat.data.ChatListItem
+import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.loadProfile
 
 class ChattingPlayerAdapter(
@@ -18,7 +22,21 @@ class ChattingPlayerAdapter(
         fun bind(item: ChatListItem?) {
             if (item == null) return
             binding.item = item
-            binding.ivProfile.loadProfile(item.profileUrl)
+            if (item.deliveryImageUrl.isNullOrBlank()) {
+                binding.ivProduct.loadProfile(item.profileUrl)
+                binding.ivProfileBadge.isVisible = false
+            } else {
+                binding.ivProduct.loadImage(
+                    item.deliveryImageUrl,
+                    placeholder = R.drawable.no_img,
+                    error = R.drawable.no_img,
+                    roundedCorner = 8.dpToPx()
+                )
+                binding.ivProfileBadge.isVisible = true
+                binding.ivProfileBadge.loadProfile(item.profileUrl)
+            }
+            binding.tvDate.isVisible = item.date.isNotBlank()
+            binding.tvMessage.isVisible = item.message.isNotBlank()
             binding.root.setOnClickListener { onItemClick(item) }
         }
     }

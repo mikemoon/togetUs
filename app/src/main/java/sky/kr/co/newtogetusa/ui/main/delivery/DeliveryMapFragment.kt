@@ -31,13 +31,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.MapLifeCycleCallback
-import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
@@ -74,6 +74,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private var googleMap: GoogleMap? = null
+    private var googleCurrentLocationMarker: Marker? = null
     private var lastKnownLocation: Location? = null
     private var lastKnownDestLocation : Location? = null
 
@@ -196,7 +197,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     private fun maybeInitMapWithLocation() {
         if (googleMap != null && lastKnownLocation != null) {
             val latLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-            googleMap?.addMarker(MarkerOptions().position(latLng).title("내 위치"))
+            showGoogleCurrentLocation(lastKnownLocation!!)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         }
         if (lastKnownLocation == null) {//서울
@@ -224,7 +225,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             // 마커 갱신
             googleMap?.clear()
             googleMap?.addMarker(MarkerOptions().position(latLng).title(title))
-            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
 
             //if(viewModel.address.value.isNullOrEmpty())
             //viewModel.setStartAddress(title)
@@ -339,11 +340,9 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
             if (isFollowMode) {
                 kakaoMap?.moveCamera(
-                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here),
-                    CameraAnimation.from(500, true, true)
+                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here)
                 )
-                // 팔로우 모드일 때만 트래킹 시작
-                startLabel?.let { kakaoMap?.trackingManager?.startTracking(it) }
+                kakaoMap?.trackingManager?.stopTracking()
             } else {
                 // 팔로우 꺼져 있으면 혹시 모를 트래킹 종료
                 kakaoMap?.trackingManager?.stopTracking()
@@ -431,6 +430,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                     findNavController().popBackStack()
                 }
                 DeliveryMapViewModel.Event.SelectStart -> {
+                    saveCurrentStartLocationIfAvailable()
                     findNavController().navigate(DeliveryMapFragmentDirections.actionDeliveryMapFragmentToDeliveryStartFragment2(isStart = true, isInternational = viewModel.isInternationalDelivery.value))
                 }
                 DeliveryMapViewModel.Event.SelectDestination ->{
@@ -448,6 +448,22 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     private fun setFragmentResult(){
         sharedViewModel.updateDistance(
             distance = calcDistanceKm(lastKnownLocation, lastKnownDestLocation).toString()
+        )
+    }
+
+    private fun saveCurrentStartLocationIfAvailable() {
+        val currentState = sharedViewModel.state.value
+        if (currentState.startLat != null && currentState.startLng != null) return
+
+        val location = lastKnownLocation ?: return
+        val address = viewModel.address.value
+        if (!address.isUsableStartAddress()) return
+
+        sharedViewModel.updateStartLocation(
+            address = address.orEmpty(),
+            detail = currentState.startDetail.orEmpty(),
+            lat = location.latitude,
+            lng = location.longitude
         )
     }
 
@@ -480,10 +496,9 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
         if (isFollowMode) {
             map.moveCamera(
-                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here),
-                CameraAnimation.from(500, true, true)
+                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here)
             )
-            startLabel?.let { map.trackingManager?.startTracking(it) }
+            map.trackingManager?.stopTracking()
         } else {
             map.trackingManager?.stopTracking()
         }
@@ -580,8 +595,12 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
     private fun enableFollowMode() {
         isFollowMode = true
-        // 현재 라벨이 있으면 다시 추적 시작
-        startLabel?.let { kakaoMap?.trackingManager?.startTracking(it) }
+        startLabel?.position?.let { position ->
+            kakaoMap?.moveCamera(
+                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(position)
+            )
+        }
+        kakaoMap?.trackingManager?.stopTracking()
     }
 
     private fun disableFollowMode() {
@@ -614,8 +633,20 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            googleMap?.isMyLocationEnabled = true
+            googleMap?.isMyLocationEnabled = false
+            lastKnownLocation?.let { showGoogleCurrentLocation(it) }
         }
+    }
+
+    private fun showGoogleCurrentLocation(location: Location) {
+        val latLng = LatLng(location.latitude, location.longitude)
+        googleCurrentLocationMarker?.remove()
+        googleCurrentLocationMarker = googleMap?.addMarker(
+            MarkerOptions()
+                .position(latLng)
+                .title("내 위치")
+                .anchor(0.5f, 1f)
+        )
     }
 
     override fun onRequestPermissionsResult(

@@ -93,6 +93,7 @@
                 android:textSize="12dp"
                 android:textStyle="bold"
                 android:text="@{viewModel.deliveryStatusFlow}"
+                app:deliveryStatusBadge="@{viewModel.deliveryStatusFlow}"
                 app:layout_constraintStart_toEndOf="@id/ivProduct"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="상태값" />

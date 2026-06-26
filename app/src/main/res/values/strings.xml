@@ -18,4 +18,8 @@
     <string name="video">동영상</string>
     <string name="no_list_chat">채팅 내역이 존재하지 않아요.</string>
     <string name="request_delivery">동행 요청하기</string>
+    <string name="delivery_pay_distance">직선거리</string>
+    <string name="delivery_pay_weight">무게</string>
+    <string name="delivery_pay_base_fee">기본 요금</string>
+    <string name="delivery_pay_total_fee">총 결제 금액</string>
 </resources>

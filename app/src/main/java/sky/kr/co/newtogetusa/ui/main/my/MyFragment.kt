@@ -49,7 +49,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                     Timber.d(
                         "Identity verification failed code=${response.code}, message=${response.message}, pgCode=${response.pgCode}, pgMessage=${response.pgMessage}, id=${response.identityVerificationId}, txId=${response.identityVerificationTxId}"
                     )
-                    confirmProceedWithoutIdentity(response.message ?: "본인인증에 실패했습니다.")
+                    showIdentityVerificationFailed(response.message)
                 }
             }
         )
@@ -212,15 +212,21 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
         )
     }
 
-    private fun confirmProceedWithoutIdentity(errorMessage: String) {
+    private fun showIdentityVerificationFailed(message: String?) {
         MessageDialog.newInstance(
-            msg = "$errorMessage\n\n그래도 진행하시겠어요?",
-            rightBtn = "진행",
-            leftBtn = "취소",
+            msg = message.toIdentityFailureMessage(),
+            rightBtn = "확인",
             msgTitle = "본인인증 실패"
-        ).onRightBtn {
-            navigatePlayerJoin()
-        }.show(childFragmentManager, "")
+        ).show(childFragmentManager, "")
+    }
+
+    private fun String?.toIdentityFailureMessage(): String {
+        val message = this?.trim().orEmpty()
+        return when {
+            message.isBlank() -> "본인인증에 실패했습니다."
+            message.contains("알수 없는 이유") -> message.replace("알수 없는 이유", "알 수 없는 이유")
+            else -> message
+        }
     }
 
     private fun navigatePlayerJoin() {

@@ -20,12 +20,12 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.MapLifeCycleCallback
-import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
@@ -64,6 +64,7 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
     private var isFollowMode = true
 
     private var googleMap: GoogleMap? = null
+    private var googleCurrentLocationMarker: Marker? = null
 
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
 
@@ -192,7 +193,7 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
     private fun maybeInitMapWithLocation() {
         if (googleMap != null && lastKnownLocation != null) {
             val latLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-            googleMap?.addMarker(MarkerOptions().position(latLng).title("내 위치"))
+            showGoogleCurrentLocation(lastKnownLocation!!)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         }
         if (lastKnownLocation == null) {//서울
@@ -290,7 +291,7 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
         val marker = googleMap?.addMarker(
             MarkerOptions().position(latLng).title("${latLng.latitude}, ${latLng.longitude}")
         )
-        googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
 
         // 2) 비동기로 역지오코딩
         viewLifecycleOwner.lifecycleScope.launch {
@@ -372,10 +373,8 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
             LabelOptions.from(latLng).setStyles(pinStyle)
         )
 
-        // 필요 시 카메라를 부드럽게 이동
         kakaoMap?.moveCamera(
-            com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(latLng),
-            CameraAnimation.from(250, true, true)
+            com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(latLng)
         )
     }
 
@@ -405,22 +404,31 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
 
             if (isFollowMode) {
                 kakaoMap?.moveCamera(
-                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here),
-                    CameraAnimation.from(500, true, true)
+                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here)
                 )
                 tapLabel?.remove()
                 tapLabel = layer?.addLabel(
                     LabelOptions.from(here).setStyles(pinStyle)
                 )
-                tapLabel?.let { kakaoMap?.trackingManager?.startTracking(it)
-                    isFollowMode = false}
                 kakaoMap?.trackingManager?.stopTracking()
+                isFollowMode = false
             } else {
                 // 팔로우 꺼져 있으면 혹시 모를 트래킹 종료
                 kakaoMap?.trackingManager?.stopTracking()
             }
             // kakaoMap!!.trackingManager.setTrackingRotation(false) // 회전 동기화 여부
         }
+    }
+
+    private fun showGoogleCurrentLocation(location: Location) {
+        val latLng = LatLng(location.latitude, location.longitude)
+        googleCurrentLocationMarker?.remove()
+        googleCurrentLocationMarker = googleMap?.addMarker(
+            MarkerOptions()
+                .position(latLng)
+                .title("내 위치")
+                .anchor(0.5f, 1f)
+        )
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])

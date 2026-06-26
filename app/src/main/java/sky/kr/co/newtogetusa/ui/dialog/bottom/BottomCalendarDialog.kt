@@ -47,6 +47,9 @@ class BottomCalendarDialog :
         currentMonth = YearMonth.now()
         startMonth = currentMonth
         endMonth = currentMonth.plusMonths(12)
+        if (selectedDate == null) {
+            selectedDate = todayDate
+        }
         dataBinding.tvYearMonth.text = "${currentMonth.year}년 ${currentMonth.monthValue}월"
 
         dataBinding.calendarView.monthHeaderBinder =
@@ -86,22 +89,27 @@ class BottomCalendarDialog :
                 container.day = data
                 val isToday = day.date == todayDate
                 val isSelectedDay = day.date == selectedDate
+                val dayContext = container.binding.tvDay.context
+                val dayBackground = when {
+                    isSelectedDay && isToday -> dayContext.getDrawable(R.drawable.background_s_p100_r20)
+                    isSelectedDay -> dayContext.getDrawable(R.drawable.background_s_b80_r20)
+                    isToday -> dayContext.getDrawable(R.drawable.background_s_p10_r20)
+                    else -> null
+                }
                 container.binding.root.apply {
                     background = if (isSelectedDay) null
                     else null
                 }
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
-                    background =
-                        if(isSelectedDay) context.getDrawable(R.drawable.background_s_b80_r20)
-                        else if (isToday) context.getDrawable(R.drawable.background_s_p100_r20) else null
+                    background = dayBackground
                     visibility =
                         if (data.position == DayPosition.MonthDate) View.VISIBLE else View.INVISIBLE
                     setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
                             if (isSelectedDay) R.color.white
-                            else if(isToday)R.color.white
+                            else if(isToday)R.color.primary_100
                             else if (day.date.dayOfWeek == firstDayOfWeekFromLocale()) R.color.red_100
                             else if (day.date.dayOfWeek == firstDayOfWeekFromLocale().plus(6)) R.color.blue_100
                             else R.color.black_60
@@ -147,10 +155,8 @@ class BottomCalendarDialog :
         }
 
         dataBinding.tvSelectedComplete.setOnClickListener {
-            selectedDate?.let {
-                daySelectCallback?.invoke(it)
-                dismissAllowingStateLoss()
-            }
+            daySelectCallback?.invoke(selectedDate ?: todayDate)
+            dismissAllowingStateLoss()
         }
     }
 
@@ -170,13 +176,7 @@ class BottomCalendarDialog :
                     // Keep a reference to any previous selection
                     // in case we overwrite it and need to reload it.
                     val currentSelection = selectedDate
-                    if (currentSelection == day.date) {
-                        // If the user clicks the same date, clear selection.
-                        selectedDate = null
-                        // Reload this date so the dayBinder is called
-                        // and we can REMOVE the selection background.
-                        dataBinding.calendarView.notifyDateChanged(currentSelection)
-                    } else {
+                    if (currentSelection != day.date) {
                         selectedDate = day.date
                         // Reload the newly selected date so the dayBinder is
                         // called and we can ADD the selection background.

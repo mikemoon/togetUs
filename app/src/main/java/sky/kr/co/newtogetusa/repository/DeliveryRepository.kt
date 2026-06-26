@@ -12,6 +12,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryReviewRequest
@@ -46,6 +47,17 @@ class DeliveryRepository @Inject constructor(
     suspend fun putDeliveryFinalReq(deliveryId: Long, deliveryFinalReq: DeliveryFinalReq) = safeApiCall<Boolean>(
         Dispatchers.IO){
         apiService.putDeliveryFinalReq(deliveryId, deliveryFinalReq)
+    }
+
+    suspend fun getDeliveryPortOneConfig() = safeApiCall(Dispatchers.IO) {
+        apiService.getDeliveryPortOneConfig()
+    }
+
+    suspend fun payDelivery(
+        deliveryId: Long,
+        request: DeliveryPayRequest
+    ) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.payDelivery(deliveryId, request).boolValue
     }
 
     suspend fun postDeliverySearch(deliverySearchReq: DeliverySearchReq) = safeApiCall<DeliverySearchResponse>(Dispatchers.IO){
@@ -124,6 +136,10 @@ class DeliveryRepository @Inject constructor(
 
     suspend fun putSuggest(deliveryId: Long, body: Map<String, String>) = safeApiCall<Boolean>(Dispatchers.IO) {
         apiService.putSuggest(deliveryId, body)
+    }
+
+    suspend fun putAccept(deliveryId: Long, playerId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putAccept(deliveryId.toInt(), hashMapOf("player_id" to playerId)).boolValue
     }
 
     //플레이어

@@ -1,8 +1,10 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.view.View
@@ -12,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -29,10 +32,13 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryProductBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.ui.main.delivery.product.HorizontalSpaceItemDecoration
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ItemMoveCallback
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ProductPickImageAdapter
 import sky.kr.co.newtogetusa.utils.FileUtil.copyUriToTempFile
+import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.hideKeyboard
 import timber.log.Timber
@@ -50,9 +56,12 @@ class DeliveryProductFragment :
     private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var rvAdapter: ProductPickImageAdapter
     private val selectedUris = mutableListOf<Uri>()
+    private var currentPhotoUri: Uri? = null
+    private var currentPhotoPath: String? = null
 
     private val categoryViews = mutableMapOf<String, AppCompatTextView>()
     private val weightViews = mutableMapOf<String, AppCompatTextView>()
@@ -60,9 +69,26 @@ class DeliveryProductFragment :
 
     private var latestState: DeliveryRequestState? = null
 
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        val path = currentPhotoPath
+        if (success && !path.isNullOrBlank()) {
+            viewModel.addAttachImages(listOf(path))
+            refreshAttachedImages()
+        }
+        currentPhotoUri = null
+        currentPhotoPath = null
+    }
+
     override fun init() {
         super.init()
         setupHideKeyboardOnOutsideTouch(dataBinding.root)
+
+        cameraPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) {
+                    openCamera()
+                }
+            }
 
         imagePickerLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -87,13 +113,7 @@ class DeliveryProductFragment :
 
                     // ViewModel 갱신
                     viewModel.addAttachImages(tempPaths)
-
-                    val imageUrlList = viewModel.attachImagesUrl.value.map { Uri.fromFile(File(it)) }
-                    // RecyclerView 갱신
-                    rvAdapter.setData(
-                        imageUrlList
-                    )
-                    sharedViewModel.attachImagesUrl.value = imageUrlList
+                    refreshAttachedImages()
                 }
             }
 
@@ -112,7 +132,7 @@ class DeliveryProductFragment :
         }.apply {
             setGalleryClickListener(object : ProductPickImageAdapter.OnGalleryClickListener {
                 override fun onGalleryClick() {
-                    openImagePicker()
+                    showPictureTypeDialog()
                 }
             })
             setDragListener(object : ProductPickImageAdapter.OnStartDragListener {
@@ -270,6 +290,45 @@ class DeliveryProductFragment :
             addCategory(Intent.CATEGORY_OPENABLE)
         }
         imagePickerLauncher.launch(intent)
+    }
+
+    private fun showPictureTypeDialog() {
+        dialogFragmentShow(
+            childFragmentManager,
+            BottomPictureTypeDialog().apply {
+                pictureTypeSelectCallback = { pictureType ->
+                    when (pictureType) {
+                        PictureType.TYPE_CAMERA -> openCamera()
+                        PictureType.TYPE_GALLERY -> openImagePicker()
+                    }
+                }
+            }
+        )
+    }
+
+    private fun openCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            return
+        }
+
+        val imageDir = File(requireContext().cacheDir, "images").apply {
+            if (!exists()) mkdirs()
+        }
+        val photoFile = File(imageDir, "product_${System.currentTimeMillis()}_${UUID.randomUUID()}.jpg")
+        currentPhotoPath = photoFile.absolutePath
+        currentPhotoUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            photoFile
+        )
+        cameraLauncher.launch(currentPhotoUri)
+    }
+
+    private fun refreshAttachedImages() {
+        val imageUrlList = viewModel.attachImagesUrl.value.map { Uri.fromFile(File(it)) }
+        rvAdapter.setData(imageUrlList)
+        sharedViewModel.attachImagesUrl.value = imageUrlList
     }
 
     private fun createSelectableItems(

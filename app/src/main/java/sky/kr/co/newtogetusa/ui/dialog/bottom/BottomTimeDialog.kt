@@ -16,12 +16,18 @@ class BottomTimeDialog : BottomBaseDialog<DialogBottomTimeBinding, BottomTimeVie
     override val viewModel: BottomTimeViewModel by viewModels()
 
     var timeCallback : ((Int, Int) -> Unit)? = null
+    var allowNegotiable: Boolean = true
 
     private var selectedHour: Int = 0
     private var selectedMinute: Int = 0
 
     override fun initObserver() {
         super.initObserver()
+
+        dataBinding.clTimeNegotiable.isVisible = allowNegotiable
+        if (!allowNegotiable) {
+            dataBinding.switchTime.isChecked = false
+        }
 
         dataBinding.switchTime.setOnCheckedChangeListener { _, isChecked ->
             dataBinding.llTimePicker.isVisible = !isChecked

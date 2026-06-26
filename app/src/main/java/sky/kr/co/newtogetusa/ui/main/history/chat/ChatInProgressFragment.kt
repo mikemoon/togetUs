@@ -20,7 +20,10 @@ class ChatInProgressFragment : BaseFragment<FragmentChatInProgressBinding, ChatI
     override val layoutId: Int = R.layout.fragment_chat_in_progress
     override val viewModel: ChatInProgressViewModel by viewModels()
     private val args: ChatInProgressFragmentArgs by navArgs()
-    private val chatAdapter = ChatInProgressAdapter { viewModel.onRoomClick(it.roomId) }
+    private val chatAdapter = ChatInProgressAdapter(
+        onClick = { viewModel.onRoomClick(it.roomId) },
+        onSelect = { viewModel.selectPlayer(args.deliveryId, it.playerId) }
+    )
 
     override fun init() {
         super.init()
@@ -43,9 +46,17 @@ class ChatInProgressFragment : BaseFragment<FragmentChatInProgressBinding, ChatI
             when (event) {
                 ChatInProgressViewModel.Event.Back -> findNavController().popBackStack()
                 ChatInProgressViewModel.Event.LoadFailed -> requireContext().toast("채팅 목록을 불러오지 못했습니다.")
+                ChatInProgressViewModel.Event.SelectFailed -> requireContext().toast("플레이어 선택에 실패했습니다.")
                 is ChatInProgressViewModel.Event.OpenRoom -> findNavController().navigate(
                     R.id.chattingConversationFragment,
                     bundleOf("roomId" to event.roomId)
+                )
+                is ChatInProgressViewModel.Event.OpenPayment -> findNavController().navigate(
+                    R.id.deliveryPayFragment,
+                    bundleOf(
+                        "deliveryId" to event.deliveryId,
+                        "playerId" to event.playerId
+                    )
                 )
             }
         }

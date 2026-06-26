@@ -16,7 +16,10 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.ReviewCheckDto
+import sky.kr.co.newtogetusa.data.remote.dto.CommonBoolDto
+import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
+import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryReviewRequest
@@ -46,10 +49,20 @@ interface DeliveryService {
         @Body body : Map<String, String>
     ):Boolean
 
-    @PUT("api/deliveries/v1/{delivery_id}/accept") //플레이어에게 배송요청 확정
+    @PUT("api/deliverys/v1/{delivery_id}/requester/accept") //플레이어 선택
     suspend fun putAccept(
         @Path("delivery_id") delivery_id: Int,
-    ):Boolean
+        @Body body: Map<String, Long>
+    ): CommonBoolDto
+
+    @GET("api/deliverys/v1/portone/config")
+    suspend fun getDeliveryPortOneConfig(): PortOneConfigDto
+
+    @POST("api/deliverys/v1/{delivery_id}/pay")
+    suspend fun payDelivery(
+        @Path("delivery_id") deliveryId: Long,
+        @Body body: DeliveryPayRequest
+    ): CommonBoolDto
 
     @GET("api/deliveries/v1/{delivery_id}/players") //배송요청에 관련된 플레이어 목록
     suspend fun getPlayers(

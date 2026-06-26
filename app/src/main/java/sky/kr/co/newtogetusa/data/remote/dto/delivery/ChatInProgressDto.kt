@@ -15,6 +15,8 @@ data class ChatInProgressDto(
     val playerProfile: ChatInProgressPlayerProfileDto? = null,
     @SerializedName("last_msg")
     val lastMsg: ChatInProgressLastMessageDto? = null,
+    @SerializedName("prd_picture")
+    val prdPicture: String? = null,
 )
 
 data class ChatInProgressPlayerProfileDto(

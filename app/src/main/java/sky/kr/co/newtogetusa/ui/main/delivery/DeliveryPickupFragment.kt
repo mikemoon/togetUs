@@ -152,6 +152,7 @@ class DeliveryPickupFragment :
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomCalendarDialog().apply {
+                            selectedDate = this@DeliveryPickupFragment.viewModel.pickupDate.value.toLocalDateOrNull()
                             daySelectCallback = { selectedDate ->
                                 this@DeliveryPickupFragment.dataBinding.etDate.setText(selectedDate.toKoreanDateYYYYMMDDEEEE())
                                 this@DeliveryPickupFragment.viewModel.pickupDate.value = selectedDate.toYYYYMMDD()
@@ -212,6 +213,13 @@ class DeliveryPickupFragment :
 
     private fun formatTimeValue(hour24: Int, minute: Int): String {
         return "%02d%02d".format(hour24, minute)
+    }
+
+    private fun String?.toLocalDateOrNull(): LocalDate? {
+        if (this.isNullOrBlank()) return null
+        return runCatching {
+            LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyyMMdd"))
+        }.getOrNull()
     }
 
     fun formatKoreanDate(input: String): String {

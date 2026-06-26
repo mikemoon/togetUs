@@ -99,7 +99,16 @@
     <fragment
         android:id="@+id/deliveryPayFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryPayFragment"
-        android:label="DeliveryPayFragment" />
+        android:label="DeliveryPayFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="playerId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
 
     <fragment
         android:id="@+id/takePhotoFragment"

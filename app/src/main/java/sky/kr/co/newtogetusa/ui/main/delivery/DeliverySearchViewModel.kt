@@ -56,7 +56,16 @@ class DeliverySearchViewModel @Inject constructor(baseViewModelDependenciesFacto
         val keyword = searchAddress.value.trim()
         if (keyword.isEmpty()) return
 
-        // 기존 onTextChanged 에서 하던 동작 이동
+        setQuery(keyword)
+        viewModelScope.launch {
+            recentSearchStore.addSearchKeyword(keyword)
+        }
+    }
+
+    fun setVoiceSearchText(text: String) {
+        val keyword = text.trim()
+        if (keyword.isEmpty()) return
+        searchAddress.value = keyword
         setQuery(keyword)
         viewModelScope.launch {
             recentSearchStore.addSearchKeyword(keyword)
@@ -129,5 +138,6 @@ class DeliverySearchViewModel @Inject constructor(baseViewModelDependenciesFacto
 
     sealed class Event {
         object Back : Event()
+        object VoiceSearch : Event()
     }
 }

@@ -2,8 +2,12 @@ package sky.kr.co.newtogetusa.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,6 +24,12 @@ class SplashActivity : BaseActivity<ActivitySplashBinding, SplashVM>() {
     override val layoutId: Int
         get() = R.layout.activity_splash
     override val viewModel: SplashVM by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        keepSplashFullscreen()
+        super.onCreate(savedInstanceState)
+        keepSplashFullscreen()
+    }
 
     override fun init() {
         super.init()
@@ -46,6 +56,19 @@ class SplashActivity : BaseActivity<ActivitySplashBinding, SplashVM>() {
                 }
             }
             finish()
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) keepSplashFullscreen()
+    }
+
+    private fun keepSplashFullscreen() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            hide(WindowInsetsCompat.Type.systemBars())
         }
     }
 

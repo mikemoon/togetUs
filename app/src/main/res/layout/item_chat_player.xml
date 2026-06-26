@@ -14,17 +14,40 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="84dp"
-        >
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivProfile"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+        <FrameLayout
+            android:id="@+id/flProfile"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:layout_marginStart="20dp"
-            android:src="@drawable/profile"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivProduct"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/no_img" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivProfileBadge"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="bottom|end"
+                android:scaleType="centerCrop"
+                android:src="@drawable/profile"
+                android:translationX="8dp"
+                android:translationY="8dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.TogetUs.Circle"
+                app:strokeColor="@color/white"
+                app:strokeWidth="2dp" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/llContent"
@@ -36,7 +59,7 @@
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tvUnread"
-            app:layout_constraintStart_toEndOf="@id/ivProfile"
+            app:layout_constraintStart_toEndOf="@id/flProfile"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
@@ -45,6 +68,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{item.name}"
@@ -53,6 +77,7 @@
                     tools:text="홍길동" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -63,6 +88,7 @@
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"

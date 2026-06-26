@@ -45,7 +45,7 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
                     Timber.e(
                         "Profile recertification failed code=${response.code}, message=${response.message}, pgCode=${response.pgCode}, pgMessage=${response.pgMessage}, id=${response.identityVerificationId}, txId=${response.identityVerificationTxId}"
                     )
-                    requireContext().toast(response.message ?: "본인인증에 실패했습니다.")
+                    showIdentityVerificationFailed(response.message)
                 }
             }
         )
@@ -131,5 +131,25 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
             ),
             resultLauncher = identityVerificationActivityResultLauncher
         )
+    }
+
+    private fun showIdentityVerificationFailed(message: String?) {
+        dialogFragmentShow(
+            childFragmentManager,
+            MessageDialog.newInstance(
+                msgTitle = "본인인증 실패",
+                msg = message.toIdentityFailureMessage(),
+                rightBtn = "확인"
+            )
+        )
+    }
+
+    private fun String?.toIdentityFailureMessage(): String {
+        val message = this?.trim().orEmpty()
+        return when {
+            message.isBlank() -> "본인인증에 실패했습니다."
+            message.contains("알수 없는 이유") -> message.replace("알수 없는 이유", "알 수 없는 이유")
+            else -> message
+        }
     }
 }

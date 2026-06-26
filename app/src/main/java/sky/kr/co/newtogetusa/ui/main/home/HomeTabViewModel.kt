@@ -24,7 +24,6 @@ import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +35,7 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
                                            private val myRepository: MyRepository) : BaseViewModel(baseViewModelFactory.create()) {
 
     val isModePlayer = MutableStateFlow(false)
-    val mapShowState = MutableStateFlow<MapShow>(MapShow.LOCAL_IMAGE)
+    val mapShowState = MutableStateFlow<MapShow>(MapShow.GOOGLE_MAP)
     val unreadNotificationCount = MutableStateFlow(0)
     val unreadNotificationText = MutableStateFlow("")
 
@@ -50,7 +49,6 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
             configRepository.getDomesticAreas()
         }
 
-        decideMapProvider()
         getNotificationUnreadCount()
     }
 
@@ -154,19 +152,6 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         object JoinPlayer : Event()
         object RequestDelivery : Event()
         object Alarm : Event()
-    }
-
-    /**
-     * 📌 현재 국가에 따라 지도 결정
-     */
-    private fun decideMapProvider() {
-        val isKorea = Locale.getDefault().country.equals("KR", ignoreCase = true)
-
-        mapShowState.value = if (isKorea) {
-            MapShow.KAKAO_MAP
-        } else {
-            MapShow.GOOGLE_MAP
-        }
     }
 
     private val _address = MutableStateFlow<String?>("현재위치")

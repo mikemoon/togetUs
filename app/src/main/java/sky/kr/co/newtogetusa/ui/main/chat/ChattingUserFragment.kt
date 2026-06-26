@@ -136,8 +136,22 @@ class ChattingUserFragment @Inject constructor(
             name = participant?.nickname ?: room_name,
             date = last_msg?.display_send_date?.let { "• $it" }.orEmpty(),
             profileUrl = participant?.profile_image.orEmpty(),
+            deliveryImageUrl = delivery.prd_picture,
             unReadCount = unread_cnt,
-            message = last_msg?.msg.orEmpty()
+            message = last_msg.toPreviewMessage()
         )
     }
+
+    private fun sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomLastMessageDto?.toPreviewMessage(): String {
+        val message = this?.msg.orEmpty()
+        return when {
+            this == null -> ""
+            mimetype.startsWith("image/") || message.isAttachUrl() -> "이미지를 보냈습니다."
+            mimetype.startsWith("video/") -> "영상을 보냈습니다."
+            else -> message
+        }
+    }
+
+    private fun String.isAttachUrl(): Boolean =
+        (startsWith("http://") || startsWith("https://")) && contains("/attach/")
 }

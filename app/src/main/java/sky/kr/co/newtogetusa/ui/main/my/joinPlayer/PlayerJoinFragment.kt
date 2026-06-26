@@ -421,7 +421,7 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
     }
 
     private fun openCrcFilePicker() {
-        crcFilePickerLauncher.launch(arrayOf("application/pdf"))
+        crcFilePickerLauncher.launch(arrayOf("application/pdf", "image/*"))
     }
 
     private fun setupFilePicker(){

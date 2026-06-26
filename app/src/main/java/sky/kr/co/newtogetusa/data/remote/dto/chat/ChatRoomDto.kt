@@ -16,7 +16,8 @@ data class ChatRoomDeliveryDto(
     val status_cd: String,
     val complete_date: String?,
     val suggest_yn: String?,
-    val apply_yn: String?
+    val apply_yn: String?,
+    val prd_picture: String? = null
 )
 
 data class ChatRoomLastMessageDto(

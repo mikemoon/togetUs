@@ -1,8 +1,10 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -14,6 +16,8 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliverySearchBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.main.search.player.SearchVoiceDialogFragment
+import sky.kr.co.newtogetusa.utils.hideKeyboard
 import sky.kr.co.newtogetusa.utils.showKeyboard
 import timber.log.Timber
 
@@ -53,6 +57,20 @@ class DeliverySearchFragment :
         }
         dataBinding.rvSearchResult.adapter = searchResultAdapter
 
+        dataBinding.etAddress.setOnEditorActionListener { view, actionId, event ->
+            val isSearchAction = actionId == EditorInfo.IME_ACTION_SEARCH
+            val isEnterUp = event?.keyCode == KeyEvent.KEYCODE_ENTER &&
+                event.action == KeyEvent.ACTION_UP
+            if (isSearchAction || isEnterUp) {
+                viewModel.onSearchClick()
+                requireContext().hideKeyboard(view)
+                view.clearFocus()
+                true
+            } else {
+                false
+            }
+        }
+
         dataBinding.etAddress.requestFocus()
         requireContext().showKeyboard(dataBinding.etAddress)
 
@@ -65,6 +83,16 @@ class DeliverySearchFragment :
             hasRecentSearchItems = list.isNotEmpty()
             recentlyAdapter.submitList(list)
             updateRecentSearchVisibility()
+        }
+
+        lifecycleScope.launch {
+            viewModel.searchAddress.collectLatest { query ->
+                if (dataBinding.etAddress.text?.toString().orEmpty() != query) {
+                    dataBinding.etAddress.setText(query)
+                    dataBinding.etAddress.setSelection(query.length)
+                }
+                dataBinding.ivDelete.isVisible = query.isNotBlank()
+            }
         }
 
         lifecycleScope.launch {
@@ -98,7 +126,7 @@ class DeliverySearchFragment :
 
         viewModel.selectedAddress.observe(viewLifecycleOwner) {
             val bundle = Bundle().apply {
-                putBoolean("isStart", true)
+                putBoolean("isStart", args.isStart)
                 putParcelable("selectedKakaoLocValue", it)
             }
             // 결과 전달
@@ -110,6 +138,13 @@ class DeliverySearchFragment :
             when (ev) {
                 is DeliverySearchViewModel.Event.Back -> {
                     findNavController().popBackStack()
+                }
+                DeliverySearchViewModel.Event.VoiceSearch -> {
+                    SearchVoiceDialogFragment()
+                        .onRecognized { recognizedText ->
+                            viewModel.setVoiceSearchText(recognizedText)
+                        }
+                        .show(childFragmentManager, "SearchVoiceDialogFragment")
                 }
             }
         }
