@@ -16,6 +16,7 @@ import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.databinding.FragmentPlayerJoinSearchBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryStartKakaoSearchResultAdapter
+import sky.kr.co.newtogetusa.utils.hideKeyboard
 
 @AndroidEntryPoint
 class PlayerJoinSearchFragment : BaseFragment<FragmentPlayerJoinSearchBinding, PlayerJoinSearchVM>() {
@@ -34,6 +35,7 @@ class PlayerJoinSearchFragment : BaseFragment<FragmentPlayerJoinSearchBinding, P
         viewModel.isSecondary.value = args.isSecondary
 
         searchResultAdapter = DeliveryStartKakaoSearchResultAdapter{ kakaoSearchModel ->
+            hideSearchKeyboard()
             dataBinding.tvSearchResult.text = kakaoSearchModel.name
             viewModel.onKakaoAddressClick(kakaoSearchModel)
             viewModel.searchStep.value = PlayerJoinSearchVM.SearchStep.AREA_SET
@@ -162,6 +164,8 @@ class PlayerJoinSearchFragment : BaseFragment<FragmentPlayerJoinSearchBinding, P
                 bundle.getParcelable<KakaoSearchModel>("selectedKakaoLocValue")
                     ?: return@setFragmentResultListener
 
+            hideSearchKeyboard()
+
             // UI 반영
             dataBinding.tvSearchResult.text = result.name
 
@@ -178,6 +182,11 @@ class PlayerJoinSearchFragment : BaseFragment<FragmentPlayerJoinSearchBinding, P
         dataBinding.clEdit.isVisible = isEditMode
         dataBinding.tvSearchResult.isVisible = !isEditMode
         dataBinding.tvModify.isVisible = !isEditMode
+    }
+
+    private fun hideSearchKeyboard() {
+        dataBinding.etSearch.clearFocus()
+        requireContext().hideKeyboard(dataBinding.etSearch)
     }
 
 }

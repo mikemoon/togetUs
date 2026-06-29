@@ -33,6 +33,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
         viewModel.isInternationalDelivery.value = args.isInternational
 
         applySavedLocation()
+        applySavedContact()
         setupHideKeyboardOnOutsideTouch(dataBinding.rootContainer)
 
         dataBinding.tvSearch.setOnClickListener {
@@ -64,15 +65,28 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
         dataBinding.etAddressDetail.setText(detail.orEmpty())
     }
 
+    private fun applySavedContact() {
+        val state = sharedViewModel.state.value
+        val savedName = state.name.orEmpty()
+        val savedPhone = state.phone.orEmpty()
+
+        viewModel.name.value = savedName
+        viewModel.phone.value = savedPhone
+        dataBinding.etName.setText(savedName)
+        dataBinding.etPhone.setText(savedPhone)
+    }
+
     override fun initObserver() {
         super.initObserver()
 
         dataBinding.etName.doAfterTextChanged {
             viewModel.name.value = it?.toString().orEmpty()
+            updateSavedContact()
         }
 
         dataBinding.etPhone.doAfterTextChanged {
             viewModel.phone.value = it?.toString().orEmpty()
+            updateSavedContact()
         }
 
         dataBinding.etAddressDetail.doAfterTextChanged {
@@ -130,6 +144,10 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
                 lng = viewModel.selectedAddress.value?.lng ?:0.0
             )
         }
+        sharedViewModel.updateUser(viewModel.name.value, viewModel.phone.value)
+    }
+
+    private fun updateSavedContact() {
         sharedViewModel.updateUser(viewModel.name.value, viewModel.phone.value)
     }
 

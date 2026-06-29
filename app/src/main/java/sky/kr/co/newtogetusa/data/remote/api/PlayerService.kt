@@ -17,7 +17,6 @@ import sky.kr.co.newtogetusa.data.remote.dto.player.DeliveryHistoryResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerApplyedInfoDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
-import sky.kr.co.newtogetusa.data.remote.dto.player.VerifyIdentityDto
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerSearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.users.PlayerInfoDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
@@ -187,7 +186,7 @@ interface PlayerService {
     @POST("/api/players/v1/verify-identity")
     suspend fun verifyIdentity(
         @Body request: HashMap<String, String>
-    ): VerifyIdentityDto
+    ): Int
 
     @POST("/api/players/v1/search") //플레이어 검색하기
     suspend fun postPlayersSearch(

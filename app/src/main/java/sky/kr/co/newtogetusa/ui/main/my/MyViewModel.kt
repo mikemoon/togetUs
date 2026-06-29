@@ -239,6 +239,8 @@ class MyViewModel @Inject constructor(
         loadingState.value = true
         when (val res = playerRepository.verifyIdentity(identityVerificationId)) {
             is ResultWrapper.Success -> {
+                Timber.d("verifyIdentity success playerId=${res.data}")
+                getPlayerInfo()
                 refreshProfileForMode {
                     loadingState.value = false
                     callback()

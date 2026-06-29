@@ -3,7 +3,9 @@ package sky.kr.co.newtogetusa.ui.main.my
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
@@ -27,7 +29,8 @@ class ModifyProfileViewModel @Inject constructor(
 
     var isProfileImageChanged = MutableStateFlow(false)
 
-    val errorMsg = MutableStateFlow("")
+    private val _errorMsg = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val errorMsg = _errorMsg.asSharedFlow()
 
     fun setNickName(userId: Int, req: HashMap<String, String>, callback: (Boolean) -> Unit) = viewModelScope.launch {
         when (val response = userRepository.putProfileNickname(userId, req)) {
@@ -36,10 +39,10 @@ class ModifyProfileViewModel @Inject constructor(
             }
 
             is ResultWrapper.GenericError ->{
-                errorMsg.value = response.message.toString()
+                showError(response.message)
             }
-            else -> {
-                Timber.e("error $response")
+            is ResultWrapper.NetworkError -> {
+                showError("네트워크 연결을 확인해주세요.")
             }
         }
     }
@@ -50,11 +53,11 @@ class ModifyProfileViewModel @Inject constructor(
                 callback.invoke(response.data)
             }
             is ResultWrapper.GenericError -> {
-                errorMsg.value = response.message.toString()
+                showError(response.message)
                 Timber.e("setProfileImage error ${response.code}: ${response.message}")
             }
             is ResultWrapper.NetworkError -> {
-                errorMsg.value = "네트워크 연결을 확인해주세요."
+                showError("네트워크 연결을 확인해주세요.")
                 Timber.e("setProfileImage network error")
             }
         }
@@ -66,14 +69,18 @@ class ModifyProfileViewModel @Inject constructor(
                 callback.invoke(response.data)
             }
             is ResultWrapper.GenericError -> {
-                errorMsg.value = response.message.toString()
+                showError(response.message)
                 Timber.e("setPlayerProfileImage error ${response.code}: ${response.message}")
             }
             is ResultWrapper.NetworkError -> {
-                errorMsg.value = "네트워크 연결을 확인해주세요."
+                showError("네트워크 연결을 확인해주세요.")
                 Timber.e("setPlayerProfileImage network error")
             }
         }
+    }
+
+    private fun showError(message: String?) {
+        _errorMsg.tryEmit(message.orEmpty().ifBlank { "요청 처리에 실패했습니다." })
     }
 
     private val _event = SingleLiveEvent<Event>()

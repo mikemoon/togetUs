@@ -17,7 +17,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
@@ -129,7 +128,7 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.errorMsg.filter { it.isNotEmpty() }.collectLatest {
+                viewModel.errorMsg.collectLatest {
                     requireContext().toast(it)
                 }
             }
