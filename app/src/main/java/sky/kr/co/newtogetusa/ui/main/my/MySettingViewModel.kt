@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.my
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.navercorp.nid.NaverIdLoginSDK
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -73,6 +74,7 @@ class MySettingViewModel @Inject constructor(
     private fun Boolean.toYn(): String = if (this) "Y" else "N"
 
     fun logout(callback: () -> Unit) = viewModelScope.launch {
+        NaverIdLoginSDK.logout()
         dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, "")
         dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, "")
         dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)

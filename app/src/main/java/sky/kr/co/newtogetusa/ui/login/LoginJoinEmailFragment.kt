@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.login
 
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginJoinEmailBinding
@@ -15,11 +16,12 @@ class LoginJoinEmailFragment :
     override val layoutId: Int
         get() = R.layout.fragment_login_join_email
     override val viewModel: LoginJoinEmailViewModel by viewModels()
+    private val args: LoginJoinEmailFragmentArgs by navArgs()
 
     override fun init() {
         super.init()
 
-        viewModel.setIsPasswordMode(arguments?.getBoolean("isFindPassword") == true)
+        viewModel.setIsPasswordMode(args.isFindPassword)
     }
 
     override fun initObserver() {
@@ -36,7 +38,8 @@ class LoginJoinEmailFragment :
                 findNavController().navigate(
                     LoginJoinEmailFragmentDirections.actionLoginJoinEmailFragmentToLoginPasswordSetFragment(
                         email = viewModel.emailText.value.toString(),
-                        verifyCode = viewModel.verifyCodeText.value.toString()
+                        verifyCode = viewModel.verifyCodeText.value.toString(),
+                        termsList = args.termsList
                     )
                 )
             }

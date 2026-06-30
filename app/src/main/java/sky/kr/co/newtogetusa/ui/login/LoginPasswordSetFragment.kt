@@ -1,12 +1,11 @@
 package sky.kr.co.newtogetusa.ui.login
 
-import android.content.Intent
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginPasswordSetBinding
-import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import timber.log.Timber
 
@@ -16,6 +15,7 @@ class LoginPasswordSetFragment : BaseFragment<FragmentLoginPasswordSetBinding, L
     override val layoutId: Int
         get() = R.layout.fragment_login_password_set
     override val viewModel: LoginPasswordSetViewModel by viewModels()
+    private val args: LoginPasswordSetFragmentArgs by navArgs()
 
     override fun initObserver() {
         super.initObserver()
@@ -23,15 +23,18 @@ class LoginPasswordSetFragment : BaseFragment<FragmentLoginPasswordSetBinding, L
         viewModel.passwordChangeResult.observe(viewLifecycleOwner){ result ->
             Timber.d("changePw ob $result")
             result?.let {
-                val userId = result.userId
-                val verifyCode = result.verifyCode
-                viewModel.join(userId, verifyCode)
-            }
-        }
-
-        viewModel.joinResult.observe(viewLifecycleOwner){ joinResult ->
-            joinResult?.let {
-                moveToMain()
+                val termsList = args.termsList
+                if (termsList.isNullOrEmpty()) {
+                    findNavController().popBackStack(R.id.loginEmailFragment, false)
+                } else {
+                    findNavController().navigate(
+                        LoginPasswordSetFragmentDirections.actionLoginPasswordSetFragmentToLoginNicknameFragment(
+                            userId = result.userId,
+                            verifyCode = result.verifyCode,
+                            termsList = termsList
+                        )
+                    )
+                }
             }
         }
 
@@ -41,17 +44,10 @@ class LoginPasswordSetFragment : BaseFragment<FragmentLoginPasswordSetBinding, L
                     findNavController().popBackStack()
                 }
                 LoginPasswordSetViewModel.Event.InputComplete -> {
-                    val email = LoginPasswordSetFragmentArgs.fromBundle(requireArguments()).email
-                    val verifyCode = LoginPasswordSetFragmentArgs.fromBundle(requireArguments()).verifyCode
-                    viewModel.changePassword(email, viewModel.passwordText.value.toString(), verifyCode)
+                    viewModel.changePassword(args.email, viewModel.passwordText.value.toString(), args.verifyCode)
                 }
             }
         }
-    }
-
-    private fun moveToMain(){
-        startActivity(Intent(requireContext(), MainActivity::class.java))
-        requireActivity().finish()
     }
 
 }

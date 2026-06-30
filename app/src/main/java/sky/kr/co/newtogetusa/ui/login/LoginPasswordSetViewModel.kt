@@ -6,22 +6,17 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
-import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
-import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
 import sky.kr.co.newtogetusa.repository.AuthRepository
-import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-    private val authRepository: AuthRepository,
-    private val tokenStore: TokenStore
+    private val authRepository: AuthRepository
 )
     :BaseViewModel(baseViewModelDependenciesFactory.create()){
 
@@ -68,34 +63,6 @@ class LoginPasswordSetViewModel @Inject constructor(baseViewModelDependenciesFac
             }
             else ->{
 
-            }
-        }
-    }
-
-    private val _joinResult = MutableLiveData<JoinResponse?>()
-    val joinResult: LiveData<JoinResponse?> = _joinResult
-    fun join(userId:Int,  verifyCode: String)= viewModelScope.launch {
-        val response = authRepository.join(
-            hashMapOf(
-                "user_id" to userId,
-                "verify_code" to verifyCode,
-                "nickname" to "abcdefg",
-                "terms_cds" to listOf("use",
-                    "persional",
-                    "3-party",
-                    "location")
-            )
-        )
-        when(response) {
-            is ResultWrapper.Success -> {
-                tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
-                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
-                dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
-                dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
-                _joinResult.value = response.data
-            }
-
-            else -> {
             }
         }
     }

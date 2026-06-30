@@ -21,12 +21,19 @@
         android:label="LoginTermAgreeFragment" >
         <argument android:name="userId" app:argType="integer" android:defaultValue="0"/>
         <argument android:name="verify_code" app:argType="string" android:defaultValue="" />
+        <argument android:name="isEmailJoin" app:argType="boolean" android:defaultValue="false" />
         <action
             android:id="@+id/action_loginTermAgreeFragment_to_loginNicknameFragment"
             app:destination="@id/loginNicknameFragment" >
             <argument android:name="userId" app:argType="integer" android:defaultValue="0"/>
             <argument android:name="verify_code" app:argType="string" android:defaultValue="" />
             <argument android:name="termsList" app:argType="string[]"  />
+        </action>
+        <action
+            android:id="@+id/action_loginTermAgreeFragment_to_loginJoinEmailFragment"
+            app:destination="@id/loginJoinEmailFragment" >
+            <argument android:name="isFindPassword" app:argType="boolean" android:defaultValue="false"/>
+            <argument android:name="termsList" app:argType="string[]" />
         </action>
     </fragment>
     <fragment
@@ -53,15 +60,23 @@
             app:destination="@id/loginJoinEmailFragment" >
             <argument android:name="isFindPassword" app:argType="boolean" android:defaultValue="false"/>
         </action>
+        <action
+            android:id="@+id/action_loginEmailFragment_to_loginTermAgreeFragment"
+            app:destination="@id/loginTermAgreeFragment" >
+            <argument android:name="isEmailJoin" app:argType="boolean" android:defaultValue="true"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/loginJoinEmailFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginJoinEmailFragment"
         android:label="LoginJoinEmailFragment" >
         <argument android:name="isFindPassword" app:argType="boolean" android:defaultValue="false"/>
+        <argument android:name="termsList" app:argType="string[]" app:nullable="true" android:defaultValue="@null"/>
         <action
             android:id="@+id/action_loginJoinEmailFragment_to_loginPasswordSetFragment"
-            app:destination="@id/loginPasswordSetFragment" />
+            app:destination="@id/loginPasswordSetFragment" >
+            <argument android:name="termsList" app:argType="string[]" app:nullable="true" android:defaultValue="@null"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/loginPasswordSetFragment"
@@ -69,6 +84,10 @@
         android:label="LoginPasswordSetFragment" >
         <argument android:name="email" app:argType="string" />
         <argument android:name="verifyCode" app:argType="string" />
+        <argument android:name="termsList" app:argType="string[]" app:nullable="true" android:defaultValue="@null"/>
+        <action
+            android:id="@+id/action_loginPasswordSetFragment_to_loginNicknameFragment"
+            app:destination="@id/loginNicknameFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginPermission"

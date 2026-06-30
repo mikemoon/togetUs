@@ -45,7 +45,11 @@ class LoginEmailFragment : BaseFragment<FragmentLoginEmailBinding, LoginEmailVie
                     findNavController().popBackStack()
                 }
                 is LoginEmailViewModel.Event.JoinByEmail -> {
-                    findNavController().navigate(LoginEmailFragmentDirections.actionLoginEmailFragmentToLoginJoinEmailFragment())
+                    findNavController().navigate(
+                        LoginEmailFragmentDirections.actionLoginEmailFragmentToLoginTermAgreeFragment(
+                            isEmailJoin = true
+                        )
+                    )
                 }
                 is LoginEmailViewModel.Event.Login -> {
                     viewModel.login(viewModel.email.value.orEmpty(), viewModel.password.value.orEmpty())

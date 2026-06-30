@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.navercorp.nid.NaverIdLoginSDK
@@ -26,9 +26,9 @@ class SplashActivity : BaseActivity<ActivitySplashBinding, SplashVM>() {
     override val viewModel: SplashVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        keepSplashFullscreen()
+        keepSplashSystemBarsStable()
         super.onCreate(savedInstanceState)
-        keepSplashFullscreen()
+        keepSplashSystemBarsStable()
     }
 
     override fun init() {
@@ -59,16 +59,13 @@ class SplashActivity : BaseActivity<ActivitySplashBinding, SplashVM>() {
         }
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) keepSplashFullscreen()
-    }
-
-    private fun keepSplashFullscreen() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+    private fun keepSplashSystemBarsStable() {
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            hide(WindowInsetsCompat.Type.systemBars())
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
         }
     }
 

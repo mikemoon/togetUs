@@ -48,11 +48,20 @@ class LoginTermAgreeFragment :
                             ?.distinct()                      // 혹시 중복 방지
                             ?.toTypedArray()
                             ?: emptyArray()
-                    findNavController().navigate(LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToLoginNicknameFragment(
-                        userId = viewModel.userId.value,
-                        verifyCode = viewModel.verifyCode.value,
-                        termsList = selectedCodes
-                    ))
+                    if (args.isEmailJoin) {
+                        findNavController().navigate(
+                            LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToLoginJoinEmailFragment(
+                                isFindPassword = false,
+                                termsList = selectedCodes
+                            )
+                        )
+                    } else {
+                        findNavController().navigate(LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToLoginNicknameFragment(
+                            userId = viewModel.userId.value,
+                            verifyCode = viewModel.verifyCode.value,
+                            termsList = selectedCodes
+                        ))
+                    }
                 }
 
             }

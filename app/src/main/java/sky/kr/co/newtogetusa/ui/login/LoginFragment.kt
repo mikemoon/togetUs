@@ -97,6 +97,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                 }
                 is LoginViewModel.Event.NaverLogin -> {
                     NaverIdLoginSDK.showDevelopersLog(true)
+                    NaverIdLoginSDK.logout()
+                    NaverIdLoginSDK.isRequiredCustomTabsReAuth = true
                     NaverIdLoginSDK.authenticate(requireContext(), object : OAuthLoginCallback {
                         override fun onError(errorCode: Int, message: String) {
                             val errorCode = NaverIdLoginSDK.getLastErrorCode().code
