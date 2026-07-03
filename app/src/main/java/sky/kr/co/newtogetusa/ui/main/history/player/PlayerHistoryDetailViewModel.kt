@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
@@ -14,7 +13,9 @@ import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryDetailResponse
 import sky.kr.co.newtogetusa.repository.ConfigRepository
+import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
+import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
@@ -29,9 +30,12 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
     private val deliveryRepo: DeliveryRepository,
     private val configRepository: ConfigRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
     val deliveryDetail = MutableStateFlow<DeliveryDetailResponse?>(null)
+    private val myUserId = MutableStateFlow<Long?>(null)
+    private val myPlayerId = MutableStateFlow<Long?>(null)
     val mapShowState = MutableStateFlow<HomeTabViewModel.MapShow>(HomeTabViewModel.MapShow.LOCAL_IMAGE)
 
     private val productTypes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
@@ -49,9 +53,27 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     }
 
     fun getDeliveryDetailInfo(deliveryId: Long) = viewModelScope.launch {
+        refreshMyProfile()
         when (val res = deliveryRepo.getDeliveryDetail(deliveryId)) {
             is ResultWrapper.Success -> deliveryDetail.value = res.data
             else -> {}
+        }
+    }
+
+    private suspend fun refreshMyProfile() {
+        val cached = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+        cached?.user?.let {
+            myUserId.value = it.user_id.toLong()
+            myPlayerId.value = it.player_id.takeIf { playerId -> playerId > 0 }?.toLong()
+        }
+
+        when (val res = userRepository.getMyProfile()) {
+            is ResultWrapper.Success -> {
+                dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, res.data)
+                myUserId.value = res.data.user.user_id.toLong()
+                myPlayerId.value = res.data.user.player_id.takeIf { it > 0 }?.toLong()
+            }
+            else -> Unit
         }
     }
 
@@ -62,8 +84,10 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     fun onSecondaryClick() {
         val detail = deliveryDetail.value ?: return
         when (buttonState.value) {
-            ButtonState.MatchBefore -> requestAsk(detail.delivery_id)
-            ButtonState.DeliveryProgress -> _event.value = Event.Chat
+            ButtonState.PlayerMatchBefore -> openChatRoom(detail)
+            ButtonState.PlayerDeliveryProgress -> openChatRoom(detail)
+            ButtonState.RequesterRegister -> _event.value = Event.CancelReq
+            ButtonState.RequesterMatchBefore -> _event.value = Event.CancelReq
             else -> Unit
         }
     }
@@ -71,10 +95,13 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     fun onPrimaryClick() {
         val detail = deliveryDetail.value ?: return
         when (buttonState.value) {
-            ButtonState.MatchBefore -> _event.value = Event.ShowApplyDialog
-            ButtonState.PickupReady -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "pickup")
-            ButtonState.DeliveryProgress -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
-            ButtonState.Done -> _event.value = Event.OpenReport
+            ButtonState.PlayerMatchBefore -> _event.value = Event.ShowApplyDialog
+            ButtonState.PlayerPickupReady -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "pickup")
+            ButtonState.PlayerDeliveryProgress -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
+            ButtonState.PlayerDone -> _event.value = Event.OpenReport(isPlayer = true)
+            ButtonState.RequesterRegister -> _event.value = Event.Modify
+            ButtonState.RequesterMatchBefore -> _event.value = Event.ModifyFee
+            ButtonState.RequesterCancel -> _event.value = Event.Modify
             else -> Unit
         }
     }
@@ -84,6 +111,23 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             is ResultWrapper.Success -> _event.value = Event.ActionSuccess("문의가 전달되었어요.")
             else -> _event.value = Event.ActionFail
         }*/
+    }
+
+    private fun openChatRoom(detail: DeliveryDetailResponse) = viewModelScope.launch {
+        when (val res = deliveryRepo.getChatInProgressList(detail.delivery_id)) {
+            is ResultWrapper.Success -> {
+                val room = res.data.firstOrNull { room ->
+                    room.roomId > 0L && detail.player_id != null && room.playerId == detail.player_id
+                } ?: res.data.firstOrNull { it.roomId > 0L }
+
+                if (room != null) {
+                    _event.value = Event.OpenChatRoom(room.roomId)
+                } else {
+                    _event.value = Event.ActionFail
+                }
+            }
+            else -> _event.value = Event.ActionFail
+        }
     }
 
     private fun requestApply(deliveryId: Long) = viewModelScope.launch {
@@ -106,6 +150,16 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         }
     }
 
+    fun cancelReq(deliveryId: Long, resultCallback: (Boolean) -> Unit) = viewModelScope.launch {
+        when (deliveryRepo.cancelDelivery(deliveryId)) {
+            is ResultWrapper.Success -> {
+                resultCallback(true)
+                getDeliveryDetailInfo(deliveryId)
+            }
+            else -> resultCallback(false)
+        }
+    }
+
     private fun requestDeliveryComplete(deliveryId: Long) = viewModelScope.launch {
         when (deliveryRepo.putDeliveryComplete(deliveryId)) {
             is ResultWrapper.Success -> {
@@ -116,12 +170,27 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         }
     }
 
-    val buttonState = deliveryDetail.map { detail ->
-        when (detail?.status_cd.orEmpty()) {
-            "MATCH_BEFORE" -> ButtonState.MatchBefore
-            "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART" -> ButtonState.PickupReady
-            "DELIVERY_ING" -> ButtonState.DeliveryProgress
-            "DONE", "DONE_END" -> ButtonState.Done
+    val buttonState = combine(deliveryDetail, myUserId, myPlayerId) { detail, userId, playerId ->
+        if (detail == null) return@combine ButtonState.Hidden
+
+        val isRequester = userId != null && detail.requester_id == userId
+        val isAssignedPlayer = playerId != null && detail.player_id == playerId
+
+        when {
+            isRequester -> when (detail.status_cd) {
+                "REGISTER_ING" -> ButtonState.RequesterRegister
+                "MATCH_BEFORE", "MATCH_ING" -> ButtonState.RequesterMatchBefore
+                "CANCEL" -> ButtonState.RequesterCancel
+                "DONE", "DONE_END", "DELIVERY_END" -> ButtonState.RequesterDone
+                else -> ButtonState.Hidden
+            }
+            isAssignedPlayer || detail.player_id == null -> when (detail.status_cd) {
+                "REGISTER_ING", "MATCH_BEFORE", "MATCH_ING" -> ButtonState.PlayerMatchBefore
+                "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART" -> ButtonState.PlayerPickupReady
+                "DELIVERY_ING" -> ButtonState.PlayerDeliveryProgress
+                "DONE", "DONE_END", "DELIVERY_END" -> ButtonState.PlayerDone
+                else -> ButtonState.Hidden
+            }
             else -> ButtonState.Hidden
         }
     }.stateIn(
@@ -153,8 +222,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
                 detail.pickup.date,
                 detail.pickup.time
             ),
-            pickupAddressText = detail.depart.address,
-            destinationAddressText = detail.dest.address,
+            pickupAddressText = formatMaskedAddress(detail.depart.address, detail.depart.address2),
+            destinationAddressText = formatMaskedAddress(detail.dest.address, detail.dest.address2),
             productDesc = detail.product.descript,
             productType = typeName,
             productWeight = weightName,
@@ -163,8 +232,10 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             requesterRatingText = "★ ${detail.requester_rating.star_rating} (${detail.requester_rating.deliveries})",
             departContactName = detail.depart_contact.name.orEmpty(),
             departContactPhone = detail.depart_contact.phone.orEmpty(),
+            showDepartContact = hasContact(detail.depart_contact.name, detail.depart_contact.phone),
             destContactName = detail.dest_contact.name.orEmpty(),
             destContactPhone = detail.dest_contact.phone.orEmpty(),
+            showDestContact = hasContact(detail.dest_contact.name, detail.dest_contact.phone),
             pictures = detail.product.pictures,
         )
     }.stateIn(
@@ -199,6 +270,27 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         return "${expectedMinutes}분"
     }
 
+    private fun formatMaskedAddress(address: String, address2: String?): String {
+        val detail = address2?.trim().orEmpty()
+        if (detail.isBlank() || detail.equals("null", ignoreCase = true) || detail == "-") {
+            return address
+        }
+
+        val maskedDetail = detail.map { char ->
+            if (char.isWhitespace()) char else '*'
+        }.joinToString("")
+
+        return "$address $maskedDetail"
+    }
+
+    private fun hasContact(name: String?, phone: String?): Boolean =
+        listOf(name, phone).any { value ->
+            val normalized = value?.trim().orEmpty()
+            normalized.isNotBlank() &&
+                !normalized.equals("null", ignoreCase = true) &&
+                normalized != "-"
+        }
+
     private fun decideMapProvider() {
         val isKorea = Locale.getDefault().country.equals("KR", ignoreCase = true)
         mapShowState.value = if (isKorea) {
@@ -226,10 +318,14 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         val secondaryText: String,
         val showSecondary: Boolean,
     ) {
-        MatchBefore(primaryText = "지원하기", secondaryText = "채팅하기", showSecondary = true),
-        PickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
-        DeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
-        Done(primaryText = "등록하기", secondaryText = "", showSecondary = false),
+        PlayerMatchBefore(primaryText = "지원하기", secondaryText = "채팅하기", showSecondary = true),
+        PlayerPickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
+        PlayerDeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
+        PlayerDone(primaryText = "등록하기", secondaryText = "", showSecondary = false),
+        RequesterRegister(primaryText = "수정하기", secondaryText = "삭제하기", showSecondary = true),
+        RequesterMatchBefore(primaryText = "추가금액수정", secondaryText = "취소하기", showSecondary = true),
+        RequesterCancel(primaryText = "다시등록하기", secondaryText = "", showSecondary = false),
+        RequesterDone(primaryText = "등록하기", secondaryText = "", showSecondary = false),
         Hidden(primaryText = "", secondaryText = "", showSecondary = false),
     }
 
@@ -242,10 +338,14 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         object Back : Event()
         object Chat : Event()
         object DoneInfo : Event()
-        object OpenReport : Event()
+        object CancelReq : Event()
+        object Modify : Event()
+        object ModifyFee : Event()
+        data class OpenReport(val isPlayer: Boolean) : Event()
         object ShowApplyDialog : Event()
         object ActionFail : Event()
         data class ActionSuccess(val msg: String) : Event()
+        data class OpenChatRoom(val roomId: Long) : Event()
         data class OpenProofPhoto(val deliveryId: Long, val proofType: String) : Event()
     }
 
@@ -266,8 +366,10 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         val requesterRatingText: String,
         val departContactName: String,
         val departContactPhone: String,
+        val showDepartContact: Boolean,
         val destContactName: String,
         val destContactPhone: String,
+        val showDestContact: Boolean,
         val pictures: List<String>,
     )
 }

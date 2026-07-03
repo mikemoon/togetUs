@@ -29,7 +29,8 @@ android {
         //multiDexEnabled true
     }
     signingConfigs {
-        release{
+        release
+                {
             storeFile file(RELEASE_STORE_FILE)
             storePassword 'togetus2580!@'
             keyAlias 'key0'

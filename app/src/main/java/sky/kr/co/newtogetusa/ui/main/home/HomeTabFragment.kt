@@ -51,7 +51,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
-import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeBannerAdapter
@@ -181,21 +180,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }
         dataBinding.vpBanner.adapter = bannerAdapter
 
-        if(viewModel.isModePlayer.value){
-            viewModel.postPlayerDeliverySearch(DeliverySearchReq(
-                type = "DELIVERY|MATCH",
-                title = "",
-                page_no = 0
-            ))
-        }else{
-            viewModel.postDeliverySearch(DeliverySearchReq(
-                type = "DELIVERY|MATCH",
-                title = "",
-                page_no = 0
-            ))
-        }
-
-        viewModel.getBanners()
+        viewModel.refreshHome()
     }
 
     @SuppressLint("MissingPermission")
@@ -669,7 +654,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getNotificationUnreadCount()
+        viewModel.refreshHome()
         runCatching { dataBinding.googleMap.onResume() }.onFailure {  }
         //showStartLocation()
     }

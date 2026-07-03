@@ -118,6 +118,21 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         }
     }
 
+    fun refreshHome() {
+        val request = DeliverySearchReq(
+            type = "DELIVERY|MATCH",
+            title = "",
+            page_no = 0
+        )
+        if (isModePlayer.value) {
+            postPlayerDeliverySearch(request)
+        } else {
+            postDeliverySearch(request)
+        }
+        getBanners()
+        getNotificationUnreadCount()
+    }
+
     val bannerList = MutableStateFlow<List<BannerDto>?>(null)
     fun getBanners() = viewModelScope.launch {
         when(val res = userRepository.getBanners()){

@@ -599,6 +599,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
 
     override fun onResume() {
         super.onResume()
+        viewModel.getDeliveryDetailInfo(args.delivery.delivery_id)
         if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
             dataBinding.googleMap.onResume()
         } else {

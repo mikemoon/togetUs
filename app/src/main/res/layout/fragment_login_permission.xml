@@ -150,7 +150,7 @@
             android:background="@drawable/background_s_p100_r4"
             android:gravity="center"
             style="@style/HeadLine18B"
-            android:text="동의"
+            android:text="확인"
             android:textColor="@color/white"
             />
 

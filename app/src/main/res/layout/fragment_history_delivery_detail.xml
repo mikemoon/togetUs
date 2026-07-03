@@ -314,7 +314,8 @@
                                     android:background="@drawable/background_s_b5_r4"
                                     android:orientation="horizontal"
                                     android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp">
+                                    android:paddingVertical="8dp"
+                                    android:visibility="@{viewModel.deliveryData.showDepartContact ? View.VISIBLE : View.GONE}">
 
                                     <androidx.appcompat.widget.AppCompatTextView
                                         style="@style/Paragraph12B"
@@ -380,7 +381,8 @@
                                     android:background="@drawable/background_s_b5_r4"
                                     android:orientation="horizontal"
                                     android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp">
+                                    android:paddingVertical="8dp"
+                                    android:visibility="@{viewModel.deliveryData.showDestContact ? View.VISIBLE : View.GONE}">
 
                                     <androidx.appcompat.widget.AppCompatTextView
                                         style="@style/Paragraph12B"

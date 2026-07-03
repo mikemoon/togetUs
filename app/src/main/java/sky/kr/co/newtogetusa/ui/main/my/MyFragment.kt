@@ -1,5 +1,8 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import sky.kr.co.newtogetusa.BuildConfig
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentMyBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
@@ -57,6 +61,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
     override fun init() {
         super.init()
 
+        dataBinding.tvVersion.text = "V${BuildConfig.VERSION_NAME}"
         viewModel.refreshProfileForMode {
             dataBinding.profile = it
         }
@@ -167,6 +172,10 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                     findNavController().navigate(R.id.action_myFragment_to_accompanyCreditFragment)
                 }
 
+                MyViewModel.Event.Update -> {
+                    openPlayStore()
+                }
+
                 MyViewModel.Event.Term -> {
                     findNavController().navigate(MyFragmentDirections.actionMyFragmentToTermFragment())
                 }
@@ -231,6 +240,27 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
 
     private fun navigatePlayerJoin() {
         findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+    }
+
+    private fun openPlayStore() {
+        val packageName = requireContext().packageName
+        val marketIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("market://details?id=$packageName")
+        ).apply {
+            setPackage("com.android.vending")
+        }
+
+        try {
+            startActivity(marketIntent)
+        } catch (_: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                )
+            )
+        }
     }
 
 }

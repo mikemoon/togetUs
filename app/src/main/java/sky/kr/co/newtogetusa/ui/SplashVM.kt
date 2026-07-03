@@ -21,7 +21,6 @@ class SplashVM @Inject constructor(
 
         val isFirstRun = dataStoreRepository.getBoolean(DataStoreKey.KEY_IS_FIRST_RUN) ?: true
         if (isFirstRun) {
-            dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_FIRST_RUN, false)
             return StartDestination.FirstRunLogin
         }
 

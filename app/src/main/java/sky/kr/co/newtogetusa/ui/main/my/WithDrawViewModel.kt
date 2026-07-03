@@ -58,14 +58,26 @@ class WithDrawViewModel @Inject constructor(
     }
 
 
-    fun verifyEmail(password: String, callback: (Boolean) -> Unit) = viewModelScope.launch {
-        val email = ""
-        when(val res = authRepository.verifyEmail(hashMapOf("email" to email,"pw" to password))){
+    fun verifyEmail(password: String, callback: (Boolean, String?) -> Unit) = viewModelScope.launch {
+        val token = dataStoreRepository.getString(DataStoreKey.KEY_TOKEN).orEmpty()
+        if (token.isBlank()) {
+            callback(false, "인증에 실패했습니다.")
+            return@launch
+        }
+
+        when (val res = authRepository.verifyAccount(token, hashMapOf("password" to password))) {
             is ResultWrapper.Success ->{
-                isEmailVerified.value = res.data
-                callback(res.data)
+                isEmailVerified.value = res.data.verified
+                callback(res.data.verified, if (res.data.verified) null else "인증에 실패했습니다.")
             }
-            else ->{}
+
+            is ResultWrapper.GenericError -> {
+                callback(false, res.message ?: "인증에 실패했습니다.")
+            }
+
+            ResultWrapper.NetworkError -> {
+                callback(false, "네트워크 연결을 확인해주세요.")
+            }
         }
     }
 

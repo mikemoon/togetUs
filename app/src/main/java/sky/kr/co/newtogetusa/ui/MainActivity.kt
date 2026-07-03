@@ -5,6 +5,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -93,6 +94,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         )
 
         viewModel.connect()
+        handlePushIntent(intent)
     }
 
     override fun initObserver() {
@@ -138,6 +140,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     override fun onResume() {
         super.onResume()
         viewModel.refreshChatUnread()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handlePushIntent(intent)
     }
 
     override fun onDestroy() {
@@ -204,6 +212,33 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         if (!hasUnread) {
             dataBinding.bottomNavigation.removeBadge(R.id.chat)
         }
+    }
+
+    private fun handlePushIntent(intent: Intent?) {
+        if (!::navController.isInitialized) return
+        val pushType = intent?.getStringExtra(EXTRA_PUSH_TYPE).orEmpty()
+        val roomId = intent?.getLongExtra(EXTRA_PUSH_ROOM_ID, -1L) ?: -1L
+        if (pushType != PUSH_TYPE_CHAT || roomId <= 0L) return
+
+        intent?.removeExtra(EXTRA_PUSH_TYPE)
+        intent?.removeExtra(EXTRA_PUSH_ROOM_ID)
+
+        runCatching {
+            dataBinding.bottomNavigation.selectedItemId = R.id.chat
+            navController.popBackStack(R.id.chattingTabFragment, false)
+            navController.navigate(
+                R.id.chattingConversationFragment,
+                bundleOf("roomId" to roomId)
+            )
+        }.onFailure {
+            Timber.e(it, "Failed to open chat room from push roomId=$roomId")
+        }
+    }
+
+    companion object {
+        const val EXTRA_PUSH_TYPE = "extra_push_type"
+        const val EXTRA_PUSH_ROOM_ID = "extra_push_room_id"
+        private const val PUSH_TYPE_CHAT = "chat"
     }
 
 }
