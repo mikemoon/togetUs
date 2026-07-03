@@ -22,6 +22,11 @@ class AuthRepository @Inject constructor(
         apiService.verifyEmail(requestBody)
     }
 
+    suspend fun verifyAccount(token: String, requestBody: HashMap<String, String>) =
+        safeApiCall(dispatcher = Dispatchers.IO) {
+            apiService.verifyAccount("Bearer $token", requestBody)
+        }
+
     suspend fun cerifyVerifyCode(requestBody: HashMap<String, String>) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO) {
         apiService.certifyVerifyCode(requestBody)
     }

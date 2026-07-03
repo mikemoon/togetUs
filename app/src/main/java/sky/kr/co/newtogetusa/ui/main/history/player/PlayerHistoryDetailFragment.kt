@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -39,6 +40,8 @@ import sky.kr.co.newtogetusa.repository.DirectionsRepository
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.player.BottomDeliveryApplyDialog
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRequestSharedViewModel
 import sky.kr.co.newtogetusa.ui.main.history.HistoryDetailPhotoAdapter
 import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
 import sky.kr.co.newtogetusa.utils.HorizontalItemSpacingDecoration
@@ -54,6 +57,8 @@ class PlayerHistoryDetailFragment :
 
     override val layoutId: Int = R.layout.fragment_history_delivery_detail
     override val viewModel: PlayerHistoryDetailViewModel by viewModels()
+
+    private val deliverySharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
     private val args: PlayerHistoryDetailFragmentArgs by navArgs()
     private var kakaoMap: KakaoMap? = null
@@ -133,7 +138,10 @@ class PlayerHistoryDetailFragment :
                             dataBinding.tvBottomSecondaryButton.visibility = View.GONE
                         }
 
-                        if (buttonState == PlayerHistoryDetailViewModel.ButtonState.Done) {
+                        if (
+                            buttonState == PlayerHistoryDetailViewModel.ButtonState.PlayerDone ||
+                            buttonState == PlayerHistoryDetailViewModel.ButtonState.RequesterDone
+                        ) {
                             dataBinding.tvBottomPrimaryButton.setBackgroundResource(R.drawable.background_s_b5_r4)
                             dataBinding.tvBottomPrimaryButton.setTextColor(
                                 ContextCompat.getColor(requireContext(), R.color.black_60)
@@ -168,12 +176,39 @@ class PlayerHistoryDetailFragment :
                     }.show(childFragmentManager, "BottomDeliveryApplyDialog")
                 }
                 is PlayerHistoryDetailViewModel.Event.Chat -> (requireActivity() as MainActivity).selectMainTab(R.id.chat)
+                is PlayerHistoryDetailViewModel.Event.OpenChatRoom -> {
+                    findNavController().navigate(
+                        R.id.chattingConversationFragment,
+                        bundleOf("roomId" to event.roomId)
+                    )
+                }
                 is PlayerHistoryDetailViewModel.Event.DoneInfo -> requireContext().toast("이미 완료된 요청입니다.")
+                is PlayerHistoryDetailViewModel.Event.CancelReq -> cancelRequest()
+                is PlayerHistoryDetailViewModel.Event.Modify -> {
+                    populateDeliverySharedState()
+                    findNavController().navigate(
+                        R.id.action_global_to_home_for_delivery,
+                        bundleOf(
+                            "openDeliveryReq" to true,
+                            "returnToHistory" to true
+                        )
+                    )
+                }
+                is PlayerHistoryDetailViewModel.Event.ModifyFee -> {
+                    populateDeliverySharedState()
+                    findNavController().navigate(
+                        R.id.action_global_to_home_for_delivery,
+                        bundleOf(
+                            "openDeliveryFee" to true,
+                            "returnToHistory" to true
+                        )
+                    )
+                }
                 is PlayerHistoryDetailViewModel.Event.OpenReport -> {
                     findNavController().navigate(
                         PlayerHistoryDetailFragmentDirections.actionPlayerHistoryDetailFragmentToDeliveryReviewFragment(
                             args.deliveryId,
-                            true
+                            event.isPlayer
                         )
                     )
                 }
@@ -185,6 +220,56 @@ class PlayerHistoryDetailFragment :
                 }
             }
         }
+    }
+
+    private fun populateDeliverySharedState() {
+        val detail = viewModel.deliveryDetail.value ?: return
+        deliverySharedViewModel.clearState()
+        deliverySharedViewModel.updateDistance(detail.expected.expected_distance.toString())
+        deliverySharedViewModel.updateStartLocation(
+            address = detail.depart.address,
+            detail = detail.depart.address2.orEmpty(),
+            lat = detail.depart.latitude,
+            lng = detail.depart.longitude
+        )
+        deliverySharedViewModel.updateDestinationLocation(
+            address = detail.dest.address,
+            detail = detail.dest.address2.orEmpty(),
+            lat = detail.dest.latitude,
+            lng = detail.dest.longitude
+        )
+        deliverySharedViewModel.updatePickupInfo(
+            isImmediately = detail.pickup.is_immediately,
+            date = detail.pickup.date,
+            time = detail.pickup.time.orEmpty(),
+            isFaceToFace = detail.pickup.is_face2face
+        )
+        deliverySharedViewModel.updateProductInfo(
+            title = detail.product.name,
+            description = detail.product.descript,
+            type = detail.product.type_cd,
+            weight = detail.product.weight_cd,
+            volume = detail.product.volume_cd
+        )
+        deliverySharedViewModel.updateUser(
+            name = detail.depart_contact.name.orEmpty(),
+            phone = detail.depart_contact.phone.orEmpty()
+        )
+        deliverySharedViewModel.setInternational(!detail.is_domestic)
+    }
+
+    private fun cancelRequest() {
+        MessageDialog.newInstance(
+            msg = "동행요청을 취소하시겠어요?",
+            rightBtn = "예",
+            leftBtn = "취소"
+        ).onRightBtn {
+            viewModel.cancelReq(args.deliveryId) { result ->
+                requireContext().toast(
+                    if (result) "동행요청 취소가 완료되었어요." else "동행요청 취소에 실패했어요."
+                )
+            }
+        }.show(childFragmentManager, "")
     }
 
     private fun setupBottomSheet() {
@@ -403,6 +488,7 @@ class PlayerHistoryDetailFragment :
 
     override fun onResume() {
         super.onResume()
+        viewModel.getDeliveryDetailInfo(args.deliveryId)
         if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
             dataBinding.googleMap.onResume()
         } else {

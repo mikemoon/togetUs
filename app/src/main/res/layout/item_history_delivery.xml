@@ -102,6 +102,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="32dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:background="@drawable/background_s_b5_r4"
             android:paddingHorizontal="8dp"
@@ -110,7 +111,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="픽업 요청일"
+                android:text="픽업"
                 android:textColor="@color/black_60"
                 style="@style/Paragraph12B"
                 />
@@ -145,7 +146,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/icon_route_start_end"
+                        android:src="@drawable/placecircle_primary"
                         />
                 </FrameLayout>
 
@@ -158,91 +159,10 @@
                     style="@style/Paragraph12R"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="서울 강서구 공항대로 631"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph12R"
-                    />
-            </LinearLayout>
-            <!-- 경유지1 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:orientation="horizontal"
-                android:gravity="bottom"
-                >
-                <FrameLayout
-                    android:layout_width="16dp"
-                    android:layout_height="match_parent"
-                    >
-                    <!-- 위로 가는 선 -->
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="16dp"
-                        android:layout_gravity="top|center_horizontal"
-                        android:background="@color/black_10" />
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/icon_route_route"
-                        android:layout_marginTop="8dp"
-                        />
-                </FrameLayout>
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="경유지1"
-                    android:textColor="@color/black_40"
-                    style="@style/Paragraph12R"
-                    />
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="서울 강서구 공항대로 631"
-                    android:textColor="@color/black_80"
-                    style="@style/Paragraph12R"
-                    />
-            </LinearLayout>
-            <!-- 경유지2 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:orientation="horizontal"
-                android:gravity="bottom"
-                >
-                <FrameLayout
-                    android:layout_width="16dp"
-                    android:layout_height="match_parent"
-                    >
-                    <!-- 위로 가는 선 -->
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="16dp"
-                        android:layout_gravity="top|center_horizontal"
-                        android:background="@color/black_10" />
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/icon_route_route"
-                        android:layout_marginTop="8dp"
-                        />
-                </FrameLayout>
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="경유지2"
-                    android:textColor="@color/black_40"
-                    style="@style/Paragraph12R"
-                    />
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="서울 강서구 공항대로 631"
+                    android:layout_weight="1"
+                    android:text="@{item.departAddress}"
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />
@@ -250,13 +170,14 @@
             <!-- 도착지 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
+                android:minHeight="24dp"
                 android:orientation="horizontal"
-                android:gravity="bottom"
+                android:gravity="top"
                 >
                 <FrameLayout
                     android:layout_width="16dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="24dp"
                     >
                     <!-- 위로 가는 선 -->
                     <View
@@ -267,7 +188,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/icon_route_start_end"
+                        android:src="@drawable/placecircle_primary"
                         android:layout_marginTop="8dp"
                         />
                 </FrameLayout>
@@ -276,14 +197,17 @@
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp"
                     android:text="도착지"
                     android:textColor="@color/black_40"
                     style="@style/Paragraph12R"
                     />
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="서울 강서구 공항대로 631"
+                    android:layout_weight="1"
+                    android:layout_marginTop="8dp"
+                    android:text="@{item.destAddress}"
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />

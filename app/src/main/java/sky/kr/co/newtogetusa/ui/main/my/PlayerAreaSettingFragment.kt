@@ -16,6 +16,9 @@ class PlayerAreaSettingFragment : BaseFragment<FragmentPlayerAreaSettingBinding,
     override val layoutId: Int = R.layout.fragment_player_area_setting
     override val viewModel: ProfileManagementViewModel by viewModels()
 
+    private var currentBasicAreaId: Int? = null
+    private var currentAddedAreaId: Int? = null
+
     override fun init() {
         super.init()
         dataBinding.ivBack.setOnClickListener { findNavController().popBackStack() }
@@ -23,6 +26,7 @@ class PlayerAreaSettingFragment : BaseFragment<FragmentPlayerAreaSettingBinding,
             val route = readRouteOrToast() ?: return@setOnClickListener
             viewModel.addPlayerArea(
                 PlayerAreaAddRequest(
+                    area_id = currentBasicAreaId,
                     is_domestic = dataBinding.swDomestic.isChecked,
                     enable = true,
                     depart = route.first,
@@ -40,6 +44,7 @@ class PlayerAreaSettingFragment : BaseFragment<FragmentPlayerAreaSettingBinding,
             }
             viewModel.addPlayerAreaAdded(
                 PlayerAreaAddedRequest(
+                    area_id = currentAddedAreaId,
                     start = start,
                     end = end,
                     enable = true,
@@ -68,6 +73,8 @@ class PlayerAreaSettingFragment : BaseFragment<FragmentPlayerAreaSettingBinding,
     private fun reloadProfile() {
         viewModel.getMyProfile {
             viewModel.getPlayerProfile { profile ->
+                currentBasicAreaId = profile.areas_basic.orEmpty().firstOrNull()?.player_area_id
+                currentAddedAreaId = profile.areas_added.orEmpty().firstOrNull()?.player_area_id
                 val basic = profile.areas_basic.orEmpty().joinToString("\n") {
                     "${it.depart_address.orEmpty()} > ${it.dest_address.orEmpty()}"
                 }

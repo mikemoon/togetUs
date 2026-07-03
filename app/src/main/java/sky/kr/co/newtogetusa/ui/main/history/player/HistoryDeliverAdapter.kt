@@ -4,11 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.player.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHistoryDeliveryBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
+import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.formatPickupDateTime
+import sky.kr.co.newtogetusa.utils.loadImage
 
 class HistoryDeliverAdapter(
     private val viewModel: HistoryDeliveryViewModel,
@@ -35,6 +38,12 @@ class HistoryDeliverAdapter(
             binding.tvTitle.text = item.title
             binding.tvPrice.text = item.feeFinal.toWon()
             binding.tvPickupDate.text = formatPickupDateTime(item.pickupDate)
+            binding.ivProduct.loadImage(
+                item.prdPicture,
+                placeholder = R.drawable.no_img,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
             binding.root.setOnClickListener {
                 onItemClick(item)
             }

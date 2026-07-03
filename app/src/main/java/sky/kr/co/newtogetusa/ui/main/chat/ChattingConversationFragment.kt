@@ -342,6 +342,16 @@ class ChattingConversationFragment :
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        ChatRoomForegroundTracker.enter(args.roomId)
+    }
+
+    override fun onPause() {
+        ChatRoomForegroundTracker.exit(args.roomId)
+        super.onPause()
+    }
+
     private companion object {
         const val MAX_CHAT_IMAGE_BYTES = 100 * 1024 * 1024
         const val READ_REFRESH_DELAY_MS = 500L

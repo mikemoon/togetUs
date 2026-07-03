@@ -10,6 +10,7 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -92,6 +93,14 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                         }
                     }
                 }
+
+                launch {
+                    viewModel.isEmailVerified.collectLatest { isVerified ->
+                        if (viewModel.loginType.value == LoginViewModel.EMAIL) {
+                            dataBinding.tvWithDraw.isEnabled = isVerified
+                        }
+                    }
+                }
             }
         }
 
@@ -104,11 +113,22 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
         }
 
         dataBinding.tvNext.setOnClickListener {
-            viewModel.verifyEmail(dataBinding.etPw.text.toString()){
-                if(it){
+            viewModel.verifyEmail(dataBinding.etPw.text.toString()) { isVerified, message ->
+                if (isVerified) {
+                    requireContext().toast("인증이 완료되었습니다.")
                     viewModel.withDrawStep.value = 1
+                } else {
+                    MessageDialog.newInstance(
+                        msgTitle = "",
+                        msg = message ?: "인증에 실패했습니다.",
+                        rightBtn = "확인"
+                    ).show(childFragmentManager, "")
                 }
             }
+        }
+
+        dataBinding.etPw.doAfterTextChanged { text ->
+            dataBinding.tvNext.isEnabled = (text?.length ?: 0) >= 4
         }
 
         viewModel.event.observe(viewLifecycleOwner) {

@@ -407,6 +407,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvVersion"
                         style="@style/Paragraph14B"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -418,12 +419,14 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvUpdate"
                         style="@style/Paragraph12B"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_marginEnd="20dp"
                         android:background="@drawable/background_s_p100_r4"
                         android:gravity="center"
+                        android:onClick="@{()-> viewModel.onEventClick(Event.Update.INSTANCE)}"
                         android:paddingHorizontal="12dp"
                         android:text="업데이트"
                         android:textColor="@color/white"

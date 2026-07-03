@@ -75,6 +75,11 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
             callback(hasToken)
         }
 
+    fun markPermissionGuideShown(callback: () -> Unit) = viewModelScope.launch {
+        dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_FIRST_RUN, false)
+        callback()
+    }
+
     fun loginKakao(token:String, callback:(resultCode:Int, errorData: ErrorData?)-> Unit) = viewModelScope.launch {
         val response = authRepository.loginKakao(hashMapOf(
            "access_token" to token

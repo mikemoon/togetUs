@@ -10,7 +10,6 @@ import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.PickupDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
-import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayPickupRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayRequest
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
@@ -135,29 +134,17 @@ class DeliveryPayViewModel @Inject constructor(
             return@launch
         }
         loadingState.value = true
-        val prepareResult = if (adjustFee > 0L) {
-            deliveryRepository.putDeliveryFinalReq(deliveryId, DeliveryFinalReq(adjustFee))
-        } else {
-            ResultWrapper.Success(true)
-        }
-
-        when (prepareResult) {
-            is ResultWrapper.Success -> {
-                val request = DeliveryPayRequest(
-                    playerId = playerId,
-                    feeAdjust = adjustFee,
-                    feeFinal = totalAmount(),
-                    paymentId = paymentId,
-                    pickup = DeliveryPayPickupRequest(date = date, time = time),
-                    termsCodes = termsCodes
-                )
-                when (val res = deliveryRepository.payDelivery(deliveryId, request)) {
-                    is ResultWrapper.Success -> _event.value = Event.PaymentSuccess
-                    is ResultWrapper.GenericError -> _event.value = Event.ShowMessage(res.message ?: "결제 처리에 실패했습니다.")
-                    is ResultWrapper.NetworkError -> _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
-                }
-            }
-            is ResultWrapper.GenericError -> _event.value = Event.ShowMessage(prepareResult.message ?: "추가요금 저장에 실패했습니다.")
+        val request = DeliveryPayRequest(
+            playerId = playerId,
+            feeAdjust = adjustFee,
+            feeFinal = totalAmount(),
+            paymentId = paymentId,
+            pickup = DeliveryPayPickupRequest(date = date, time = time),
+            termsCodes = termsCodes
+        )
+        when (val res = deliveryRepository.payDelivery(deliveryId, request)) {
+            is ResultWrapper.Success -> _event.value = Event.PaymentSuccess
+            is ResultWrapper.GenericError -> _event.value = Event.ShowMessage(res.message ?: "결제 처리에 실패했습니다.")
             is ResultWrapper.NetworkError -> _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
         }
         loadingState.value = false

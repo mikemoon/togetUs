@@ -291,6 +291,7 @@ class MyViewModel @Inject constructor(
         object Term : Event()
         object JoinPlayer : Event()
         object AccompanyCredit : Event()
+        object Update : Event()
         data class StartIdentityVerification(val config: PortOneConfigDto) : Event()
         data class ShowMessage(val message: String) : Event()
     }

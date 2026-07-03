@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.data.remote.api
 
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -9,6 +10,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.BaseResponse
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
 import sky.kr.co.newtogetusa.data.remote.dto.JoinResponse
 import sky.kr.co.newtogetusa.data.remote.dto.auth.TermMeta
+import sky.kr.co.newtogetusa.data.remote.dto.auth.VerifyAccountResponse
 
 interface APiService {
 
@@ -21,6 +23,12 @@ interface APiService {
     suspend fun verifyEmail(
         @Body body: HashMap<String, String>
     ):Boolean
+
+    @POST("/auths/verify-account")
+    suspend fun verifyAccount(
+        @Header("Authorization") authorization: String,
+        @Body body: HashMap<String, String>
+    ): VerifyAccountResponse
 
     @PATCH("/auths/email/certify")
     suspend fun certifyVerifyCode(
