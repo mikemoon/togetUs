@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.badge.BadgeDrawable
@@ -79,6 +80,19 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         ) as NavHostFragment
         navController = navHostFragment.navController
         dataBinding.bottomNavigation.setupWithNavController(navController)
+        dataBinding.bottomNavigation.setOnItemSelectedListener { item ->
+            if (item.itemId == R.id.home) {
+                navigateToHomeTabRoot()
+                true
+            } else {
+                NavigationUI.onNavDestinationSelected(item, navController)
+            }
+        }
+        dataBinding.bottomNavigation.setOnItemReselectedListener { item ->
+            if (item.itemId == R.id.home) {
+                navigateToHomeTabRoot()
+            }
+        }
         dataBinding.bottomNavigation.setOnApplyWindowInsetsListener(null)
         dataBinding.bottomNavigation.itemIconTintList = null
         //remove tooltip
@@ -180,9 +194,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         if (!::navController.isInitialized) return
 
         runCatching {
-            dataBinding.bottomNavigation.selectedItemId = R.id.home
-            if (navController.currentDestination?.id != R.id.homeTabFragment) {
+            val popped = navController.popBackStack(R.id.homeTabFragment, false)
+            if (!popped && navController.currentDestination?.id != R.id.homeTabFragment) {
                 navController.navigate(R.id.action_global_home)
+            }
+            if (dataBinding.bottomNavigation.selectedItemId != R.id.home) {
+                dataBinding.bottomNavigation.menu.findItem(R.id.home).isChecked = true
             }
         }.onFailure {
             Timber.e(it, "Failed to navigate home after mode change")

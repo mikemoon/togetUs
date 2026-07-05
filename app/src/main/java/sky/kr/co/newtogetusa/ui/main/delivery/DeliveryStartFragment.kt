@@ -59,8 +59,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
             roadAddress = address,
             source = "CURRENT"
         )
-        viewModel.setSelectedAddress(selected)
-        dataBinding.tvSearch.text = address
+        applySelectedAddress(selected, persist = false)
         viewModel.addressDetail.value = detail.orEmpty()
         dataBinding.etAddressDetail.setText(detail.orEmpty())
     }
@@ -91,14 +90,14 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
 
         dataBinding.etAddressDetail.doAfterTextChanged {
             viewModel.addressDetail.value = it?.toString().orEmpty()
+            persistSelectedLocation()
         }
 
         parentFragmentManager.setFragmentResultListener("fromC", viewLifecycleOwner) { requestKey, bundle ->
             Timber.d("kakaoLocSelected1")
             val result = bundle.getParcelable<KakaoSearchModel>("selectedKakaoLocValue")
                 ?: return@setFragmentResultListener
-            viewModel.setSelectedAddress(result)
-            dataBinding.tvSearch.text = result.name
+            applySelectedAddress(result)
             Timber.d("kakaoLocSelected1, $result, ")
             /*result.let {
                 val bundle = Bundle().apply {
@@ -129,23 +128,51 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
     }
 
     private fun setFragmentResult(){
+        persistSelectedLocation()
+        sharedViewModel.updateUser(viewModel.name.value, viewModel.phone.value)
+    }
+
+    private fun applySelectedAddress(
+        selectedAddress: KakaoSearchModel,
+        persist: Boolean = true
+    ) {
+        viewModel.setSelectedAddress(selectedAddress)
+        dataBinding.tvSearch.text = selectedAddress.displayAddress()
+        if (persist) {
+            persistSelectedLocation()
+        }
+    }
+
+    private fun persistSelectedLocation(): Boolean {
+        val selectedAddress = viewModel.selectedAddress.value
+        val address = selectedAddress.displayAddress()
+        val lat = selectedAddress?.lat
+        val lng = selectedAddress?.lng
+        if (address.isBlank() || lat == null || lng == null) return false
+
         if(viewModel.isStart.value){
             sharedViewModel.updateStartLocation(
-                address = viewModel.selectedAddress.value?.name.orEmpty(),
+                address = address,
                 detail = dataBinding.etAddressDetail.text.toString(),
-                lat = viewModel.selectedAddress.value?.lat ?: 0.0,
-                lng = viewModel.selectedAddress.value?.lng ?:0.0
+                lat = lat,
+                lng = lng
             )
         }else{
             sharedViewModel.updateDestinationLocation(
-                address = viewModel.selectedAddress.value?.name.orEmpty(),
+                address = address,
                 detail = dataBinding.etAddressDetail.text.toString(),
-                lat = viewModel.selectedAddress.value?.lat ?: 0.0,
-                lng = viewModel.selectedAddress.value?.lng ?:0.0
+                lat = lat,
+                lng = lng
             )
         }
-        sharedViewModel.updateUser(viewModel.name.value, viewModel.phone.value)
+        return true
     }
+
+    private fun KakaoSearchModel?.displayAddress(): String =
+        this?.roadAddress?.takeIf { it.isNotBlank() }
+            ?: this?.name?.takeIf { it.isNotBlank() }
+            ?: this?.subtitle?.takeIf { it.isNotBlank() }
+            ?: ""
 
     private fun updateSavedContact() {
         sharedViewModel.updateUser(viewModel.name.value, viewModel.phone.value)

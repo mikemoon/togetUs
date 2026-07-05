@@ -16,6 +16,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.ItemChatMessageBinding
 import sky.kr.co.newtogetusa.databinding.ItemChatMessageOtherBinding
+import sky.kr.co.newtogetusa.databinding.ItemChatMessageSystemBinding
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 import java.text.SimpleDateFormat
@@ -39,16 +40,25 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if(viewType == VIEW_TYPE_MY_MESSAGE) {
-            val binding = ItemChatMessageBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            )
-            return MessageViewHolder(binding)
-        }else{
-            val binding = ItemChatMessageOtherBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            )
-            return MessageOtherViewHolder(binding)
+        return when (viewType) {
+            VIEW_TYPE_SYSTEM_MESSAGE -> {
+                val binding = ItemChatMessageSystemBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                )
+                MessageSystemViewHolder(binding)
+            }
+            VIEW_TYPE_MY_MESSAGE -> {
+                val binding = ItemChatMessageBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                )
+                MessageViewHolder(binding)
+            }
+            else -> {
+                val binding = ItemChatMessageOtherBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                )
+                MessageOtherViewHolder(binding)
+            }
         }
     }
 
@@ -56,6 +66,7 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
         val previousMessage = if (position > 0) messages[position - 1] else null
         val nextMessage = if (position > 0 && messages.size > position+1) messages[position + 1] else null
         when(holder){
+            is MessageSystemViewHolder -> holder.bind(messages[position])
             is MessageViewHolder -> holder.bind(messages[position], previousMessage, nextMessage)
             is MessageOtherViewHolder -> holder.bind(messages[position], previousMessage, nextMessage)
         }
@@ -64,7 +75,17 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
     override fun getItemCount() = messages.size
 
     override fun getItemViewType(position: Int): Int {
-        return if (messages[position].isMyMessage) VIEW_TYPE_MY_MESSAGE else VIEW_TYPE_OTHER_MESSAGE
+        return when {
+            messages[position].isSystem -> VIEW_TYPE_SYSTEM_MESSAGE
+            messages[position].isMyMessage -> VIEW_TYPE_MY_MESSAGE
+            else -> VIEW_TYPE_OTHER_MESSAGE
+        }
+    }
+
+    inner class MessageSystemViewHolder(private val binding: ItemChatMessageSystemBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(message: ChatMessage) {
+            binding.tvSystemMessage.text = message.content
+        }
     }
 
     inner class MessageOtherViewHolder(private val binding: ItemChatMessageOtherBinding): RecyclerView.ViewHolder(binding.root){
@@ -72,8 +93,8 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
             binding.apply {
                 tvSender.text = message.sender
                 textViewMessage.text = message.content
-                val isSameMinuteMessage = previousMessage != null && !previousMessage.isMyMessage && isSameMinute(previousMessage.timestamp, message.timestamp)
-                val isNextMessageSameMinute = nextMessage != null && !nextMessage.isMyMessage && isSameMinute(message.timestamp, nextMessage.timestamp)
+                val isSameMinuteMessage = previousMessage != null && !previousMessage.isSystem && !previousMessage.isMyMessage && isSameMinute(previousMessage.timestamp, message.timestamp)
+                val isNextMessageSameMinute = nextMessage != null && !nextMessage.isSystem && !nextMessage.isMyMessage && isSameMinute(message.timestamp, nextMessage.timestamp)
                 tvTimeSender.text = formatTime(message.timestamp)
                 if(!isSameMinuteMessage){
                     ivSender.visibility = View.VISIBLE
@@ -135,8 +156,8 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
                     }
                 }
 
-                val isSameMinuteMessage = previousMessage != null && !previousMessage.isMyMessage && !message.isMyMessage && isSameMinute(previousMessage.timestamp, message.timestamp)
-                val isNextMessageSameMinute = nextMessage != null && !nextMessage.isMyMessage && !message.isMyMessage && isSameMinute(message.timestamp, nextMessage.timestamp)
+                val isSameMinuteMessage = previousMessage != null && !previousMessage.isSystem && !previousMessage.isMyMessage && !message.isMyMessage && isSameMinute(previousMessage.timestamp, message.timestamp)
+                val isNextMessageSameMinute = nextMessage != null && !nextMessage.isSystem && !nextMessage.isMyMessage && !message.isMyMessage && isSameMinute(message.timestamp, nextMessage.timestamp)
                 /*if (previousMessage != null && isSameMinute(previousMessage.timestamp, message.timestamp)) {
                     tvTimeSender.isVisible = false
                     tvTimeMy.isVisible = false
@@ -186,5 +207,6 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
     companion object {
         private const val VIEW_TYPE_MY_MESSAGE = 1
         private const val VIEW_TYPE_OTHER_MESSAGE = 0
+        private const val VIEW_TYPE_SYSTEM_MESSAGE = 2
     }
 }

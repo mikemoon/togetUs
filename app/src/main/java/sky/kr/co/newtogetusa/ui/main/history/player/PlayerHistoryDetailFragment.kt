@@ -3,8 +3,13 @@ package sky.kr.co.newtogetusa.ui.main.history.player
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.os.bundleOf
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -12,9 +17,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -24,6 +31,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.MapLifeCycleCallback
@@ -99,6 +107,18 @@ class PlayerHistoryDetailFragment :
         dataBinding.tvBottomPrimaryButton.setOnClickListener {
             viewModel.onPrimaryClick()
         }
+        dataBinding.ivHeart.setOnClickListener {
+            viewModel.onMarkClick()
+        }
+        dataBinding.ivToolbarHeart.setOnClickListener {
+            viewModel.onMarkClick()
+        }
+        dataBinding.ivMore.setOnClickListener {
+            showMoreDialog()
+        }
+        dataBinding.ivToolbarMore.setOnClickListener {
+            showMoreDialog()
+        }
     }
 
     override fun initObserver() {
@@ -116,6 +136,8 @@ class PlayerHistoryDetailFragment :
                         )
                         photoAdapter.setItems(detail.product.pictures)
                         dataBinding.llPhotos.isVisible = detail.product.pictures.isNotEmpty()
+                        updateMarkIcon(detail.is_like)
+                        updateMoreIconVisibility()
                     }
                 }
 
@@ -178,30 +200,39 @@ class PlayerHistoryDetailFragment :
                 is PlayerHistoryDetailViewModel.Event.Chat -> (requireActivity() as MainActivity).selectMainTab(R.id.chat)
                 is PlayerHistoryDetailViewModel.Event.OpenChatRoom -> {
                     findNavController().navigate(
-                        R.id.chattingConversationFragment,
-                        bundleOf("roomId" to event.roomId)
+                        Uri.parse("togetus://chat-room/${event.roomId}")
                     )
                 }
                 is PlayerHistoryDetailViewModel.Event.DoneInfo -> requireContext().toast("이미 완료된 요청입니다.")
                 is PlayerHistoryDetailViewModel.Event.CancelReq -> cancelRequest()
+                is PlayerHistoryDetailViewModel.Event.ConfirmReport -> confirmReport()
+                is PlayerHistoryDetailViewModel.Event.ConfirmCancelSupport -> confirmCancelSupport()
+                is PlayerHistoryDetailViewModel.Event.OpenReportReason -> {
+                    findNavController().navigate(
+                        PlayerHistoryDetailFragmentDirections
+                            .actionPlayerHistoryDetailFragmentToDeliveryReportReasonFragment(event.userId)
+                    )
+                }
                 is PlayerHistoryDetailViewModel.Event.Modify -> {
                     populateDeliverySharedState()
                     findNavController().navigate(
                         R.id.action_global_to_home_for_delivery,
                         bundleOf(
                             "openDeliveryReq" to true,
-                            "returnToHistory" to true
+                            "returnToHistory" to false,
+                            "returnToDetail" to true,
+                            "isEdit" to true,
+                            "deliveryId" to args.deliveryId
                         )
                     )
                 }
                 is PlayerHistoryDetailViewModel.Event.ModifyFee -> {
-                    populateDeliverySharedState()
-                    findNavController().navigate(
-                        R.id.action_global_to_home_for_delivery,
-                        bundleOf(
-                            "openDeliveryFee" to true,
-                            "returnToHistory" to true
-                        )
+                    requireActivity().findNavController(R.id.nav_host_container).navigate(
+                        R.id.action_global_deliveryFeeFragment,
+                        bundleOf("deliveryId" to args.deliveryId),
+                        navOptions {
+                            launchSingleTop = true
+                        }
                     )
                 }
                 is PlayerHistoryDetailViewModel.Event.OpenReport -> {
@@ -220,6 +251,76 @@ class PlayerHistoryDetailFragment :
                 }
             }
         }
+    }
+
+    private fun showMoreDialog() {
+        val actions = viewModel.getMoreActions()
+        if (actions.isEmpty()) return
+
+        val dialog = BottomSheetDialog(requireContext(), R.style.AppBottomSheetDialogTheme)
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(20.dpToPx(), 0, 20.dpToPx(), 0)
+        }
+
+        actions.forEach { action ->
+            container.addView(
+                AppCompatTextView(requireContext()).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        56.dpToPx()
+                    )
+                    gravity = Gravity.CENTER_VERTICAL
+                    text = action.label
+                    setTextAppearance(R.style.Paragraph17R)
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black_80))
+                    setOnClickListener {
+                        dialog.dismiss()
+                        viewModel.onMoreActionClick(action)
+                    }
+                }
+            )
+        }
+
+        dialog.setContentView(container)
+        dialog.show()
+    }
+
+    private fun updateMoreIconVisibility() {
+        val hasMoreAction = viewModel.getMoreActions().isNotEmpty()
+        dataBinding.ivMore.isVisible = hasMoreAction
+        dataBinding.ivToolbarMore.isVisible = hasMoreAction
+    }
+
+    private fun confirmReport() {
+        MessageDialog.newInstance(
+            msgTitle = "신고하기",
+            msg = "이 사용자를 신고하시겠어요?",
+            rightBtn = "확인",
+            leftBtn = "취소"
+        ).onRightBtn {
+            viewModel.reportRequester()
+        }.show(childFragmentManager, "ReportRequesterDialog")
+    }
+
+    private fun confirmCancelSupport() {
+        MessageDialog.newInstance(
+            msgTitle = "지원 취소",
+            msg = "지원을 취소하시겠어요?",
+            rightBtn = "지원 취소",
+            leftBtn = "확인"
+        ).onRightBtn {
+            viewModel.confirmCancelSupport()
+        }.show(childFragmentManager, "CancelSupportDialog")
+    }
+
+    private fun updateMarkIcon(isLiked: Boolean) {
+        dataBinding.ivHeart.setImageResource(
+            if (isLiked) R.drawable.ic_heart_fill else R.drawable.ic_heart
+        )
+        dataBinding.ivToolbarHeart.setImageResource(
+            if (isLiked) R.drawable.heart_fill_primary else R.drawable.heart_line
+        )
     }
 
     private fun populateDeliverySharedState() {
@@ -249,8 +350,12 @@ class PlayerHistoryDetailFragment :
             description = detail.product.descript,
             type = detail.product.type_cd,
             weight = detail.product.weight_cd,
-            volume = detail.product.volume_cd
+            volume = detail.product.volume_cd,
+            typeLabel = viewModel.productTypeLabel(detail.product.type_cd),
+            weightLabel = viewModel.productWeightLabel(detail.product.weight_cd),
+            volumeLabel = viewModel.productVolumeLabel(detail.product.volume_cd)
         )
+        deliverySharedViewModel.updateProductImages(detail.product.pictures)
         deliverySharedViewModel.updateUser(
             name = detail.depart_contact.name.orEmpty(),
             phone = detail.depart_contact.phone.orEmpty()

@@ -3,15 +3,21 @@ package sky.kr.co.newtogetusa.ui.main.home.playerAdapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHomeBottomButtonBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeEmptyBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeTitleBinding
+import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.loadImage
 
-class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ApplyAdapter(
+    private val onItemClickListener: ((DeliverySummaryDto) -> Unit)? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<DeliverySummaryDto>()
+    private var hasMore = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
@@ -25,12 +31,17 @@ class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        if(items.size == 0) return 2 else return items.size + 2
+        return when {
+            items.isEmpty() -> 2
+            hasMore -> items.size + 2
+            else -> items.size + 1
+        }
     }
 
-    fun setItems(items: List<DeliverySummaryDto>){
+    fun setItems(items: List<DeliverySummaryDto>, hasMore: Boolean = false){
         this.items.clear()
         this.items.addAll(items)
+        this.hasMore = hasMore
         notifyDataSetChanged()
     }
 
@@ -39,7 +50,7 @@ class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             if(items.size == 0){
                 VIEW_TYPE_EMPTY
             }else{
-                if(position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
+                if(hasMore && position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
                     VIEW_TYPE_CONTENTS
             }
         }
@@ -62,7 +73,24 @@ class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class ContentsVH(private val binding: ItemHomeContentsBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: DeliverySummaryDto) {
+            item.setStatusText()
             binding.data = item
+            bindAddress(item)
+            binding.ivProduct.loadImage(
+                item.prd_picture,
+                placeholder = R.drawable.no_img,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
+            binding.root.setOnClickListener {
+                onItemClickListener?.invoke(item)
+            }
+        }
+
+        private fun bindAddress(item: DeliverySummaryDto) {
+            val showDestination = item.status_cd in deliveryStartedStatuses
+            binding.tvTarget.text = if (showDestination) "도착지" else "픽업지"
+            binding.tvAddress.text = if (showDestination) item.dest_address else item.depart_address
         }
     }
 
@@ -82,5 +110,14 @@ class ApplyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val VIEW_TYPE_CONTENTS = 1
         private const val VIEW_TYPE_BOTTOM_BUTTON = 2
         private const val VIEW_TYPE_EMPTY = 3
+        private val deliveryStartedStatuses = setOf(
+            "DELIVERY_START",
+            "PICKUP_START",
+            "DELIVERY_DEPART",
+            "DELIVERY_ING",
+            "ING",
+            "ING_START",
+            "ING_DELIVERY"
+        )
     }
 }

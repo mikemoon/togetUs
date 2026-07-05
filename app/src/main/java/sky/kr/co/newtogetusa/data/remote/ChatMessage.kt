@@ -10,5 +10,6 @@ data class ChatMessage(
     val messageVieoUrl:String? = null,
     val timestamp: Long = System.currentTimeMillis(),
     val isMyMessage: Boolean = false,
-    val isUnread: Boolean = false
+    val isUnread: Boolean = false,
+    val isSystem: Boolean = false
 )

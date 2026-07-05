@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.dialog.bottom
 
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
@@ -15,17 +16,24 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
         get() = R.layout.dialog_bottom_chat_more
 
     var reportAction = {}
+    var alarmOnAction = {}
     var alarmOffAction = {}
     var blockAction = {}
     var unblockAction = {}
     var exitAction = {}
     var isBlocked = false
+    var isNotificationOn = true
+    var isReported = false
 
     override fun init() {
         super.init()
+        dataBinding.tvAlarm.text = getString(
+            if (isNotificationOn) R.string.alarm_off else R.string.alarm_on
+        )
         dataBinding.tvBlock.text = getString(
             if (isBlocked) R.string.get_unblock else R.string.get_block
         )
+        dataBinding.tvReport.isVisible = !isReported
     }
 
     override fun initObserver() {
@@ -34,7 +42,11 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
         viewModel.event.observe(viewLifecycleOwner){ event ->
             when(event){
                 BottomChatMoreViewModel.Event.AlarmOff -> {
-                    alarmOffAction.invoke()
+                    if (isNotificationOn) {
+                        alarmOffAction.invoke()
+                    } else {
+                        alarmOnAction.invoke()
+                    }
                     dismissAllowingStateLoss()
                 }
                 BottomChatMoreViewModel.Event.Block -> {
@@ -54,15 +66,7 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
                     dismissAllowingStateLoss()
                 }
                 BottomChatMoreViewModel.Event.Unblock -> {
-                    dialogFragmentShow(
-                        requireActivity().supportFragmentManager,
-                        MessageDialog.newInstance(
-                            msg = "차단을 해제하시겠어요?",
-                            rightBtn = "차단해제",
-                            leftBtn = "취소",
-                            msgTitle = "차단해제"
-                        ).onRightBtn { unblockAction.invoke() }
-                    )
+                    unblockAction.invoke()
                     dismissAllowingStateLoss()
                 }
                 BottomChatMoreViewModel.Event.Report -> {

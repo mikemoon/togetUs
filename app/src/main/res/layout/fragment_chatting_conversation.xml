@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
         <import type="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationViewModel.Event"/>
         <variable
             name="viewModel"
@@ -69,6 +70,10 @@
             android:id="@+id/clProductInfo"
             android:layout_width="match_parent"
             android:layout_height="76dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:onClick="@{()-> viewModel.onEventClick(Event.DeliveryDetail.INSTANCE)}"
             app:layout_constraintTop_toBottomOf="@id/clTop">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -100,13 +105,16 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/black_80"
                 android:textSize="14dp"
                 android:text="@{viewModel.deliveryTitleFlow}"
+                app:layout_constraintEnd_toStartOf="@id/ivProductArrow"
                 app:layout_constraintStart_toEndOf="@id/tvState"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="반찬통 배달해주세요." />
@@ -121,11 +129,13 @@
                 android:textSize="20dp"
                 android:textStyle="bold"
                 android:text="@{viewModel.deliveryFeeFlow}"
+                android:visibility="@{viewModel.deliveryFeeVisibleFlow ? View.VISIBLE : View.GONE}"
                 app:layout_constraintStart_toEndOf="@id/ivProduct"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 tools:text="8000원" />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivProductArrow"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:layout_marginTop="26dp"

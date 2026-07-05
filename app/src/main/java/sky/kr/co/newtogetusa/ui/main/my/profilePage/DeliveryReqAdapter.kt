@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.databinding.ItemProfileDeliveryReqTopBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
 import sky.kr.co.newtogetusa.ui.main.my.ProfileManagementViewModel
 import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
+import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 
 class DeliveryReqAdapter(
@@ -86,7 +87,11 @@ class DeliveryReqAdapter(
             binding.tvPickupDate.text = item.pickup_ui_date
             binding.tvDepartAddress.text = item.depart_address
             binding.tvDestAddress.text = item.dest_address
-            binding.ivProduct.loadImage(item.prd_picture, error = R.drawable.no_img)
+            binding.ivProduct.loadImage(
+                item.prd_picture,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
             binding.vRouteLine.isVisible = item.dest_address.isNotBlank()
             binding.root.setOnClickListener { onItemClick(item) }
         }

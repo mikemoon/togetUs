@@ -129,6 +129,7 @@ class DeliveryProductFragment :
             selectedUris.remove(removeUri)
             rvAdapter.removeItem(position)
             sharedViewModel.attachImagesUrl.value = sharedViewModel.attachImagesUrl.value - removeUri
+            viewModel.attachImagesUrl.value = sharedViewModel.attachImagesUrl.value.map { it.toString() }
         }.apply {
             setGalleryClickListener(object : ProductPickImageAdapter.OnGalleryClickListener {
                 override fun onGalleryClick() {
@@ -153,6 +154,7 @@ class DeliveryProductFragment :
         rvAdapter.setData(
             sharedViewModel.attachImagesUrl.value
         )
+        viewModel.attachImagesUrl.value = sharedViewModel.attachImagesUrl.value.map { it.toString() }
     }
 
     override fun initObserver() {
@@ -326,9 +328,14 @@ class DeliveryProductFragment :
     }
 
     private fun refreshAttachedImages() {
-        val imageUrlList = viewModel.attachImagesUrl.value.map { Uri.fromFile(File(it)) }
+        val imageUrlList = viewModel.attachImagesUrl.value.map(::toImageUri)
         rvAdapter.setData(imageUrlList)
         sharedViewModel.attachImagesUrl.value = imageUrlList
+    }
+
+    private fun toImageUri(value: String): Uri {
+        val uri = Uri.parse(value)
+        return if (!uri.scheme.isNullOrBlank()) uri else Uri.fromFile(File(value))
     }
 
     private fun createSelectableItems(

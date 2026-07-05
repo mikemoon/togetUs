@@ -12,8 +12,11 @@ import sky.kr.co.newtogetusa.utils.loadProfile
 class ChatInProgressAdapter(
     private val onClick: (ChatInProgressDto) -> Unit,
     private val onSelect: (ChatInProgressDto) -> Unit,
+    private val onReject: (ChatInProgressDto) -> Unit,
+    private val onCancelSuggest: (ChatInProgressDto) -> Unit,
 ) : RecyclerView.Adapter<ChatInProgressAdapter.VH>() {
     private var items: List<ChatInProgressDto> = emptyList()
+    var isSelectMode: Boolean = true
 
     fun submitItems(newItems: List<ChatInProgressDto>) {
         items = newItems
@@ -46,9 +49,16 @@ class ChatInProgressAdapter(
                 else -> item.lastMsg?.unreadCnt?.toString().orEmpty()
             }
             tvUnread.visibility = if ((item.lastMsg?.unreadCnt ?: 0) > 0) android.view.View.VISIBLE else android.view.View.GONE
-            btnSelect.isVisible = item.applyYn == "Y"
+            val showApplyActions = isSelectMode && item.applyYn == "Y"
+            val showSuggestCancel = isSelectMode && item.suggestYn == "Y"
+            llActionButtons.isVisible = showApplyActions || showSuggestCancel
+            btnReject.isVisible = showApplyActions
+            btnSelect.isVisible = showApplyActions
+            btnCancelSuggest.isVisible = showSuggestCancel
             root.setOnClickListener { onClick(item) }
             btnSelect.setOnClickListener { onSelect(item) }
+            btnReject.setOnClickListener { onReject(item) }
+            btnCancelSuggest.setOnClickListener { onCancelSuggest(item) }
         }
     }
 }

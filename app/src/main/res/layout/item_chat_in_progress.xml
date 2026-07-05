@@ -13,7 +13,7 @@
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:layout_marginStart="20dp"
-            app:layout_constraintBottom_toTopOf="@id/btnSelect"
+            app:layout_constraintBottom_toTopOf="@id/llActionButtons"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -90,20 +90,55 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/btnSelect"
-            style="@style/Paragraph15B"
+        <LinearLayout
+            android:id="@+id/llActionButtons"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="12dp"
-            android:background="@drawable/background_s_p100_r4"
-            android:gravity="center"
-            android:text="플레이어 선택"
-            android:textColor="@color/white"
+            android:orientation="horizontal"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flProfile" />
+            app:layout_constraintTop_toBottomOf="@id/flProfile">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnReject"
+                style="@style/Paragraph15B"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_s_b5_r4"
+                android:gravity="center"
+                android:text="거절"
+                android:textColor="@color/black_80"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnSelect"
+                style="@style/Paragraph15B"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_s_p100_r4"
+                android:gravity="center"
+                android:text="선택"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnCancelSuggest"
+                style="@style/Paragraph15B"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/background_s_b5_r4"
+                android:gravity="center"
+                android:text="제안 취소"
+                android:textColor="@color/black_80"
+                android:visibility="gone" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

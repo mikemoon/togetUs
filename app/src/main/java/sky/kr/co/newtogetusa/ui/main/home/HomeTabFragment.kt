@@ -53,13 +53,17 @@ import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeBannerAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeRegisteredAdapter
 import sky.kr.co.newtogetusa.ui.main.home.playerAdapter.ApplyAdapter
 import sky.kr.co.newtogetusa.ui.main.home.playerAdapter.AvailableAdapter
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.hideLoading
 import sky.kr.co.newtogetusa.utils.loadImage
+import sky.kr.co.newtogetusa.utils.showLoading
+import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 import java.lang.Exception
 import kotlin.math.abs
@@ -102,56 +106,19 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     override fun init() {
         super.init()
-        arguments?.getBoolean("openDeliveryReq")?.let { open ->
-            if (open) {
-                val returnToHistory = arguments?.getBoolean("returnToHistory") == true
-                arguments?.remove("openDeliveryReq")
-                arguments?.remove("returnToHistory")
-
-                val navController = findNavController()
-
-                // 1️⃣ DeliveryReq로 이동
-                navController.navigate(
-                    R.id.action_homeTabFragment_to_deliveryReqFragment,
-                    Bundle().apply {
-                        putBoolean("returnToHistory", returnToHistory)
-                    }
-                )
-                return
-            }
-        }
-
-        arguments?.getBoolean("openDeliveryFee")?.let { open ->
-            if (open) {
-                val returnToHistory = arguments?.getBoolean("returnToHistory") == true
-                arguments?.remove("openDeliveryFee")
-                arguments?.remove("returnToHistory")
-
-                findNavController().navigate(
-                    R.id.action_homeTabFragment_to_deliveryReqFragment,
-                    Bundle().apply {
-                        putBoolean("returnToHistory", returnToHistory)
-                    }
-                )
-                findNavController().navigate(
-                    R.id.action_deliveryReqFragment_to_deliveryFeeFragment
-                )
-                return
-            }
-        }
-
-
-
         checkLocationPermission()
         setupGoogleMap()
         setupMapTypeToggle()
 
-        prgAdapter = HomeProgressAdapter{
-            selectedItem ->
-            val action =
-                NavGraphDirections.actionGlobalHistoryDetailFragment(selectedItem)
-
-            requireActivity().findNavController(R.id.nav_host_container).navigate(action)
+        prgAdapter = HomeProgressAdapter { selectedItem ->
+            if (viewModel.isModePlayer.value) {
+                requireActivity().findNavController(R.id.nav_host_container).navigate(
+                    Uri.parse("togetus://player-history-detail/${selectedItem.delivery_id}")
+                )
+            } else {
+                val action = NavGraphDirections.actionGlobalHistoryDetailFragment(selectedItem)
+                requireActivity().findNavController(R.id.nav_host_container).navigate(action)
+            }
         }
         dataBinding.rvProgress.apply {
             adapter = prgAdapter
@@ -165,12 +132,20 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             adapter = regAdapter
         }
 
-        applyAdapter = ApplyAdapter()
+        applyAdapter = ApplyAdapter { selectedItem ->
+            requireActivity().findNavController(R.id.nav_host_container).navigate(
+                Uri.parse("togetus://player-history-detail/${selectedItem.delivery_id}")
+            )
+        }
         dataBinding.rvApply.apply {
             adapter = applyAdapter
         }
 
-        availableAdapter = AvailableAdapter()
+        availableAdapter = AvailableAdapter{ selectedItem ->
+            requireActivity().findNavController(R.id.nav_host_container).navigate(
+                Uri.parse("togetus://player-history-detail/${selectedItem.delivery_id}")
+            )
+        }
         dataBinding.rvAvailable.apply {
             adapter = availableAdapter
         }
@@ -180,7 +155,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }
         dataBinding.vpBanner.adapter = bannerAdapter
 
-        viewModel.refreshHome()
+        consumeDeliveryOpenArguments()
     }
 
     @SuppressLint("MissingPermission")
@@ -208,17 +183,27 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 }
                 launch {
                     viewModel.doingPlayerDeliveryList.filterNotNull().collectLatest {
-                        prgAdapter?.setItems(it)
+                        prgAdapter?.setItems(it, viewModel.doingPlayerDeliveryHasMore.value)
                     }
                 }
                 launch {
                     viewModel.applyDeliveryList.filterNotNull().collectLatest {
-                        applyAdapter?.setItems(it)
+                        applyAdapter?.setItems(it, viewModel.applyDeliveryHasMore.value)
                     }
                 }
                 launch {
                     viewModel.availableDeliveryList.filterNotNull().collectLatest {
                         availableAdapter?.setItems(it)
+                    }
+                }
+                launch {
+                    viewModel.locationAlarmOn.collectLatest { isOn ->
+                        updateLocationAlarmBadge(isOn)
+                    }
+                }
+                launch {
+                    viewModel.loadingState.collectLatest { isLoading ->
+                        if (isLoading) showLoading() else hideLoading()
                     }
                 }
 
@@ -257,11 +242,21 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 HomeTabViewModel.Event.Alarm -> {
                     findNavController().navigate(R.id.action_homeTabFragment_to_homeNotificationFragment)
                 }
+                is HomeTabViewModel.Event.LocationAlarmChanged -> {
+                    if (it.isOn) refreshLocationAlarmPosition()
+                    showLocationAlarmPopup(it.isOn)
+                }
+                HomeTabViewModel.Event.LocationAlarmFailed -> {
+                    requireContext().toast("현위치 동행 알림 설정에 실패했습니다.")
+                }
             }
         }
 
         dataBinding.ivMyLocation.setOnClickListener {
             moveCameraToMyLocation()
+        }
+        dataBinding.llLocationAlarm.setOnClickListener {
+            viewModel.toggleLocationAlarm()
         }
 
     }
@@ -342,6 +337,65 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             }
         }
         setSelectMapType(isNormalMapType)
+    }
+
+    private fun updateLocationAlarmBadge(isOn: Boolean) {
+        val bgRes = if (isOn) {
+            R.drawable.background_location_alarm_on
+        } else {
+            R.drawable.background_location_alarm_off
+        }
+        val colorRes = if (isOn) {
+            R.color.primary_100
+        } else {
+            R.color.location_alarm_off_text
+        }
+        val color = ContextCompat.getColor(requireContext(), colorRes)
+        dataBinding.llLocationAlarm.background = ContextCompat.getDrawable(requireContext(), bgRes)
+        dataBinding.tvLocationAlarm.setTextColor(color)
+        dataBinding.ivLocationAlarm.setColorFilter(color)
+    }
+
+    private fun showLocationAlarmPopup(isOn: Boolean) {
+        val title = if (isOn) "현위치 동행 알림 ON" else "현위치 동행 알림 OFF"
+        val message = if (isOn) {
+            "스위치를 켜면 내 위치(5분 주기)에서 현재 설정된 도착 가능지역 방면의 동행요청을 추가 수신합니다.\n\n※ 앱을 종료해도 마지막 위치를 기준으로 알림을 계속 받습니다."
+        } else {
+            "현위치 기반 매칭을 중단합니다.\n\n지정하신 기본 배송 범위 내에서만 동행요청을 수신합니다."
+        }
+        MessageDialog.newInstance(
+            msg = message,
+            rightBtn = "동행지 설정",
+            leftBtn = "닫기",
+            msgTitle = title
+        ).onRightBtn {
+            findNavController().navigate(R.id.action_global_playerAreaSettingFragment)
+        }.show(parentFragmentManager, "LocationAlarmDialog")
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun refreshLocationAlarmPosition() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        lastKnownLocation?.let {
+            viewModel.refreshLocationAlarm(it.latitude, it.longitude)
+            return
+        }
+
+        fused.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            CancellationTokenSource().token
+        ).addOnSuccessListener { location ->
+            location ?: return@addOnSuccessListener
+            lastKnownLocation = location
+            viewModel.refreshLocationAlarm(location.latitude, location.longitude)
+        }
     }
 
     //구글맵/카카오맵
@@ -637,6 +691,41 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         bannerSwitchHandler = null
     }
 
+    private fun consumeDeliveryOpenArguments() {
+        val args = arguments ?: return
+        if (args.getBoolean("openDeliveryReq", false)) {
+            val returnToHistory = args.getBoolean("returnToHistory", false)
+            val returnToDetail = args.getBoolean("returnToDetail", false)
+            val isEdit = args.getBoolean("isEdit", false)
+            val deliveryId = args.getLong("deliveryId", -1L)
+            args.remove("openDeliveryReq")
+            args.remove("returnToHistory")
+            args.remove("returnToDetail")
+            args.remove("isEdit")
+            args.remove("deliveryId")
+
+            dataBinding.root.post {
+                val navController = findNavController()
+                if (navController.currentDestination?.id != R.id.homeTabFragment) return@post
+                navController.navigate(
+                    R.id.action_homeTabFragment_to_deliveryReqFragment,
+                    Bundle().apply {
+                        putBoolean("returnToHistory", returnToHistory)
+                        putBoolean("returnToDetail", returnToDetail)
+                        putBoolean("isEdit", isEdit)
+                        putLong("deliveryId", deliveryId)
+                    }
+                )
+            }
+        }
+
+        if (args.getBoolean("openDeliveryFee", false)) {
+            args.remove("openDeliveryFee")
+            args.remove("returnToHistory")
+            args.remove("returnToDetail")
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -654,6 +743,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
 
     override fun onResume() {
         super.onResume()
+        consumeDeliveryOpenArguments()
         viewModel.refreshHome()
         runCatching { dataBinding.googleMap.onResume() }.onFailure {  }
         //showStartLocation()

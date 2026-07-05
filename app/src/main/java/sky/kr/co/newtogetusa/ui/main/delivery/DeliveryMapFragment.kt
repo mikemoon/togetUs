@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -63,6 +64,7 @@ import kotlin.getValue
 
 private const val ROUTE_ANIMATION_START_DELAY_MS = 700L
 private const val ROUTE_ANIMATION_DURATION_MS = 2_500
+private const val INITIAL_START_LOADING_TIMEOUT_MS = 10_000L
 
 @AndroidEntryPoint
 class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMapViewModel>()  {
@@ -97,6 +99,8 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     private var queuedStart: Location? = null
     private var queuedDest: Location? = null
     private var queuedRoute: Pair<Location, Location>? = null
+    private var isWaitingForInitialStartLocation = false
+    private var lastRouteRequestKey: String? = null
 
     @Inject lateinit var directionsRepo: DirectionsRepository
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
@@ -119,6 +123,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     @SuppressLint("ClickableViewAccessibility")
     override fun init() {
         super.init()
+        showInitialStartLoadingIfNeeded()
         checkLocationPermission()
         if(viewModel.isInternationalDelivery.value){
             setupGoogleMap()
@@ -132,10 +137,18 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
+                if (hasSavedStartLocation()) {
+                    bindDeliveryRequestState(sharedViewModel.state.value)
+                    finishInitialStartLoading()
+                    return@addOnSuccessListener
+                }
                 location?.let {
                     lastKnownLocation = location
                     maybeInitMapWithLocation()
-                }
+                } ?: finishInitialStartLoading()
+            }
+            .addOnFailureListener {
+                finishInitialStartLoading()
             }
 
         //google map
@@ -163,9 +176,11 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         dataBinding.map.start(object : MapLifeCycleCallback(){
             override fun onMapDestroy() {
                 isMapReady = false
+                lastRouteRequestKey = null
             }
 
             override fun onMapError(p0: Exception?) {
+                finishInitialStartLoading()
             }
 
         }, object : KakaoMapReadyCallback(){
@@ -187,7 +202,12 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                 )
                 Timber.d("mapReady showMyLocation, lastKnownLocation: $lastKnownLocation")
                 Timber.d("mapReady queRoute: $queuedRoute")
-                showMyLocation()
+                bindDeliveryRequestState(sharedViewModel.state.value)
+                if (hasSavedStartLocation()) {
+                    finishInitialStartLoading()
+                } else {
+                    showMyLocation()
+                }
 
                 applyPendingIfAny()
             }
@@ -199,14 +219,21 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             val latLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
             showGoogleCurrentLocation(lastKnownLocation!!)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+            finishInitialStartLoading()
         }
         if (lastKnownLocation == null) {//서울
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(37.5665, 126.9780), 12f))
+            finishInitialStartLoading()
         }
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun showMyLocation() {
+        if (hasSavedStartLocation()) {
+            bindDeliveryRequestState(sharedViewModel.state.value)
+            finishInitialStartLoading()
+            return
+        }
         if(lastKnownLocation == null){
             updateCurrentLocation {
                 showStartLocation()
@@ -270,9 +297,12 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             if (loc != null) {
                 lastKnownLocation = loc
                 locationUpdatedCallback.invoke()
+            } else {
+                finishInitialStartLoading()
             }
         }.addOnFailureListener { e ->
             Timber.e("KakaoMap getCurrentLocation failed $e")
+            finishInitialStartLoading()
         }
     }
 
@@ -291,6 +321,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         }else {
             dataBinding.map.resume()
         }
+        bindDeliveryRequestState(sharedViewModel.state.value)
         //showStartLocation()
     }
 
@@ -326,29 +357,38 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
     }
 
     private fun showStartLocation(){
-        lastKnownLocation?.let { loc ->
-            val here = com.kakao.vectormap.LatLng.from(loc.latitude, loc.longitude)
-            viewModel.fetchAddress(loc.latitude, loc.longitude)
-            // 1) 마커(Label) 스타일/레이어
-            val styles = kakaoMap!!.labelManager
-                ?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.pin_depart))) // pin 아이콘
-
-            val layer = kakaoMap!!.labelManager?.layer
-
-            // 2) 마커 추가 (이미 있으면 위치만 갱신)
-            val label = layer?.addLabel(LabelOptions.from(here).setStyles(styles))
-
-            if (isFollowMode) {
-                kakaoMap?.moveCamera(
-                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here)
-                )
-                kakaoMap?.trackingManager?.stopTracking()
-            } else {
-                // 팔로우 꺼져 있으면 혹시 모를 트래킹 종료
-                kakaoMap?.trackingManager?.stopTracking()
-            }
-            // kakaoMap!!.trackingManager.setTrackingRotation(false) // 회전 동기화 여부
+        if (hasSavedStartLocation()) {
+            bindDeliveryRequestState(sharedViewModel.state.value)
+            finishInitialStartLoading()
+            return
         }
+        val loc = lastKnownLocation ?: run {
+            finishInitialStartLoading()
+            return
+        }
+        val map = kakaoMap ?: return
+        val here = com.kakao.vectormap.LatLng.from(loc.latitude, loc.longitude)
+        viewModel.fetchAddress(loc.latitude, loc.longitude)
+        // 1) 마커(Label) 스타일/레이어
+        val styles = map.labelManager
+            ?.addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.pin_depart))) // pin 아이콘
+
+        val layer = map.labelManager?.layer
+
+        // 2) 마커 추가 (이미 있으면 위치만 갱신)
+        layer?.addLabel(LabelOptions.from(here).setStyles(styles))
+
+        if (isFollowMode) {
+            map.moveCamera(
+                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(here)
+            )
+            map.trackingManager?.stopTracking()
+        } else {
+            // 팔로우 꺼져 있으면 혹시 모를 트래킹 종료
+            map.trackingManager?.stopTracking()
+        }
+        finishInitialStartLoading()
+        // kakaoMap!!.trackingManager.setTrackingRotation(false) // 회전 동기화 여부
     }
 
     override fun initObserver() {
@@ -378,43 +418,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 sharedViewModel.state.collectLatest { state ->
-                    viewModel.updateConfirmButtonEnable(state.hasRequiredRouteLocations())
-
-                    state.startLat?.let { loc ->
-                        val loc = Location("kakao").apply {
-                            latitude = state.startLat
-                            longitude = state.startLng!!
-                        }
-                        lastKnownLocation = loc
-                        viewModel.setStartAddress(state.startAddress.orEmpty())
-                        viewModel.addressDetail.value = state.startDetail.orEmpty()
-
-                        if (isMapReady) applyStartLocation(loc)
-                        else queuedStart = loc
-                    }
-
-                    // ✅ 도착지 처리
-                    state.destLat?.let { loc ->
-                        val loc = Location("kakao").apply {
-                            latitude = state.destLat
-                            longitude = state.destLng!!
-                        }
-                        lastKnownDestLocation = loc
-                        viewModel.setDestinationAddress(state.destinationAddress.orEmpty())
-                        viewModel.destinationDetailAddress.value = state.destinationDetail.orEmpty()
-
-                        if (isMapReady) applyDestLocation(loc)
-                        else queuedDest = loc
-                    }
-
-                    // ✅ 경로 처리
-                    val start = lastKnownLocation
-                    val end = lastKnownDestLocation
-                    if (start != null && end != null) {
-                        if (isMapReady) drawRouteFromTo(start, end)
-                        else queuedRoute = start to end
-                    }
-
+                    bindDeliveryRequestState(state)
                 }
             }
         }
@@ -442,6 +446,50 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
                     findNavController().popBackStack()
                 }
             }
+        }
+    }
+
+    private fun bindDeliveryRequestState(state: DeliveryRequestState) {
+        viewModel.updateConfirmButtonEnable(state.hasRequiredRouteLocations())
+
+        if (!state.startAddress.isNullOrBlank()) {
+            viewModel.setStartAddress(state.startAddress)
+            viewModel.addressDetail.value = state.startDetail.orEmpty()
+        }
+
+        if (state.startLat != null && state.startLng != null) {
+            val startLocation = Location("kakao").apply {
+                latitude = state.startLat
+                longitude = state.startLng
+            }
+            lastKnownLocation = startLocation
+
+            if (isMapReady) applyStartLocation(startLocation)
+            else queuedStart = startLocation
+        }
+
+        if (!state.destinationAddress.isNullOrBlank()) {
+            viewModel.setDestinationAddress(state.destinationAddress)
+            viewModel.destinationDetailAddress.value = state.destinationDetail.orEmpty()
+        }
+
+        if (state.destLat != null && state.destLng != null) {
+            val destLocation = Location("kakao").apply {
+                latitude = state.destLat
+                longitude = state.destLng
+            }
+            lastKnownDestLocation = destLocation
+
+            if (isMapReady) applyDestLocation(destLocation)
+            else queuedDest = destLocation
+        }
+
+        val start = lastKnownLocation
+        val end = lastKnownDestLocation
+        if (start != null && end != null) {
+            requestRouteDraw(start, end)
+        } else {
+            lastRouteRequestKey = null
         }
     }
 
@@ -478,7 +526,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             queuedDest = null
         }
         queuedRoute?.let { (s, d) ->
-            drawRouteFromTo(s, d)    // 아래 5) 참고
+            requestRouteDraw(s, d)    // 아래 5) 참고
             queuedRoute = null
         }
     }
@@ -502,6 +550,43 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         } else {
             map.trackingManager?.stopTracking()
         }
+        finishInitialStartLoading()
+    }
+
+    private fun showInitialStartLoadingIfNeeded() {
+        if (!shouldWaitForInitialStartLocation()) {
+            finishInitialStartLoading()
+            return
+        }
+
+        isWaitingForInitialStartLocation = true
+        dataBinding.initialStartLoadingOverlay.isVisible = true
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(INITIAL_START_LOADING_TIMEOUT_MS)
+            if (isWaitingForInitialStartLocation) {
+                finishInitialStartLoading()
+            }
+        }
+    }
+
+    private fun shouldWaitForInitialStartLocation(): Boolean {
+        val state = sharedViewModel.state.value
+        return state.startAddress.isNullOrBlank() &&
+            state.startLat == null &&
+            state.startLng == null
+    }
+
+    private fun hasSavedStartLocation(): Boolean {
+        val state = sharedViewModel.state.value
+        return !state.startAddress.isNullOrBlank() &&
+            state.startLat != null &&
+            state.startLng != null
+    }
+
+    private fun finishInitialStartLoading() {
+        isWaitingForInitialStartLocation = false
+        dataBinding.initialStartLoadingOverlay.isVisible = false
     }
 
     private fun applyDestLocation(loc: Location, name: String? = null) {
@@ -515,45 +600,68 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         )
     }
 
+    private fun requestRouteDraw(start: Location, dest: Location) {
+        if (!isValidRouteLocation(start) || !isValidRouteLocation(dest)) {
+            Timber.w("skip route draw invalid location start=$start dest=$dest")
+            return
+        }
+
+        if (!isMapReady || kakaoMap == null) {
+            queuedRoute = start to dest
+            return
+        }
+
+        val routeKey = "${start.latitude},${start.longitude}-${dest.latitude},${dest.longitude}"
+        if (lastRouteRequestKey == routeKey) return
+        lastRouteRequestKey = routeKey
+        drawRouteFromTo(start, dest)
+    }
+
     private fun drawRouteFromTo(start: Location, dest: Location) {
         val map = kakaoMap ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            val (points, summary) = directionsRepo.fetchRoute(
-                startLat = start.latitude, startLng = start.longitude,
-                endLat = dest.latitude,   endLng = dest.longitude
-            )
-            Timber.d("drawRouteFromTo points: $points, summary: $summary")
-            if (points.isEmpty()) {
-                // 필요 시 기존 라인/핀 정리
-                return@launch
-            }
-            disableFollowMode()
-
             val startLL = com.kakao.vectormap.LatLng.from(start.latitude, start.longitude)
             val destLL  = com.kakao.vectormap.LatLng.from(dest.latitude,  dest.longitude)
-            upsertPins(startLL, destLL, null)
+            val fallbackPoints = listOf(startLL, destLL)
+            val fallbackDistance = calcDistanceMeters(start, dest)
 
-            //val bb = com.kakao.vectormap.LatLngBounds.Builder()
-            //points.forEach { bb.include(it) }
-            //bb.include(startLL)
-            //bb.include(destLL)
-            //val bounds = bb.build()
-            //if (points.isNotEmpty()) points.forEach { b.include(it) } else { b.include(startLL); b.include(destLL) }
-            //map.moveCamera(com.kakao.vectormap.camera.CameraUpdateFactory.fitMapPoints(bounds, 96))
+            disableFollowMode()
+            upsertPins(startLL, destLL, null)
 
             fitRouteAndAdjustZoom(
                 map = map,
-                points = points,
+                points = fallbackPoints,
                 startLL = startLL,
                 destLL = destLL,
-                distanceMeters = summary?.distance,
+                distanceMeters = fallbackDistance,
+                paddingDp = 160
+            )
+
+            val (points, summary) = runCatching {
+                directionsRepo.fetchRoute(
+                    startLat = start.latitude, startLng = start.longitude,
+                    endLat = dest.latitude,   endLng = dest.longitude
+                )
+            }.onFailure {
+                Timber.e(it, "drawRouteFromTo fetchRoute failed")
+            }.getOrDefault(emptyList<com.kakao.vectormap.LatLng>() to null)
+
+            val routePoints = points.takeIf { it.isNotEmpty() } ?: fallbackPoints
+            Timber.d("drawRouteFromTo points: ${routePoints.size}, summary: $summary")
+
+            fitRouteAndAdjustZoom(
+                map = map,
+                points = routePoints,
+                startLL = startLL,
+                destLL = destLL,
+                distanceMeters = summary?.distance ?: fallbackDistance,
                 paddingDp = 160
             )
 
             delay(ROUTE_ANIMATION_START_DELAY_MS)
             drawRouteOnKakaoMap(
                 kakaoMap = map,
-                points = points,
+                points = routePoints,
                 summary = summary,
                 moveCamera = false,
                 clearPrevious = true,
@@ -663,6 +771,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             } else {
                 // 권한 거부됨
                 Toast.makeText(requireContext(), "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+                finishInitialStartLoading()
             }
         }
     }
@@ -760,6 +869,22 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
             result
         )
         return result[0] / 1000.0 // meter → km
+    }
+
+    private fun calcDistanceMeters(start: Location, end: Location): Int {
+        val result = FloatArray(1)
+        Location.distanceBetween(
+            start.latitude,
+            start.longitude,
+            end.latitude,
+            end.longitude,
+            result
+        )
+        return result[0].toInt()
+    }
+
+    private fun isValidRouteLocation(location: Location): Boolean {
+        return location.latitude != 0.0 || location.longitude != 0.0
     }
 
     private fun dp(px: Int) = (px * resources.displayMetrics.density + 0.5f).toInt()

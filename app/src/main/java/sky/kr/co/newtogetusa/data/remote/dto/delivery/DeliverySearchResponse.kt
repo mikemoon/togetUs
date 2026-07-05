@@ -2,8 +2,9 @@ package sky.kr.co.newtogetusa.data.remote.dto.delivery
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
-import sky.kr.co.newtogetusa.utils.formatPickupDateTime
+import sky.kr.co.newtogetusa.utils.formatPickupDateTimeOrNow
 import sky.kr.co.newtogetusa.utils.formatRegisterDateTime
 
 data class DeliverySearchResponse(
@@ -38,16 +39,11 @@ data class DeliverySummaryDto(
     fun setUiValue(){
         setStatusText()
         price_text = fee_final.toWon()
-        pickup_ui_date = formatPickupDateTime((pickup_date as String?).orEmpty())
+        pickup_ui_date = formatPickupDateTimeOrNow((pickup_date as String?).orEmpty())
         regist_date_text = formatRegisterDateTime((regist_date as String?).orEmpty())
     }
     fun setStatusText(){
-        status_text = when(status_cd as String){
-            "REGISTER_ING" -> "작성중"
-            "MATCH_BEFORE" -> "매칭대기중"
-            "CANCEL" -> "취소완료"
-            else -> "동행시작"
-        }
+        status_text = DeliveryStatusBadgeUtil.titleOf(status_cd)
     }
 
     override fun hashCode(): Int {

@@ -60,10 +60,23 @@
                 tools:text="노트북 좀 전달해주세요." />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivToolbarHeart"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="56dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_heart" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivToolbarMore"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="end"
                 android:layout_marginEnd="20dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:src="@drawable/more_vertical" />
         </androidx.appcompat.widget.Toolbar>
 
@@ -83,19 +96,25 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivHeart"
                 android:layout_width="62dp"
                 android:layout_height="62dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="78dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:src="@drawable/ic_heart"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivMore"
                 android:layout_width="62dp"
                 android:layout_height="62dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="20dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:src="@drawable/more_overlay"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

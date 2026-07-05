@@ -53,6 +53,9 @@
             android:id="@+id/action_playerHistoryDetailFragment_to_reportFragment"
             app:destination="@id/reportFragment" />
         <action
+            android:id="@+id/action_playerHistoryDetailFragment_to_deliveryReportReasonFragment"
+            app:destination="@id/deliveryReportReasonFragment" />
+        <action
             android:id="@+id/action_playerHistoryDetailFragment_to_deliveryReviewFragment"
             app:destination="@id/deliveryReviewFragment" />
         <action
@@ -67,6 +70,30 @@
         android:id="@+id/playerDeliveryNoticeFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.player.PlayerDeliveryNoticeFragment"
         android:label="PlayerDeliveryNoticeFragment" />
+
+    <fragment
+        android:id="@+id/deliveryReportReasonFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.report.DeliveryReportReasonFragment"
+        android:label="DeliveryReportReasonFragment">
+        <argument
+            android:name="userId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_deliveryReportReasonFragment_to_deliveryReportDetailFragment"
+            app:destination="@id/deliveryReportDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deliveryReportDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.report.DeliveryReportDetailFragment"
+        android:label="DeliveryReportDetailFragment">
+        <argument
+            android:name="userId"
+            app:argType="integer" />
+        <argument
+            android:name="reason"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/reportFragment"
@@ -124,6 +151,10 @@
         <argument
             android:name="deliveryId"
             app:argType="long" />
+        <argument
+            android:name="isSelectMode"
+            app:argType="boolean"
+            android:defaultValue="true" />
         <action
             android:id="@+id/action_chatInProgressFragment_to_chattingConversationFragment"
             app:destination="@id/chattingConversationFragment" />

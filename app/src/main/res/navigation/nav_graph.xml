@@ -21,6 +21,9 @@
         <action
             android:id="@+id/action_historyDetailFragment_to_photoFragment"
             app:destination="@id/photoFragment" />
+        <action
+            android:id="@+id/action_historyDetailFragment_to_deliveryFeeEditFragment"
+            app:destination="@id/deliveryFeeEditFragment" />
     </fragment>
 
     <action
@@ -33,6 +36,40 @@
         android:id="@+id/action_global_historyDetailFragment"
         app:destination="@id/historyDetailFragment"
         app:launchSingleTop="true"/>
+
+    <action
+        android:id="@+id/action_global_playerHistoryDetailFragment"
+        app:destination="@id/playerHistoryDetailFragment"
+        app:launchSingleTop="true">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+    </action>
+
+    <action
+        android:id="@+id/action_global_chatInProgressFragment"
+        app:destination="@id/globalChatInProgressFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+        <argument
+            android:name="isSelectMode"
+            app:argType="boolean"
+            android:defaultValue="true" />
+    </action>
+
+    <fragment
+        android:id="@+id/globalChatInProgressFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.chat.ChatInProgressFragment"
+        android:label="ChatInProgressFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+        <argument
+            android:name="isSelectMode"
+            app:argType="boolean"
+            android:defaultValue="true" />
+    </fragment>
 
     <action
         android:id="@+id/action_global_profileManagementFragment"
@@ -66,14 +103,54 @@
     </action>
 
     <action
+        android:id="@+id/action_global_playerAreaSettingFragment"
+        app:destination="@id/playerAreaSettingFragment" />
+
+    <action
         android:id="@+id/action_global_to_home_for_delivery"
         app:destination="@id/home"
         app:popUpTo="@id/historyDetailFragment"
-        app:popUpToInclusive="false" />
+        app:popUpToInclusive="false">
+        <argument
+            android:name="openDeliveryReq"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="returnToHistory"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="returnToDetail"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="isEdit"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </action>
 
     <action
         android:id="@+id/action_global_deliveryFeeFragment"
-        app:destination="@id/deliveryFeeFragment" />
+        app:destination="@id/deliveryFeeEditFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </action>
+
+    <fragment
+        android:id="@+id/deliveryFeeEditFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeEditFragment"
+        android:label="DeliveryFeeFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
 
     <action
         android:id="@+id/action_global_deliveryFeeAgreementFragment"

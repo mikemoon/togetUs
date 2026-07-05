@@ -84,7 +84,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     fun onSecondaryClick() {
         val detail = deliveryDetail.value ?: return
         when (buttonState.value) {
-            ButtonState.PlayerMatchBefore -> openChatRoom(detail)
+            ButtonState.PlayerSupport -> openChatRoom(detail)
+            ButtonState.PlayerCancelSupport -> openChatRoom(detail)
             ButtonState.PlayerDeliveryProgress -> openChatRoom(detail)
             ButtonState.RequesterRegister -> _event.value = Event.CancelReq
             ButtonState.RequesterMatchBefore -> _event.value = Event.CancelReq
@@ -95,7 +96,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     fun onPrimaryClick() {
         val detail = deliveryDetail.value ?: return
         when (buttonState.value) {
-            ButtonState.PlayerMatchBefore -> _event.value = Event.ShowApplyDialog
+            ButtonState.PlayerSupport -> _event.value = Event.ShowApplyDialog
+            ButtonState.PlayerCancelSupport -> _event.value = Event.ConfirmCancelSupport
             ButtonState.PlayerPickupReady -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "pickup")
             ButtonState.PlayerDeliveryProgress -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
             ButtonState.PlayerDone -> _event.value = Event.OpenReport(isPlayer = true)
@@ -103,6 +105,51 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             ButtonState.RequesterMatchBefore -> _event.value = Event.ModifyFee
             ButtonState.RequesterCancel -> _event.value = Event.Modify
             else -> Unit
+        }
+    }
+
+    fun onMarkClick() {
+        val detail = deliveryDetail.value ?: return
+        toggleLike(detail)
+    }
+
+    fun getMoreActions(): List<MoreAction> {
+        val detail = deliveryDetail.value ?: return emptyList()
+        val isMyPlayer = myPlayerId.value != null && detail.player_id == myPlayerId.value
+
+        if (!isMyPlayer && detail.status_cd in listOf(
+                "DELIVERY_BEFORE",
+                "DELIVERY_WAIT",
+                "DELIVERY_START",
+                "PICKUP_START",
+                "DELIVERY_DEPART",
+                "DELIVERY_ING",
+                "DELIVERY_END",
+                "DONE",
+                "DONE_END",
+                "CANCEL"
+            )
+        ) {
+            return emptyList()
+        }
+
+        return when (detail.status_cd) {
+            "REGISTER_ING", "MATCH_BEFORE", "MATCH_ING" -> listOf(MoreAction.Report)
+            "DELIVERY_BEFORE", "DELIVERY_WAIT" -> listOf(MoreAction.Cancel)
+            "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART", "DELIVERY_ING" -> listOf(MoreAction.CustomerSupport)
+            "DELIVERY_END", "DONE", "DONE_END" -> listOf(MoreAction.Chat, MoreAction.Settlement)
+            else -> emptyList()
+        }
+    }
+
+    fun onMoreActionClick(action: MoreAction) {
+        val detail = deliveryDetail.value ?: return
+        when (action) {
+            MoreAction.Report -> _event.value = Event.OpenReportReason(detail.requester_id.toInt())
+            MoreAction.Cancel -> _event.value = Event.CancelReq
+            MoreAction.Chat -> openChatRoom(detail)
+            MoreAction.CustomerSupport -> _event.value = Event.ActionSuccess("준비중입니다.")
+            MoreAction.Settlement -> _event.value = Event.ActionSuccess("준비중입니다.")
         }
     }
 
@@ -114,14 +161,10 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     }
 
     private fun openChatRoom(detail: DeliveryDetailResponse) = viewModelScope.launch {
-        when (val res = deliveryRepo.getChatInProgressList(detail.delivery_id)) {
+        when (val res = deliveryRepo.putPlayerChat(detail.delivery_id)) {
             is ResultWrapper.Success -> {
-                val room = res.data.firstOrNull { room ->
-                    room.roomId > 0L && detail.player_id != null && room.playerId == detail.player_id
-                } ?: res.data.firstOrNull { it.roomId > 0L }
-
-                if (room != null) {
-                    _event.value = Event.OpenChatRoom(room.roomId)
+                if (res.data.room_id > 0L) {
+                    _event.value = Event.OpenChatRoom(res.data.room_id)
                 } else {
                     _event.value = Event.ActionFail
                 }
@@ -131,11 +174,59 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     }
 
     private fun requestApply(deliveryId: Long) = viewModelScope.launch {
-        when (deliveryRepo.putApply(deliveryId)) {
-            is ResultWrapper.Success -> {
-                _event.value = Event.ActionSuccess("지원이 완료되었어요.")
+        when (val result = deliveryRepo.putApply(deliveryId)) {
+            is ResultWrapper.Success -> if (result.data) {
+                _event.value = Event.ActionSuccess("지원이 완료되었어요. 협의가 필요하시면 유저와의 채팅을 이용하세요.")
+                deliveryDetail.value = deliveryDetail.value?.copy(is_apply = true)
                 getDeliveryDetailInfo(deliveryId)
+            } else _event.value = Event.ActionFail
+            else -> _event.value = Event.ActionFail
+        }
+    }
+
+    fun confirmCancelSupport() {
+        val detail = deliveryDetail.value ?: return
+        requestCancelSupport(detail.delivery_id)
+    }
+
+    private fun requestCancelSupport(deliveryId: Long) = viewModelScope.launch {
+        when (val result = deliveryRepo.putApplyCancel(deliveryId)) {
+            is ResultWrapper.Success -> if (result.data) {
+                _event.value = Event.ActionSuccess("지원 취소가 완료되었습니다.")
+                deliveryDetail.value = deliveryDetail.value?.copy(is_apply = false)
+                getDeliveryDetailInfo(deliveryId)
+            } else _event.value = Event.ActionFail
+            else -> _event.value = Event.ActionFail
+        }
+    }
+
+    private fun toggleLike(detail: DeliveryDetailResponse) = viewModelScope.launch {
+        val nextLiked = !detail.is_like
+        val result = if (detail.is_like) {
+            deliveryRepo.postUnlikeDelivery(detail.delivery_id)
+        } else {
+            deliveryRepo.postLikeDelivery(detail.delivery_id)
+        }
+
+        when (result) {
+            is ResultWrapper.Success -> {
+                if (result.data) {
+                    deliveryDetail.value = detail.copy(is_like = nextLiked)
+                } else {
+                    _event.value = Event.ActionFail
+                }
             }
+            else -> _event.value = Event.ActionFail
+        }
+    }
+
+    fun reportRequester() = viewModelScope.launch {
+        val detail = deliveryDetail.value ?: return@launch
+        when (userRepository.postReportUser(
+            detail.requester_id.toInt(),
+            hashMapOf("report_cd" to "REPORT", "content" to "")
+        )) {
+            is ResultWrapper.Success -> _event.value = Event.ActionSuccess("신고가 접수되었습니다.")
             else -> _event.value = Event.ActionFail
         }
     }
@@ -184,8 +275,10 @@ class PlayerHistoryDetailViewModel @Inject constructor(
                 "DONE", "DONE_END", "DELIVERY_END" -> ButtonState.RequesterDone
                 else -> ButtonState.Hidden
             }
-            isAssignedPlayer || detail.player_id == null -> when (detail.status_cd) {
-                "REGISTER_ING", "MATCH_BEFORE", "MATCH_ING" -> ButtonState.PlayerMatchBefore
+            isAssignedPlayer || detail.player_id == null || detail.status_cd in listOf("REGISTER_ING", "MATCH_BEFORE", "MATCH_ING") -> when (detail.status_cd) {
+                "REGISTER_ING", "MATCH_BEFORE", "MATCH_ING" -> {
+                    if (detail.is_apply) ButtonState.PlayerCancelSupport else ButtonState.PlayerSupport
+                }
                 "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART" -> ButtonState.PlayerPickupReady
                 "DELIVERY_ING" -> ButtonState.PlayerDeliveryProgress
                 "DONE", "DONE_END", "DELIVERY_END" -> ButtonState.PlayerDone
@@ -265,6 +358,15 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         }
     }
 
+    fun productTypeLabel(code: String): String =
+        findConfigLabel(productTypes.value, code, PRODUCT_TYPE_FALLBACKS)
+
+    fun productWeightLabel(code: String): String =
+        findConfigLabel(productWeights.value, code, PRODUCT_WEIGHT_FALLBACKS)
+
+    fun productVolumeLabel(code: String): String =
+        findConfigLabel(productVolumes.value, code, PRODUCT_VOLUME_FALLBACKS)
+
     private fun formatExpectedTimeInMinutes(expectedTimeSeconds: Int): String {
         val expectedMinutes = ceil(expectedTimeSeconds / 60.0).toInt().coerceAtLeast(1)
         return "${expectedMinutes}분"
@@ -318,7 +420,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         val secondaryText: String,
         val showSecondary: Boolean,
     ) {
-        PlayerMatchBefore(primaryText = "지원하기", secondaryText = "채팅하기", showSecondary = true),
+        PlayerSupport(primaryText = "지원하기", secondaryText = "채팅하기", showSecondary = true),
+        PlayerCancelSupport(primaryText = "지원 취소", secondaryText = "채팅하기", showSecondary = true),
         PlayerPickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
         PlayerDeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
         PlayerDone(primaryText = "등록하기", secondaryText = "", showSecondary = false),
@@ -327,6 +430,14 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         RequesterCancel(primaryText = "다시등록하기", secondaryText = "", showSecondary = false),
         RequesterDone(primaryText = "등록하기", secondaryText = "", showSecondary = false),
         Hidden(primaryText = "", secondaryText = "", showSecondary = false),
+    }
+
+    enum class MoreAction(val label: String) {
+        Report("신고하기"),
+        Cancel("취소하기"),
+        Chat("채팅하기"),
+        CustomerSupport("고객지원"),
+        Settlement("정산내역"),
     }
 
     fun confirmApply() {
@@ -341,12 +452,39 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         object CancelReq : Event()
         object Modify : Event()
         object ModifyFee : Event()
+        object ConfirmReport : Event()
+        object ConfirmCancelSupport : Event()
         data class OpenReport(val isPlayer: Boolean) : Event()
+        data class OpenReportReason(val userId: Int) : Event()
         object ShowApplyDialog : Event()
         object ActionFail : Event()
         data class ActionSuccess(val msg: String) : Event()
         data class OpenChatRoom(val roomId: Long) : Event()
         data class OpenProofPhoto(val deliveryId: Long, val proofType: String) : Event()
+    }
+
+    companion object {
+        private val PRODUCT_TYPE_FALLBACKS = mapOf(
+            "type_1" to "전자기기"
+        )
+        private val PRODUCT_WEIGHT_FALLBACKS = mapOf(
+            "small" to "가벼움 (~3KG)",
+            "medium" to "가벼움 (~3KG)",
+            "big" to "무거움 (3KG~)"
+        )
+        private val PRODUCT_VOLUME_FALLBACKS = mapOf(
+            "small" to "작음 (작은 상자/에코백 수준)",
+            "medium" to "보통",
+            "big" to "큼"
+        )
+
+        private fun findConfigLabel(
+            configs: List<BaseCommonDto>,
+            code: String,
+            fallback: Map<String, String>
+        ): String =
+            configs.firstOrNull { it.code == code }?.name?.takeIf { it.isNotBlank() }
+                ?: fallback[code].orEmpty()
     }
 
     data class DeliverySummaryUiModel(

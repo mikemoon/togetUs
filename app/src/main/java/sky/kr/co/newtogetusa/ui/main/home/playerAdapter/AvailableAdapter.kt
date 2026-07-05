@@ -4,14 +4,20 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHomeBottomButtonBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeEmptyBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeTitleBinding
+import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.loadImage
 
-class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class AvailableAdapter(
+    private val onItemClickListener: ((DeliverySummaryDto) -> Unit)? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = mutableListOf<Any>()
+    private val items = mutableListOf<DeliverySummaryDto>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
@@ -25,10 +31,10 @@ class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemCount(): Int {
-        if(items.size == 0) return 2 else return items.size + 2
+        if(items.size == 0) return 2 else return items.size + 1
     }
 
-    fun setItems(items: List<Any>){
+    fun setItems(items: List<DeliverySummaryDto>){
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()
@@ -39,8 +45,7 @@ class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             if(items.size == 0){
                 VIEW_TYPE_EMPTY
             }else{
-                if(position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
-                    VIEW_TYPE_CONTENTS
+                VIEW_TYPE_CONTENTS
             }
         }
     }
@@ -50,7 +55,7 @@ class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             VIEW_TYPE_TITLE -> (holder as TitleVH).bind("")
             VIEW_TYPE_EMPTY -> (holder as EmptyVH).bind("")
             VIEW_TYPE_BOTTOM_BUTTON -> (holder as BottomButtonVH).bind("")
-            else -> (holder as ContentsVH).bind(items[position-1] as String)
+            else -> (holder as ContentsVH).bind(items[position-1])
         }
     }
 
@@ -62,8 +67,17 @@ class AvailableAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     inner class ContentsVH(private val binding: ItemHomeContentsBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(item: String) {
-
+        fun bind(item: DeliverySummaryDto) {
+            binding.data = item
+            binding.ivProduct.loadImage(
+                item.prd_picture,
+                placeholder = R.drawable.no_img,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
+            binding.root.setOnClickListener {
+                onItemClickListener?.invoke(item)
+            }
         }
     }
 

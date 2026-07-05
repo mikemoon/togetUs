@@ -11,12 +11,12 @@ import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeEmptyBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeTitleBinding
 import sky.kr.co.newtogetusa.utils.dpToPx
-import sky.kr.co.newtogetusa.utils.formatPickupDateTime
 import sky.kr.co.newtogetusa.utils.loadImage
 
 class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<DeliverySummaryDto>()
+    private var hasMore = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
@@ -27,14 +27,19 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
         }
     }
 
-    fun setItems(list: List<DeliverySummaryDto>){
+    fun setItems(list: List<DeliverySummaryDto>, hasMore: Boolean = false){
         items.clear()
         items.addAll(list)
+        this.hasMore = hasMore
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
-        if(items.size == 0) return 2 else return items.size + 2
+        return when {
+            items.isEmpty() -> 2
+            hasMore -> items.size + 2
+            else -> items.size + 1
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -42,7 +47,7 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
             if(items.size == 0){
                 VIEW_TYPE_EMPTY
             }else{
-                if(position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
+                if(hasMore && position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
                 VIEW_TYPE_CONTENTS
             }
         }
@@ -67,11 +72,22 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
         fun bind(item: DeliverySummaryDto) {
             item.setStatusText()
             binding.data = item
-            binding.tvDate.text = formatPickupDateTime(item.pickup_date)
-            binding.ivProduct.loadImage(item.prd_picture, roundedCorner = 4.dpToPx(), error = R.drawable.no_img)
+            bindAddress(item)
+            binding.ivProduct.loadImage(
+                item.prd_picture,
+                placeholder = R.drawable.no_img,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
             binding.root.setOnClickListener {
                 onSelect.invoke(item)
             }
+        }
+
+        private fun bindAddress(item: DeliverySummaryDto) {
+            val showDestination = item.status_cd in deliveryStartedStatuses
+            binding.tvTarget.text = if (showDestination) "도착지" else "픽업지"
+            binding.tvAddress.text = if (showDestination) item.dest_address else item.depart_address
         }
     }
 
@@ -91,5 +107,14 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
         private const val VIEW_TYPE_CONTENTS = 1
         private const val VIEW_TYPE_BOTTOM_BUTTON = 2
         private const val VIEW_TYPE_EMPTY = 3
+        private val deliveryStartedStatuses = setOf(
+            "DELIVERY_START",
+            "PICKUP_START",
+            "DELIVERY_DEPART",
+            "DELIVERY_ING",
+            "ING",
+            "ING_START",
+            "ING_DELIVERY"
+        )
     }
 }

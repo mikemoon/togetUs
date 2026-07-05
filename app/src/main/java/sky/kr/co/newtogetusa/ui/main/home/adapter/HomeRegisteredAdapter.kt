@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.Companion
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.ContentsVH
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.EmptyVH
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter.TitleVH
+import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 
 class HomeRegisteredAdapter(private val onItemClickListener: ((DeliverySummaryDto) -> Unit)? = null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -70,7 +71,12 @@ class HomeRegisteredAdapter(private val onItemClickListener: ((DeliverySummaryDt
     inner class ContentsVH(private val binding: ItemHomeContentsBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: DeliverySummaryDto) {
             binding.data = item
-            binding.ivProduct.loadImage(item.prd_picture, placeholder = R.drawable.no_img, error =  R.drawable.no_img)
+            binding.ivProduct.loadImage(
+                item.prd_picture,
+                placeholder = R.drawable.no_img,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
             binding.root.setOnClickListener {
                 onItemClickListener?.invoke(item)
             }

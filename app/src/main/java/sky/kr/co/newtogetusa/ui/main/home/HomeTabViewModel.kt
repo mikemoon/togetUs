@@ -32,17 +32,24 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
                                            private val kakaoRepo: KakaoLocalRepository,
                                            private val userRepository: UserRepository,
                                            private val deliveryRepo : DeliveryRepository,
-                                           private val myRepository: MyRepository) : BaseViewModel(baseViewModelFactory.create()) {
+                                           private val myRepository: MyRepository,
+                                           private val playerRepository: PlayerRepository) : BaseViewModel(baseViewModelFactory.create()) {
 
     val isModePlayer = MutableStateFlow(false)
     val mapShowState = MutableStateFlow<MapShow>(MapShow.GOOGLE_MAP)
     val unreadNotificationCount = MutableStateFlow(0)
     val unreadNotificationText = MutableStateFlow("")
+    val locationAlarmOn = MutableStateFlow(true)
+    private var hasHomeRefreshStarted = false
 
     init {
         viewModelScope.launch {
             dataStoreRepository.getBooleanFlow(DataStoreKey.KEY_IS_MODE_PLAYER).filterNotNull().collectLatest {
+                val isChanged = isModePlayer.value != it
                 isModePlayer.value = it
+                if (isChanged && hasHomeRefreshStarted) {
+                    refreshHome()
+                }
             }
         }
         viewModelScope.launch {
@@ -91,46 +98,123 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     val doingPlayerDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
     val applyDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
     val availableDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
+    val doingPlayerDeliveryHasMore = MutableStateFlow(false)
+    val applyDeliveryHasMore = MutableStateFlow(false)
 
-    fun postPlayerDeliverySearch(deliverySearchReq: DeliverySearchReq) = viewModelScope.launch {
+    private fun postPlayerDeliverySearch(
+        type: String,
+        onSuccess: (List<DeliverySummaryDto>, Boolean) -> Unit
+    ) = viewModelScope.launch {
+        val deliverySearchReq = DeliverySearchReq(
+            type = type,
+            title = "",
+            page_no = 0
+        )
         val res = deliveryRepo.postPlayerDeliverySearch(deliverySearchReq)
         when(res){
             is ResultWrapper.Success ->{
-                val matchList = res.data.deliveries.filter {
-                    it.status_cd.startsWith("MATCH")
+                val myUserId = if (type == "ENABLE") {
+                    dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)?.user?.user_id?.toLong()
+                } else {
+                    null
                 }
-
-                val deliveryList = res.data.deliveries.filter {
-                    it.status_cd.startsWith("DELIVERY")
-                }
-
-                val availableList = res.data.deliveries.filter {
-                    it.status_cd.startsWith("ENABLE")
-                }
-                doingPlayerDeliveryList.value = deliveryList //진행중인배송
-                applyDeliveryList.value = matchList //지원한 배송
-                availableDeliveryList.value = availableList //가능한 배송
+                val deliveries = res.data.deliveries
+                    .filter { myUserId == null || it.requester_id != myUserId }
+                    .map { it.apply { setUiValue() } }
+                onSuccess(deliveries, res.data.has_more)
             }
             is ResultWrapper.NetworkError ->{
+                onSuccess(emptyList(), false)
             }
             is ResultWrapper.GenericError ->{
+                onSuccess(emptyList(), false)
             }
         }
     }
 
-    fun refreshHome() {
+    fun refreshHome() = viewModelScope.launch {
+        hasHomeRefreshStarted = true
+        val isPlayerMode = dataStoreRepository.getBoolean(DataStoreKey.KEY_IS_MODE_PLAYER) ?: false
+        isModePlayer.value = isPlayerMode
+
         val request = DeliverySearchReq(
             type = "DELIVERY|MATCH",
             title = "",
             page_no = 0
         )
-        if (isModePlayer.value) {
-            postPlayerDeliverySearch(request)
+        if (isPlayerMode) {
+            doingDeliveryList.value = emptyList()
+            registeredDeliveryList.value = emptyList()
+            syncLocationAlarmState()
+            postPlayerDeliverySearch("DELIVERY") { list, hasMore ->
+                doingPlayerDeliveryHasMore.value = hasMore
+                doingPlayerDeliveryList.value = list
+            }
+            postPlayerDeliverySearch("MATCH") { list, hasMore ->
+                applyDeliveryHasMore.value = hasMore
+                applyDeliveryList.value = list
+            }
+            postPlayerDeliverySearch("ENABLE") { list, _ ->
+                availableDeliveryList.value = list
+            }
         } else {
+            doingPlayerDeliveryList.value = emptyList()
+            applyDeliveryList.value = emptyList()
+            availableDeliveryList.value = emptyList()
+            doingPlayerDeliveryHasMore.value = false
+            applyDeliveryHasMore.value = false
             postDeliverySearch(request)
         }
         getBanners()
         getNotificationUnreadCount()
+    }
+
+    private fun syncLocationAlarmState() = viewModelScope.launch {
+        val playerId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+            ?.user
+            ?.player_id
+            ?.takeIf { it > 0 }
+            ?: return@launch
+
+        when (val res = playerRepository.getProfile(playerId)) {
+            is ResultWrapper.Success -> locationAlarmOn.value = res.data.gps_area
+            else -> Unit
+        }
+    }
+
+    fun toggleLocationAlarm() = viewModelScope.launch {
+        val playerId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+            ?.user
+            ?.player_id
+            ?.takeIf { it > 0 }
+        if (playerId == null) {
+            _event.value = Event.LocationAlarmFailed
+            return@launch
+        }
+
+        val next = !locationAlarmOn.value
+        loadingState.value = true
+        when (val res = playerRepository.setPlayerGpsEnable(playerId, next)) {
+            is ResultWrapper.Success -> {
+                if (res.data.boolValue) {
+                    locationAlarmOn.value = next
+                    _event.value = Event.LocationAlarmChanged(next)
+                } else {
+                    _event.value = Event.LocationAlarmFailed
+                }
+            }
+            else -> _event.value = Event.LocationAlarmFailed
+        }
+        loadingState.value = false
+    }
+
+    fun refreshLocationAlarm(latitude: Double, longitude: Double) = viewModelScope.launch {
+        val playerId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+            ?.user
+            ?.player_id
+            ?.takeIf { it > 0 }
+            ?: return@launch
+        playerRepository.refreshPlayerGps(playerId, latitude, longitude)
     }
 
     val bannerList = MutableStateFlow<List<BannerDto>?>(null)
@@ -167,6 +251,8 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         object JoinPlayer : Event()
         object RequestDelivery : Event()
         object Alarm : Event()
+        data class LocationAlarmChanged(val isOn: Boolean) : Event()
+        object LocationAlarmFailed : Event()
     }
 
     private val _address = MutableStateFlow<String?>("현재위치")

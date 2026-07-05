@@ -44,6 +44,10 @@ class ChatRepository @Inject constructor(
         apiService.chatRoomNotiOff(roomId)
     }
 
+    suspend fun chatRoomNotiOn(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.chatRoomNotiOn(roomId)
+    }
+
     suspend fun chatRoomReport(roomId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
         apiService.chatRoomReport(roomId)
     }

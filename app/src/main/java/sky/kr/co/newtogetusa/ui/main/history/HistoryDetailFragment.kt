@@ -23,6 +23,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.LocationServices
@@ -49,7 +50,6 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryDetailBinding
 import sky.kr.co.newtogetusa.repository.DirectionsRepository
-import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomMoreDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
@@ -223,7 +223,15 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     viewModel.onEventClick(HistoryDetailViewModel.Event.Modify)
                 }
                 "Chatting" -> {
-                    (requireActivity() as MainActivity).selectMainTab(R.id.chat)
+                    val deliveryId = viewModel.deliveryDetail.value?.delivery_id
+                        ?: args.delivery.delivery_id
+                    findNavController().navigate(
+                        R.id.action_global_chatInProgressFragment,
+                        bundleOf(
+                            "deliveryId" to deliveryId,
+                            "isSelectMode" to false
+                        )
+                    )
                 }
             }
         }
@@ -266,7 +274,10 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         R.id.action_global_to_home_for_delivery,
                         bundleOf(
                             "openDeliveryReq" to true,
-                            "returnToHistory" to true
+                            "returnToHistory" to false,
+                            "returnToDetail" to true,
+                            "isEdit" to true,
+                            "deliveryId" to detail.delivery_id
                         )
                     )
                 }
@@ -275,17 +286,40 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     if (findNavController().currentDestination?.id != R.id.historyDetailFragment) {
                         return@observe
                     }
-                    populateDeliverySharedState()
-                    findNavController().navigate(
-                        R.id.action_global_to_home_for_delivery,
-                        bundleOf(
-                            "openDeliveryFee" to true,
-                            "returnToHistory" to true
-                        )
-                    )
+                    openDeliveryFeeEdit(viewModel.deliveryDetail.value?.delivery_id ?: return@observe)
+                }
+
+                HistoryDetailViewModel.Event.ChatInProgress -> {
+                    openChatInProgress(isSelectMode = false)
                 }
             }
         }
+    }
+
+    private fun openChatInProgress(isSelectMode: Boolean) {
+        val deliveryId = viewModel.deliveryDetail.value?.delivery_id
+            ?: args.delivery.delivery_id
+        findNavController().navigate(
+            R.id.action_global_chatInProgressFragment,
+            bundleOf(
+                "deliveryId" to deliveryId,
+                "isSelectMode" to isSelectMode
+            )
+        )
+    }
+
+    private fun openDeliveryFeeEdit(deliveryId: Long) {
+        val navController = requireActivity().findNavController(R.id.nav_host_container)
+        if (navController.currentDestination?.id == R.id.deliveryFeeEditFragment) return
+
+        navController.popBackStack(R.id.deliveryFeeEditFragment, true)
+        navController.navigate(
+            R.id.action_global_deliveryFeeFragment,
+            bundleOf("deliveryId" to deliveryId),
+            navOptions {
+                launchSingleTop = true
+            }
+        )
     }
 
     private fun populateDeliverySharedState() {
@@ -322,8 +356,12 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
             description = detail.product.descript,
             type = detail.product.type_cd,
             weight = detail.product.weight_cd,
-            volume = detail.product.volume_cd
+            volume = detail.product.volume_cd,
+            typeLabel = viewModel.productTypeLabel(detail.product.type_cd),
+            weightLabel = viewModel.productWeightLabel(detail.product.weight_cd),
+            volumeLabel = viewModel.productVolumeLabel(detail.product.volume_cd)
         )
+        deliverySharedViewModel.updateProductImages(detail.product.pictures)
 
         deliverySharedViewModel.updateUser(
             name = detail.depart_contact.name.orEmpty(),
@@ -414,7 +452,31 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         marginStart = 12.dpToPx()
                     }
                     setOnClickListener {
-                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.ModifyFee)
+                        openDeliveryFeeEdit(
+                            this@HistoryDetailFragment.viewModel.deliveryDetail.value?.delivery_id
+                                ?: return@setOnClickListener
+                        )
+                    }
+                }
+            }
+
+            "MATCH_ING" -> {
+                llBottomButtonContainer.visibility = View.VISIBLE
+                vBottomDivider.visibility = View.VISIBLE
+
+                tvBottomSecondaryButton.visibility = View.GONE
+
+                tvBottomPrimaryButton.apply {
+                    text = "플레이어 선택"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    setBackgroundResource(R.drawable.background_s_p100_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = ViewGroup.LayoutParams.MATCH_PARENT
+                        weight = 0f
+                        marginStart = 0
+                    }
+                    setOnClickListener {
+                        openChatInProgress(isSelectMode = false)
                     }
                 }
             }
@@ -539,21 +601,24 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
         val layer = map.labelManager?.layer ?: return
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val (points, summary) = directionsRepo.fetchRoute(
-                startLat = startLat,
-                startLng = startLng,
-                endLat = endLat,
-                endLng = endLng
-            )
-
-            if (points.isEmpty()) return@launch
+            val startLL = com.kakao.vectormap.LatLng.from(startLat, startLng)
+            val destLL = com.kakao.vectormap.LatLng.from(endLat, endLng)
+            val (points, summary) = runCatching {
+                directionsRepo.fetchRoute(
+                    startLat = startLat,
+                    startLng = startLng,
+                    endLat = endLat,
+                    endLng = endLng
+                )
+            }.getOrElse {
+                Timber.w(it, "Kakao directions failed. Falling back to straight route.")
+                emptyList<com.kakao.vectormap.LatLng>() to null
+            }
+            val routePoints = points.ifEmpty { listOf(startLL, destLL) }
 
             // 기존 핀 제거
             startLabel?.remove()
             destLabel?.remove()
-
-            val startLL = com.kakao.vectormap.LatLng.from(startLat, startLng)
-            val destLL = com.kakao.vectormap.LatLng.from(endLat, endLng)
 
             // 출발 / 도착 핀
             startLabel = layer.addLabel(
@@ -564,11 +629,16 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
             )
 
             // ✅ 실제 경로 polyline
-            drawRouteOnKakaoMap(map, points, summary)
+            drawRouteOnKakaoMap(
+                kakaoMap = map,
+                points = routePoints,
+                summary = summary,
+                clearPrevious = true
+            )
 
             // 화면 맞추기
             val bb = com.kakao.vectormap.LatLngBounds.Builder()
-            points.forEach { bb.include(it) }
+            routePoints.forEach { bb.include(it) }
             bb.include(startLL)
             bb.include(destLL)
 

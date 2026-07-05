@@ -22,6 +22,7 @@ import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DataStoreRepository
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.main.chat.ChatRoomForegroundTracker
+import sky.kr.co.newtogetusa.ui.main.chat.ChatRoomListUpdateBus
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -50,6 +51,10 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
         val data = message.data
         val roomId = extractRoomId(data)
         val isChatPush = isChatPush(data, roomId)
+
+        if (isChatPush && roomId > 0L) {
+            ChatRoomListUpdateBus.notifyRoomUpdated(roomId)
+        }
 
         if (isChatPush && roomId > 0L && ChatRoomForegroundTracker.activeRoomId == roomId) {
             Timber.d("[Push] same chat room, suppress notification roomId=$roomId")

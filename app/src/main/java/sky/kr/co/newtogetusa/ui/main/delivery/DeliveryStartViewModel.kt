@@ -118,8 +118,12 @@ class DeliveryStartViewModel @Inject constructor(baseViewModelDependenciesFactor
 
     // 완료 버튼 활성화 여부
     val completeButtonEnable: StateFlow<Boolean> =
-        combine(name, phone, addressDetail, selectedAddress) { n, p, a, s ->
-            if(isStart.value)n.isNotBlank() && p.isNotBlank() && a.isNotBlank() && s != null else a.isNotBlank() && s != null
+        combine(name, phone, addressDetail, selectedAddress, isStart) { n, p, a, s, start ->
+            if (start) {
+                n.isNotBlank() && p.isNotBlank() && a.isNotBlank() && s != null
+            } else {
+                a.isNotBlank() && s != null
+            }
         }
             .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 

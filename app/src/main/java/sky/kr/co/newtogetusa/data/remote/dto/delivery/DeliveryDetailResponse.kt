@@ -6,6 +6,7 @@ data class DeliveryDetailResponse(
     val player_id: Long?,
     val status_cd: String,
     val is_like: Boolean,
+    val is_apply: Boolean = false,
 
     val title: String,
     val is_domestic: Boolean,

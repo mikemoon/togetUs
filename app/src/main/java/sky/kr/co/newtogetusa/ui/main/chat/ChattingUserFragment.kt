@@ -73,6 +73,15 @@ class ChattingUserFragment @Inject constructor(
                         dataBinding.rvList.isVisible = !isEmpty
                     }
                 }
+
+                launch {
+                    ChatRoomListUpdateBus.updates.collectLatest { update ->
+                        chatAdapter.applyRoomUpdate(update)
+                        if (update.message == null && update.date == null) {
+                            chatAdapter.refresh()
+                        }
+                    }
+                }
             }
         }
     }

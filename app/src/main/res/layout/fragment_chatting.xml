@@ -26,15 +26,15 @@
             android:background="@color/white"
             app:tabGravity="fill"
             app:tabIndicator="@drawable/chat_tab_indicator"
-            app:tabIndicatorColor="@color/black_80"
+            app:tabIndicatorColor="@color/primary_100"
             app:tabIndicatorFullWidth="false"
-            app:tabIndicatorHeight="1dp"
+            app:tabIndicatorHeight="2dp"
             app:tabMinWidth="0dp"
             app:tabPaddingEnd="0dp"
             app:tabPaddingStart="0dp"
             app:tabRippleColor="@null"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            app:tabSelectedTextColor="@color/black_80"
+            app:tabSelectedTextColor="@color/primary_100"
             app:tabTextColor="@color/black_40"
             />
         <View

@@ -3,11 +3,53 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home"
     app:startDestination="@id/homeTabFragment">
+
+    <argument
+        android:name="openDeliveryReq"
+        app:argType="boolean"
+        android:defaultValue="false" />
+    <argument
+        android:name="returnToHistory"
+        app:argType="boolean"
+        android:defaultValue="false" />
+    <argument
+        android:name="returnToDetail"
+        app:argType="boolean"
+        android:defaultValue="false" />
+    <argument
+        android:name="isEdit"
+        app:argType="boolean"
+        android:defaultValue="false" />
+    <argument
+        android:name="deliveryId"
+        app:argType="long"
+        android:defaultValue="-1L" />
+
     <fragment
         android:id="@+id/homeTabFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.home.HomeTabFragment"
         android:label="HomeTabFragment"
         >
+        <argument
+            android:name="openDeliveryReq"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="returnToHistory"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="returnToDetail"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="isEdit"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
 
         <action
             android:id="@+id/action_homeTabFragment_to_deliveryReqFragment"
@@ -36,6 +78,18 @@
             android:name="returnToHistory"
             app:argType="boolean"
             android:defaultValue="false" />
+        <argument
+            android:name="returnToDetail"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="isEdit"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
         <action
             android:id="@+id/action_deliveryReqFragment_to_deliveryProductFragment"
             app:destination="@id/deliveryProductFragment" />
@@ -111,6 +165,15 @@
     <fragment
         android:id="@+id/deliveryFeeFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryFeeFragment"
-        android:label="DeliveryFeeFragment" />
+        android:label="DeliveryFeeFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="isEdit"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
 
 </navigation>

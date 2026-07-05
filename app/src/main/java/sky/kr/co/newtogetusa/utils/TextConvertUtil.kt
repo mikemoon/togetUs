@@ -14,8 +14,14 @@ object TextConvertUtil {
     }
 
     fun formatPickupDateTime(date: String, time: String?): String {
+        val normalizedDate = date.trim()
+        if (normalizedDate.isBlank() || normalizedDate.equals("null", ignoreCase = true)) {
+            return "-"
+        }
 
-        val localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd"))
+        val localDate = runCatching {
+            LocalDate.parse(normalizedDate, DateTimeFormatter.ofPattern("yyyyMMdd"))
+        }.getOrNull() ?: return "-"
 
         val month = localDate.monthValue
         val day = localDate.dayOfMonth

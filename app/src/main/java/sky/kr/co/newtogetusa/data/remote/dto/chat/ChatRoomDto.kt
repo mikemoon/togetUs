@@ -8,7 +8,9 @@ data class ChatRoomDto(
     val unread_cnt: Int,
     val delivery: ChatRoomDeliveryDto?,
     val last_msg: ChatRoomLastMessageDto?,
-    val is_blocked: Boolean = false
+    val is_blocked: Boolean = false,
+    val is_noti_on: Boolean = true,
+    val is_reported: Boolean = false
 )
 
 data class ChatRoomDeliveryDto(

@@ -91,6 +91,12 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun updateProductImages(imageUrls: List<String>) {
+        attachImagesUrl.value = imageUrls
+            .filter { it.isNotBlank() }
+            .map(Uri::parse)
+    }
+
     fun updateUser(name: String, phone: String) {
         _state.update { it.copy(name = name, phone = phone) }
     }
@@ -107,6 +113,7 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
 
     fun clearState(){
         _state.value = DeliveryRequestState()
+        attachImagesUrl.value = emptyList()
     }
 
     val isMapConfirmReady: StateFlow<Boolean> =

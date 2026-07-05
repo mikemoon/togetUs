@@ -252,5 +252,27 @@
             android:src="@drawable/close_in_map"
             android:onClick="@{()-> viewModel.onEventClick(Event.Back.INSTANCE)}"
             />
+
+        <FrameLayout
+            android:id="@+id/initialStartLoadingOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#66FFFFFF"
+            android:clickable="true"
+            android:elevation="24dp"
+            android:focusable="true"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/primary_100" />
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

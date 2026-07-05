@@ -4,7 +4,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import java.time.format.TextStyle
+import java.time.temporal.ChronoField
 import java.util.Locale
 
 val week = listOf(
@@ -54,27 +56,33 @@ fun formatPickupDateTime(raw: String): String {
     }.getOrElse { raw }
     }
 
+fun formatPickupDateTimeOrNow(raw: String): String {
+    val source = raw.takeIf { it.isNotBlank() }
+        ?: LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd HHmm"))
+    return formatPickupDateTime(source)
+}
+
 
 fun formatRegisterDateTime(input: String): String {
-    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
-    val dateTime = LocalDateTime.parse(input, inputFormatter)
+    val normalized = input.trim()
+        .takeIf { it.isNotBlank() }
+        ?.replace('T', ' ')
+        ?.removeSuffix("Z")
+        ?.substringBefore("+")
+        ?: return ""
 
-    val dayOfWeek = when (dateTime.dayOfWeek.value) {
-        1 -> "월"
-        2 -> "화"
-        3 -> "수"
-        4 -> "목"
-        5 -> "금"
-        6 -> "토"
-        else -> "일"
+    val flexibleDateTimeFormatter = DateTimeFormatterBuilder()
+        .appendPattern("yyyy-MM-dd HH:mm:ss")
+        .optionalStart()
+        .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+        .optionalEnd()
+        .toFormatter()
+
+    val dateTime = runCatching {
+        LocalDateTime.parse(normalized, flexibleDateTimeFormatter)
+    }.getOrElse {
+        return input
     }
 
-    val ampm = if (dateTime.hour < 12) "오전" else "오후"
-    val hour = when {
-        dateTime.hour == 0 -> 12
-        dateTime.hour > 12 -> dateTime.hour - 12
-        else -> dateTime.hour
-    }
-
-    return "${dateTime.year}년 ${dateTime.monthValue}월 ${dateTime.dayOfMonth}일($dayOfWeek) $ampm ${hour}:${"%02d".format(dateTime.minute)}"
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
 }

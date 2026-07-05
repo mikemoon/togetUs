@@ -11,6 +11,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.ChatInProgressDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryDetailResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryPlayerChatDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryReviewDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
@@ -55,6 +56,18 @@ interface DeliveryService {
         @Body body: Map<String, Long>
     ): CommonBoolDto
 
+    @PUT("api/deliverys/v1/{delivery_id}/requester/apply_reject") //지원 거절
+    suspend fun rejectApply(
+        @Path("delivery_id") deliveryId: Long,
+        @Body body: Map<String, Long>
+    ): CommonBoolDto
+
+    @PUT("api/deliverys/v1/{delivery_id}/requester/suggest_cancel") //제안 취소
+    suspend fun cancelSuggest(
+        @Path("delivery_id") deliveryId: Long,
+        @Body body: Map<String, Long>
+    ): CommonBoolDto
+
     @GET("api/deliverys/v1/portone/config")
     suspend fun getDeliveryPortOneConfig(): PortOneConfigDto
 
@@ -88,6 +101,12 @@ interface DeliveryService {
     suspend fun postDelivery(
         @Body body: DeliveryRequest
     ): DeliveryResponse
+
+    @POST("api/deliverys/v1/{delivery_id}") //배송요청 수정
+    suspend fun editDelivery(
+        @Path("delivery_id") delivery_id: Long,
+        @Body body: DeliveryRequest
+    ): CommonBoolDto
 
     @GET("api/deliverys/v1") //배송요청 목록 보기
     suspend fun getDeliveryList(
@@ -205,5 +224,25 @@ interface DeliveryService {
     suspend fun putApply(
         @Path("delivery_id") deliveryId: Long,
     ):Boolean
+
+    @PUT("/api/deliverys/v1/{delivery_id}/player/apply_cancel") //지원 취소하기
+    suspend fun putApplyCancel(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
+    @POST("api/deliverys/v1/{delivery_id}/player/like") //좋아요 설정
+    suspend fun postLikeDelivery(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
+    @POST("api/deliverys/v1/{delivery_id}/player/unlike") //좋아요 해제
+    suspend fun postUnlikeDelivery(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
+    @PUT("api/deliverys/v1/{delivery_id}/player/chat") //채팅하기
+    suspend fun putPlayerChat(
+        @Path("delivery_id") deliveryId: Long,
+    ): DeliveryPlayerChatDto
 
 }

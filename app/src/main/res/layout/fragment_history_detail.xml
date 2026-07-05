@@ -145,8 +145,9 @@
                             android:background="@drawable/background_s_b5_r4"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
-                            android:text="매칭 대기중"
-                            android:textColor="@color/black_60" />
+                            android:text="@{viewModel.deliveryData.statusText}"
+                            android:textColor="@color/black_60"
+                            app:deliveryStatusBadge="@{viewModel.deliveryData.statusCode}" />
 
                         <androidx.appcompat.widget.AppCompatTextView
                             style="@style/HeadLine20B"
@@ -177,7 +178,7 @@
                                 style="@style/Paragraph14B"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="픽업 요청일"
+                                android:text="픽업"
                                 android:textColor="@color/black_80" />
 
                             <View
@@ -204,6 +205,68 @@
                     </LinearLayout>
                     <!-- 내용물 end -->
 
+                    <!-- 동행 정보 -->
+                    <LinearLayout
+                        android:id="@+id/llCompanionInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp"
+                        android:paddingTop="20dp"
+                        android:paddingBottom="12dp"
+                        android:visibility="@{viewModel.deliveryData.showCompanionInfo ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintTop_toBottomOf="@id/llContentTop">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="동행정보"
+                            android:textColor="@color/black_80" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="16dp"
+                            android:background="@{viewModel.deliveryData.hasChatInProgress ? @drawable/background_s_p100_r4 : @drawable/background_s_p40_r4}"
+                            android:enabled="@{viewModel.deliveryData.hasChatInProgress}"
+                            android:gravity="center"
+                            android:onClick="@{()-> viewModel.onEventClick(Event.ChatInProgress.INSTANCE)}"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph14B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@{viewModel.deliveryData.chatInProgressText}"
+                                android:textColor="@{viewModel.deliveryData.hasChatInProgress ? @color/white : @color/white_opa_40}"
+                                tools:text="진행중 채팅" />
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                style="@style/Paragraph12B"
+                                android:layout_width="wrap_content"
+                                android:layout_height="22dp"
+                                android:layout_marginStart="8dp"
+                                android:background="@{viewModel.deliveryData.hasChatInProgress ? @drawable/background_circle_white : @drawable/background_circle_white_opa40}"
+                                android:gravity="center"
+                                android:minWidth="22dp"
+                                android:paddingHorizontal="7dp"
+                                android:text="@{viewModel.deliveryData.chatInProgressCountText}"
+                                android:textColor="@{viewModel.deliveryData.hasChatInProgress ? @color/primary_100 : @color/primary_60}"
+                                tools:text="1" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center"
+                            android:text="아직 협의중인 플레이어가 없어요."
+                            android:textColor="@color/black_40"
+                            android:visibility="@{viewModel.deliveryData.showChatEmptyText ? View.VISIBLE : View.GONE}" />
+                    </LinearLayout>
+
                     <!-- 이동 경로 -->
                     <LinearLayout
                         android:id="@+id/llMovingRoute"
@@ -211,7 +274,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingVertical="20dp"
-                        app:layout_constraintTop_toBottomOf="@id/llContentTop">
+                        app:layout_constraintTop_toBottomOf="@id/llCompanionInfo">
 
                         <androidx.appcompat.widget.AppCompatTextView
                             style="@style/HeadLine18B"
@@ -592,6 +655,7 @@
                         app:layout_constraintTop_toBottomOf="@id/llProductInfo"
                         android:layout_marginTop="32dp"
                         android:orientation="vertical"
+                        android:visibility="@{viewModel.deliveryData.showPaymentInfo ? View.VISIBLE : View.GONE}"
                         >
                         <androidx.appcompat.widget.AppCompatTextView
                             android:layout_width="wrap_content"
@@ -625,6 +689,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 style="@style/Paragraph17B"
                                 android:textColor="@color/black_80"
+                                android:text="@{viewModel.deliveryData.basePaymentText}"
                                 tools:text="9,600원"
                                 />
                         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -652,6 +717,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 style="@style/Paragraph17R"
                                 android:textColor="@color/black_60"
+                                android:text="@{viewModel.deliveryData.basicFeeText}"
                                 tools:text="9,600원"
                                 />
                         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -679,6 +745,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 style="@style/Paragraph17R"
                                 android:textColor="@color/black_60"
+                                android:text="@{viewModel.deliveryData.adjustFeeText}"
                                 tools:text="9,600원"
                                 />
                         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -708,6 +775,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 style="@style/Paragraph17R"
                                 android:textColor="@color/black_60"
+                                android:text="@{viewModel.deliveryData.paymentMethodText}"
                                 tools:text="신용카드"
                                 />
 
@@ -726,9 +794,11 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/llAdditionalPayInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toBottomOf="@id/llPayInfo"
+                        android:visibility="@{viewModel.deliveryData.showAdditionalPaymentInfo ? View.VISIBLE : View.GONE}"
                         android:orientation="vertical">
                         <View
                             android:layout_width="match_parent"
@@ -760,6 +830,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 style="@style/Paragraph17B"
                                 android:textColor="@color/black_80"
+                                android:text="@{viewModel.deliveryData.additionalPaymentText}"
                                 tools:text="9,600원"
                                 />
                         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -789,6 +860,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 style="@style/Paragraph17R"
                                 android:textColor="@color/black_60"
+                                android:text="@{viewModel.deliveryData.additionalPaymentMethodText}"
                                 tools:text="신용카드"
                                 />
 
@@ -833,7 +905,6 @@
                 android:paddingHorizontal="20dp"
                 android:background="@drawable/background_s_b5_r4"
                 android:layout_weight="1"
-                android:onClick="@{()-> viewModel.onEventClick(Event.CancelReq.INSTANCE)}"
                 />
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvBottomPrimaryButton"
@@ -849,7 +920,6 @@
                 android:paddingHorizontal="20dp"
                 android:background="@drawable/background_s_p100_r4"
                 android:layout_weight="4"
-                android:onClick="@{()-> viewModel.onEventClick(Event.Modify.INSTANCE)}"
                 />
         </LinearLayout>
 

@@ -1,6 +1,9 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
 import android.annotation.SuppressLint
+import android.view.Gravity
+import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -38,10 +41,31 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
 
     private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
 
+    private var isEditMode = false
+    private var editDeliveryId = -1L
+    private var hasAppliedInitialAdjustFee = false
 
     override fun init() {
         super.init()
 
+        isEditMode = arguments?.getBoolean("isEdit") == true
+        editDeliveryId = arguments?.getLong("deliveryId") ?: -1L
+        setupModeUi()
+
+        if (isEditMode) {
+            requireActivity().onBackPressedDispatcher.addCallback(
+                viewLifecycleOwner,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        handleBack()
+                    }
+                }
+            )
+            if (editDeliveryId > 0L) {
+                viewModel.loadDeliveryFeeForEdit(editDeliveryId)
+            }
+            return
+        }
 
         val deliveryReqInfo = sharedViewModel.state.value
         deliveryReqInfo?.let { dr ->
@@ -95,7 +119,14 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
 
 
         dataBinding.etAdjustFee.doAfterTextChanged { text ->
+            updateAdjustFeeClearVisibility()
+            if (isEditMode) {
+                updateEditSubmitState()
+            }
+        }
 
+        dataBinding.ivAdjustFeeClear.setOnClickListener {
+            dataBinding.etAdjustFee.text?.clear()
         }
 
 
@@ -119,6 +150,12 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
                 viewModel.deliveryUiModel.collect { uiModel ->
                     uiModel?.let {
                         dataBinding.uiModel = it
+                        if (isEditMode && !hasAppliedInitialAdjustFee) {
+                            dataBinding.etAdjustFee.setText(it.adjustFee)
+                            dataBinding.etAdjustFee.setSelection(dataBinding.etAdjustFee.text?.length ?: 0)
+                            hasAppliedInitialAdjustFee = true
+                            updateEditSubmitState()
+                        }
                     }
                 }
             }
@@ -127,9 +164,27 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
         viewModel.event.observe(viewLifecycleOwner) { event ->
             when (event) {
                 is DeliveryFeeVM.Event.Back -> {
-                    findNavController().popBackStack()
+                    handleBack()
                 }
                 is DeliveryFeeVM.Event.RegisterDelivery ->{
+                    if (isEditMode) {
+                        viewModel.registerDelivery(
+                            req = DeliveryFinalReq(
+                                fee_adjust = parseAdjustFee()
+                            )
+                        ) { ret ->
+                            if (ret) {
+                                MessageDialog.newInstance(
+                                    msg = "수정되었습니다.",
+                                    rightBtn = "확인"
+                                ).onRightBtn {
+                                    handleBack()
+                                }.show(childFragmentManager, "MessageDialog")
+                            }
+                        }
+                        return@observe
+                    }
+
                     val registerDeliveryAction = {
                         viewModel.registerDelivery(
                             req = DeliveryFinalReq(
@@ -183,6 +238,61 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
             }
         }
 
+    }
+
+    private fun setupModeUi() = with(dataBinding) {
+        if (!isEditMode) return@with
+
+        llAdjustFeeInput.setBackgroundResource(R.drawable.background_st_p60_s_p10_r4)
+        etAdjustFee.gravity = Gravity.END or Gravity.CENTER_VERTICAL
+        etAdjustFee.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
+        llAgree.visibility = View.GONE
+        llNotice.visibility = View.GONE
+        tvRegister.text = "동행 요청 수정"
+        updateAdjustFeeClearVisibility()
+        this@DeliveryFeeFragment.viewModel.setRegisterButtonEnabled(false)
+    }
+
+    private fun updateEditSubmitState() = with(dataBinding) {
+        val isValid = etAdjustFee.text?.toString()
+            ?.replace(",", "")
+            ?.trim()
+            ?.toLongOrNull()
+            ?.let { it >= 0L } == true
+
+        this@DeliveryFeeFragment.viewModel.setRegisterButtonEnabled(isValid)
+        llAdjustFeeInput.setBackgroundResource(
+            if (isValid) R.drawable.background_st_p60_s_p10_r4
+            else R.drawable.background_st_primary100_s_primary10_r4
+        )
+    }
+
+    private fun updateAdjustFeeClearVisibility() = with(dataBinding) {
+        ivAdjustFeeClear.visibility =
+            if (etAdjustFee.text?.isNotEmpty() == true) View.VISIBLE else View.GONE
+    }
+
+    private fun parseAdjustFee(): Long =
+        dataBinding.etAdjustFee.text?.toString()
+            ?.replace(",", "")
+            ?.trim()
+            ?.toLongOrNull()
+            ?: 0L
+
+    private fun handleBack() {
+        if (!isEditMode) {
+            findNavController().popBackStack()
+            return
+        }
+
+        val navController = findNavController()
+        val returnedToUserDetail = navController.popBackStack(R.id.historyDetailFragment, false)
+        if (!returnedToUserDetail) {
+            val returnedToPlayerDetail = navController.popBackStack(R.id.playerHistoryDetailFragment, false)
+            if (!returnedToPlayerDetail) {
+                navController.popBackStack()
+            }
+        }
     }
 
 }

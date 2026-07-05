@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui
 
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,8 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.chat.ChatClient
 import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
+import sky.kr.co.newtogetusa.chat.MqttChatCategory
+import sky.kr.co.newtogetusa.chat.MqttMessagePayload
 import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.repository.ChatRepository
@@ -23,6 +26,7 @@ import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import sky.kr.co.newtogetusa.ui.main.chat.ChatRoomListUpdateBus
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -39,6 +43,7 @@ class MainViewModel @Inject constructor(
     val isModeChanging = MutableStateFlow(false)
     val isPlayerModeFlow = MutableStateFlow(false)
     val hasUnreadChatFlow = MutableStateFlow(false)
+    private val gson = Gson()
 
     init {
         messageCallbackManager.registerCallback(this)
@@ -129,6 +134,20 @@ class MainViewModel @Inject constructor(
 
     override fun handleIncomingMessage(sender: String, content: String) {
         hasUnreadChatFlow.value = true
+        if (sender != MqttChatCategory.MSG.topicName && sender != MqttChatCategory.ATTACH.topicName) return
+
+        runCatching {
+            gson.fromJson(content, MqttMessagePayload::class.java)
+        }.onSuccess { payload ->
+            ChatRoomListUpdateBus.notifyMessageReceived(
+                roomId = payload.roomId,
+                message = payload.message,
+                mimeType = payload.mimeType,
+                sendDate = payload.sendDate
+            )
+        }.onFailure {
+            Timber.d(it, "Failed to parse chat message for room list update")
+        }
     }
 
     override fun onConnectionLost(cause: Throwable?) {

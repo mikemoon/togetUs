@@ -9,7 +9,8 @@ data class PlayerProfileDto(
     val introduction: String? = null,
     val areas: Areas? = null,
     val areas_basic: List<PlayerArea>? = null,
-    val areas_added: List<PlayerArea>? = null
+    val areas_added: List<PlayerArea>? = null,
+    val gps_area: Boolean = true
 ) {
     data class Player(
         val player_id: Int,

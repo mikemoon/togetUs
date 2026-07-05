@@ -42,10 +42,12 @@
         </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            >
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:padding="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -171,18 +173,52 @@
                         android:textColor="@color/black_60"
                         />
 
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/etAdjustFee"
+                    <LinearLayout
+                        android:id="@+id/llAdjustFeeInput"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_marginTop="16dp"
                         android:background="@drawable/background_st_b10_s_w_r4"
-                        android:padding="16dp"
-                        android:inputType="number"
-                        style="@style/Paragraph17R"
-                        android:textColor="@color/black_80"
-                        android:hint="0 원"
-                        />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/etAdjustFee"
+                            style="@style/Paragraph17R"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:gravity="end|center_vertical"
+                            android:hint="0"
+                            android:inputType="number"
+                            android:layoutDirection="ltr"
+                            android:padding="0dp"
+                            android:textAlignment="viewEnd"
+                            android:textColor="@color/black_80"
+                            android:textColorHint="@color/black_40" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvAdjustFeeUnit"
+                            style="@style/Paragraph17R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:text="원"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ivAdjustFeeClear"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="8dp"
+                            android:padding="6dp"
+                            android:src="@drawable/fillcircle_close_gray"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="wrap_content"
@@ -229,6 +265,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/llAgree"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
@@ -256,6 +293,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/llNotice"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -410,23 +448,32 @@
 
                 </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvRegister"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:background="@drawable/selector_p40_p100_r4"
-                    android:text="동행 요청 등록"
-                    android:textColor="@color/selector_wopa40_wopa100"
-                    style="@style/HeadLine18B"
-                    android:enabled="@{viewModel.isAgreeChecked}"
-                    android:onClick="@{()-> viewModel.onEventClick(Event.RegisterDelivery.INSTANCE)}"
-                    />
-
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <LinearLayout
+            android:id="@+id/llBottomRegisterContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRegister"
+                style="@style/HeadLine18B"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_p40_p100_r4"
+                android:enabled="@{viewModel.registerButtonEnabled}"
+                android:gravity="center"
+                android:onClick="@{()-> viewModel.onEventClick(Event.RegisterDelivery.INSTANCE)}"
+                android:padding="16dp"
+                android:text="동행 요청 등록"
+                android:textColor="@color/selector_wopa40_wopa100" />
+        </LinearLayout>
 
     </LinearLayout>
 </layout>

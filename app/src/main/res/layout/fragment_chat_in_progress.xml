@@ -20,13 +20,6 @@
                 android:layout_marginStart="20dp"
                 android:onClick="@{()->viewModel.onBackClick()}"
                 android:src="@drawable/left_l" />
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/Paragraph16B"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="진행중인 채팅"
-                android:textColor="@color/black_80" />
         </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRooms"
@@ -35,17 +28,31 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/clTop" />
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvEmpty"
-            style="@style/Paragraph14R"
+        <LinearLayout
+            android:id="@+id/llEmpty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="진행중인 채팅이 없어요."
-            android:textColor="@color/black_40"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clTop" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/no_chat" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvEmpty"
+                style="@style/Paragraph17R"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="진행중인 채팅이 없어요."
+                android:textColor="@color/black_40" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -69,6 +69,7 @@
                 android:src="@drawable/placecircle_primary" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTarget"
                 style="@style/Paragraph12R"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -78,14 +79,17 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/llAddressInfo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/llPickup"
             app:layout_constraintTop_toTopOf="@id/llPickup">
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAddress"
                 style="@style/Paragraph12R"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -98,10 +102,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@{data.regist_date_text}"
+                android:text="@{data.pickup_ui_date}"
                 android:textColor="@color/black_40" />
         </LinearLayout>
 
+        <View
+            android:id="@+id/vDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/black_5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/llAddressInfo" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

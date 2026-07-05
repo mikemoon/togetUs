@@ -36,6 +36,10 @@ class DeliveryRepository @Inject constructor(
         apiService.postDelivery(req)
     }
 
+    suspend fun editDelivery(deliveryId: Long, req: DeliveryRequest) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.editDelivery(deliveryId, req).boolValue
+    }
+
     suspend fun getDeliveryDetail(deliveryId: Long) = safeApiCall<DeliveryDetailResponse>(Dispatchers.IO){
         apiService.getDeliveryDetail(deliveryId)
     }
@@ -103,6 +107,14 @@ class DeliveryRepository @Inject constructor(
         apiService.getChatInProgressList(deliveryId)
     }
 
+    suspend fun rejectApply(deliveryId: Long, playerId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.rejectApply(deliveryId, mapOf("player_id" to playerId)).boolValue
+    }
+
+    suspend fun cancelSuggest(deliveryId: Long, playerId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.cancelSuggest(deliveryId, mapOf("player_id" to playerId)).boolValue
+    }
+
     suspend fun checkReview(deliveryId: Long, isPlayer: Boolean) = safeApiCall(Dispatchers.IO) {
         if (isPlayer) apiService.checkReviewPlayer(deliveryId) else apiService.checkReviewRequester(deliveryId)
     }
@@ -121,6 +133,22 @@ class DeliveryRepository @Inject constructor(
 
     suspend fun putApply(deliveryId: Long) = safeApiCall(Dispatchers.IO){
         apiService.putApply(deliveryId)
+    }
+
+    suspend fun putApplyCancel(deliveryId: Long) = safeApiCall(Dispatchers.IO) {
+        apiService.putApplyCancel(deliveryId)
+    }
+
+    suspend fun postLikeDelivery(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.postLikeDelivery(deliveryId)
+    }
+
+    suspend fun postUnlikeDelivery(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.postUnlikeDelivery(deliveryId)
+    }
+
+    suspend fun putPlayerChat(deliveryId: Long) = safeApiCall(Dispatchers.IO) {
+        apiService.putPlayerChat(deliveryId)
     }
 
     fun getDeliveryPagingFlow(type: String, title: String) =

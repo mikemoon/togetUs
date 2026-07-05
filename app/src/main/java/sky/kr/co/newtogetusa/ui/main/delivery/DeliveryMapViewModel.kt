@@ -99,8 +99,17 @@ class DeliveryMapViewModel @Inject constructor(baseViewModelDependenciesFactory:
     fun fetchAddress(lat: Double, lng: Double) {
         viewModelScope.launch {
             runCatching { kakaoRepo.getAddressFromCoord(lat, lng) }
-                .onSuccess { _address.value = it?.roadAddress }
-                .onFailure { _address.value = null }
+                .onSuccess {
+                    val address = it?.roadAddress?.takeIf { roadAddress -> roadAddress.isNotBlank() }
+                        ?: it?.name?.takeIf { name -> name.isNotBlank() }
+                        ?: it?.subtitle?.takeIf { subtitle -> subtitle.isNotBlank() }
+                    if (!address.isNullOrBlank()) {
+                        _address.value = address
+                    }
+                }
+                .onFailure {
+                    Timber.e(it, "fetchAddress failed")
+                }
         }
     }
 

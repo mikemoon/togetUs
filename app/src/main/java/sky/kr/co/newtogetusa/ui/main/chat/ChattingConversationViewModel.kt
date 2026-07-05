@@ -23,14 +23,13 @@ import sky.kr.co.newtogetusa.chat.MessageCallbackManager
 import sky.kr.co.newtogetusa.chat.MessageHandler
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatAttachUploadResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatMessageDto
 import sky.kr.co.newtogetusa.repository.ChatRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
-import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
-import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -43,7 +42,6 @@ class ChattingConversationViewModel @Inject constructor(
     private val chatClient: ChatClient,
     private val callbackManager: MessageCallbackManager,
     private val chatRepository: ChatRepository,
-    private val deliveryRepository: DeliveryRepository,
     private val userRepository: UserRepository,
     baseViewModelFactory: BaseViewModelDependenciesFactory
 ) : BaseViewModel(baseViewModelFactory.create()), MessageHandler {
@@ -65,8 +63,12 @@ class ChattingConversationViewModel @Inject constructor(
     val deliveryTitleFlow = MutableStateFlow("")
     val deliveryStatusFlow = MutableStateFlow("")
     val deliveryFeeFlow = MutableStateFlow("")
+    val deliveryFeeVisibleFlow = MutableStateFlow(false)
     val deliveryImageFlow = MutableStateFlow<String?>(null)
+    val deliveryIdFlow = MutableStateFlow(0L)
     val isBlockedFlow = MutableStateFlow(false)
+    val isNotificationOnFlow = MutableStateFlow(true)
+    val isReportedFlow = MutableStateFlow(false)
 
     init {
         callbackManager.registerCallback(this)
@@ -151,34 +153,37 @@ class ChattingConversationViewModel @Inject constructor(
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
                 isBlockedFlow.value = room.data.is_blocked
+                isNotificationOnFlow.value = room.data.is_noti_on
+                isReportedFlow.value = room.data.is_reported
                 partnerReadMessageId = max(
                     room.data.read_msg_id.toLong(),
                     room.data.partner_read_msg_id.toLong()
                 )
-                val roomDelivery = room.data.delivery ?: return
+                deliveryTitleFlow.value = room.data.room_name
+                deliveryFeeFlow.value = ""
+                deliveryFeeVisibleFlow.value = false
+                val roomDelivery = room.data.delivery ?: run {
+                    deliveryIdFlow.value = 0L
+                    deliveryStatusFlow.value = ""
+                    deliveryImageFlow.value = null
+                    return
+                }
+                deliveryIdFlow.value = roomDelivery.delivery_id.toLong()
                 deliveryStatusFlow.value = roomDelivery.status_cd
-                val deliveryId = roomDelivery.delivery_id.toLong()
-                if (deliveryId > 0L) loadDeliveryHeader(deliveryId)
+                deliveryImageFlow.value = roomDelivery.prd_picture
             }
             else -> {}
         }
     }
 
-    private suspend fun loadDeliveryHeader(deliveryId: Long) {
-        when (val delivery = deliveryRepository.getDeliveryDetail(deliveryId)) {
-            is ResultWrapper.Success -> {
-                deliveryTitleFlow.value = delivery.data.title
-                deliveryStatusFlow.value = delivery.data.status_cd
-                deliveryFeeFlow.value = delivery.data.fee.fee_final.toWon()
-                deliveryImageFlow.value = delivery.data.product.pictures.firstOrNull()
-            }
-            else -> {}
-        }
-    }
+    fun setChatRoomNotificationOn() = runChatRoomSetting(
+        action = { chatRepository.chatRoomNotiOn(currentRoomId) },
+        success = Event.ChatRoomNotificationOn,
+    )
 
     fun setChatRoomNotificationOff() = runChatRoomSetting(
         action = { chatRepository.chatRoomNotiOff(currentRoomId) },
-        success = Event.ChatActionSuccess("채팅방의 알림이 꺼졌습니다."),
+        success = Event.ChatRoomNotificationOff,
     )
 
     fun blockChatRoom() = runChatRoomSetting(
@@ -253,29 +258,21 @@ class ChattingConversationViewModel @Inject constructor(
         if (base64.isBlank() || currentRoomId <= 0) return
 
         viewModelScope.launch {
-            val messagePointerId = System.currentTimeMillis()
-            val attachUrl = uploadAttach(base64, mimeType, messagePointerId)
-            if (attachUrl.isNullOrBlank()) {
+            val localMessageId = System.currentTimeMillis()
+            val attach = uploadAttach(base64, mimeType, localMessageId)
+            if (attach == null || attach.url.isBlank()) {
                 _event.value = Event.ChatActionFailed("이미지 전송에 실패했습니다.")
                 return@launch
             }
-
-            withContext(Dispatchers.IO) {
-                chatClient.sendAttach(
-                    roomId = currentRoomId,
-                    mimeType = mimeType,
-                    url = attachUrl,
-                    messagePointerId = messagePointerId
-                )
-            }
             addMessage(
                 ChatMessage(
-                    id = -messagePointerId,
-                    messagePointerId = messagePointerId,
-                    sender = "me",
-                    content = attachUrl,
+                    id = attach.msg_id.takeIf { it > 0 } ?: -localMessageId,
+                    messagePointerId = attach.msg_ptr_id,
+                    sender = attach.send_uname.ifBlank { "me" },
+                    content = attach.url,
                     messageType = MESSAGE_TYPE_IMAGE,
-                    messageImageUrl = attachUrl,
+                    messageImageUrl = attach.url,
+                    timestamp = attach.send_date.toTimestamp(),
                     isMyMessage = true,
                     isUnread = true
                 )
@@ -283,7 +280,7 @@ class ChattingConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun uploadAttach(base64: String, mimeType: String, messagePointerId: Long): String? {
+    private suspend fun uploadAttach(base64: String, mimeType: String, localMessageId: Long): ChatAttachUploadResponseDto? {
         val bytes = runCatching { Base64.decode(base64, Base64.NO_WRAP) }.getOrNull() ?: return null
         val extension = when {
             mimeType.contains("png", ignoreCase = true) -> "png"
@@ -293,11 +290,11 @@ class ChattingConversationViewModel @Inject constructor(
         val body = bytes.toRequestBody(mimeType.toMediaType())
         val part = MultipartBody.Part.createFormData(
             name = "file",
-            filename = "chat_${messagePointerId}.$extension",
+            filename = "chat_${localMessageId}.$extension",
             body = body
         )
-        return when (val response = chatRepository.uploadChatAttach(currentRoomId, messagePointerId, part)) {
-            is ResultWrapper.Success -> response.data.url
+        return when (val response = chatRepository.uploadChatAttach(currentRoomId, 0, part)) {
+            is ResultWrapper.Success -> response.data
             is ResultWrapper.GenericError -> {
                 Timber.e("uploadChatAttach error ${response.code}: ${response.message}")
                 null
@@ -470,6 +467,7 @@ class ChattingConversationViewModel @Inject constructor(
         object Back : Event()
         object PhoneCall : Event()
         object More : Event()
+        object DeliveryDetail : Event()
         data class MessageImageSelect(val url: String) : Event()
         data class MessageVideoSelect(val url: String) : Event()
         data class MessageResend(val id: Long) : Event()
@@ -481,6 +479,8 @@ class ChattingConversationViewModel @Inject constructor(
         object InputMovie : Event()
         data class ChatActionSuccess(val message: String) : Event()
         data class ChatActionFailed(val message: String) : Event()
+        object ChatRoomNotificationOn : Event()
+        object ChatRoomNotificationOff : Event()
         object ChatRoomBlocked : Event()
         object ChatRoomUnblocked : Event()
         object ChatRoomExited : Event()
@@ -488,6 +488,7 @@ class ChattingConversationViewModel @Inject constructor(
 
     private fun ChatMessageDto.toChatMessage(): ChatMessage {
         val messageType = resolveMessageType(mimetype, msg)
+        val isSystem = send_uid == 0L || msg.isCompanionSupportNotice()
         return ChatMessage(
             id = msg_id,
             messagePointerId = msg_ptr_id,
@@ -497,14 +498,16 @@ class ChattingConversationViewModel @Inject constructor(
             messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) msg.toDisplayMediaSource(mimetype) else null,
             messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) msg.toDisplayMediaSource(mimetype) else null,
             timestamp = send_date.toTimestamp(),
-            isMyMessage = send_uid != 0L && send_uid == myUserId,
-            isUnread = send_uid != 0L && send_uid == myUserId && msg_id > partnerReadMessageId
+            isMyMessage = !isSystem && send_uid == myUserId,
+            isUnread = !isSystem && send_uid == myUserId && msg_id > partnerReadMessageId,
+            isSystem = isSystem
         )
     }
 
     private fun MqttMessagePayload.toChatMessage(category: String): ChatMessage {
         val messageType = resolveMessageType(mimeType, message, category)
         val resolvedMessageId = if (messageId > 0) messageId else System.currentTimeMillis()
+        val isSystem = senderUserId == 0L || message.isCompanionSupportNotice()
         return ChatMessage(
             id = resolvedMessageId,
             messagePointerId = messagePointerId,
@@ -516,9 +519,14 @@ class ChattingConversationViewModel @Inject constructor(
             messageImageUrl = if (messageType == MESSAGE_TYPE_IMAGE) message.toDisplayMediaSource(mimeType) else null,
             messageVieoUrl = if (messageType == MESSAGE_TYPE_VIDEO) message.toDisplayMediaSource(mimeType) else null,
             timestamp = sendDate?.toTimestamp() ?: System.currentTimeMillis(),
-            isMyMessage = senderUserId != 0L && senderUserId == myUserId,
-            isUnread = senderUserId != 0L && senderUserId == myUserId && resolvedMessageId > partnerReadMessageId
+            isMyMessage = !isSystem && senderUserId == myUserId,
+            isUnread = !isSystem && senderUserId == myUserId && resolvedMessageId > partnerReadMessageId,
+            isSystem = isSystem
         )
+    }
+
+    private fun String.isCompanionSupportNotice(): Boolean {
+        return contains("동행지원하셨습니다") || contains("동행 지원하셨습니다")
     }
 
     private fun String.toFallbackMessageType(): Int {

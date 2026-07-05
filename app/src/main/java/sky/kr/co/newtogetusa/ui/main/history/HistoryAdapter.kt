@@ -39,7 +39,11 @@ class HistoryAdapter(
             binding.item = item
             binding.viewModel = viewModel
             binding.root.setOnClickListener { onItemClick(item) }
-            binding.ivProduct.loadImage(item.prd_picture, error = R.drawable.no_img)
+            binding.ivProduct.loadImage(
+                item.prd_picture,
+                error = R.drawable.no_img,
+                roundedCorner = 4.dpToPx()
+            )
 
             updateBottomButtons(item)
         }

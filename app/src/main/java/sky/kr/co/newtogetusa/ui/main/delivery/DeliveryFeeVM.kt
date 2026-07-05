@@ -24,12 +24,14 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
         val isAgreeChecked = MutableStateFlow(false)
+        val registerButtonEnabled = MutableStateFlow(false)
 
     private val deliveryIdFlow = MutableStateFlow<Long?>(null)
 
     private val distanceKm = MutableStateFlow<String?>(null)
     private val productWeight = MutableStateFlow<String?>(null)
     private val feeValue = MutableStateFlow<Long?>(null)
+    private val adjustFeeValue = MutableStateFlow<Long?>(null)
 
     fun setDistance(distance: String) {
         distanceKm.value = distance
@@ -58,11 +60,27 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
         when(res){
             is ResultWrapper.Success -> {
                 feeValue.value = res.data.feeFinal.toLong()
+                adjustFeeValue.value = res.data.feeAdjust.toLong()
             }
             is ResultWrapper.GenericError ->{
             }
             is ResultWrapper.NetworkError ->{
             }
+        }
+        loadingState.value = false
+    }
+
+    fun loadDeliveryFeeForEdit(deliveryId: Long) = viewModelScope.launch {
+        deliveryIdFlow.value = deliveryId
+        loadingState.value = true
+        when (val res = deliveryRepository.getDeliveryFee(deliveryId)) {
+            is ResultWrapper.Success -> {
+                feeValue.value = res.data.feeFinal.toLong()
+                adjustFeeValue.value = res.data.feeAdjust.toLong()
+                distanceKm.value = "${res.data.expectedStraight} km"
+                productWeight.value = res.data.expectedWeightCd
+            }
+            else -> Unit
         }
         loadingState.value = false
     }
@@ -98,8 +116,9 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
     val deliveryUiModel = combine(
         distanceKm,
         productWeight,
-        feeValue
-    ) { distance, weight, fee ->
+        feeValue,
+        adjustFeeValue
+    ) { distance, weight, fee, adjustFee ->
 
         if (distance == null || weight == null || fee == null) {
             null
@@ -107,13 +126,19 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
             DeliveryFeeUiModel(
                 distance = distance,
                 weight = weight,
-                fee = "%,d원".format(fee)
+                fee = "%,d원".format(fee),
+                adjustFee = (adjustFee ?: 0L).toString()
             )
         }
     }
 
     fun onAgree(){
         isAgreeChecked.value = !isAgreeChecked.value
+        registerButtonEnabled.value = isAgreeChecked.value
+    }
+
+    fun setRegisterButtonEnabled(enabled: Boolean) {
+        registerButtonEnabled.value = enabled
     }
 
     private val _event = SingleLiveEvent<Event>()
@@ -131,5 +156,6 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
 data class DeliveryFeeUiModel(
     val distance: String,
     val weight: String,
-    val fee: String
+    val fee: String,
+    val adjustFee: String
 )

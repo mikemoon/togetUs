@@ -23,14 +23,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.NavGraphDirections
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.MainViewModel
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreDialog
+import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.ImageUtil
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import sky.kr.co.newtogetusa.utils.hideKeyboard
 import sky.kr.co.newtogetusa.utils.loadImage
+import sky.kr.co.newtogetusa.utils.showKeyboard
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -49,6 +54,7 @@ class ChattingConversationFragment :
     private var hasLoadedInitialMessages = false
     private var lastDisplayedMessageId: Long? = null
     private var lastUnreadRefreshMessageId: Long = 0
+    private var isInputToolsOpen = false
     private var pendingMediaType: PendingMediaType = PendingMediaType.IMAGE
 
     // 카메라를 실행한 후 찍은 사진을 저장
@@ -92,6 +98,7 @@ class ChattingConversationFragment :
         dataBinding.ivProduct.setImageResource(R.drawable.no_img)
 
         setupRecyclerView()
+        setupInputControls()
     }
 
 
@@ -100,8 +107,13 @@ class ChattingConversationFragment :
 
         viewModel.messages.observe(viewLifecycleOwner) { messages ->
             val wasAtBottom = isMessageListAtBottom()
-            val shouldScrollToBottom = !hasLoadedInitialMessages || wasAtBottom
             val newLastMessage = messages.lastOrNull()
+            val isNewOwnLatestMessage =
+                hasLoadedInitialMessages &&
+                    newLastMessage != null &&
+                    newLastMessage.id != lastDisplayedMessageId &&
+                    newLastMessage.isMyMessage
+            val shouldScrollToBottom = !hasLoadedInitialMessages || wasAtBottom || isNewOwnLatestMessage
             val shouldShowNewMessagePopup =
                 hasLoadedInitialMessages &&
                     !wasAtBottom &&
@@ -128,7 +140,12 @@ class ChattingConversationFragment :
                         if (imageUrl.isNullOrBlank()) {
                             dataBinding.ivProduct.setImageResource(R.drawable.no_img)
                         } else {
-                            dataBinding.ivProduct.loadImage(imageUrl, placeholder = R.drawable.no_img, error = R.drawable.no_img)
+                            dataBinding.ivProduct.loadImage(
+                                imageUrl,
+                                placeholder = R.drawable.no_img,
+                                error = R.drawable.no_img,
+                                roundedCorner = 4.dpToPx()
+                            )
                         }
                     }
                 }
@@ -151,10 +168,15 @@ class ChattingConversationFragment :
                         childFragmentManager,
                         BottomChatMoreDialog().apply {
                             isBlocked = this@ChattingConversationFragment.viewModel.isBlockedFlow.value
+                            isNotificationOn = this@ChattingConversationFragment.viewModel.isNotificationOnFlow.value
+                            isReported = this@ChattingConversationFragment.viewModel.isReportedFlow.value
                             reportAction = {
                                 this@ChattingConversationFragment.findNavController().navigate(
                                     ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingReportFragment(args.roomId)
                                 )
+                            }
+                            alarmOnAction = {
+                                this@ChattingConversationFragment.viewModel.setChatRoomNotificationOn()
                             }
                             alarmOffAction = {
                                 this@ChattingConversationFragment.viewModel.setChatRoomNotificationOff()
@@ -171,6 +193,9 @@ class ChattingConversationFragment :
                         }
                     )
                 }
+                ChattingConversationViewModel.Event.DeliveryDetail -> {
+                    openDeliveryDetail()
+                }
                 is ChattingConversationViewModel.Event.MessageImageSelect ->{
                     findNavController().navigate(ChattingConversationFragmentDirections.actionChattingConversationFragmentToChattingImageDetailFragment(event.url))
                 }
@@ -181,7 +206,7 @@ class ChattingConversationFragment :
                 is ChattingConversationViewModel.Event.MessageDelete -> viewModel.removeMessage(event.id)
 
                 ChattingConversationViewModel.Event.InputMore -> {
-                    dataBinding.clInputTools.isVisible = !dataBinding.clInputTools.isVisible
+                    toggleInputTools()
                 }
 
                 ChattingConversationViewModel.Event.InputSend -> {
@@ -205,6 +230,14 @@ class ChattingConversationFragment :
                 }
                 is ChattingConversationViewModel.Event.ChatActionSuccess -> requireContext().toast(event.message)
                 is ChattingConversationViewModel.Event.ChatActionFailed -> requireContext().toast(event.message)
+                ChattingConversationViewModel.Event.ChatRoomNotificationOn -> {
+                    requireContext().toast("채팅방의 알림이 켜졌습니다.")
+                    viewModel.isNotificationOnFlow.value = true
+                }
+                ChattingConversationViewModel.Event.ChatRoomNotificationOff -> {
+                    requireContext().toast("채팅방의 알림이 꺼졌습니다.")
+                    viewModel.isNotificationOnFlow.value = false
+                }
                 ChattingConversationViewModel.Event.ChatRoomBlocked -> {
                     requireContext().toast("채팅방이 차단되었습니다.")
                     findNavController().popBackStack()
@@ -220,6 +253,101 @@ class ChattingConversationFragment :
                 }
             }
         }
+    }
+
+    private fun openDeliveryDetail() {
+        val deliveryId = viewModel.deliveryIdFlow.value
+        if (deliveryId <= 0L) {
+            requireContext().toast("동행요청 정보를 확인할 수 없습니다.")
+            return
+        }
+
+        if (args.isPlayerRoom || mainViewModel.isPlayerModeFlow.value) {
+            findNavController().navigate(
+                NavGraphDirections.actionGlobalPlayerHistoryDetailFragment(deliveryId)
+            )
+        } else {
+            findNavController().navigate(
+                NavGraphDirections.actionGlobalHistoryDetailFragment(createDeliverySummary(deliveryId))
+            )
+        }
+    }
+
+    private fun createDeliverySummary(deliveryId: Long): DeliverySummaryDto {
+        return DeliverySummaryDto(
+            delivery_id = deliveryId,
+            requester_id = 0L,
+            player_id = null,
+            title = viewModel.deliveryTitleFlow.value,
+            status_cd = viewModel.deliveryStatusFlow.value,
+            prd_picture = viewModel.deliveryImageFlow.value,
+            depart_address = "",
+            dest_address = "",
+            pickup_immediately = false,
+            pickup_date = "",
+            fee_final = 0,
+            regist_date = null,
+            apply_date = null,
+            status_text = "",
+            price_text = "",
+            pickup_ui_date = "",
+            regist_date_text = ""
+        ).apply {
+            setStatusText()
+        }
+    }
+
+    private fun setupInputControls() {
+        dataBinding.editTextMessage.setOnClickListener {
+            if (isInputToolsOpen) {
+                setInputToolsOpen(open = false, showKeyboard = false)
+            }
+        }
+        dataBinding.editTextMessage.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && isInputToolsOpen) {
+                setInputToolsOpen(open = false, showKeyboard = false)
+            }
+        }
+    }
+
+    private fun toggleInputTools() {
+        if (isInputToolsOpen) {
+            setInputToolsOpen(open = false, showKeyboard = true)
+        } else {
+            setInputToolsOpen(open = true, showKeyboard = false)
+        }
+    }
+
+    private fun setInputToolsOpen(open: Boolean, showKeyboard: Boolean) {
+        if (isInputToolsOpen == open && dataBinding.clInputTools.isVisible == open) {
+            if (showKeyboard) showSoftKeyboard()
+            return
+        }
+
+        isInputToolsOpen = open
+        dataBinding.clInputTools.isVisible = open
+        animatePlusButton(open)
+
+        if (open) {
+            dataBinding.editTextMessage.clearFocus()
+            requireContext().hideKeyboard(dataBinding.editTextMessage)
+        } else if (showKeyboard) {
+            showSoftKeyboard()
+        }
+    }
+
+    private fun showSoftKeyboard() {
+        dataBinding.editTextMessage.requestFocus()
+        dataBinding.editTextMessage.post {
+            requireContext().showKeyboard(dataBinding.editTextMessage)
+        }
+    }
+
+    private fun animatePlusButton(toClose: Boolean) {
+        dataBinding.ivPlus.animate()
+            .rotation(if (toClose) 45f else 0f)
+            .setDuration(PLUS_BUTTON_ANIMATION_MS)
+            .start()
     }
 
     private fun setupRecyclerView() {
@@ -293,7 +421,7 @@ class ChattingConversationFragment :
                 encodedImage == null -> requireContext().toast("이미지를 불러오지 못했습니다.")
                 encodedImage.byteSize > MAX_CHAT_IMAGE_BYTES -> requireContext().toast("이미지 용량이 너무 큽니다.")
                 else -> {
-                    dataBinding.clInputTools.isVisible = false
+                    setInputToolsOpen(open = false, showKeyboard = false)
                     viewModel.sendImage(encodedImage.base64, encodedImage.mime)
                 }
             }
@@ -355,6 +483,7 @@ class ChattingConversationFragment :
     private companion object {
         const val MAX_CHAT_IMAGE_BYTES = 100 * 1024 * 1024
         const val READ_REFRESH_DELAY_MS = 500L
+        const val PLUS_BUTTON_ANIMATION_MS = 300L
     }
 
     private enum class PendingMediaType {

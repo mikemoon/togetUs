@@ -82,10 +82,39 @@ class ChatInProgressViewModel @Inject constructor(
         _event.value = Event.OpenPayment(deliveryId, playerId)
     }
 
+    fun rejectApply(deliveryId: Long, playerId: Long) = viewModelScope.launch {
+        if (deliveryId <= 0L || playerId <= 0L) return@launch
+        loadingState.value = true
+        when (deliveryRepository.rejectApply(deliveryId, playerId)) {
+            is ResultWrapper.Success -> {
+                _event.value = Event.RejectSuccess
+                load(deliveryId)
+            }
+            else -> _event.value = Event.ActionFailed
+        }
+        loadingState.value = false
+    }
+
+    fun cancelSuggest(deliveryId: Long, playerId: Long) = viewModelScope.launch {
+        if (deliveryId <= 0L || playerId <= 0L) return@launch
+        loadingState.value = true
+        when (deliveryRepository.cancelSuggest(deliveryId, playerId)) {
+            is ResultWrapper.Success -> {
+                _event.value = Event.CancelSuggestSuccess
+                load(deliveryId)
+            }
+            else -> _event.value = Event.ActionFailed
+        }
+        loadingState.value = false
+    }
+
     sealed class Event {
         object Back : Event()
         object LoadFailed : Event()
         object SelectFailed : Event()
+        object ActionFailed : Event()
+        object RejectSuccess : Event()
+        object CancelSuggestSuccess : Event()
         data class OpenRoom(val roomId: Long) : Event()
         data class OpenPayment(val deliveryId: Long, val playerId: Long) : Event()
     }

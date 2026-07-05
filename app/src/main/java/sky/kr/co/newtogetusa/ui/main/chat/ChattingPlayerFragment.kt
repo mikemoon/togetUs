@@ -60,7 +60,8 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
                     Timber.d("ChattingSel")
                     findNavController().navigate(
                         ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment(
-                            event.item.roomId.toLong()
+                            event.item.roomId.toLong(),
+                            true
                         )
                     )
                 }
@@ -82,6 +83,15 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
                         val isEmpty = loadStates.refresh is LoadState.NotLoading && chatAdapter.itemCount == 0
                         dataBinding.llEmpty.isVisible = isEmpty
                         dataBinding.rvList.isVisible = !isEmpty
+                    }
+                }
+
+                launch {
+                    ChatRoomListUpdateBus.updates.collectLatest { update ->
+                        chatAdapter.applyRoomUpdate(update)
+                        if (update.message == null && update.date == null) {
+                            chatAdapter.refresh()
+                        }
                     }
                 }
             }
