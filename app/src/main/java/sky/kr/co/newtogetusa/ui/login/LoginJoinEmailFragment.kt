@@ -1,14 +1,22 @@
 package sky.kr.co.newtogetusa.ui.login
 
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginJoinEmailBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import sky.kr.co.newtogetusa.utils.hideLoading
+import sky.kr.co.newtogetusa.utils.showLoading
+import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
 class LoginJoinEmailFragment :
@@ -26,6 +34,14 @@ class LoginJoinEmailFragment :
 
     override fun initObserver() {
         super.initObserver()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.loadingState.collectLatest { isLoading ->
+                    if (isLoading) showLoading() else hideLoading()
+                }
+            }
+        }
 
         viewModel.verifyCodeText.observe(viewLifecycleOwner) { verifyCodeText ->
             if (verifyCodeText.length == 6) {
@@ -52,10 +68,13 @@ class LoginJoinEmailFragment :
                 }
 
                 is LoginJoinEmailViewModel.Event.RequestVerifyCode -> {
+                    viewModel.requestVerifyEmail(viewModel.emailText.value.toString())
+                }
+
+                is LoginJoinEmailViewModel.Event.VerifyEmailRequested -> {
                     viewModel.verifyLayoutMode.value = true
                     viewModel.titleText.value = "이메일로 받은 인증번호를 입력해 주세요"
                     viewModel.startTimeout()
-                    viewModel.requestVerifyEmail(viewModel.emailText.value.toString())
                 }
 
                 is LoginJoinEmailViewModel.Event.ReSend -> {
@@ -63,13 +82,20 @@ class LoginJoinEmailFragment :
                         childFragmentManager,
                         MessageDialog.newInstance(
                             msgTitle = "인증번호를 다시 발송할까요?",
-                            msg = "요청 가능 횟수가 4회 남았어요.",
+                            msg = viewModel.resendRemainingMessage(),
                             rightBtn = "재요청",
                             leftBtn = "아니오"
                         ).onRightBtn {
-                            viewModel.startTimeout()
+                            viewModel.requestVerifyEmail(
+                                viewModel.emailText.value.toString(),
+                                isResend = true
+                            )
                         }
                     )
+                }
+
+                is LoginJoinEmailViewModel.Event.ShowMessage -> {
+                    requireContext().toast(it.message)
                 }
 
             }

@@ -17,16 +17,16 @@ import javax.inject.Inject
 @HiltViewModel
 class DeliveryPickupViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory): BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
-    val isImmediately = MutableStateFlow(false)
+    val isImmediately = MutableStateFlow(true)
     val isFaceToFace = MutableStateFlow(true)
     val pickupDate = MutableStateFlow("")
     val pickupTime = MutableStateFlow("")
 
     val isConfirmButtonEnable: StateFlow<Boolean> =
-        combine(pickupDate, pickupTime) { date, time ->
-            date.isNotBlank() && time.isNotBlank()
+        combine(isImmediately, pickupDate, pickupTime) { isImmediately, date, time ->
+            isImmediately || (date.isNotBlank() && time.isNotBlank())
         }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, true)
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event){

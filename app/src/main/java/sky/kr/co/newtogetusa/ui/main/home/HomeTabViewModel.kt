@@ -39,7 +39,7 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     val mapShowState = MutableStateFlow<MapShow>(MapShow.GOOGLE_MAP)
     val unreadNotificationCount = MutableStateFlow(0)
     val unreadNotificationText = MutableStateFlow("")
-    val locationAlarmOn = MutableStateFlow(true)
+    val locationAlarmOn = MutableStateFlow(false)
     private var hasHomeRefreshStarted = false
 
     init {
@@ -170,11 +170,7 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     }
 
     private fun syncLocationAlarmState() = viewModelScope.launch {
-        val playerId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
-            ?.user
-            ?.player_id
-            ?.takeIf { it > 0 }
-            ?: return@launch
+        val playerId = resolvePlayerId() ?: return@launch
 
         when (val res = playerRepository.getProfile(playerId)) {
             is ResultWrapper.Success -> locationAlarmOn.value = res.data.gps_area
@@ -183,10 +179,9 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     }
 
     fun toggleLocationAlarm() = viewModelScope.launch {
-        val playerId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
-            ?.user
-            ?.player_id
-            ?.takeIf { it > 0 }
+        if (loadingState.value) return@launch
+
+        val playerId = resolvePlayerId()
         if (playerId == null) {
             _event.value = Event.LocationAlarmFailed
             return@launch
@@ -194,27 +189,48 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
 
         val next = !locationAlarmOn.value
         loadingState.value = true
-        when (val res = playerRepository.setPlayerGpsEnable(playerId, next)) {
-            is ResultWrapper.Success -> {
-                if (res.data.boolValue) {
-                    locationAlarmOn.value = next
-                    _event.value = Event.LocationAlarmChanged(next)
-                } else {
+        try {
+            when (val res = playerRepository.setPlayerGpsEnable(playerId, next)) {
+                is ResultWrapper.Success -> {
+                    if (res.data) {
+                        locationAlarmOn.value = next
+                        loadingState.value = false
+                        _event.value = Event.LocationAlarmChanged(next)
+                    } else {
+                        loadingState.value = false
+                        _event.value = Event.LocationAlarmFailed
+                    }
+                }
+                else -> {
+                    syncLocationAlarmState()
+                    loadingState.value = false
                     _event.value = Event.LocationAlarmFailed
                 }
             }
-            else -> _event.value = Event.LocationAlarmFailed
+        } finally {
+            loadingState.value = false
         }
-        loadingState.value = false
     }
 
     fun refreshLocationAlarm(latitude: Double, longitude: Double) = viewModelScope.launch {
-        val playerId = dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
+        val playerId = resolvePlayerId() ?: return@launch
+        playerRepository.refreshPlayerGps(playerId, latitude, longitude)
+    }
+
+    private suspend fun resolvePlayerId(): Int? {
+        dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)
             ?.user
             ?.player_id
             ?.takeIf { it > 0 }
-            ?: return@launch
-        playerRepository.refreshPlayerGps(playerId, latitude, longitude)
+            ?.let { return it }
+
+        return when (val response = userRepository.getMyProfile()) {
+            is ResultWrapper.Success -> {
+                dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, response.data)
+                response.data.user.player_id.takeIf { it > 0 }
+            }
+            else -> null
+        }
     }
 
     val bannerList = MutableStateFlow<List<BannerDto>?>(null)

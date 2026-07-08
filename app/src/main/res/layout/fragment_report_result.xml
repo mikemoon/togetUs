@@ -126,12 +126,11 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/btnReceivedReview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/bottom_cta_height"
             android:layout_marginBottom="20dp"
             android:background="@drawable/background_s_p100_r4"
             android:gravity="center"
             android:onClick="@{()->viewModel.onReceivedReviewClick()}"
-            android:paddingVertical="14dp"
             android:text="받은 후기 보기"
             android:textColor="@color/white" />
 

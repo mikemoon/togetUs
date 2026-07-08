@@ -52,7 +52,7 @@
             android:id="@+id/btnSave"
             style="@style/Paragraph16B"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="@dimen/bottom_cta_height"
             android:layout_margin="20dp"
             android:background="@drawable/background_s_p100_r4"
             android:gravity="center"

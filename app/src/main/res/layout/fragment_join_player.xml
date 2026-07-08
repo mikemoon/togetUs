@@ -49,6 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
+                    android:onClick="@{()->viewModel.onEventClick(Event.Cancel.INSTANCE)}"
                     android:text="취소"
                     android:textColor="@color/black_60"
                     app:layout_constraintBottom_toBottomOf="parent"

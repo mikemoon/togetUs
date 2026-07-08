@@ -1,11 +1,17 @@
 package sky.kr.co.newtogetusa.ui
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +32,7 @@ import sky.kr.co.newtogetusa.auth.AuthSessionManager
 import sky.kr.co.newtogetusa.chat.ChatClient
 import sky.kr.co.newtogetusa.databinding.ActivityMainBinding
 import sky.kr.co.newtogetusa.ui.base.BaseActivity
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
@@ -49,6 +56,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     private var backKeyPressedTime: Long = 0
     private val finishDelayTime = 2000
+    private var hasCheckedNotificationSettings = false
+    private var isNotificationSettingsDialogShowing = false
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted || !areAppNotificationsEnabled()) {
+                showNotificationSettingsDialog()
+            }
+        }
 
     private val mainTabFragments = setOf(
         R.id.homeTabFragment, R.id.searchFragment, R.id.historyFragment, R.id.chattingTabFragment, R.id.myFragment, R.id.deliveryRequestSearchFragment,
@@ -154,6 +170,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     override fun onResume() {
         super.onResume()
         viewModel.refreshChatUnread()
+        checkAppNotificationSettingsIfNeeded()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -233,29 +250,79 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
     private fun handlePushIntent(intent: Intent?) {
         if (!::navController.isInitialized) return
+        val openHomeFromPush = intent?.getBooleanExtra(EXTRA_OPEN_HOME_FROM_PUSH, false) == true
         val pushType = intent?.getStringExtra(EXTRA_PUSH_TYPE).orEmpty()
         val roomId = intent?.getLongExtra(EXTRA_PUSH_ROOM_ID, -1L) ?: -1L
-        if (pushType != PUSH_TYPE_CHAT || roomId <= 0L) return
+        val isLegacyChatPush = pushType == PUSH_TYPE_CHAT && roomId > 0L
+        if (!openHomeFromPush && !isLegacyChatPush) return
 
+        intent?.removeExtra(EXTRA_OPEN_HOME_FROM_PUSH)
         intent?.removeExtra(EXTRA_PUSH_TYPE)
         intent?.removeExtra(EXTRA_PUSH_ROOM_ID)
 
         runCatching {
-            dataBinding.bottomNavigation.selectedItemId = R.id.chat
-            navController.popBackStack(R.id.chattingTabFragment, false)
-            navController.navigate(
-                R.id.chattingConversationFragment,
-                bundleOf("roomId" to roomId)
-            )
+            navigateToHomeTabRoot()
         }.onFailure {
-            Timber.e(it, "Failed to open chat room from push roomId=$roomId")
+            Timber.e(it, "Failed to navigate home from push")
+        }
+    }
+
+    private fun checkAppNotificationSettingsIfNeeded() {
+        if (hasCheckedNotificationSettings) return
+        hasCheckedNotificationSettings = true
+
+        if (areAppNotificationsEnabled()) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            showNotificationSettingsDialog()
+        }
+    }
+
+    private fun areAppNotificationsEnabled(): Boolean =
+        NotificationManagerCompat.from(this).areNotificationsEnabled()
+
+    private fun showNotificationSettingsDialog() {
+        if (isFinishing || isDestroyed || isNotificationSettingsDialogShowing) return
+        isNotificationSettingsDialogShowing = true
+
+        MessageDialog.newInstance(
+            msgTitle = "알림 설정",
+            msg = "동행 요청, 채팅, 매칭 상태 알림을 받으려면 시스템 설정에서 앱 알림을 켜주세요.",
+            leftBtn = "나중에",
+            rightBtn = "설정으로 이동",
+        ).onLeftBtn {
+            isNotificationSettingsDialogShowing = false
+        }.onRightBtn {
+            isNotificationSettingsDialogShowing = false
+            openAppNotificationSettings()
+        }.show(supportFragmentManager, NOTIFICATION_SETTINGS_DIALOG_TAG)
+    }
+
+    private fun openAppNotificationSettings() {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        }
+        runCatching {
+            startActivity(intent)
+        }.onFailure {
+            startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+            )
         }
     }
 
     companion object {
+        const val EXTRA_OPEN_HOME_FROM_PUSH = "extra_open_home_from_push"
         const val EXTRA_PUSH_TYPE = "extra_push_type"
         const val EXTRA_PUSH_ROOM_ID = "extra_push_room_id"
         private const val PUSH_TYPE_CHAT = "chat"
+        private const val NOTIFICATION_SETTINGS_DIALOG_TAG = "NotificationSettingsDialog"
     }
 
 }

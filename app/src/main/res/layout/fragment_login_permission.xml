@@ -143,7 +143,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvConfirm"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="@dimen/bottom_cta_height"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="20dp"

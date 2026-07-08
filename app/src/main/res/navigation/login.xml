@@ -45,12 +45,16 @@
         <argument android:name="termsList" app:argType="string[]"  />
         <action
             android:id="@+id/action_loginNicknameFragment_to_loginStartFragment"
-            app:destination="@id/loginStartFragment" />
+            app:destination="@id/loginStartFragment" >
+            <argument android:name="nickname" app:argType="string" android:defaultValue="" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/loginStartFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginStartFragment"
-        android:label="LoginStartFragment" />
+        android:label="LoginStartFragment" >
+        <argument android:name="nickname" app:argType="string" android:defaultValue="" />
+    </fragment>
     <fragment
         android:id="@+id/loginEmailFragment"
         android:name="sky.kr.co.newtogetusa.ui.login.LoginEmailFragment"

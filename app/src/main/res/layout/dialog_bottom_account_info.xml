@@ -25,48 +25,47 @@
             android:textColor="@color/black_80" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:layout_marginTop="20dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/icon_route_route" />
-
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvBankName"
                 style="@style/Paragraph14B"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="토스뱅크"
+                android:text=""
                 android:textColor="@color/black_80" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvAccountNumber"
+            style="@style/Paragraph16B"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_margin="20dp"
             android:background="@drawable/background_st_b10_s_b2_r4"
             android:enabled="false"
-            android:hint="1234567890"
+            android:gravity="center_vertical"
             android:padding="16dp"
-            android:textColorHint="@color/black_20" />
+            android:text=""
+            android:textColor="@color/black_80" />
     
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="58dp"
+            android:layout_height="@dimen/bottom_cta_height"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="20dp"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnReset"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:paddingHorizontal="20dp"
-                android:paddingVertical="16dp"
                 android:text="다시 설정"
                 android:textColor="@color/black_80"
                 style="@style/HeadLine20B"
@@ -74,10 +73,10 @@
                 />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btnConfirm"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:paddingHorizontal="20dp"
-                android:paddingVertical="16dp"
                 android:layout_marginStart="12dp"
                 android:text="확인 완료"
                 android:textColor="@color/white"

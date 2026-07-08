@@ -29,9 +29,11 @@ class SearchVoiceDialogFragment : DialogFragment() {
     private val handler = Handler(Looper.getMainLooper())
     private var lastRecognizedText = ""
     private var onRecognized: ((String) -> Unit)? = null
+    private var isRecognizerReleased = false
 
     private val requestAudioPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!canUpdateUi()) return@registerForActivityResult
             if (granted) {
                 startListening()
             } else {
@@ -40,11 +42,13 @@ class SearchVoiceDialogFragment : DialogFragment() {
         }
 
     private val noInputTimeoutRunnable = Runnable {
+        if (!canUpdateUi()) return@Runnable
         stopListening()
         showFailedState()
     }
 
     private val silenceTimeoutRunnable = Runnable {
+        if (!canUpdateUi()) return@Runnable
         if (lastRecognizedText.isNotBlank()) {
             completeRecognition(lastRecognizedText)
         } else {
@@ -60,6 +64,7 @@ class SearchVoiceDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        isRecognizerReleased = false
         _binding = DialogVoiceSearchBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -75,8 +80,8 @@ class SearchVoiceDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.btnCancel.setOnClickListener {
-            stopListening()
-            dismiss()
+            releaseSpeechRecognizer()
+            dismissAllowingStateLoss()
         }
         binding.btnRetry.setOnClickListener {
             lastRecognizedText = ""
@@ -86,9 +91,7 @@ class SearchVoiceDialogFragment : DialogFragment() {
     }
 
     override fun onDestroyView() {
-        stopListening()
-        speechRecognizer?.destroy()
-        speechRecognizer = null
+        releaseSpeechRecognizer()
         _binding = null
         super.onDestroyView()
     }
@@ -99,13 +102,16 @@ class SearchVoiceDialogFragment : DialogFragment() {
     }
 
     private fun startWithPermission() {
-        if (!SpeechRecognizer.isRecognitionAvailable(requireContext())) {
+        val context = context ?: return
+        if (!canUpdateUi()) return
+
+        if (!SpeechRecognizer.isRecognitionAvailable(context)) {
             showFailedState()
             return
         }
 
         val permissionState = ContextCompat.checkSelfPermission(
-            requireContext(),
+            context,
             Manifest.permission.RECORD_AUDIO
         )
         if (permissionState == PackageManager.PERMISSION_GRANTED) {
@@ -116,13 +122,18 @@ class SearchVoiceDialogFragment : DialogFragment() {
     }
 
     private fun startListening() {
-        stopListening()
-        showListeningState()
+        val context = context ?: return
+        if (!canUpdateUi()) return
 
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext()).apply {
+        releaseSpeechRecognizer()
+        showListeningState()
+        isRecognizerReleased = false
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
             setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) = Unit
                 override fun onBeginningOfSpeech() {
+                    if (!canUpdateUi()) return
                     handler.removeCallbacks(noInputTimeoutRunnable)
                 }
                 override fun onRmsChanged(rmsdB: Float) = Unit
@@ -130,6 +141,7 @@ class SearchVoiceDialogFragment : DialogFragment() {
                 override fun onEndOfSpeech() = Unit
 
                 override fun onError(error: Int) {
+                    if (!canUpdateUi()) return
                     if (lastRecognizedText.isNotBlank()) {
                         completeRecognition(lastRecognizedText)
                     } else {
@@ -138,6 +150,7 @@ class SearchVoiceDialogFragment : DialogFragment() {
                 }
 
                 override fun onResults(results: Bundle?) {
+                    if (!canUpdateUi()) return
                     val text = results.firstSpeechText()
                     if (text.isNotBlank()) {
                         completeRecognition(text)
@@ -147,6 +160,7 @@ class SearchVoiceDialogFragment : DialogFragment() {
                 }
 
                 override fun onPartialResults(partialResults: Bundle?) {
+                    if (!canUpdateUi()) return
                     val text = partialResults.firstSpeechText()
                     if (text.isNotBlank() && text != lastRecognizedText) {
                         lastRecognizedText = text
@@ -177,22 +191,36 @@ class SearchVoiceDialogFragment : DialogFragment() {
     private fun stopListening() {
         handler.removeCallbacks(noInputTimeoutRunnable)
         handler.removeCallbacks(silenceTimeoutRunnable)
-        speechRecognizer?.stopListening()
-        speechRecognizer?.cancel()
+        if (!isRecognizerReleased) {
+            runCatching { speechRecognizer?.stopListening() }
+            runCatching { speechRecognizer?.cancel() }
+        }
+    }
+
+    private fun releaseSpeechRecognizer() {
+        handler.removeCallbacks(noInputTimeoutRunnable)
+        handler.removeCallbacks(silenceTimeoutRunnable)
+        if (isRecognizerReleased) return
+
+        isRecognizerReleased = true
+        runCatching { speechRecognizer?.cancel() }
+        runCatching { speechRecognizer?.destroy() }
+        speechRecognizer = null
     }
 
     private fun completeRecognition(text: String) {
-        stopListening()
         val recognized = text.trim()
         if (recognized.isBlank()) {
             showFailedState()
             return
         }
-        dismiss()
+        releaseSpeechRecognizer()
+        dismissAllowingStateLoss()
         onRecognized?.invoke(recognized)
     }
 
     private fun showListeningState() {
+        val binding = _binding ?: return
         binding.tvTitle.text = "듣고 있어요"
         binding.tvSubtitle.text = "장소나 주소를 말씀해 주세요."
         binding.tvStatus.text = "음성 인식 진행 중..."
@@ -203,6 +231,7 @@ class SearchVoiceDialogFragment : DialogFragment() {
     }
 
     private fun showFailedState() {
+        val binding = _binding ?: return
         stopListening()
         binding.tvTitle.text = "인식하지 못했어요"
         binding.tvSubtitle.text = "잘 알아듣지 못했어요.\n조금 더 크고 또렷하게 말씀해 주세요."
@@ -211,6 +240,9 @@ class SearchVoiceDialogFragment : DialogFragment() {
         binding.tvStatus.isVisible = false
         binding.llButtons.isVisible = true
     }
+
+    private fun canUpdateUi(): Boolean =
+        _binding != null && isAdded && !isStateSaved && !isRecognizerReleased
 
     private fun Bundle?.firstSpeechText(): String {
         return this

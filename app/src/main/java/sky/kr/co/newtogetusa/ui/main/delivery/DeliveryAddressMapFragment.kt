@@ -39,6 +39,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.local.model.GoogleMapSearchModel
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryAddressMapBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.KakaoMapSupport
 import timber.log.Timber
 import java.lang.Exception
 import java.util.Locale
@@ -72,7 +73,7 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
     override fun init() {
         super.init()
 
-        viewModel.isInternationalDelivery.value = args.isInternational
+        viewModel.isInternationalDelivery.value = args.isInternational || !KakaoMapSupport.isAvailable
 
         if(viewModel.isInternationalDelivery.value){
             setupGoogleMap()

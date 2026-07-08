@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
+import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
@@ -22,6 +23,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
+import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaLocationRequest
 import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
@@ -216,6 +218,96 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         }
     }
 
+    fun setPlayerGpsEnable(enable: Boolean, result: (Boolean) -> Unit = {}) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch result(false)
+        loadingState.value = true
+        val success = playerRepository.setPlayerGpsEnable(playerId, enable) is ResultWrapper.Success
+        loadingState.value = false
+        result(success)
+    }
+
+    fun deletePlayerArea(areaId: Int, result: (Boolean) -> Unit = {}) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch result(false)
+        loadingState.value = true
+        val success = playerRepository.deletePlayerArea(playerId, areaId) is ResultWrapper.Success
+        loadingState.value = false
+        result(success)
+    }
+
+    fun savePlayerBasicAreas(
+        areas: List<PlayerBasicAreaEdit>,
+        removedAreaIds: List<Int>,
+        result: (Boolean) -> Unit = {}
+    ) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch result(false)
+        loadingState.value = true
+
+        for (areaId in removedAreaIds) {
+            if (playerRepository.deletePlayerArea(playerId, areaId) !is ResultWrapper.Success) {
+                loadingState.value = false
+                result(false)
+                return@launch
+            }
+        }
+
+        for (area in areas) {
+            val depart = area.depart ?: continue
+            val dest = area.dest ?: continue
+            val departRadius = area.departRadius ?: continue
+            val destRadius = area.destRadius ?: continue
+            val areaId = area.areaId
+
+            if (areaId != null && area.addressChanged) {
+                if (playerRepository.deletePlayerArea(playerId, areaId) !is ResultWrapper.Success) {
+                    loadingState.value = false
+                    result(false)
+                    return@launch
+                }
+            }
+
+            if (areaId != null && !area.addressChanged) {
+                if (area.enableChanged) {
+                    if (playerRepository.setPlayerAreaEnable(playerId, areaId, area.enable) !is ResultWrapper.Success) {
+                        loadingState.value = false
+                        result(false)
+                        return@launch
+                    }
+                }
+            } else {
+                val addResult = playerRepository.postPlayerArea(
+                    playerId,
+                    PlayerAreaAddRequest(
+                        area_id = null,
+                        is_domestic = true,
+                        enable = area.enable,
+                        depart = PlayerAreaLocationRequest(
+                            address = depart.name,
+                            address2 = depart.roadAddress.orEmpty(),
+                            latitude = depart.lat ?: 0.0,
+                            longitude = depart.lng ?: 0.0,
+                            range = departRadius
+                        ),
+                        dest = PlayerAreaLocationRequest(
+                            address = dest.name,
+                            address2 = dest.roadAddress.orEmpty(),
+                            latitude = dest.lat ?: 0.0,
+                            longitude = dest.lng ?: 0.0,
+                            range = destRadius
+                        )
+                    )
+                )
+                if (addResult !is ResultWrapper.Success) {
+                    loadingState.value = false
+                    result(false)
+                    return@launch
+                }
+            }
+        }
+
+        loadingState.value = false
+        result(true)
+    }
+
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
@@ -237,4 +329,15 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         object Doing : TopMenu()
         object End : TopMenu()
     }
+
+    data class PlayerBasicAreaEdit(
+        val areaId: Int?,
+        val addressChanged: Boolean,
+        val enableChanged: Boolean,
+        val enable: Boolean,
+        val depart: KakaoSearchModel?,
+        val departRadius: Int?,
+        val dest: KakaoSearchModel?,
+        val destRadius: Int?
+    )
 }

@@ -104,7 +104,28 @@
 
     <action
         android:id="@+id/action_global_playerAreaSettingFragment"
-        app:destination="@id/playerAreaSettingFragment" />
+        app:destination="@id/globalPlayerAreaSettingFragment" />
+
+    <fragment
+        android:id="@+id/globalPlayerAreaSettingFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaSettingFragment"
+        android:label="PlayerAreaSettingFragment" />
+
+    <action
+        android:id="@+id/action_global_playerJoinSearchFragment"
+        app:destination="@id/globalPlayerJoinSearchFragment" />
+
+    <fragment
+        android:id="@+id/globalPlayerJoinSearchFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinSearchFragment"
+        android:label="PlayerJoinSearchFragment">
+        <argument
+            android:name="isStart"
+            app:argType="boolean" />
+        <argument
+            android:name="isSecondary"
+            app:argType="boolean" />
+    </fragment>
 
     <action
         android:id="@+id/action_global_to_home_for_delivery"

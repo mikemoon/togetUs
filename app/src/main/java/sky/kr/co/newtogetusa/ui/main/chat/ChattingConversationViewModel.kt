@@ -191,11 +191,6 @@ class ChattingConversationViewModel @Inject constructor(
         success = Event.ChatRoomBlocked,
     )
 
-    fun unblockChatRoom() = runChatRoomSetting(
-        action = { chatRepository.chatRoomUnblock(currentRoomId) },
-        success = Event.ChatRoomUnblocked,
-    )
-
     fun exitChatRoom() = runChatRoomSetting(
         action = { chatRepository.chatRoomExit(currentRoomId) },
         success = Event.ChatRoomExited,
@@ -482,7 +477,6 @@ class ChattingConversationViewModel @Inject constructor(
         object ChatRoomNotificationOn : Event()
         object ChatRoomNotificationOff : Event()
         object ChatRoomBlocked : Event()
-        object ChatRoomUnblocked : Event()
         object ChatRoomExited : Event()
     }
 

@@ -19,7 +19,7 @@ class AuthRepository @Inject constructor(
 ): BaseNetRepo() {
 
     suspend fun verifyEmail(requestBody: HashMap<String, String>) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO) {
-        apiService.verifyEmail(requestBody)
+        apiService.verifyEmail(requestBody.withOs())
     }
 
     suspend fun verifyAccount(token: String, requestBody: HashMap<String, String>) =
@@ -28,11 +28,11 @@ class AuthRepository @Inject constructor(
         }
 
     suspend fun cerifyVerifyCode(requestBody: HashMap<String, String>) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO) {
-        apiService.certifyVerifyCode(requestBody)
+        apiService.certifyVerifyCode(requestBody.withOs())
     }
 
     suspend fun changeEmailPassword(requestBody: HashMap<String, String>) = safeApiCall<ChangeEmailPasswordResponse>(dispatcher = Dispatchers.IO){
-        apiService.changeEmailPassword(requestBody)
+        apiService.changeEmailPassword(requestBody.withOs())
     }
 
     suspend fun join(requestBody: HashMap<String, Any>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
@@ -67,6 +67,10 @@ class AuthRepository @Inject constructor(
         put("os", "A")
         put("device_id", deviceId())
         put("platform", "AOS")
+    }
+
+    private fun HashMap<String, String>.withOs(): HashMap<String, String> = apply {
+        put("os", "A")
     }
 
     private fun deviceId(): String {

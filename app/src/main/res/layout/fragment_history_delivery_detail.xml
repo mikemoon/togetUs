@@ -599,25 +599,23 @@
                 android:id="@+id/tvBottomSecondaryButton"
                 style="@style/HeadLine18B"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/background_s_b5_r4"
                 android:gravity="center"
-                android:paddingVertical="16dp"
                 android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvBottomPrimaryButton"
                 style="@style/HeadLine18B"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="2"
                 android:background="@drawable/background_s_p100_r4"
                 android:gravity="center"
-                android:paddingVertical="16dp"
                 android:textColor="@color/white" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

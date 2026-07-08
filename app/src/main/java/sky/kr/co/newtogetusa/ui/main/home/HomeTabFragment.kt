@@ -53,7 +53,7 @@ import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentHomeBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomLocationAlarmDialog
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeBannerAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeProgressAdapter
 import sky.kr.co.newtogetusa.ui.main.home.adapter.HomeRegisteredAdapter
@@ -243,10 +243,12 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                     findNavController().navigate(R.id.action_homeTabFragment_to_homeNotificationFragment)
                 }
                 is HomeTabViewModel.Event.LocationAlarmChanged -> {
+                    hideLoading()
                     if (it.isOn) refreshLocationAlarmPosition()
                     showLocationAlarmPopup(it.isOn)
                 }
                 HomeTabViewModel.Event.LocationAlarmFailed -> {
+                    hideLoading()
                     requireContext().toast("현위치 동행 알림 설정에 실패했습니다.")
                 }
             }
@@ -357,19 +359,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     }
 
     private fun showLocationAlarmPopup(isOn: Boolean) {
-        val title = if (isOn) "현위치 동행 알림 ON" else "현위치 동행 알림 OFF"
-        val message = if (isOn) {
-            "스위치를 켜면 내 위치(5분 주기)에서 현재 설정된 도착 가능지역 방면의 동행요청을 추가 수신합니다.\n\n※ 앱을 종료해도 마지막 위치를 기준으로 알림을 계속 받습니다."
-        } else {
-            "현위치 기반 매칭을 중단합니다.\n\n지정하신 기본 배송 범위 내에서만 동행요청을 수신합니다."
-        }
-        MessageDialog.newInstance(
-            msg = message,
-            rightBtn = "동행지 설정",
-            leftBtn = "닫기",
-            msgTitle = title
-        ).onRightBtn {
-            findNavController().navigate(R.id.action_global_playerAreaSettingFragment)
+        BottomLocationAlarmDialog().apply {
+            this.isOn = isOn
+            onSettingClick = {
+                findNavController().navigate(R.id.action_global_playerAreaSettingFragment)
+            }
         }.show(parentFragmentManager, "LocationAlarmDialog")
     }
 

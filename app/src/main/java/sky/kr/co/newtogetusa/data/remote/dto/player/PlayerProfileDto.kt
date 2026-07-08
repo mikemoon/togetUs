@@ -60,6 +60,12 @@ data class PlayerProfileDto(
         val end_date: String? = null,
         val depart_address2: String? = null,
         val dest_address2: String? = null,
+        val depart_latitude: Double? = null,
+        val depart_longitude: Double? = null,
+        val depart_range: Int? = null,
+        val dest_latitude: Double? = null,
+        val dest_longitude: Double? = null,
+        val dest_range: Int? = null,
         val domestic_yn: String? = null,
         val use_yn: String? = null
     )

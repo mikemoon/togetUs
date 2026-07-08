@@ -19,7 +19,6 @@ class BottomChatMoreViewModel @Inject constructor(baseViewModelFactory: BaseView
     sealed class Event{
         object AlarmOff : Event()
         object Block : Event()
-        object Unblock : Event()
         object Report : Event()
         object Exit : Event()
     }

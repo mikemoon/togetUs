@@ -136,10 +136,12 @@
                     android:id="@+id/tvResend"
                     android:layout_width="77dp"
                     android:layout_height="match_parent"
-                    android:background="@drawable/background_s_p100_r4"
+                    android:background="@drawable/selector_b20_p100_r4"
+                    android:enabled="@{viewModel.resendButtonEnable}"
                     android:gravity="center"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.ReSend.INSTANCE)}"
                     android:text="재요청"
-                    android:textColor="@color/white"
+                    android:textColor="@color/selector_wopa40_wopa100"
                     app:layout_constraintEnd_toEndOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -211,7 +213,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/HeadLine20B"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/selector_b20_p100_r4"

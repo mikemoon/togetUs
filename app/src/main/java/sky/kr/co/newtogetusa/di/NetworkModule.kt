@@ -202,9 +202,9 @@ class NetworkModule {
     @ApiServer
     @Provides
     fun provideApiUrl()= if(BuildConfig.DEBUG){
-        "http://togetus.p-e.kr/"
+        "http://www.togetus.net/"
     }else{
-        "http://togetus.p-e.kr/"
+        "http://www.togetus.net/"
     }
 
     @ApiOkHttpClient
@@ -314,7 +314,7 @@ class NetworkModule {
         @RefreshOkHttpClient client: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(baseUrl)                  // "http://togetus.p-e.kr/"  (옵션 A 기준)
+            .baseUrl(baseUrl)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

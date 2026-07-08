@@ -1,8 +1,8 @@
 package sky.kr.co.newtogetusa.ui.login
 
 import android.content.Intent
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginStartBinding
@@ -14,6 +14,12 @@ class LoginStartFragment : BaseFragment<FragmentLoginStartBinding, LoginStartVie
     override val layoutId: Int
         get() = R.layout.fragment_login_start
     override val viewModel: LoginStartViewModel by viewModels()
+    private val args: LoginStartFragmentArgs by navArgs()
+
+    override fun init() {
+        super.init()
+        viewModel.nickname.value = args.nickname
+    }
 
     override fun initObserver() {
         super.initObserver()

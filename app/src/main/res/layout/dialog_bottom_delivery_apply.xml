@@ -97,7 +97,7 @@
                     android:id="@+id/tvApply"
                     style="@style/HeadLine18B"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="@dimen/bottom_cta_height"
                     android:layout_marginTop="20dp"
                     android:background="@drawable/selector_p40_p100_r4"
                     android:enabled="false"

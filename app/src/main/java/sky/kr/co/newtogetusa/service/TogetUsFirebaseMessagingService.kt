@@ -95,10 +95,7 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            roomId?.let {
-                putExtra(MainActivity.EXTRA_PUSH_ROOM_ID, it)
-                putExtra(MainActivity.EXTRA_PUSH_TYPE, PUSH_TYPE_CHAT)
-            }
+            putExtra(MainActivity.EXTRA_OPEN_HOME_FROM_PUSH, true)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -133,6 +130,5 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
 
     companion object {
         private const val CHANNEL_ID = "togetus_push"
-        private const val PUSH_TYPE_CHAT = "chat"
     }
 }

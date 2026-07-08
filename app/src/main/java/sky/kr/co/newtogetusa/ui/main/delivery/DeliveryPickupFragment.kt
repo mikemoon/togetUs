@@ -39,12 +39,18 @@ class DeliveryPickupFragment :
         super.init()
 
         dataBinding.tvIndicator.post {
+            val state = sharedViewModel.state.value
+            val hasPickupState = state.pickupDate != null || state.pickupTime != null
+            val isImmediately = if (hasPickupState) state.pickupIsImmediately else true
+            val target = if (isImmediately) dataBinding.tvImmediate else dataBinding.tvReservation
             val params = dataBinding.tvIndicator.layoutParams
-            params.width = dataBinding.tvReservation.width
+            params.width = target.width
             dataBinding.tvIndicator.layoutParams = params
+            moveIndicatorTo(target)
+            setSelectPickupType(isReservation = !isImmediately, clearDateTime = false)
+            restorePickupFields(state)
         }
         dataBinding.tvReservation.apply {
-            isSelected = true
             //setTextColor(requireContext().getColor(R.color.white))
             setOnClickListener {
                 moveIndicatorTo(dataBinding.tvReservation)
@@ -52,6 +58,7 @@ class DeliveryPickupFragment :
             }
         }
         dataBinding.tvImmediate.apply {
+            isSelected = true
             setOnClickListener {
                 moveIndicatorTo(dataBinding.tvImmediate)
                 setSelectPickupType(false)
@@ -79,7 +86,7 @@ class DeliveryPickupFragment :
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun setSelectPickupType(isReservation: Boolean) {
+    private fun setSelectPickupType(isReservation: Boolean, clearDateTime: Boolean = true) {
         dataBinding.tvReservation.apply {
             isSelected = isReservation
             //background = if(isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
@@ -91,6 +98,39 @@ class DeliveryPickupFragment :
             setTextColor(requireContext().getColor(if (!isReservation) R.color.white else R.color.black_80))
         }
         viewModel.isImmediately.value = !isReservation
+        setDateTimeSelectEnabled(isReservation)
+        if (!isReservation && clearDateTime) {
+            dataBinding.etDate.setText("")
+            dataBinding.etTime.setText("")
+            viewModel.pickupDate.value = ""
+            viewModel.pickupTime.value = ""
+        }
+    }
+
+    private fun restorePickupFields(state: DeliveryRequestState) {
+        if (state.pickupIsImmediately) {
+            return
+        }
+        state.pickupDate?.takeIf { it.isNotBlank() }?.let {
+            dataBinding.etDate.setText(formatKoreanDate(it))
+            viewModel.pickupDate.value = it
+        }
+        state.pickupTime?.takeIf { it.isNotBlank() }?.let {
+            dataBinding.etTime.setText(formatTimeToKorean(it))
+            viewModel.pickupTime.value = it
+        }
+    }
+
+    private fun setDateTimeSelectEnabled(enabled: Boolean) {
+        val alpha = if (enabled) 1f else 0.35f
+        listOf(dataBinding.layoutDate, dataBinding.layoutTime).forEach {
+            it.isEnabled = enabled
+            it.isClickable = enabled
+            it.alpha = alpha
+        }
+        listOf(dataBinding.ivDate, dataBinding.ivTime, dataBinding.etDate, dataBinding.etTime).forEach {
+            it.alpha = alpha
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -149,6 +189,7 @@ class DeliveryPickupFragment :
                 }
 
                 DeliveryPickupViewModel.Event.SelectDate -> {
+                    if (viewModel.isImmediately.value) return@observe
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomCalendarDialog().apply {
@@ -162,6 +203,7 @@ class DeliveryPickupFragment :
                 }
 
                 DeliveryPickupViewModel.Event.SelectTime -> {
+                    if (viewModel.isImmediately.value) return@observe
                     dialogFragmentShow(
                         childFragmentManager,
                         BottomTimeDialog().apply {
@@ -182,20 +224,15 @@ class DeliveryPickupFragment :
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 sharedViewModel.state.collect { state ->
-                    val isImmediately = state.pickupIsImmediately
+                    val hasPickupState = state.pickupDate != null || state.pickupTime != null
+                    val isImmediately = if (hasPickupState) state.pickupIsImmediately else true
                     moveIndicatorTo(if(isImmediately)dataBinding.tvImmediate else dataBinding.tvReservation)
-                    setSelectPickupType(!isImmediately)
+                    setSelectPickupType(isReservation = !isImmediately, clearDateTime = false)
 
-                    state.pickupDate?.let {
-                        dataBinding.etDate.setText(formatKoreanDate(it))
-                        viewModel.pickupDate.value = it
-                    }
-                    state.pickupTime?.let{
-                        dataBinding.etTime.setText(formatTimeToKorean(it))
-                        viewModel.pickupTime.value = it
-                    }
-                    moveIndicator2To(if(state.pickupIsFaceToFace)dataBinding.tvMeet else dataBinding.tvNotMeet)
-                    setSelectMeetType(state.pickupIsFaceToFace)
+                    restorePickupFields(state)
+                    val isFaceToFace = if (hasPickupState) state.pickupIsFaceToFace else true
+                    moveIndicator2To(if(isFaceToFace)dataBinding.tvMeet else dataBinding.tvNotMeet)
+                    setSelectMeetType(isFaceToFace)
                 }
             }
         }

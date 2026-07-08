@@ -225,6 +225,10 @@
         android:id="@+id/playerJoinFragment2"
         android:name="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinFragment"
         android:label="PlayerJoinFragment" >
+        <argument
+            android:name="isResume"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_playerJoinFragment2_to_playerJoinSearchFragment"
             app:destination="@id/playerJoinSearchFragment" />

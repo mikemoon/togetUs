@@ -151,7 +151,13 @@ interface PlayerService {
     suspend fun setPlayerGpsEnable(
         @Path("player_id") playerId: Int,
         @Body request: HashMap<String, Boolean>
-    ): CommonBoolDto
+    ): Boolean
+
+    @POST("/api/players/v1/{player_id}/area_enable")
+    suspend fun setPlayerAreaEnable(
+        @Path("player_id") playerId: Int,
+        @Body request: HashMap<String, Any>
+    ): Boolean
 
     @POST("/api/players/v1/{player_id}/area/gps_refresh")
     suspend fun refreshPlayerGps(
@@ -170,6 +176,11 @@ interface PlayerService {
         @Path("player_id") playerId: Int,
         @Body request: HashMap<String, String>
     )
+
+    @POST("/api/players/v1/{player_id}/cancel_apply") //플레이어 신청 취소
+    suspend fun cancelPlayerApplication(
+        @Path("player_id") playerId: Int
+    ): Boolean
 
     @Multipart
     @POST("/api/players/v1/{player_id}/apply_batch") //등록심사 일괄요청

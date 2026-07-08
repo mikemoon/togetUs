@@ -72,10 +72,10 @@ class PlayerJoinViewModel @Inject constructor(
         updateStep3NextButtonState()
     }
     private fun updateStep3NextButtonState() {
-        val imageOk = !profileImageUri.value.isNullOrBlank()
+        val imageOk = !profileImageUri.value.isNullOrBlank() || hasStoredProfileImage()
         val introOk = !introduceText.value.isNullOrBlank()
         val agreeOk = isCrcAgree.value == true
-        val fileOk = !crcFileUri.value.isNullOrBlank()
+        val fileOk = !crcFileUri.value.isNullOrBlank() || hasStoredCriminalRecord()
 
         enableStep3Next.value = imageOk && introOk && agreeOk && fileOk
     }
@@ -314,21 +314,89 @@ class PlayerJoinViewModel @Inject constructor(
 
 
     val playerApplyedInfo = MutableStateFlow<PlayerApplyedInfoDto?>(null)
-    fun getPlayers() = viewModelScope.launch {
+    fun getPlayers(isResume: Boolean = false) = viewModelScope.launch {
         val res = playerRepository.getPlayers()
         when(res){
             is ResultWrapper.Success ->{
                 playerApplyedInfo.value = res.data
-                restoreAreas(res.data.areas)
+                restoreApplication(res.data)
+                if (isResume) {
+                    onClickStepNext(res.data.resumeStep())
+                }
             }
             else -> {}
         }
+    }
+
+    fun onClickStep2Next() {
+        if (enableStep2Next.value == true) {
+            _event.value = Event.CheckBankAccount
+        }
+    }
+
+    private fun restoreApplication(info: PlayerApplyedInfoDto) {
+        restoreTerms(info.terms)
+        restoreBank(info)
+        restoreProfile(info)
+        restoreAreas(info.areas)
+    }
+
+    private fun restoreTerms(terms: List<String>) {
+        if (terms.isEmpty()) return
+
+        allAgreeStep1.value = true
+        ageOver.value = true
+        workAssign.value = true
+        location.value = true
+        uniqueInfo.value = true
+        personalInfo.value = true
+        updateStep1NextButtonState()
+    }
+
+    private fun restoreBank(info: PlayerApplyedInfoDto) {
+        val bank = info.bank ?: return
+        val bankCd = bank.bank_cd.orEmpty()
+        selectedBank.value = bankList.value.firstOrNull { it.code == bankCd }
+            ?: BaseDto(
+                code = bankCd,
+                cate = "",
+                name = bank.bank_name.orEmpty(),
+                description = ""
+            )
+        accountNumber.value = bank.account_number.orEmpty()
+        depositorName.value = bank.account_depositor.orEmpty()
+        updateStep2NextButtonState()
+    }
+
+    private fun restoreProfile(info: PlayerApplyedInfoDto) {
+        if (!info.profile_image.isNullOrBlank()) {
+            profileImageUri.value = info.profile_image
+        }
+        if (!info.introduction.isNullOrBlank()) {
+            introduceText.value = info.introduction
+        }
+        if (!info.criminalrecord_file_name.isNullOrBlank()) {
+            crcFileUri.value = info.criminalrecord_file_name
+            documentFileName.value = info.criminalrecord_file_name
+            isCrcAgree.value = true
+        }
+        updateStep3NextButtonState()
     }
 
     private fun restoreAreas(areas: List<AreaDto>) {
         val enabledAreas = areas.filter { it.use_yn != "N" }
         restorePrimaryArea(enabledAreas.getOrNull(0))
         restoreSecondaryArea(enabledAreas.getOrNull(1))
+    }
+
+    private fun PlayerApplyedInfoDto.resumeStep(): Int {
+        return when {
+            !certi_req_date.isNullOrBlank() -> 4
+            !verify_bank -> 1
+            profile_image.isNullOrBlank() || introduction.isNullOrBlank() || criminalrecord_file_name.isNullOrBlank() -> 3
+            areas.isEmpty() -> 4
+            else -> 4
+        }
     }
 
     private fun restorePrimaryArea(area: AreaDto?) {
@@ -396,8 +464,8 @@ class PlayerJoinViewModel @Inject constructor(
             val dest = destArea.value ?: return@launch
             val bank = selectedBank.value ?: return@launch
 
-            val profileFile = profileFile.value ?: return@launch
-            val criminalFile = criminalFile.value ?: return@launch
+            val profileFile = profileFile.value
+            val criminalFile = criminalFile.value
 
             loadingState.value = true
 
@@ -418,14 +486,16 @@ class PlayerJoinViewModel @Inject constructor(
                     return@launch
                 }
 
-                val profileResult = playerRepository.postProfileImage(
-                    playerId = playerId,
-                    file = createFilePart(partName = "file", file = profileFile)
-                )
-                if (profileResult !is ResultWrapper.Success) {
-                    loadingState.value = false
-                    result(false)
-                    return@launch
+                if (profileFile != null) {
+                    val profileResult = playerRepository.postProfileImage(
+                        playerId = playerId,
+                        file = createFilePart(partName = "file", file = profileFile)
+                    )
+                    if (profileResult !is ResultWrapper.Success) {
+                        loadingState.value = false
+                        result(false)
+                        return@launch
+                    }
                 }
 
                 val introduceResult = playerRepository.postIntroduction(
@@ -438,14 +508,16 @@ class PlayerJoinViewModel @Inject constructor(
                     return@launch
                 }
 
-                val criminalResult = playerRepository.postCriminalRecord(
-                    playerId = playerId,
-                    file = createFilePart(partName = "file", file = criminalFile)
-                )
-                if (criminalResult !is ResultWrapper.Success) {
-                    loadingState.value = false
-                    result(false)
-                    return@launch
+                if (criminalFile != null) {
+                    val criminalResult = playerRepository.postCriminalRecord(
+                        playerId = playerId,
+                        file = createFilePart(partName = "file", file = criminalFile)
+                    )
+                    if (criminalResult !is ResultWrapper.Success) {
+                        loadingState.value = false
+                        result(false)
+                        return@launch
+                    }
                 }
 
                 if (!savePrimaryArea(playerId)) {
@@ -513,9 +585,9 @@ class PlayerJoinViewModel @Inject constructor(
             selectedBank.value == null -> "은행을 선택해 주세요."
             accountNumber.value.isNullOrBlank() -> "계좌번호를 입력해 주세요."
             depositorName.value.isNullOrBlank() -> "예금주를 입력해 주세요."
-            profileFile.value == null -> "프로필 사진을 등록해 주세요."
+            profileFile.value == null && !hasStoredProfileImage() -> "프로필 사진을 등록해 주세요."
             introduceText.value.isNullOrBlank() -> "자기소개를 입력해 주세요."
-            criminalFile.value == null -> "범죄경력회보서를 등록해 주세요."
+            criminalFile.value == null && !hasStoredCriminalRecord() -> "범죄경력회보서를 등록해 주세요."
             startArea.value == null -> "픽업 가능 지역을 선택해 주세요."
             startAreaRadius.value == null -> "픽업 가능 반경을 선택해 주세요."
             startArea.value?.lat == null || startArea.value?.lng == null -> "픽업 가능 지역을 다시 선택해 주세요."
@@ -614,28 +686,40 @@ class PlayerJoinViewModel @Inject constructor(
     private suspend fun deleteArea(playerId: Int, areaId: Int): Boolean =
         playerRepository.deletePlayerArea(playerId, areaId) is ResultWrapper.Success
 
+    private fun hasStoredProfileImage(): Boolean =
+        !playerApplyedInfo.value?.profile_image.isNullOrBlank()
+
+    private fun hasStoredCriminalRecord(): Boolean =
+        !playerApplyedInfo.value?.criminalrecord_file_name.isNullOrBlank()
+
     private fun ResultWrapper<*>.isAreaLimitExceeded(): Boolean =
         this is ResultWrapper.GenericError &&
             code == "400" &&
             errorData?.type == "LimitExceeded" &&
             errorData.message?.contains("배송가능지역") == true
 
-    fun postPlayerBank(playerId: Int,
-                       requestBank: BankRequestDto,
-                       result: (Boolean) -> Unit) = viewModelScope.launch {
-                           loadingState.value = true
+    fun postPlayerBank(
+        playerId: Int,
+        requestBank: BankRequestDto,
+        result: (Boolean, String?) -> Unit
+    ) = viewModelScope.launch {
+        loadingState.value = true
         val res = playerRepository.postPlayerBank(
             playerId = playerId,
             request = requestBank
         )
         when(res){
             is ResultWrapper.Success ->{
-                result(true)
                 loadingState.value = false
+                result(true, null)
+            }
+            is ResultWrapper.GenericError -> {
+                loadingState.value = false
+                result(false, res.message)
             }
             else -> {
-                result(false)
                 loadingState.value = false
+                result(false, null)
             }
         }
     }
@@ -688,6 +772,30 @@ class PlayerJoinViewModel @Inject constructor(
         }
     }
 
+    fun cancelPlayerApplication(result: (Boolean, String?) -> Unit) = viewModelScope.launch {
+        val playerId = playerApplyedInfo.value?.player_id
+        if (playerId == null) {
+            result(true, null)
+            return@launch
+        }
+
+        loadingState.value = true
+        when (val res = playerRepository.cancelPlayerApplication(playerId)) {
+            is ResultWrapper.Success -> {
+                loadingState.value = false
+                result(true, null)
+            }
+            is ResultWrapper.GenericError -> {
+                loadingState.value = false
+                result(false, res.message)
+            }
+            is ResultWrapper.NetworkError -> {
+                loadingState.value = false
+                result(false, null)
+            }
+        }
+    }
+
 
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
@@ -697,9 +805,11 @@ class PlayerJoinViewModel @Inject constructor(
 
     sealed class Event {
         object Back : Event()
+        object Cancel : Event()
         object AttachImage : Event()
         object AccountNumber : Event()
         object Bank : Event()
+        object CheckBankAccount : Event()
 
         object Complete : Event()
         object StartArea : Event()

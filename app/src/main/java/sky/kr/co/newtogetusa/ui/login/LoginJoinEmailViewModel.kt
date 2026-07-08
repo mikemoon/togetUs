@@ -21,6 +21,8 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
     :BaseViewModel(baseViewModelDependenciesFactory.create()){
 
         val requestVerifyCodeButtonEnable = MutableLiveData<Boolean>(false)
+        val resendButtonEnable = MutableLiveData<Boolean>(true)
+        private val resendRemainingCount = MutableLiveData(4)
 
     val titleText = MutableStateFlow("로그인에 사용할 이메일을 입력해 주세요")
     val isPasswordFindModeStateFlow = MutableStateFlow(false)
@@ -61,14 +63,36 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
 
     private val _verifyEmailResult = MutableLiveData<Boolean>()
     val verifyEmailResult : LiveData<Boolean> = _verifyEmailResult
-    fun requestVerifyEmail(email: String) = viewModelScope.launch {
-        val response:ResultWrapper<Boolean> = authRepository.verifyEmail(hashMapOf("email" to email))
+    fun requestVerifyEmail(email: String, isResend: Boolean = false) = viewModelScope.launch {
+        if (loadingState.value) return@launch
+        loadingState.value = true
+        val response:ResultWrapper<Boolean> = authRepository.verifyEmail(
+            hashMapOf(
+                "email" to email,
+                "os" to "A"
+            )
+        )
+        loadingState.value = false
         when(response){
             is ResultWrapper.Success -> {
-                _verifyEmailResult.value = response.data == true
+                val success = response.data == true
+                _verifyEmailResult.value = success
+                if (success) {
+                    if (isResend) {
+                        val remaining = ((resendRemainingCount.value ?: 0) - 1).coerceAtLeast(0)
+                        resendRemainingCount.value = remaining
+                        resendButtonEnable.value = remaining > 0
+                    }
+                    _event.value = Event.VerifyEmailRequested
+                } else {
+                    _event.value = Event.ShowMessage("인증번호 요청에 실패했습니다.")
+                }
             }
-            else ->{
-
+            is ResultWrapper.GenericError -> {
+                _event.value = Event.ShowMessage(response.message ?: "인증번호 요청에 실패했습니다.")
+            }
+            ResultWrapper.NetworkError -> {
+                _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
             }
         }
     }
@@ -76,7 +100,16 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
     private val _certCodeResult = MutableLiveData<Boolean>()
     val certCodeResult : LiveData<Boolean> = _certCodeResult
     fun certifyVerifyCode(code:String) = viewModelScope.launch {
-        val response:ResultWrapper<Boolean> = authRepository.cerifyVerifyCode(hashMapOf("email" to emailText.value.toString(), "verify_code" to code))
+        if (loadingState.value) return@launch
+        loadingState.value = true
+        val response:ResultWrapper<Boolean> = authRepository.cerifyVerifyCode(
+            hashMapOf(
+                "email" to emailText.value.toString(),
+                "verify_code" to code,
+                "os" to "A"
+            )
+        )
+        loadingState.value = false
         when(response){
             is ResultWrapper.Success -> {
                 _certCodeResult.value = response.data == true
@@ -128,6 +161,9 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
         countDownTimer?.start()
     }
 
+    fun resendRemainingMessage(): String =
+        "요청 가능 횟수가 ${resendRemainingCount.value ?: 0}회 남았어요."
+
     // 타이머 중지
     fun stopTimeout() {
         countDownTimer?.cancel()
@@ -160,5 +196,7 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
         object Back : Event()
         object RequestVerifyCode : Event()
         object ReSend : Event()
+        object VerifyEmailRequested : Event()
+        data class ShowMessage(val message: String) : Event()
     }
 }

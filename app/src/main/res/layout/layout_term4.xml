@@ -132,7 +132,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/HeadLine20B"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/selector_b20_p100_r4"
                 android:gravity="center"

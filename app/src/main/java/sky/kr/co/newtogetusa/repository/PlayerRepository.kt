@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.api.PlayerService
 import sky.kr.co.newtogetusa.data.remote.dto.search.PlayerDto
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
@@ -63,8 +64,18 @@ class PlayerRepository @Inject constructor(
         apiService.deletePlayerArea(playerId, PlayerAreaDeleteRequest(areaId))
     }
 
-    suspend fun setPlayerGpsEnable(playerId: Int, enable: Boolean) = safeApiCall(Dispatchers.IO) {
+    suspend fun setPlayerGpsEnable(playerId: Int, enable: Boolean): ResultWrapper<Boolean> = safeApiCall(Dispatchers.IO) {
         apiService.setPlayerGpsEnable(playerId, hashMapOf("enable" to enable))
+    }
+
+    suspend fun setPlayerAreaEnable(playerId: Int, areaId: Int, enable: Boolean): ResultWrapper<Boolean> = safeApiCall(Dispatchers.IO) {
+        apiService.setPlayerAreaEnable(
+            playerId,
+            hashMapOf(
+                "area_id" to areaId,
+                "enable" to enable
+            )
+        )
     }
 
     suspend fun refreshPlayerGps(playerId: Int, latitude: Double, longitude: Double) = safeApiCall(Dispatchers.IO) {
@@ -134,6 +145,10 @@ class PlayerRepository @Inject constructor(
 
     suspend fun postPlayerApply(playerId: Int) = safeApiCall(Dispatchers.IO) {
         apiService.postPlayerApply(playerId, hashMapOf())
+    }
+
+    suspend fun cancelPlayerApplication(playerId: Int) = safeApiCall(Dispatchers.IO) {
+        apiService.cancelPlayerApplication(playerId)
     }
 
     suspend fun getPortOneConfig() = safeApiCall(Dispatchers.IO) {

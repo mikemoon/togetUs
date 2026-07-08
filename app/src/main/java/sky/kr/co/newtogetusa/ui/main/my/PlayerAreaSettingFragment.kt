@@ -1,89 +1,311 @@
 package sky.kr.co.newtogetusa.ui.main.my
 
+import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
+import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentPlayerAreaSettingBinding
-import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddedRequest
-import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaAddRequest
-import sky.kr.co.newtogetusa.data.remote.request.player.PlayerAreaLocationRequest
+import sky.kr.co.newtogetusa.databinding.LayoutPlayerAreaSettingCardBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.utils.hideLoading
+import sky.kr.co.newtogetusa.utils.showLoading
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
-class PlayerAreaSettingFragment : BaseFragment<FragmentPlayerAreaSettingBinding, ProfileManagementViewModel>() {
+class PlayerAreaSettingFragment :
+    BaseFragment<FragmentPlayerAreaSettingBinding, ProfileManagementViewModel>() {
+
     override val layoutId: Int = R.layout.fragment_player_area_setting
     override val viewModel: ProfileManagementViewModel by viewModels()
 
-    private var currentBasicAreaId: Int? = null
-    private var currentAddedAreaId: Int? = null
+    private val areas = mutableListOf<AreaEditUiModel>()
+    private val removedAreaIds = mutableListOf<Int>()
+    private var originalGpsAlarmOn = false
 
     override fun init() {
         super.init()
+
         dataBinding.ivBack.setOnClickListener { findNavController().popBackStack() }
-        dataBinding.btnAddBasic.setOnClickListener {
-            val route = readRouteOrToast() ?: return@setOnClickListener
-            viewModel.addPlayerArea(
-                PlayerAreaAddRequest(
-                    area_id = currentBasicAreaId,
-                    is_domestic = dataBinding.swDomestic.isChecked,
-                    enable = true,
-                    depart = route.first,
-                    dest = route.second,
-                )
-            )
-        }
-        dataBinding.btnAddAdded.setOnClickListener {
-            val route = readRouteOrToast() ?: return@setOnClickListener
-            val start = dataBinding.etStartDate.text?.toString().orEmpty().trim()
-            val end = dataBinding.etEndDate.text?.toString().orEmpty().trim()
-            if (start.length != 8 || end.length != 8) {
-                requireContext().toast("시작일과 종료일을 yyyyMMdd 형식으로 입력해 주세요.")
-                return@setOnClickListener
-            }
-            viewModel.addPlayerAreaAdded(
-                PlayerAreaAddedRequest(
-                    area_id = currentAddedAreaId,
-                    start = start,
-                    end = end,
-                    enable = true,
-                    depart = route.first,
-                    dest = route.second,
-                )
-            )
-        }
-        viewModel.areaAddResult.observe(viewLifecycleOwner) { success ->
-            requireContext().toast(if (success) "지역이 추가되었습니다." else "지역 추가에 실패했습니다.")
-            if (success) reloadProfile()
-        }
+        dataBinding.tvAdd.setOnClickListener { addSecondaryArea() }
+        dataBinding.tvDone.setOnClickListener { saveAreas() }
+
+        bindCard(dataBinding.area1, index = 0)
+        bindCard(dataBinding.area2, index = 1)
+        areas.add(AreaEditUiModel())
+        render()
         reloadProfile()
     }
 
-    private fun readRouteOrToast(): Pair<PlayerAreaLocationRequest, PlayerAreaLocationRequest>? {
-        val depart = dataBinding.etDepart.text?.toString().orEmpty().trim()
-        val dest = dataBinding.etDest.text?.toString().orEmpty().trim()
-        if (depart.isBlank() || dest.isBlank()) {
-            requireContext().toast("출발지와 도착지를 입력해 주세요.")
-            return null
+    override fun initObserver() {
+        super.initObserver()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.loadingState.collect { isLoading ->
+                        if (isLoading) showLoading() else hideLoading()
+                    }
+                }
+            }
         }
-        return PlayerAreaLocationRequest(address = depart) to PlayerAreaLocationRequest(address = dest)
+
+        parentFragmentManager.setFragmentResultListener(
+            "fromPlayerJoinSearch",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val result = bundle.getParcelable<KakaoSearchModel>("selectedKakaoLocValue")
+                ?: return@setFragmentResultListener
+            val isStart = bundle.getBoolean("isStart", true)
+            val isSecondary = bundle.getBoolean("isSecondary", false)
+            val areaRadius = bundle.getInt("areaRadius", 3)
+            val index = if (isSecondary) 1 else 0
+            val area = areas.getOrNull(index) ?: return@setFragmentResultListener
+
+            if (isStart) {
+                area.depart = result
+                area.departRadius = areaRadius
+            } else {
+                area.dest = result
+                area.destRadius = areaRadius
+            }
+            area.addressChanged = true
+            if (areas.size == 1 && area.isComplete()) {
+                area.enable = true
+            }
+            render()
+        }
     }
 
     private fun reloadProfile() {
         viewModel.getMyProfile {
             viewModel.getPlayerProfile { profile ->
-                currentBasicAreaId = profile.areas_basic.orEmpty().firstOrNull()?.player_area_id
-                currentAddedAreaId = profile.areas_added.orEmpty().firstOrNull()?.player_area_id
-                val basic = profile.areas_basic.orEmpty().joinToString("\n") {
-                    "${it.depart_address.orEmpty()} > ${it.dest_address.orEmpty()}"
+                originalGpsAlarmOn = profile.gps_area
+                dataBinding.swLocationAlarm.setOnCheckedChangeListener(null)
+                dataBinding.swLocationAlarm.isChecked = profile.gps_area
+                dataBinding.swLocationAlarm.setOnCheckedChangeListener { _, isChecked ->
+                    viewModel.setPlayerGpsEnable(isChecked) { success ->
+                        if (!success) {
+                            requireContext().toast("현위치 동행 알림 설정에 실패했습니다.")
+                            dataBinding.swLocationAlarm.setOnCheckedChangeListener(null)
+                            dataBinding.swLocationAlarm.isChecked = !isChecked
+                            dataBinding.swLocationAlarm.setOnCheckedChangeListener { _, checked ->
+                                viewModel.setPlayerGpsEnable(checked)
+                            }
+                        } else {
+                            originalGpsAlarmOn = isChecked
+                        }
+                    }
                 }
-                val added = profile.areas_added.orEmpty().joinToString("\n") {
-                    "${it.depart_address.orEmpty()} > ${it.dest_address.orEmpty()} (${it.start_date.orEmpty()} ~ ${it.end_date.orEmpty()})"
+
+                areas.clear()
+                removedAreaIds.clear()
+                profile.areas_basic.orEmpty()
+                    .take(2)
+                    .mapTo(areas) { it.toEditUiModel() }
+                if (areas.isEmpty()) {
+                    areas.add(AreaEditUiModel())
                 }
-                dataBinding.tvBasicAreas.text = basic.ifBlank { "등록된 기본 지역이 없습니다." }
-                dataBinding.tvAddedAreas.text = added.ifBlank { "등록된 추가 지역이 없습니다." }
+                render()
             }
         }
+    }
+
+    private fun bindCard(binding: LayoutPlayerAreaSettingCardBinding, index: Int) {
+        binding.tvDepartSelect.setOnClickListener { openSearch(index, isStart = true) }
+        binding.clDepart.setOnClickListener { openSearch(index, isStart = true) }
+        binding.tvArriveSelect.setOnClickListener { openSearch(index, isStart = false) }
+        binding.clArrive.setOnClickListener { openSearch(index, isStart = false) }
+        binding.tvOn.setOnClickListener { toggleArea(index) }
+        binding.ivDelete.setOnClickListener { deleteArea(index) }
+    }
+
+    private fun openSearch(index: Int, isStart: Boolean) {
+        if (index >= areas.size) return
+        findNavController().navigate(
+            R.id.action_global_playerJoinSearchFragment,
+            Bundle().apply {
+                putBoolean("isStart", isStart)
+                putBoolean("isSecondary", index == 1)
+            }
+        )
+    }
+
+    private fun toggleArea(index: Int) {
+        val area = areas.getOrNull(index) ?: return
+        if (areas.size == 1) {
+            area.enable = true
+        } else {
+            if (!area.enable) {
+                area.enable = true
+                areas.forEachIndexed { i, item ->
+                    if (i != index) item.enable = false
+                }
+            }
+        }
+        render()
+    }
+
+    private fun addSecondaryArea() {
+        if (areas.size >= 2 || !areas.first().isComplete()) return
+        areas.add(AreaEditUiModel())
+        render()
+    }
+
+    private fun deleteArea(index: Int) {
+        val area = areas.getOrNull(index) ?: return
+        if (index == 0) return
+
+        fun removeLocalArea() {
+            area.areaId?.let { removedAreaIds.add(it) }
+            areas.removeAt(index)
+            normalizeEnabledAreas()
+            render()
+        }
+
+        MessageDialog.newInstance(
+            msg = "정말 삭제하시겠어요?",
+            leftBtn = "아니오",
+            rightBtn = "예"
+        ).onRightBtn {
+            removeLocalArea()
+        }.show(childFragmentManager, "DeleteAreaDialog")
+    }
+
+    private fun saveAreas() {
+        if (!canSave()) return
+        viewModel.savePlayerBasicAreas(
+            areas = areas.map {
+                ProfileManagementViewModel.PlayerBasicAreaEdit(
+                    areaId = it.areaId,
+                    addressChanged = it.addressChanged,
+                    enableChanged = it.originalEnable != it.enable,
+                    enable = it.enable,
+                    depart = it.depart,
+                    departRadius = it.departRadius,
+                    dest = it.dest,
+                    destRadius = it.destRadius
+                )
+            },
+            removedAreaIds = removedAreaIds
+        ) { success ->
+            if (success) {
+                requireContext().toast("동행 가능지역이 설정되었습니다.")
+                findNavController().popBackStack()
+            } else {
+                requireContext().toast("동행 가능지역 설정에 실패했습니다.")
+            }
+        }
+    }
+
+    private fun render() {
+        renderCard(dataBinding.area1, areas.getOrNull(0), 0)
+        renderCard(dataBinding.area2, areas.getOrNull(1), 1)
+        dataBinding.area2.root.isVisible = areas.size > 1
+        dataBinding.tvAdd.isVisible = areas.size < 2
+        dataBinding.tvAdd.isEnabled = areas.firstOrNull()?.isComplete() == true
+        dataBinding.tvAdd.alpha = if (dataBinding.tvAdd.isEnabled) 1f else 0.4f
+        dataBinding.tvDone.isEnabled = canSave()
+    }
+
+    private fun renderCard(
+        binding: LayoutPlayerAreaSettingCardBinding,
+        area: AreaEditUiModel?,
+        index: Int
+    ) {
+        if (area == null) {
+            binding.tvTitle.text = "동행범위 ${index + 1}"
+            binding.tvOn.isSelected = false
+            binding.tvOn.text = "OFF"
+            return
+        }
+
+        binding.tvTitle.text = "동행범위 ${index + 1}"
+        binding.ivDelete.isVisible = index > 0
+        binding.tvOn.isSelected = area.enable
+        binding.tvOn.text = if (area.enable) "ON" else "OFF"
+
+        binding.tvDepartSelect.isVisible = area.depart == null
+        binding.clDepart.isVisible = area.depart != null
+        binding.tvDepartValue.text = area.depart?.name.orEmpty()
+        binding.tvDepartRange.text = "${area.departRadius ?: 3}KM"
+
+        binding.tvArriveSelect.isVisible = area.dest == null
+        binding.clArrive.isVisible = area.dest != null
+        binding.tvArriveValue.text = area.dest?.name.orEmpty()
+        binding.tvArriveRange.text = "${area.destRadius ?: 3}KM"
+    }
+
+    private fun normalizeEnabledAreas() {
+        if (areas.size == 1) {
+            return
+        }
+        if (areas.none { it.enable }) {
+            areas.firstOrNull()?.enable = true
+        }
+    }
+
+    private fun canSave(): Boolean {
+        if (areas.any { !it.isComplete() }) return false
+        if (areas.none { it.enable }) return false
+        return removedAreaIds.isNotEmpty() || areas.any {
+            it.areaId == null || it.addressChanged || it.originalEnable != it.enable
+        }
+    }
+
+    private fun PlayerProfileDto.PlayerArea.toEditUiModel(): AreaEditUiModel =
+        AreaEditUiModel(
+            areaId = player_area_id,
+            originalEnable = use_yn == "Y",
+            enable = false,
+            depart = KakaoSearchModel(
+                name = depart_address.orEmpty(),
+                lat = depart_latitude,
+                lng = depart_longitude,
+                subtitle = depart_address2,
+                distance = null,
+                roadAddress = depart_address2,
+                source = "SAVED"
+            ),
+            departRadius = depart_range ?: 3,
+            dest = KakaoSearchModel(
+                name = dest_address.orEmpty(),
+                lat = dest_latitude,
+                lng = dest_longitude,
+                subtitle = dest_address2,
+                distance = null,
+                roadAddress = dest_address2,
+                source = "SAVED"
+            ),
+            destRadius = dest_range ?: 3
+        )
+
+    private data class AreaEditUiModel(
+        val areaId: Int? = null,
+        val originalEnable: Boolean = false,
+        var enable: Boolean = false,
+        var depart: KakaoSearchModel? = null,
+        var departRadius: Int? = null,
+        var dest: KakaoSearchModel? = null,
+        var destRadius: Int? = null,
+        var addressChanged: Boolean = false
+    ) {
+        fun isComplete(): Boolean =
+            depart != null &&
+                dest != null &&
+                departRadius != null &&
+                destRadius != null &&
+                depart?.lat != null &&
+                depart?.lng != null &&
+                dest?.lat != null &&
+                dest?.lng != null
     }
 }

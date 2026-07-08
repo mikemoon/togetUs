@@ -465,12 +465,11 @@
                 android:id="@+id/tvRegister"
                 style="@style/HeadLine18B"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:background="@drawable/selector_p40_p100_r4"
                 android:enabled="@{viewModel.registerButtonEnabled}"
                 android:gravity="center"
                 android:onClick="@{()-> viewModel.onEventClick(Event.RegisterDelivery.INSTANCE)}"
-                android:padding="16dp"
                 android:text="동행 요청 등록"
                 android:textColor="@color/selector_wopa40_wopa100" />
         </LinearLayout>

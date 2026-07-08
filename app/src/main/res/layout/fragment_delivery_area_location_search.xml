@@ -236,13 +236,12 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/selector_b20_p100_r4"
                 android:gravity="center"
                 android:onClick="@{()-> viewModel.onEventClick(Event.SelectedComplete.INSTANCE)}"
-                android:paddingVertical="16dp"
                 android:text="선택 완료"
                 android:textColor="@color/white"
                 style="@style/HeadLine18B"

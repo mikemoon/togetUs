@@ -184,9 +184,6 @@ class ChattingConversationFragment :
                             blockAction = {
                                 this@ChattingConversationFragment.viewModel.blockChatRoom()
                             }
-                            unblockAction = {
-                                this@ChattingConversationFragment.viewModel.unblockChatRoom()
-                            }
                             exitAction = {
                                 this@ChattingConversationFragment.viewModel.exitChatRoom()
                             }
@@ -241,11 +238,6 @@ class ChattingConversationFragment :
                 ChattingConversationViewModel.Event.ChatRoomBlocked -> {
                     requireContext().toast("채팅방이 차단되었습니다.")
                     findNavController().popBackStack()
-                }
-                ChattingConversationViewModel.Event.ChatRoomUnblocked -> {
-                    requireContext().toast("차단이 해제되었습니다.")
-                    viewModel.isBlockedFlow.value = false
-                    viewModel.loadRoomMessages(args.roomId)
                 }
                 ChattingConversationViewModel.Event.ChatRoomExited -> {
                     requireContext().toast("채팅방을 나갔습니다.")

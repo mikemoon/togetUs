@@ -152,7 +152,10 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                             rightBtn = "예",
                             leftBtn = "아니오"
                         ).onRightBtn {
-                            findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+                            findNavController().navigate(
+                                R.id.action_myFragment_to_playerJoinFragment2,
+                                bundleOf("isResume" to true)
+                            )
                         }
                             .onLeftBtn {
 
@@ -239,7 +242,10 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
     }
 
     private fun navigatePlayerJoin() {
-        findNavController().navigate(R.id.action_myFragment_to_playerJoinFragment2)
+        findNavController().navigate(
+            R.id.action_myFragment_to_playerJoinFragment2,
+            bundleOf("isResume" to false)
+        )
     }
 
     private fun openPlayStore() {

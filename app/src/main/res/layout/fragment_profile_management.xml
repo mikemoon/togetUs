@@ -180,7 +180,7 @@
                             style="@style/Paragraph14R"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="‘동행 확정' 상태에서의 취소 이력"
+                            android:text="플레이어 확정 후 취소 이력"
                             android:textColor="@color/white"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -244,7 +244,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvSuggest"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="@dimen/bottom_cta_height"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"

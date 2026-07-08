@@ -70,7 +70,11 @@ class LoginNicknameFragment : BaseFragment<FragmentLoginNicknameBinding, LoginNi
                 }else{
                     viewModel.join(args.termsList.toList()){ result ->
                         if(result){
-                            findNavController().navigate(LoginNicknameFragmentDirections.actionLoginNicknameFragmentToLoginStartFragment())
+                            findNavController().navigate(
+                                LoginNicknameFragmentDirections.actionLoginNicknameFragmentToLoginStartFragment(
+                                    nickname = viewModel.nickname.value.orEmpty()
+                                )
+                            )
                         }else{
                             requireContext().toast("회원가입에 실패하였습니다.")
                         }

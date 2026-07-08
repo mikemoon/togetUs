@@ -84,7 +84,7 @@
                 android:id="@+id/btnTakePhoto"
                 style="@style/Paragraph16B"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:background="@drawable/background_s_p100_r4"
                 android:gravity="center"
                 android:text="촬영하기"
@@ -94,7 +94,7 @@
             <LinearLayout
                 android:id="@+id/retakeArea"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:orientation="horizontal"
                 android:visibility="@{viewModel.showRetakeButtons ? View.VISIBLE : View.GONE}">
 

@@ -19,7 +19,6 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
     var alarmOnAction = {}
     var alarmOffAction = {}
     var blockAction = {}
-    var unblockAction = {}
     var exitAction = {}
     var isBlocked = false
     var isNotificationOn = true
@@ -30,9 +29,8 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
         dataBinding.tvAlarm.text = getString(
             if (isNotificationOn) R.string.alarm_off else R.string.alarm_on
         )
-        dataBinding.tvBlock.text = getString(
-            if (isBlocked) R.string.get_unblock else R.string.get_block
-        )
+        dataBinding.tvBlock.text = getString(R.string.get_block)
+        dataBinding.tvBlock.isVisible = !isBlocked
         dataBinding.tvReport.isVisible = !isReported
     }
 
@@ -50,23 +48,15 @@ class BottomChatMoreDialog : BottomBaseDialog<DialogBottomChatMoreBinding, Botto
                     dismissAllowingStateLoss()
                 }
                 BottomChatMoreViewModel.Event.Block -> {
-                    if (isBlocked) {
-                        viewModel.onEventClick(BottomChatMoreViewModel.Event.Unblock)
-                    } else {
-                        dialogFragmentShow(
-                            requireActivity().supportFragmentManager,
-                            MessageDialog.newInstance(
-                                "차단과 함께 서로 상대의 게시글이 보이지 않고, 더 이상 채팅을 보낼 수 없어요.",
-                                rightBtn = "차단하기",
-                                leftBtn = "취소",
-                                msgTitle = "정말 차단하시겠어요?"
-                            ).onRightBtn { blockAction.invoke() }
-                        )
-                    }
-                    dismissAllowingStateLoss()
-                }
-                BottomChatMoreViewModel.Event.Unblock -> {
-                    unblockAction.invoke()
+                    dialogFragmentShow(
+                        requireActivity().supportFragmentManager,
+                        MessageDialog.newInstance(
+                            "차단과 함께 서로 상대의 게시글이 보이지 않고, 더 이상 채팅을 보낼 수 없어요.",
+                            rightBtn = "차단하기",
+                            leftBtn = "취소",
+                            msgTitle = "정말 차단하시겠어요?"
+                        ).onRightBtn { blockAction.invoke() }
+                    )
                     dismissAllowingStateLoss()
                 }
                 BottomChatMoreViewModel.Event.Report -> {

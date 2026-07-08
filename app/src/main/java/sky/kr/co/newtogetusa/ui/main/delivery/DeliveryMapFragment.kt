@@ -54,6 +54,7 @@ import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryMapBinding
 import sky.kr.co.newtogetusa.repository.DirectionsRepository
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.KakaoMapSupport
 import sky.kr.co.newtogetusa.utils.MapUtil.drawRouteOnKakaoMap
 import timber.log.Timber
 import java.lang.Exception
@@ -109,7 +110,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
 
     override fun onCreateView(savedInstanceState: Bundle?) {
         super.onCreateView(savedInstanceState)
-        viewModel.isInternationalDelivery.value = args.isInternational
+        viewModel.isInternationalDelivery.value = args.isInternational || !KakaoMapSupport.isAvailable
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

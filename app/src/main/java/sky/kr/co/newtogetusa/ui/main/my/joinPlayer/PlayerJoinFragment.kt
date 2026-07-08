@@ -21,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -30,6 +31,7 @@ import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
 import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.databinding.FragmentJoinPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAccountInfoDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelectDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
@@ -53,6 +55,7 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
     override val layoutId: Int
         get() = R.layout.fragment_join_player
     override val viewModel: PlayerJoinViewModel by viewModels()
+    private val args: PlayerJoinFragmentArgs by navArgs()
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
@@ -122,7 +125,7 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
 
         setupFilePicker()
 
-        viewModel.getPlayers()
+        viewModel.getPlayers(args.isResume)
     }
 
     override fun initObserver() {
@@ -161,6 +164,39 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                             val selected = list[position]
                             dataBinding.icStep2.etBank.setText(selected.name, false) // 드랍다운 선택 반영
                             viewModel.setSelectedBank(selected)
+                        }
+
+                        viewModel.selectedBank.value?.name
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { dataBinding.icStep2.etBank.setText(it, false) }
+                    }
+                }
+
+                launch {
+                    viewModel.playerApplyedInfo.collectLatest { info ->
+                        info ?: return@collectLatest
+
+                        val profileImage = info.profile_image.orEmpty()
+                        if (profileImage.isNotBlank()) {
+                            dataBinding.icStep3.ivSelectedImage.loadImage(profileImage, roundedCorner = 4.dpToPx())
+                            dataBinding.icStep3.ivCamera.isVisible = false
+                            dataBinding.icStep3.tvAddImage.isVisible = false
+                        }
+
+                        val introduction = info.introduction.orEmpty()
+                        if (
+                            introduction.isNotBlank() &&
+                            dataBinding.icStep3.etIntroduce.text?.toString() != introduction
+                        ) {
+                            dataBinding.icStep3.etIntroduce.setText(introduction)
+                        }
+
+                        val criminalFileName = info.criminalrecord_file_name.orEmpty()
+                        if (criminalFileName.isNotBlank()) {
+                            dataBinding.icStep3.tvRegisterCRC.isVisible = false
+                            dataBinding.icStep3.tvCRCfileName.isVisible = true
+                            dataBinding.icStep3.tvReRegisterCRC.isVisible = true
+                            dataBinding.icStep3.tvCRCfileName.text = criminalFileName
                         }
                     }
                 }
@@ -300,40 +336,30 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
 
         viewModel.step.observe(viewLifecycleOwner){ step ->
             when(step){
-                3 ->{
-                    val playerId = viewModel.playerApplyedInfo.value?.player_id ?: return@observe
-                    viewModel.postPlayerBank(
-                        playerId = playerId,
-                        requestBank = BankRequestDto(
-                            term_cds = viewModel.terms.value?.map { it.code }?:return@observe,
-                            account_number = viewModel.accountNumber.value.orEmpty(),
-                            account_depositor = viewModel.depositorName.value.orEmpty(),
-                            bank_cd = viewModel.selectedBank.value?.code.orEmpty()
-                        )
-                    ){ result ->
-                        Timber.d("saved bank phase $result")
-                    }
-                }
                 4 ->{
                     val playerId = viewModel.playerApplyedInfo.value?.player_id ?: return@observe
-                    viewModel.postPlayerProfileImage(
-                        playerId = playerId,
-                        file = createImagePart(viewModel.profileFile.value?:return@observe)
-                    ){ result ->
-                        Timber.d("saved profile image phase $result")
+                    viewModel.profileFile.value?.let { profileFile ->
+                        viewModel.postPlayerProfileImage(
+                            playerId = playerId,
+                            file = createImagePart(profileFile)
+                        ){ result ->
+                            Timber.d("saved profile image phase $result")
+                        }
                     }
                     viewModel.postPlayerIntroduce(
                         playerId = playerId,
                         introduceText = viewModel.introduceText.value.orEmpty()
                     )
                     Timber.d("criminal size = ${viewModel.criminalFile.value?.length()?:0 / 1024} KB")
-                    viewModel.postPlayerCriminalRecord(
-                        playerId = playerId,
-                        file = createFilePart(
-                            partName = "file",//viewModel.documentFileName.value,
-                            file = viewModel.criminalFile.value?:return@observe
+                    viewModel.criminalFile.value?.let { criminalFile ->
+                        viewModel.postPlayerCriminalRecord(
+                            playerId = playerId,
+                            file = createFilePart(
+                                partName = "file",//viewModel.documentFileName.value,
+                                file = criminalFile
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -346,6 +372,9 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                     }else{
                         viewModel.onClickStepNext(viewModel.step.value?.minus(1)?:1)
                     }
+                }
+                PlayerJoinViewModel.Event.Cancel -> {
+                    showCancelPlayerApplicationDialog()
                 }
                 PlayerJoinViewModel.Event.AttachImage ->{
                     dialogFragmentShow(
@@ -363,6 +392,9 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                             }
                         }
                     )
+                }
+                PlayerJoinViewModel.Event.CheckBankAccount -> {
+                    showBankAccountConfirmDialog()
                 }
                 PlayerJoinViewModel.Event.StartArea ->{
                     val action =
@@ -418,6 +450,65 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 else ->{}
             }
         }
+    }
+
+    private fun showCancelPlayerApplicationDialog() {
+        MessageDialog.newInstance(
+            msg = "플레이어 신청을 취소하시겠어요?",
+            rightBtn = "예",
+            leftBtn = "아니오"
+        ).onRightBtn {
+            viewModel.cancelPlayerApplication { success, message ->
+                if (success) {
+                    findNavController().popBackStack(R.id.myFragment, false)
+                } else {
+                    requireContext().toast(message ?: "플레이어 신청 취소에 실패했습니다.")
+                }
+            }
+        }.show(childFragmentManager, "")
+    }
+
+    private fun showBankAccountConfirmDialog() {
+        val playerId = viewModel.playerApplyedInfo.value?.player_id
+        if (playerId == null) {
+            requireContext().toast("플레이어 신청 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.")
+            viewModel.getPlayers()
+            return
+        }
+
+        val bank = viewModel.selectedBank.value
+        if (bank == null) {
+            requireContext().toast("은행을 선택해 주세요.")
+            return
+        }
+
+        dialogFragmentShow(
+            childFragmentManager,
+            BottomAccountInfoDialog().apply {
+                bankName = bank.name
+                bankCode = bank.code
+                accountNumber = this@PlayerJoinFragment.viewModel.accountNumber.value.orEmpty()
+                onConfirmClick = {
+                    this@PlayerJoinFragment.viewModel.postPlayerBank(
+                        playerId = playerId,
+                        requestBank = BankRequestDto(
+                            term_cds = this@PlayerJoinFragment.viewModel.terms.value?.map { it.code }
+                                ?: listOf("terms_1", "terms_2", "terms_3"),
+                            account_number = this@PlayerJoinFragment.viewModel.accountNumber.value.orEmpty(),
+                            account_depositor = this@PlayerJoinFragment.viewModel.depositorName.value.orEmpty(),
+                            bank_cd = bank.code
+                        )
+                    ) { success, message ->
+                        Timber.d("saved bank phase $success")
+                        if (success) {
+                            this@PlayerJoinFragment.viewModel.onClickStepNext(3)
+                        } else {
+                            requireContext().toast(message ?: "계좌 정보를 다시 확인해 주세요.")
+                        }
+                    }
+                }
+            }
+        )
     }
 
     private fun openCrcFilePicker() {

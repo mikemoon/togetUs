@@ -93,6 +93,7 @@
             android:textStyle="bold" />
 
         <LinearLayout
+            android:id="@+id/layoutDate"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginHorizontal="20dp"
@@ -107,6 +108,7 @@
             android:paddingHorizontal="12dp">
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivDate"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/calendar" />
@@ -127,6 +129,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutTime"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginHorizontal="20dp"
@@ -138,6 +141,7 @@
             android:paddingHorizontal="12dp">
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivTime"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/time" />
@@ -265,7 +269,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvConfirm"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
+                android:layout_height="@dimen/bottom_cta_height"
                 android:layout_margin="20dp"
                 android:background="@drawable/selector_p40_p100_r4"
                 android:gravity="center"

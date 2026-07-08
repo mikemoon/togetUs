@@ -82,11 +82,10 @@
             android:id="@+id/btnSubmit"
             style="@style/Paragraph14B"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/bottom_cta_height"
             android:layout_marginTop="20dp"
             android:background="@drawable/background_s_p100_r4"
             android:gravity="center"
-            android:paddingVertical="14dp"
             android:text="등록하기"
             android:textColor="@color/white" />
     </LinearLayout>

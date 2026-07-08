@@ -12,158 +12,165 @@
             type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinViewModel" />
     </data>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/svStep2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:paddingBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@id/tvNext"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/HeadLine20B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp"
+                    android:text="입금 계좌 정보를 입력해 주세요."
+                    android:textColor="@color/black_80" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/background_s_red5_r4"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph14B"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/error_red"
+                        android:drawablePadding="8dp"
+                        android:text="반드시 본인 명의의 계좌를 입력해 주세요."
+                        android:textColor="@color/red_100" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph14R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="입력 정보가 정확하지 않을 경우 정산 지연 또는 실패의 원인이 될 수 있으며, 이에 따른 불이익은 사용자 본인의 책임입니다."
+                        android:textColor="@color/red_100" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph16B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="28dp"
+                    android:text="은행"
+                    android:textColor="@color/black_80" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="8dp"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/etBank"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@drawable/background_st_b10_s_w_r4"
+                        android:clickable="true"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:hint="은행 검색"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:textColor="@color/black_80"
+                        android:textColorHint="@color/black_40" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph16B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="28dp"
+                    android:text="계좌번호"
+                    android:textColor="@color/black_80" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etAccountNumber"
+                    style="@style/Paragraph14R"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:hint="계좌번호 입력"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:maxLength="20"
+                    android:maxLines="1"
+                    android:onClick="@{()-> viewModel.onEventClick(Event.AccountNumber.INSTANCE)}"
+                    android:padding="16dp"
+                    android:singleLine="true"
+                    android:text="@={viewModel.accountNumber}"
+                    android:textColor="@color/black_80"
+                    android:textColorHint="@color/black_40" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph16B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="28dp"
+                    android:text="예금주"
+                    android:textColor="@color/black_80" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etName"
+                    style="@style/Paragraph14R"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/background_st_b10_s_w_r4"
+                    android:hint="홍길동"
+                    android:imeOptions="actionDone"
+                    android:inputType="textPersonName"
+                    android:maxLength="20"
+                    android:maxLines="1"
+                    android:padding="16dp"
+                    android:singleLine="true"
+                    android:text="@={viewModel.depositorName}"
+                    android:textColor="@color/black_80"
+                    android:textColorHint="@color/black_40" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNext"
             style="@style/HeadLine20B"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="8dp"
-            android:text="입금 계좌 정보를 입력해 주세요."
-            android:textColor="@color/black_80" />
-
-        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_height="@dimen/bottom_cta_height"
             android:layout_marginHorizontal="20dp"
-            android:padding="12dp"
-            android:background="@drawable/background_s_red5_r4"
-            android:orientation="vertical"
-            >
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableStart="@drawable/error_red"
-                android:drawablePadding="8dp"
-                android:text="반드시 본인 명의의 계좌를 입력해 주세요."
-                android:textColor="@color/red_100"
-                style="@style/Paragraph14B"
-                />
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="입력 정보가 정확하지 않을 경우 정산 지연 또는 실패의 원인이 될 수 있으며, 이에 따른 불이익은 사용자 본인의 책임입니다."
-                android:textColor="@color/red_100"
-                style="@style/Paragraph14R"
-                />
-        </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:layout_marginStart="20dp"
-            android:textColor="@color/black_80"
-            android:text="은행"
-            style="@style/Paragraph16B"
-            />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="8dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            app:hintEnabled="false"
-            >
-
-            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/etBank"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:background="@drawable/background_st_b10_s_w_r4"
-                android:padding="16dp"
-                android:inputType="none"
-                android:focusable="false"
-                android:clickable="true"
-                android:cursorVisible="false"
-                android:textColor="@color/black_80"
-                android:textColorHint="@color/black_40"
-                android:hint="은행 검색" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:layout_marginStart="20dp"
-            android:textColor="@color/black_80"
-            android:text="계좌번호"
-            style="@style/Paragraph16B"
-            />
-
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/etAccountNumber"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/background_st_b10_s_w_r4"
-            android:padding="16dp"
-            android:hint="계좌번호 입력"
-            android:imeOptions="actionNext"
-            android:inputType="number"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:text="@={viewModel.accountNumber}"
-            android:textColorHint="@color/black_40"
-            style="@style/Paragraph14R"
-            android:textColor="@color/black_80"
-            android:onClick="@{()-> viewModel.onEventClick(Event.AccountNumber.INSTANCE)}"
-            />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:layout_marginStart="20dp"
-            android:textColor="@color/black_80"
-            android:text="예금주"
-            style="@style/Paragraph16B"
-            />
-
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/etName"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/background_st_b10_s_w_r4"
-            android:padding="16dp"
-            android:hint="홍길동"
-            android:imeOptions="actionDone"
-            android:inputType="textPersonName"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:text="@={viewModel.depositorName}"
-            android:textColorHint="@color/black_40"
-            style="@style/Paragraph14R"
-            android:textColor="@color/black_80"
-            />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="58dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginVertical="20dp"
-                android:background="@drawable/selector_b20_p100_r4"
-                android:text="다음"
-                android:textColor="@color/selector_wopa40_wopa100"
-                android:gravity="center"
-                android:enabled="@{viewModel.enableStep2Next}"
-                style="@style/HeadLine20B"
-                android:onClick="@{()-> viewModel.onClickStepNext(3)}"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </LinearLayout>
+            android:layout_marginVertical="20dp"
+            android:background="@drawable/selector_b20_p100_r4"
+            android:enabled="@{viewModel.enableStep2Next}"
+            android:gravity="center"
+            android:onClick="@{()-> viewModel.onClickStep2Next()}"
+            android:text="다음"
+            android:textColor="@color/selector_wopa40_wopa100"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

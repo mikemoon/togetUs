@@ -19,6 +19,7 @@ import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
+import sky.kr.co.newtogetusa.utils.KakaoMapSupport
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatPickupDateTime
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatWon
 import java.util.Locale
@@ -395,7 +396,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
 
     private fun decideMapProvider() {
         val isKorea = Locale.getDefault().country.equals("KR", ignoreCase = true)
-        mapShowState.value = if (isKorea) {
+        mapShowState.value = if (isKorea && KakaoMapSupport.isAvailable) {
             HomeTabViewModel.MapShow.KAKAO_MAP
         } else {
             HomeTabViewModel.MapShow.GOOGLE_MAP
