@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.tabs.TabLayoutMediator
+import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -21,6 +22,15 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
         get() = R.layout.fragment_chatting
     override val viewModel: ChattingTabViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
+    private var isTabSelectionReady = false
+
+    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            if (!isTabSelectionReady) return
+            viewModel.selectTopTab(position)
+            viewModel.refreshRoomsForTab(isPlayer = position == PLAYER_TAB_POSITION)
+        }
+    }
 
 
 
@@ -45,7 +55,7 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
                 }
             }
         }.attach()
-        dataBinding.vPager.setCurrentItem(USER_TAB_POSITION, false)
+        dataBinding.vPager.registerOnPageChangeCallback(pageChangeCallback)
     }
 
     override fun onResume() {
@@ -71,14 +81,21 @@ class ChattingTabFragment : BaseFragment<FragmentChattingBinding, ChattingTabVie
         dataBinding.tab.isVisible = showTopTab
         dataBinding.vDivider.isVisible = showTopTab
 
-        val targetPosition = if (showTopTab && state.isPlayerMode) {
-            PLAYER_TAB_POSITION
-        } else {
-            USER_TAB_POSITION
+        val targetPosition = when {
+            showTopTab && viewModel.selectedTopTabPosition.value != null ->
+                viewModel.selectedTopTabPosition.value!!
+            showTopTab && state.isPlayerMode -> PLAYER_TAB_POSITION
+            else -> USER_TAB_POSITION
         }
         if (dataBinding.vPager.currentItem != targetPosition) {
             dataBinding.vPager.setCurrentItem(targetPosition, false)
         }
+        isTabSelectionReady = true
+    }
+
+    override fun onDestroyView() {
+        dataBinding.vPager.unregisterOnPageChangeCallback(pageChangeCallback)
+        super.onDestroyView()
     }
 
     companion object {

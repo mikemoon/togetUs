@@ -41,6 +41,7 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
         }
         dataBinding.rvList.apply {
             adapter = chatAdapter
+            itemAnimator = null
         }
     }
 
@@ -159,7 +160,8 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
             profileUrl = participant?.profile_image.orEmpty(),
             deliveryImageUrl = delivery.prd_picture,
             unReadCount = unread_cnt,
-            message = last_msg.toPreviewMessage()
+            message = last_msg.toPreviewMessage(),
+            isDisabled = isDisabled
         )
     }
 

@@ -59,7 +59,7 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
         val res = deliveryRepository.getDeliveryFee(deliveryId)
         when(res){
             is ResultWrapper.Success -> {
-                feeValue.value = res.data.feeFinal.toLong()
+                feeValue.value = res.data.feeBasic.toLong()
                 adjustFeeValue.value = res.data.feeAdjust.toLong()
             }
             is ResultWrapper.GenericError ->{
@@ -75,10 +75,10 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
         loadingState.value = true
         when (val res = deliveryRepository.getDeliveryFee(deliveryId)) {
             is ResultWrapper.Success -> {
-                feeValue.value = res.data.feeFinal.toLong()
+                feeValue.value = res.data.feeBasic.toLong()
                 adjustFeeValue.value = res.data.feeAdjust.toLong()
                 distanceKm.value = "${res.data.expectedStraight} km"
-                productWeight.value = res.data.expectedWeightCd
+                productWeight.value = weightLabel(res.data.expectedWeightCd)
             }
             else -> Unit
         }
@@ -127,9 +127,17 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
                 distance = distance,
                 weight = weight,
                 fee = "%,d원".format(fee),
-                adjustFee = (adjustFee ?: 0L).toString()
+                baseFee = fee,
+                // A zero additional fee is represented by the input hint, not as entered text.
+                adjustFee = adjustFee?.takeIf { it > 0L }?.toString().orEmpty()
             )
         }
+    }
+
+    private fun weightLabel(code: String): String = when (code.lowercase()) {
+        "light", "small" -> "가벼움(~3kg)"
+        "medium" -> "보통(3~10kg)"
+        else -> code
     }
 
     fun onAgree(){
@@ -157,5 +165,6 @@ data class DeliveryFeeUiModel(
     val distance: String,
     val weight: String,
     val fee: String,
+    val baseFee: Long,
     val adjustFee: String
 )

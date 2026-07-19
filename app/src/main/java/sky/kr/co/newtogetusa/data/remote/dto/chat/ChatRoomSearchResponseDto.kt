@@ -20,7 +20,15 @@ data class ChatRoomSearchRoomDto(
     val is_cancel: Boolean,
     val is_blocked: Boolean,
     val is_reported: Boolean
-)
+) {
+    val isDisabled: Boolean
+        get() = delivery.status_cd in DISABLED_DELIVERY_STATUSES ||
+            is_cancel || is_blocked || is_reported
+
+    private companion object {
+        val DISABLED_DELIVERY_STATUSES = setOf("DELIVERY_END", "CANCEL")
+    }
+}
 
 data class ChatRoomSearchDeliveryDto(
     val delivery_id: Int,

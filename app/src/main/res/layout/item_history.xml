@@ -158,7 +158,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{item.depart_address}"
+                    android:text="@{item.masked_depart_address}"
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />
@@ -281,7 +281,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{item.dest_address}"
+                    android:text="@{item.masked_dest_address}"
                     android:textColor="@color/black_80"
                     style="@style/Paragraph12R"
                     />

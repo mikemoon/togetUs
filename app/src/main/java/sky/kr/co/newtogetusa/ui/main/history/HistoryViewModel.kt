@@ -46,21 +46,20 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
     }
 
     private val _topMenu = MutableStateFlow("ALL")
+    private val _selectedTopMenu = MutableStateFlow<TopMenu>(TopMenu.All)
+    val selectedTopMenu: StateFlow<TopMenu> = _selectedTopMenu
     private val _keyword = MutableStateFlow("")
 
     fun setKeyword(keyword: String){
         _keyword.value = keyword
     }
-    private val _topMenuLiveData = SingleLiveEvent<TopMenu>()
-    val topMenuLiveData: LiveData<TopMenu> = _topMenuLiveData
-
     fun onTopMenuSelect(topMenu: TopMenu) {
         _topMenu.value = when(topMenu){
             is TopMenu.All -> "ALL"
             is TopMenu.Doing -> "ING"//"REG|MATCH|DELIVERY|ING"
             is TopMenu.End -> "DONE"
         }
-        _topMenuLiveData.value = topMenu
+        _selectedTopMenu.value = topMenu
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

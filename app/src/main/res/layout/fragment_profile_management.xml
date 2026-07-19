@@ -177,10 +177,11 @@
                         android:paddingVertical="12dp">
 
                         <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvCancelHistoryTitle"
                             style="@style/Paragraph14R"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="플레이어 확정 후 취소 이력"
+                            android:text="'동행 확정' 상태에서의 취소 이력"
                             android:textColor="@color/white"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"

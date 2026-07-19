@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.delivery
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
@@ -34,6 +35,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+internal const val PICKUP_SELECTION_RESULT_KEY = "pickup_selection_result"
+internal const val PICKUP_RESULT_IS_IMMEDIATELY = "pickup_result_is_immediately"
+internal const val PICKUP_RESULT_DATE = "pickup_result_date"
+internal const val PICKUP_RESULT_TIME = "pickup_result_time"
+internal const val PICKUP_RESULT_IS_FACE_TO_FACE = "pickup_result_is_face_to_face"
 
 @AndroidEntryPoint
 class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReqViewModel>() {
@@ -93,6 +100,20 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
     override fun initObserver() {
         super.initObserver()
 
+        // iOS의 픽업 선택 delegate처럼 복귀 시 선택값을 요청 화면에 직접 전달한다.
+        val savedStateHandle = findNavController().currentBackStackEntry?.savedStateHandle
+        savedStateHandle?.getLiveData<Bundle>(PICKUP_SELECTION_RESULT_KEY)
+            ?.observe(viewLifecycleOwner) { result ->
+                result ?: return@observe
+                sharedViewModel.updatePickupInfo(
+                    isImmediately = result.getBoolean(PICKUP_RESULT_IS_IMMEDIATELY),
+                    date = result.getString(PICKUP_RESULT_DATE).orEmpty(),
+                    time = result.getString(PICKUP_RESULT_TIME).orEmpty(),
+                    isFaceToFace = result.getBoolean(PICKUP_RESULT_IS_FACE_TO_FACE)
+                )
+                savedStateHandle.remove<Bundle>(PICKUP_SELECTION_RESULT_KEY)
+            }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 sharedViewModel.state.collect { state ->
@@ -106,13 +127,19 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
                         dataBinding.tvDestinationAddress.text = state.destinationAddress.orEmpty()
                     }
 
-                    val hasPickupSummary = !state.pickupDate.isNullOrBlank() && !state.pickupTime.isNullOrBlank()
+                    // 즉시 요청은 날짜/시간을 비워서 저장하므로, 픽업 방식 자체를 선택 완료 상태로 본다.
+                    val hasPickupSummary = state.pickupIsImmediately ||
+                        (!state.pickupDate.isNullOrBlank() && !state.pickupTime.isNullOrBlank())
                     dataBinding.layoutDateSummary.isVisible = hasPickupSummary
                     dataBinding.ivDate.setImageResource(
                         if (hasPickupSummary) R.drawable.calendar_fill_primary else R.drawable.calendar_fill_gray
                     )
                     if (hasPickupSummary) {
-                        dataBinding.tvPickupDateSummary.text = "${formatKoreanDate(state.pickupDate.orEmpty())} ${formatTimeToKorean(state.pickupTime.orEmpty())}"
+                        dataBinding.tvPickupDateSummary.text = if (state.pickupIsImmediately) {
+                            "즉시 요청"
+                        } else {
+                            "${formatKoreanDate(state.pickupDate.orEmpty())} ${formatTimeToKorean(state.pickupTime.orEmpty())}"
+                        }
                         dataBinding.tvPickupMethodSummary.text = "픽업 전달 방식  ${if (state.pickupIsFaceToFace) "대면" else "비대면"}"
                     }
 

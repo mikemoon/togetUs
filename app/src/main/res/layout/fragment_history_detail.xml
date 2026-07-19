@@ -389,7 +389,8 @@
                             android:background="@drawable/background_s_b5_r4"
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
-                            android:padding="8dp">
+                            android:padding="8dp"
+                            android:visibility="@{viewModel.deliveryData.showDepartContact ? View.VISIBLE : View.GONE}">
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 style="@style/Paragraph17B"
@@ -454,7 +455,8 @@
                             android:background="@drawable/background_s_b5_r4"
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
-                            android:padding="8dp">
+                            android:padding="8dp"
+                            android:visibility="@{viewModel.deliveryData.showDestContact ? View.VISIBLE : View.GONE}">
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 style="@style/Paragraph17B"
@@ -467,7 +469,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="16dp"
-                                android:text="@{viewModel.deliveryData.destContactName+` `+viewModel.deliveryData.departContactPhone}"
+                                android:text="@{viewModel.deliveryData.destContactName+` `+viewModel.deliveryData.destContactPhone}"
                                 android:textColor="@color/black_60" />
                         </LinearLayout>
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -23,19 +24,18 @@ class ProfileDeliveryRequestFragment : BaseFragment<FragmentProfileDeliveryReque
     override val viewModel: ProfileManagementViewModel by viewModels({requireParentFragment()})
 
     private lateinit var deliveryReqAdapter: DeliveryReqAdapter
+    private lateinit var deliveryReqFilterAdapter: DeliveryReqFilterAdapter
 
     override fun init() {
         super.init()
 
-        deliveryReqAdapter = DeliveryReqAdapter(viewModel) { selectedItem ->
+        deliveryReqFilterAdapter = DeliveryReqFilterAdapter(viewModel)
+        deliveryReqAdapter = DeliveryReqAdapter { selectedItem ->
             val action = NavGraphDirections.actionGlobalHistoryDetailFragment(selectedItem)
             requireActivity().findNavController(R.id.nav_host_container).navigate(action)
         }
-        deliveryReqAdapter.addOnPagesUpdatedListener {
-            focusTopPosition()
-        }
         dataBinding.rv.apply {
-            adapter = deliveryReqAdapter
+            adapter = ConcatAdapter(deliveryReqFilterAdapter, deliveryReqAdapter)
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
             setPadding(paddingLeft, 20.dpToPx(), paddingRight, 20.dpToPx())
             clipToPadding = false
@@ -56,7 +56,7 @@ class ProfileDeliveryRequestFragment : BaseFragment<FragmentProfileDeliveryReque
         }
 
         viewModel.topMenuLiveData.observe(viewLifecycleOwner) {
-            deliveryReqAdapter.notifyItemChanged(0)
+            deliveryReqFilterAdapter.notifyItemChanged(0)
             focusTopPosition()
         }
     }

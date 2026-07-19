@@ -8,6 +8,7 @@ import android.provider.MediaStore
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -55,6 +56,7 @@ class ChattingConversationFragment :
     private var lastDisplayedMessageId: Long? = null
     private var lastUnreadRefreshMessageId: Long = 0
     private var isInputToolsOpen = false
+    private var keepLatestMessageAnchored = false
     private var pendingMediaType: PendingMediaType = PendingMediaType.IMAGE
 
     // 카메라를 실행한 후 찍은 사진을 저장
@@ -113,6 +115,7 @@ class ChattingConversationFragment :
                     newLastMessage != null &&
                     newLastMessage.id != lastDisplayedMessageId &&
                     newLastMessage.isMyMessage
+            // iOS와 동일하게 방에 처음 진입해 메시지를 불러온 직후에도 최신 메시지를 입력창 위에 표시한다.
             val shouldScrollToBottom = !hasLoadedInitialMessages || wasAtBottom || isNewOwnLatestMessage
             val shouldShowNewMessagePopup =
                 hasLoadedInitialMessages &&
@@ -343,15 +346,18 @@ class ChattingConversationFragment :
     }
 
     private fun setupRecyclerView() {
-        adapter = ChatMessageAdapter(viewModel)
+        adapter = ChatMessageAdapter(viewModel, ::onChatMediaRendered)
         dataBinding.recyclerViewMessages.apply {
             adapter = this@ChattingConversationFragment.adapter
-            layoutManager = LinearLayoutManager(requireContext()).apply {
-                stackFromEnd = true // 아래에서부터 쌓기
-            }
+            layoutManager = LinearLayoutManager(requireContext())
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
+                    if (recyclerView.scrollState == RecyclerView.SCROLL_STATE_DRAGGING && dy < 0) {
+                        keepLatestMessageAnchored = false
+                    } else if (isMessageListAtBottom()) {
+                        keepLatestMessageAnchored = true
+                    }
                     updateScrollToBottomButton()
                 }
             })
@@ -372,7 +378,16 @@ class ChattingConversationFragment :
             return
         }
 
-        dataBinding.recyclerViewMessages.scrollToPosition(lastPosition)
+        // iPhone의 scrollToRow(..., .bottom)처럼 마지막 행을 배치한 다음,
+        // 콘텐츠 높이와 뷰포트 높이로 계산한 실제 최하단 오프셋으로 이동한다.
+        val recyclerView = dataBinding.recyclerViewMessages
+        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+        keepLatestMessageAnchored = true
+        layoutManager.scrollToPositionWithOffset(lastPosition, 0)
+        recyclerView.doOnNextLayout {
+            scrollRecyclerViewToBottom()
+            recyclerView.post(::scrollRecyclerViewToBottom)
+        }
         dataBinding.fabScrollToBottom.isVisible = false
         dataBinding.tvNewMessagePopup.isVisible = false
     }
@@ -383,6 +398,19 @@ class ChattingConversationFragment :
             dataBinding.tvNewMessagePopup.isVisible = false
         }
         dataBinding.fabScrollToBottom.isVisible = !isAtBottom && !dataBinding.tvNewMessagePopup.isVisible
+    }
+
+    private fun scrollRecyclerViewToBottom() {
+        val recyclerView = dataBinding.recyclerViewMessages
+        val maxOffset = (
+            recyclerView.computeVerticalScrollRange() - recyclerView.computeVerticalScrollExtent()
+            ).coerceAtLeast(0)
+        recyclerView.scrollBy(0, maxOffset - recyclerView.computeVerticalScrollOffset())
+    }
+
+    private fun onChatMediaRendered() {
+        if (!keepLatestMessageAnchored || !isAdded) return
+        dataBinding.recyclerViewMessages.post(::scrollToLatestMessage)
     }
 
     private fun showNewMessagePopup(message: ChatMessage) {

@@ -44,6 +44,7 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
     private var isEditMode = false
     private var editDeliveryId = -1L
     private var hasAppliedInitialAdjustFee = false
+    private var baseFee = 0L
 
     override fun init() {
         super.init()
@@ -120,6 +121,7 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
 
         dataBinding.etAdjustFee.doAfterTextChanged { text ->
             updateAdjustFeeClearVisibility()
+            updateTotalFee()
             if (isEditMode) {
                 updateEditSubmitState()
             }
@@ -147,15 +149,25 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isAgreeChecked.collect {
+                    if (isEditMode) updateEditSubmitState()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.deliveryUiModel.collect { uiModel ->
                     uiModel?.let {
                         dataBinding.uiModel = it
+                        baseFee = it.baseFee
                         if (isEditMode && !hasAppliedInitialAdjustFee) {
                             dataBinding.etAdjustFee.setText(it.adjustFee)
                             dataBinding.etAdjustFee.setSelection(dataBinding.etAdjustFee.text?.length ?: 0)
                             hasAppliedInitialAdjustFee = true
-                            updateEditSubmitState()
                         }
+                        updateTotalFee()
+                        if (isEditMode) updateEditSubmitState()
                     }
                 }
             }
@@ -246,21 +258,23 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
         llAdjustFeeInput.setBackgroundResource(R.drawable.background_st_p60_s_p10_r4)
         etAdjustFee.gravity = Gravity.END or Gravity.CENTER_VERTICAL
         etAdjustFee.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
-        llAgree.visibility = View.GONE
-        llNotice.visibility = View.GONE
         tvRegister.text = "동행 요청 수정"
         updateAdjustFeeClearVisibility()
         this@DeliveryFeeFragment.viewModel.setRegisterButtonEnabled(false)
     }
 
     private fun updateEditSubmitState() = with(dataBinding) {
-        val isValid = etAdjustFee.text?.toString()
+        val priceText = etAdjustFee.text?.toString()
             ?.replace(",", "")
             ?.trim()
-            ?.toLongOrNull()
-            ?.let { it >= 0L } == true
+            .orEmpty()
+        val isValid = priceText.isEmpty() || priceText.toLongOrNull()?.let {
+            it >= 1000L && it % 1000L == 0L
+        } == true
 
-        this@DeliveryFeeFragment.viewModel.setRegisterButtonEnabled(isValid)
+        this@DeliveryFeeFragment.viewModel.setRegisterButtonEnabled(
+            isValid && this@DeliveryFeeFragment.viewModel.isAgreeChecked.value
+        )
         llAdjustFeeInput.setBackgroundResource(
             if (isValid) R.drawable.background_st_p60_s_p10_r4
             else R.drawable.background_st_primary100_s_primary10_r4
@@ -270,6 +284,15 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
     private fun updateAdjustFeeClearVisibility() = with(dataBinding) {
         ivAdjustFeeClear.visibility =
             if (etAdjustFee.text?.isNotEmpty() == true) View.VISIBLE else View.GONE
+    }
+
+    private fun updateTotalFee() {
+        val adjustFee = dataBinding.etAdjustFee.text?.toString()
+            ?.replace(",", "")
+            ?.trim()
+            ?.toLongOrNull()
+            ?: 0L
+        dataBinding.tvTotalFee.text = "%,d원".format(baseFee + adjustFee)
     }
 
     private fun parseAdjustFee(): Long =

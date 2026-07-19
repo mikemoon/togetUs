@@ -24,6 +24,7 @@ import sky.kr.co.newtogetusa.utils.KakaoMapSupport
 import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatPickupDateTime
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatWon
+import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.ceil
@@ -37,13 +38,15 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
 
     val deliveryDetail = MutableStateFlow<DeliveryDetailResponse?>(null)
     private val myUserId = MutableStateFlow<Long?>(null)
+    private val myPlayerId = MutableStateFlow<Long?>(null)
     private val chatInProgressCount = MutableStateFlow(0)
     private val detailState = combine(
         deliveryDetail,
         myUserId,
+        myPlayerId,
         chatInProgressCount
-    ) { detail, userId, chatCount ->
-        DetailState(detail, userId, chatCount)
+    ) { detail, userId, playerId, chatCount ->
+        DetailState(detail, userId, playerId, chatCount)
     }
 
     val productTypes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
@@ -96,26 +99,40 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         findConfigLabel(productVolumes.value, code, PRODUCT_VOLUME_FALLBACKS)
 
     fun getDeliveryDetailInfo(deliveryId: Long) = viewModelScope.launch {
-        refreshMyProfile()
+        // Match iOS: load the delivery detail immediately. A profile refresh must not delay
+        // the detail response that contains fee and pay information.
+        loadCachedProfile()
         val res = deliveryRepo.getDeliveryDetail(deliveryId)
         when(res){
             is ResultWrapper.Success ->{
                 deliveryDetail.value = res.data
+                Timber.d(
+                    "deliveryDetail loaded id=%d, status=%s, payCount=%d, feeFinal=%d",
+                    deliveryId,
+                    res.data.status_cd,
+                    res.data.pay.size,
+                    res.data.fee.fee_final
+                )
                 refreshChatInProgressCountIfNeeded(res.data)
             }
-            else -> {}
+            else -> Timber.w("deliveryDetail failed id=%d", deliveryId)
+        }
+        refreshMyProfileFromNetwork()
+    }
+
+    private suspend fun loadCachedProfile() {
+        dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)?.user?.let {
+            myUserId.value = it.user_id.toLong()
+            myPlayerId.value = it.player_id.toLong().takeIf { playerId -> playerId > 0L }
         }
     }
 
-    private suspend fun refreshMyProfile() {
-        dataStoreRepository.getProfile(DataStoreKey.KEY_PROFILE)?.user?.let {
-            myUserId.value = it.user_id.toLong()
-        }
-
+    private suspend fun refreshMyProfileFromNetwork() {
         when (val res = userRepository.getMyProfile()) {
             is ResultWrapper.Success -> {
                 dataStoreRepository.putProfile(DataStoreKey.KEY_PROFILE, res.data)
                 myUserId.value = res.data.user.user_id.toLong()
+                myPlayerId.value = res.data.user.player_id.toLong().takeIf { playerId -> playerId > 0L }
             }
             else -> Unit
         }
@@ -147,6 +164,35 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         }
     }
 
+    fun deleteReq(deliveryId: Long, resultCallback: (Boolean) -> Unit) = viewModelScope.launch {
+        when (val res = deliveryRepo.deleteDelivery(deliveryId)) {
+            is ResultWrapper.Success -> resultCallback(res.data)
+            else -> resultCallback(false)
+        }
+    }
+
+    fun getMoreActions(): List<MoreAction> {
+        val detail = deliveryDetail.value ?: return emptyList()
+        val isRequester = myUserId.value != null && detail.requester_id == myUserId.value
+        if (!isRequester) return emptyList()
+
+        return when (detail.status_cd) {
+            "REGISTER_ING" -> listOf(MoreAction.Delete, MoreAction.Modify)
+            "MATCH_BEFORE" -> listOf(
+                MoreAction.Cancel,
+                MoreAction.Modify,
+                MoreAction.Chatting
+            )
+            "MATCH_ING", "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START" -> listOf(
+                MoreAction.Cancel,
+                MoreAction.Chatting
+            )
+            "DELIVERY_ING", "DELIVERY_END", "DONE", "DONE_END", "CANCEL" ->
+                listOf(MoreAction.Chatting)
+            else -> emptyList()
+        }
+    }
+
     val deliveryData = combine(
         detailState,
         productTypes,
@@ -160,9 +206,9 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         val weightName = weights.firstOrNull { it.code == detail.product.weight_cd }?.name.orEmpty()
         val volumeName = volumes.firstOrNull { it.code == detail.product.volume_cd }?.name.orEmpty()
         val isRequester = state.userId != null && detail.requester_id == state.userId
+        val isMatchedPlayer = state.playerId != null && detail.player_id == state.playerId
         val showPaymentInfo = isRequester &&
-            detail.status_cd in setOf("DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "DELIVERY_ING", "DELIVERY_END", "DONE", "DONE_END", "CANCEL") &&
-            detail.pay.isNotEmpty()
+            detail.status_cd in PAYMENT_INFO_STATUSES
         val primaryPay = detail.pay.firstOrNull()
         val additionalPay = detail.pay.drop(1).firstOrNull()
 
@@ -177,12 +223,24 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
                 detail.pickup.date,
                 detail.pickup.time
             ),
-            pickupAddressText = detail.depart.address,
-            destinationAddressText = detail.dest.address,
+            pickupAddressText = detail.displayAddress(
+                detail.depart.address,
+                detail.depart.address2,
+                isRequester,
+                isMatchedPlayer
+            ),
+            destinationAddressText = detail.displayAddress(
+                detail.dest.address,
+                detail.dest.address2,
+                isRequester,
+                isMatchedPlayer
+            ),
             departContactName = detail.depart_contact.name.orEmpty(),
             departContactPhone = detail.depart_contact.phone.orEmpty(),
+            showDepartContact = hasContact(detail.depart_contact.name, detail.depart_contact.phone),
             destContactName = detail.dest_contact.name.orEmpty(),
             destContactPhone = detail.dest_contact.phone.orEmpty(),
+            showDestContact = hasContact(detail.dest_contact.name, detail.dest_contact.phone),
             productPicUrls = detail.product.pictures,
             productDesc = detail.product.descript,
             productType = typeName,
@@ -239,6 +297,23 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
             else -> type
         }
 
+    private fun DeliveryDetailResponse.displayAddress(
+        address: String,
+        address2: String?,
+        isRequester: Boolean,
+        isMatchedPlayer: Boolean,
+    ): String {
+        val isCancelled = status_cd in CANCELLATION_STATUSES
+        val canViewAddress = isRequester ||
+            status_cd in setOf("MATCH_BEFORE", "MATCH_ING") ||
+            isMatchedPlayer
+        if (isCancelled || !canViewAddress) return "***** *****"
+
+        return listOf(address, address2.orEmpty())
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event){
@@ -249,6 +324,7 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         object Back : Event()
 
         object MoreShow : Event()
+        object DeleteReq: Event()
         object CancelReq: Event()
         object Modify: Event()
 
@@ -259,6 +335,13 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
 
     }
 
+    enum class MoreAction {
+        Delete,
+        Cancel,
+        Modify,
+        Chatting,
+    }
+
     private fun findNameByCode(
         list: List<BaseCommonDto>,
         code: String
@@ -266,7 +349,20 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         return list.firstOrNull { it.code == code }?.name.orEmpty()
     }
 
+    private fun hasContact(name: String?, phone: String?): Boolean =
+        listOf(name, phone).any { value ->
+            val normalized = value?.trim().orEmpty()
+            normalized.isNotBlank() &&
+                !normalized.equals("null", ignoreCase = true) &&
+                normalized != "-"
+        }
+
     companion object {
+        private val PAYMENT_INFO_STATUSES = setOf(
+            "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "DELIVERY_ING",
+            "DELIVERY_END", "DONE", "DONE_END", "DONE_DELIVERY", "CANCEL", "CANCEL_DONE"
+        )
+        private val CANCELLATION_STATUSES = setOf("CANCEL", "CANCEL_DONE")
         private val PRODUCT_TYPE_FALLBACKS = mapOf(
             "type_1" to "전자기기"
         )
@@ -293,6 +389,7 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
     private data class DetailState(
         val detail: DeliveryDetailResponse?,
         val userId: Long?,
+        val playerId: Long?,
         val chatCount: Int,
     )
 
@@ -308,8 +405,10 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         val destinationAddressText : String,
         val departContactName : String,
         val departContactPhone: String,
+        val showDepartContact: Boolean,
         val destContactName : String,
         val destContactPhone: String,
+        val showDestContact: Boolean,
         val productPicUrls : List<String>,
         val productDesc : String,
         val productType : String,

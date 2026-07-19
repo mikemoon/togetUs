@@ -14,6 +14,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="84dp"
+        android:background="@{item.isDisabled ? @color/black_2 : @color/white}"
         android:clipChildren="false"
         android:clipToPadding="false">
 
@@ -72,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{item.name}"
-                    android:textColor="@color/black_80"
+                    android:textColor="@{item.isDisabled ? @color/black_40 : @color/black_80}"
                     style="@style/Paragraph14B"
                     tools:text="홍길동" />
 
@@ -94,7 +95,7 @@
                 android:layout_marginTop="6dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/black_60"
+                android:textColor="@{item.isDisabled ? @color/black_20 : @color/black_60}"
                 android:text="@{item.message}"
                 style="@style/Paragraph14R"
                 tools:text="안녕하세요." />
@@ -115,7 +116,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:text="@{item.unReadCount > 99 ? `100+` : `` + item.unReadCount}"
-            android:visibility="@{item.unReadCount > 0 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{item.unReadCount > 0 &amp;&amp; !item.isDisabled ? View.VISIBLE : View.GONE}"
             tools:text="100" />
 
         <View

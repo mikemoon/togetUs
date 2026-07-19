@@ -30,28 +30,29 @@ class ChattingTabViewModel @Inject constructor(baseViewModelFactory: BaseViewMod
 
     val chatRooms = MutableStateFlow<List<ChatRoomDto>>(emptyList())
     val chatTabUiState = MutableStateFlow(ChatTabUiState())
-    private val playerRoomRequest = MutableStateFlow(defaultRequest())
-    private val userRoomRequest = MutableStateFlow(defaultRequest())
+    val selectedTopTabPosition = MutableStateFlow<Int?>(null)
+    private val playerRoomSearch = MutableStateFlow(RoomSearch(defaultRequest()))
+    private val userRoomSearch = MutableStateFlow(RoomSearch(defaultRequest()))
 
     init {
         observePlayerMode()
         refreshPlayerApproval()
     }
 
-    val playerRoomPagingData = playerRoomRequest
-        .flatMapLatest { request ->
+    val playerRoomPagingData = playerRoomSearch
+        .flatMapLatest { search ->
             chatRepository.getPlayerRoomPagingFlow(
-                type = request.type,
-                pageSize = request.page_size
+                type = search.request.type,
+                pageSize = search.request.page_size
             )
         }
         .cachedIn(viewModelScope)
 
-    val userRoomPagingData = userRoomRequest
-        .flatMapLatest { request ->
+    val userRoomPagingData = userRoomSearch
+        .flatMapLatest { search ->
             chatRepository.getUserRoomPagingFlow(
-                type = request.type,
-                pageSize = request.page_size
+                type = search.request.type,
+                pageSize = search.request.page_size
             )
         }
         .cachedIn(viewModelScope)
@@ -66,11 +67,23 @@ class ChattingTabViewModel @Inject constructor(baseViewModelFactory: BaseViewMod
     }
 
     fun searchPlayerRooms(request: ChatRoomSearchRequest) {
-        playerRoomRequest.value = request
+        playerRoomSearch.value = playerRoomSearch.value.next(request)
     }
 
     fun searchUserRooms(request: ChatRoomSearchRequest) {
-        userRoomRequest.value = request
+        userRoomSearch.value = userRoomSearch.value.next(request)
+    }
+
+    fun refreshRoomsForTab(isPlayer: Boolean) {
+        if (isPlayer) {
+            playerRoomSearch.value = playerRoomSearch.value.next()
+        } else {
+            userRoomSearch.value = userRoomSearch.value.next()
+        }
+    }
+
+    fun selectTopTab(position: Int) {
+        selectedTopTabPosition.value = position
     }
 
     fun refreshPlayerApproval() = viewModelScope.launch {
@@ -104,14 +117,22 @@ class ChattingTabViewModel @Inject constructor(baseViewModelFactory: BaseViewMod
 
     companion object {
         const val TYPE_ALL = "ALL"
-        const val TYPE_PROGRESS = "PROGRESS"
-        const val TYPE_END = "END"
+        const val TYPE_PROGRESS = "ING"
+        const val TYPE_END = "DONE"
 
         fun defaultRequest() = ChatRoomSearchRequest(
             type = TYPE_ALL,
             page_no = 0,
             page_size = 10
         )
+    }
+
+    private data class RoomSearch(
+        val request: ChatRoomSearchRequest,
+        val refreshId: Long = 0L
+    ) {
+        fun next(request: ChatRoomSearchRequest = this.request): RoomSearch =
+            copy(request = request, refreshId = refreshId + 1)
     }
 
 }

@@ -86,12 +86,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvState"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/background_s_b5_r4"
+            android:id="@+id/tvState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/background_s_b5_r4"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:textColor="@color/black_60"
@@ -99,24 +98,25 @@
                 android:textStyle="bold"
                 android:text="@{viewModel.deliveryStatusFlow}"
                 app:deliveryStatusBadge="@{viewModel.deliveryStatusFlow}"
+                app:layout_constraintBottom_toBottomOf="@id/ivProduct"
                 app:layout_constraintStart_toEndOf="@id/ivProduct"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="@id/ivProduct"
                 tools:text="상태값" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="10dp"
-                android:ellipsize="end"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/black_80"
                 android:textSize="14dp"
                 android:text="@{viewModel.deliveryTitleFlow}"
                 app:layout_constraintEnd_toStartOf="@id/ivProductArrow"
                 app:layout_constraintStart_toEndOf="@id/tvState"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvState"
+                app:layout_constraintBottom_toBottomOf="@id/tvState"
                 tools:text="반찬통 배달해주세요." />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -158,7 +158,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:padding="8dp"
+            android:paddingBottom="16dp"
             app:layout_constraintBottom_toTopOf="@+id/clInputGroup"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

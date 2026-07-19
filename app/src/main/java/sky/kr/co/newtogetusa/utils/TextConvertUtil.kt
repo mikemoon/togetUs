@@ -25,6 +25,7 @@ object TextConvertUtil {
 
         val month = localDate.monthValue
         val day = localDate.dayOfMonth
+        val year = localDate.year
 
         val dayOfWeek = when (localDate.dayOfWeek.value) {
             1 -> "월"
@@ -38,7 +39,7 @@ object TextConvertUtil {
 
         // time이 없으면 날짜만 표시
         if (time.isNullOrBlank() || time == "null") {
-            return "${month}월 ${day}일(${dayOfWeek})"
+            return "${year}년 ${month}월 ${day}일(${dayOfWeek})"
         }
 
         val localTime = runCatching {
@@ -47,7 +48,7 @@ object TextConvertUtil {
 
         // 파싱 실패 시 날짜만 표시
         if (localTime == null) {
-            return "${month}월 ${day}일(${dayOfWeek})"
+            return "${year}년 ${month}월 ${day}일(${dayOfWeek})"
         }
 
         val hour = localTime.hour
@@ -60,7 +61,7 @@ object TextConvertUtil {
             else -> hour
         }
 
-        return "${month}월 ${day}일(${dayOfWeek}) $amPm $displayHour:${minute.toString().padStart(2, '0')}"
+        return "${year}년 ${month}월 ${day}일(${dayOfWeek}) $amPm $displayHour:${minute.toString().padStart(2, '0')}"
     }
 
     fun Int.toWon(): String {

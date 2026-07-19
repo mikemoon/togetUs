@@ -1,5 +1,7 @@
 package sky.kr.co.newtogetusa.data.remote.dto.chat
 
+import com.google.gson.annotations.SerializedName
+
 data class ChatRoomDto(
     val room_id: Int,
     val room_name: String,
@@ -9,9 +11,20 @@ data class ChatRoomDto(
     val delivery: ChatRoomDeliveryDto?,
     val last_msg: ChatRoomLastMessageDto?,
     val is_blocked: Boolean = false,
-    val is_noti_on: Boolean = true,
+    @SerializedName("noti_yn")
+    val noti_yn: String? = null,
+    @SerializedName("is_noti_on")
+    val is_noti_on: Boolean? = null,
     val is_reported: Boolean = false
-)
+) {
+    // 채팅방 상세 API의 실제 상태값은 noti_yn(Y/N)이며, 이전 응답의 Boolean 필드도 호환한다.
+    val isNotificationOn: Boolean
+        get() = when (noti_yn?.uppercase()) {
+            "Y" -> true
+            "N" -> false
+            else -> is_noti_on ?: true
+        }
+}
 
 data class ChatRoomDeliveryDto(
     val delivery_id: Int,

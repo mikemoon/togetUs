@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -24,13 +25,17 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.ui.dialog.loading.LoadingDialogFragment
@@ -185,7 +190,8 @@ fun ImageView.loadImage(
     @DrawableRes error: Int? = null,
     roundedCorner : Int? = null,
     crossFade: Boolean = false,
-    isCircle: Boolean = false
+    isCircle: Boolean = false,
+    onResourceReady: (() -> Unit)? = null
 ) {
     val requestOptions = RequestOptions().apply {
         placeholder?.let { placeholder(it) }
@@ -201,6 +207,25 @@ fun ImageView.loadImage(
     Glide.with(context)
         .load(url)
         .apply(requestOptions)
+        .listener(object : RequestListener<Drawable> {
+            override fun onLoadFailed(
+                exception: GlideException?,
+                model: Any?,
+                target: Target<Drawable>,
+                isFirstResource: Boolean
+            ): Boolean = false
+
+            override fun onResourceReady(
+                resource: Drawable,
+                model: Any,
+                target: Target<Drawable>?,
+                dataSource: DataSource,
+                isFirstResource: Boolean
+            ): Boolean {
+                post { onResourceReady?.invoke() }
+                return false
+            }
+        })
         .also {
             if (crossFade) {
                 it.transition(DrawableTransitionOptions.withCrossFade())

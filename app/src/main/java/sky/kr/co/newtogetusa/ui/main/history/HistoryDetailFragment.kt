@@ -215,6 +215,9 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
         ) { _, bundle ->
             Timber.d("BottomMoreResult ${bundle.getString("action")}")
             when (bundle.getString("action")) {
+                "Delete" -> {
+                    deleteRequest()
+                }
                 "Cancel" -> {
                     cancelRequest()
                 }
@@ -260,9 +263,16 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 }
 
                 HistoryDetailViewModel.Event.MoreShow -> {
-                    BottomMoreDialog().show(parentFragmentManager, "BottomMoreDialog")
+                    val actions = viewModel.getMoreActions().map { it.name }
+                    if (actions.isNotEmpty()) {
+                        BottomMoreDialog.newInstance(actions)
+                            .show(parentFragmentManager, "BottomMoreDialog")
+                    }
                 }
 
+                HistoryDetailViewModel.Event.DeleteReq -> {
+                    deleteRequest()
+                }
                 HistoryDetailViewModel.Event.CancelReq -> {
                     cancelRequest()
                 }
@@ -387,6 +397,23 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
         }.show(childFragmentManager, "")
     }
 
+    private fun deleteRequest() {
+        MessageDialog.newInstance(
+            msg = "작성중인 동행요청을 삭제하시겠어요?",
+            rightBtn = "삭제",
+            leftBtn = "취소"
+        ).onRightBtn {
+            viewModel.deleteReq(
+                viewModel.deliveryDetail.value?.delivery_id ?: return@onRightBtn
+            ) { result ->
+                if (result) {
+                    requireContext().toast("작성중인 동행요청 삭제가 완료되었어요.")
+                    findNavController().popBackStack()
+                }
+            }
+        }.show(childFragmentManager, "DeleteDeliveryDialog")
+    }
+
     private fun updateBottomActionButtons(statusCode: String) = with(dataBinding) {
         when (statusCode) {
             "REGISTER_ING" -> {
@@ -404,7 +431,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         marginEnd = 0
                     }
                     setOnClickListener {
-                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.CancelReq)
+                        this@HistoryDetailFragment.viewModel.onEventClick(HistoryDetailViewModel.Event.DeleteReq)
                     }
                 }
 

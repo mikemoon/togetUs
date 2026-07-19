@@ -43,7 +43,10 @@ class ChattingUserFragment @Inject constructor(
                 )
             )
         }
-        dataBinding.rvList.adapter = chatAdapter
+        dataBinding.rvList.apply {
+            adapter = chatAdapter
+            itemAnimator = null
+        }
     }
 
     override fun onResume() {
@@ -147,7 +150,8 @@ class ChattingUserFragment @Inject constructor(
             profileUrl = participant?.profile_image.orEmpty(),
             deliveryImageUrl = delivery.prd_picture,
             unReadCount = unread_cnt,
-            message = last_msg.toPreviewMessage()
+            message = last_msg.toPreviewMessage(),
+            isDisabled = isDisabled
         )
     }
 

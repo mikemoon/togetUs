@@ -30,7 +30,6 @@ class DeliverySearchFragment :
 
     private lateinit var recentlyAdapter : DeliveryStartRecentlyAdapter
     private lateinit var searchResultAdapter: DeliveryStartKakaoSearchResultAdapter
-    private var hasRecentSearchItems = false
     private var hasSearchResults = false
 
     private val args: DeliverySearchFragmentArgs by navArgs()
@@ -80,7 +79,6 @@ class DeliverySearchFragment :
         super.initObserver()
 
         viewModel.recentSearchList.observe(viewLifecycleOwner) { list ->
-            hasRecentSearchItems = list.isNotEmpty()
             recentlyAdapter.submitList(list)
             updateRecentSearchVisibility()
         }
@@ -151,7 +149,9 @@ class DeliverySearchFragment :
     }
 
     private fun updateRecentSearchVisibility() {
-        val showRecentSearch = hasRecentSearchItems && !hasSearchResults
+        // Keep the recent-search section visible on the initial address search screen,
+        // even when the user has not searched for an address yet.
+        val showRecentSearch = !hasSearchResults
         dataBinding.llRecent.visibility = if (showRecentSearch) View.VISIBLE else View.GONE
         dataBinding.rvRecently.visibility = if (showRecentSearch) View.VISIBLE else View.GONE
     }

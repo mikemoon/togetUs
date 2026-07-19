@@ -6,8 +6,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.core.view.isVisible
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.ChatInProgressDto
 import sky.kr.co.newtogetusa.databinding.ItemChatInProgressBinding
+import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
-import sky.kr.co.newtogetusa.utils.loadProfile
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ChatInProgressAdapter(
     private val onClick: (ChatInProgressDto) -> Unit,
@@ -34,15 +37,30 @@ class ChatInProgressAdapter(
     inner class VH(private val binding: ItemChatInProgressBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ChatInProgressDto) = with(binding) {
             if (item.prdPicture.isNullOrBlank()) {
-                ivProfile.loadProfile(item.playerProfile?.profileImage)
+                ivProfile.loadImage(
+                    item.playerProfile?.profileImage,
+                    placeholder = sky.kr.co.newtogetusa.R.drawable.profile,
+                    error = sky.kr.co.newtogetusa.R.drawable.profile,
+                    isCircle = true
+                )
                 ivBadge.isVisible = false
             } else {
-                ivProfile.loadImage(item.prdPicture, placeholder = sky.kr.co.newtogetusa.R.drawable.no_img, error = sky.kr.co.newtogetusa.R.drawable.no_img)
+                ivProfile.loadImage(
+                    item.prdPicture,
+                    placeholder = sky.kr.co.newtogetusa.R.drawable.no_img,
+                    error = sky.kr.co.newtogetusa.R.drawable.no_img,
+                    roundedCorner = 4.dpToPx()
+                )
                 ivBadge.isVisible = true
-                ivBadge.loadProfile(item.playerProfile?.profileImage)
+                ivBadge.loadImage(
+                    item.playerProfile?.profileImage,
+                    placeholder = sky.kr.co.newtogetusa.R.drawable.profile,
+                    error = sky.kr.co.newtogetusa.R.drawable.profile,
+                    isCircle = true
+                )
             }
             tvName.text = item.playerProfile?.nickname.orEmpty()
-            tvDate.text = item.lastMsg?.sendDate.orEmpty()
+            tvDate.text = item.lastMsg?.sendDate.toChatDisplayTime()
             tvMessage.text = item.lastMsg?.msg.orEmpty()
             tvUnread.text = when {
                 (item.lastMsg?.unreadCnt ?: 0) > 99 -> "100+"
@@ -60,5 +78,27 @@ class ChatInProgressAdapter(
             btnReject.setOnClickListener { onReject(item) }
             btnCancelSuggest.setOnClickListener { onCancelSuggest(item) }
         }
+    }
+
+    private fun String?.toChatDisplayTime(): String {
+        val rawDate = this?.trim().orEmpty()
+        if (rawDate.isBlank() || rawDate.startsWith("오전") || rawDate.startsWith("오후")) return rawDate
+
+        val patterns = listOf(
+            "yyyy-MM-dd HH:mm:ss.SSS",
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy.MM.dd HH:mm:ss",
+            "yyyy.MM.dd HH:mm",
+            "yyyyMMdd HHmm"
+        )
+        val date = patterns.firstNotNullOfOrNull { pattern ->
+            runCatching {
+                SimpleDateFormat(pattern, Locale.US).parse(rawDate)
+            }.getOrNull()
+        } ?: return rawDate
+
+        return SimpleDateFormat("a h:mm", Locale.KOREA).format(Date(date.time))
     }
 }

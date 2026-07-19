@@ -36,6 +36,17 @@ data class DeliverySummaryDto(
     var regist_date_text: String,
 ): Parcelable {
 
+    // Cancelled requests must not expose route addresses in the history list.
+    val masked_depart_address: String
+        get() = maskedAddress(depart_address)
+
+    val masked_dest_address: String
+        get() = maskedAddress(dest_address)
+
+    private fun maskedAddress(address: String): String {
+        return if (status_cd.startsWith("CANCEL")) "*****" else address
+    }
+
     fun setUiValue(){
         setStatusText()
         price_text = fee_final.toWon()

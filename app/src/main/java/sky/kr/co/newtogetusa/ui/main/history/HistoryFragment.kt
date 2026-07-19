@@ -50,7 +50,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         super.init()
         dataBinding.viewModel = viewModel
         dataBinding.root.post { clearSearchFocus() }
-        dataBinding.tvTopAll.isSelected = true
+        setSelectedTopMenu(viewModel.selectedTopMenu.value)
         historyAdapter = HistoryAdapter(viewModel) { selectedItem ->
             val navController = findNavController()
             if (navController.currentDestination?.id == R.id.historyFragment) {
@@ -103,8 +103,10 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             }
         }
 
-        viewModel.topMenuLiveData.observe(viewLifecycleOwner){ topMenu ->
-            setSelectedTopMenu(topMenu)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedTopMenu.collectLatest(::setSelectedTopMenu)
+            }
         }
 
         lifecycleScope.launch {

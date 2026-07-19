@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.delivery
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -173,11 +174,24 @@ class DeliveryPickupFragment :
         super.initObserver()
 
         dataBinding.tvConfirm.setOnClickListener {
+            val isImmediately = viewModel.isImmediately.value
+            val date = viewModel.pickupDate.value
+            val time = viewModel.pickupTime.value
+            val isFaceToFace = viewModel.isFaceToFace.value
             sharedViewModel.updatePickupInfo(
-                isImmediately = viewModel.isImmediately.value,
-                date = viewModel.pickupDate.value,
-                time = viewModel.pickupTime.value,
-                isFaceToFace = viewModel.isFaceToFace.value
+                isImmediately = isImmediately,
+                date = date,
+                time = time,
+                isFaceToFace = isFaceToFace
+            )
+            findNavController().previousBackStackEntry?.savedStateHandle?.set(
+                PICKUP_SELECTION_RESULT_KEY,
+                Bundle().apply {
+                    putBoolean(PICKUP_RESULT_IS_IMMEDIATELY, isImmediately)
+                    putString(PICKUP_RESULT_DATE, date)
+                    putString(PICKUP_RESULT_TIME, time)
+                    putBoolean(PICKUP_RESULT_IS_FACE_TO_FACE, isFaceToFace)
+                }
             )
             findNavController().popBackStack()
         }

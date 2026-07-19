@@ -6,6 +6,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="84dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:paddingVertical="12dp">
 
         <FrameLayout
@@ -13,6 +15,8 @@
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:layout_marginStart="20dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             app:layout_constraintBottom_toTopOf="@id/llActionButtons"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -24,14 +28,19 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/profile" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivBadge"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_gravity="bottom|end"
-                android:background="@color/white"
+                android:scaleType="centerCrop"
                 android:src="@drawable/profile"
-                android:visibility="gone" />
+                android:translationX="8dp"
+                android:translationY="8dp"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.TogetUs.Circle"
+                app:strokeColor="@color/white"
+                app:strokeWidth="2dp" />
         </FrameLayout>
 
         <LinearLayout

@@ -209,6 +209,11 @@ interface DeliveryService {
         @Path("delivery_id") delivery_id: Long,
     ): Boolean
 
+    @PUT("api/deliverys/v1/{delivery_id}/requester/delete")
+    suspend fun deleteDelivery(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
     //플레이어
     @POST("api/deliverys/v1/search/player") //검색하기
     suspend fun postPlayerDeliverySearch(

@@ -7,5 +7,6 @@ data class ChatListItem(
     val profileUrl: String,
     val deliveryImageUrl: String? = null,
     val unReadCount:Int,
-    val message: String = "안녕하세요."
+    val message: String = "안녕하세요.",
+    val isDisabled: Boolean = false
 )

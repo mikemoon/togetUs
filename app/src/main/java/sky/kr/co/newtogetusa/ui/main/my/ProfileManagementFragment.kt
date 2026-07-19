@@ -47,6 +47,12 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         viewModel.profileDto.value = profileDto
         dataBinding.profile = profileDto
         dataBinding.isFromSearchResult = isFromSearchResult
+        dataBinding.tvCancelHistoryTitle.text =
+            if (isPlayerMode && isFromSearchResult) {
+                "플레이어 확정 후 취소 이력"
+            } else {
+                "'동행 확정' 상태에서의 취소 이력"
+            }
 
         if (isPlayerMode) {
             viewModel.getPlayerProfile {

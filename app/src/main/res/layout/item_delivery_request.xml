@@ -104,6 +104,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="32dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:background="@drawable/background_s_b5_r4"
             android:paddingHorizontal="8dp"
@@ -112,7 +113,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="픽업 요청일"
+                android:text="픽업"
                 android:textColor="@color/black_60"
                 style="@style/Paragraph12B"
                 />
@@ -147,7 +148,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/icon_route_start_end"
+                        android:src="@drawable/placecircle_primary"
                         />
                 </FrameLayout>
 
@@ -273,7 +274,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/icon_route_start_end"
+                        android:src="@drawable/placecircle_primary"
                         android:layout_marginTop="8dp"
                         />
                 </FrameLayout>

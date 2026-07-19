@@ -24,7 +24,10 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChatMessageAdapter(
+    private val viewModel: ChattingConversationViewModel,
+    private val onMediaRendered: () -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val messages = mutableListOf<ChatMessage>()
 
@@ -108,7 +111,7 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
                 clVideo.isVisible = message.messageType == 2
                 if(message.messageType == 1){
                     ivMessageImage.apply {
-                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx())
+                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx(), onResourceReady = onMediaRendered)
                         setOnClickListener {
                             viewModel.onEventClick(ChattingConversationViewModel.Event.MessageImageSelect(message.messageImageUrl!!))
                         }
@@ -117,7 +120,7 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
 
                 if(message.messageType == 2){
                     ivVideoThumnail.apply {
-                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx())
+                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx(), onResourceReady = onMediaRendered)
                         setOnClickListener {
                             viewModel.onEventClick(ChattingConversationViewModel.Event.MessageVideoSelect(message.messageVieoUrl!!))
                         }
@@ -140,7 +143,7 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
                 clVideo.isVisible = message.messageType == 2
                 if(message.messageType == 1){
                     ivMessageImage.apply {
-                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx())
+                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx(), onResourceReady = onMediaRendered)
                         setOnClickListener {
                             viewModel.onEventClick(ChattingConversationViewModel.Event.MessageImageSelect(message.messageImageUrl!!))
                         }
@@ -149,7 +152,7 @@ class ChatMessageAdapter(private val viewModel: ChattingConversationViewModel) :
 
                 if(message.messageType == 2){
                     ivVideoThumnail.apply {
-                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx())
+                        loadImage(message.messageImageUrl, roundedCorner = 16.dpToPx(), onResourceReady = onMediaRendered)
                         setOnClickListener {
                             viewModel.onEventClick(ChattingConversationViewModel.Event.MessageVideoSelect(message.messageVieoUrl!!))
                         }

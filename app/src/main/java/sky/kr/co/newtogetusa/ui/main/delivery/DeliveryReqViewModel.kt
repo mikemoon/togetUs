@@ -46,21 +46,23 @@ class DeliveryReqViewModel @Inject constructor(baseViewModelDependenciesFactory:
 
     fun editDelivery(deliveryId: Long, deliveryRequest: DeliveryRequest) = viewModelScope.launch {
         loadingState.value = true
-        when (val res = deliveryRepository.editDelivery(deliveryId, deliveryRequest)) {
-            is ResultWrapper.Success -> {
-                _event.value = Event.EditCompleted
-            }
-            is ResultWrapper.GenericError -> {
-                _event.value = Event.ShowMessage(
+        val event = try {
+            when (val res = deliveryRepository.editDelivery(deliveryId, deliveryRequest)) {
+                is ResultWrapper.Success -> Event.EditCompleted
+                is ResultWrapper.GenericError -> Event.ShowMessage(
                     res.message?.takeIf { it.isNotBlank() }
                         ?: "동행요청 정보를 수정할수 없는 단계입니다"
                 )
+                is ResultWrapper.NetworkError -> Event.ShowMessage("네트워크 연결을 확인해 주세요.")
             }
-            is ResultWrapper.NetworkError -> {
-                _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
-            }
+        } catch (error: Exception) {
+            Timber.e(error, "Failed to edit delivery")
+            Event.ShowMessage("동행요청 정보를 수정할수 없는 단계입니다")
+        } finally {
+            // 오류 안내 팝업을 열기 전에 로딩을 해제해 팝업을 닫아도 로딩이 남지 않게 한다.
+            loadingState.value = false
         }
-        loadingState.value = false
+        _event.value = event
     }
 
     sealed class Event {

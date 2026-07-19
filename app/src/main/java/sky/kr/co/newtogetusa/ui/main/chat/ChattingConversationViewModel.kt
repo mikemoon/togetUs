@@ -153,12 +153,10 @@ class ChattingConversationViewModel @Inject constructor(
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
                 isBlockedFlow.value = room.data.is_blocked
-                isNotificationOnFlow.value = room.data.is_noti_on
+                isNotificationOnFlow.value = room.data.isNotificationOn
                 isReportedFlow.value = room.data.is_reported
-                partnerReadMessageId = max(
-                    room.data.read_msg_id.toLong(),
-                    room.data.partner_read_msg_id.toLong()
-                )
+                // 내 read_msg_id가 아니라 상대방의 읽음 위치만 송신 메시지의 읽음 여부에 사용한다.
+                partnerReadMessageId = room.data.partner_read_msg_id.toLong()
                 deliveryTitleFlow.value = room.data.room_name
                 deliveryFeeFlow.value = ""
                 deliveryFeeVisibleFlow.value = false

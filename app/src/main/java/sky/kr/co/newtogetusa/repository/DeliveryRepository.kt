@@ -87,6 +87,10 @@ class DeliveryRepository @Inject constructor(
         apiService.cancelDelivery(deliveryId)
     }
 
+    suspend fun deleteDelivery(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.deleteDelivery(deliveryId)
+    }
+
     suspend fun putPickupComplete(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
         apiService.putPickupComplete(deliveryId.toInt())
     }

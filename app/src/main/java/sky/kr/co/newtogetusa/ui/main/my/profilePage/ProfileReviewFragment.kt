@@ -1,5 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.my.profilePage
 
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
@@ -29,6 +30,7 @@ class ProfileReviewFragment : BaseFragment<FragmentProfileReviewBinding, Profile
             setPadding(paddingLeft, paddingTop, paddingRight, 20.dpToPx())
             clipToPadding = false
         }
+        updateReviews()
 
         viewModel.getPlayerReviewCodes {
             reviewCodes = it
@@ -46,6 +48,8 @@ class ProfileReviewFragment : BaseFragment<FragmentProfileReviewBinding, Profile
 
     private fun updateReviews() {
         reviewAdapter.setItems(reviews, reviewCodes)
+        dataBinding.rv.isVisible = reviews.isNotEmpty()
+        dataBinding.layoutEmpty.isVisible = reviews.isEmpty()
     }
 
     companion object {
