@@ -159,8 +159,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
 
         lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                viewModel.hasUnreadChatFlow.collectLatest { hasUnread ->
-                    updateChatTabBadge(hasUnread)
+                viewModel.unreadChatCountFlow.collectLatest { unreadCount ->
+                    updateChatTabBadge(unreadCount)
                 }
             }
         }
@@ -236,15 +236,19 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         return true
     }
 
-    private fun updateChatTabBadge(hasUnread: Boolean) {
-        val badge = dataBinding.bottomNavigation.getOrCreateBadge(R.id.chat).apply {
-            clearNumber()
-            backgroundColor = ContextCompat.getColor(this@MainActivity, R.color.red_100)
-            badgeGravity = BadgeDrawable.TOP_END
-            isVisible = hasUnread
-        }
-        if (!hasUnread) {
+    private fun updateChatTabBadge(unreadCount: Int) {
+        if (unreadCount <= 0) {
             dataBinding.bottomNavigation.removeBadge(R.id.chat)
+            return
+        }
+
+        val badge = dataBinding.bottomNavigation.getOrCreateBadge(R.id.chat).apply {
+            number = unreadCount
+            maxCharacterCount = 3
+            backgroundColor = ContextCompat.getColor(this@MainActivity, R.color.red_100)
+            badgeTextColor = ContextCompat.getColor(this@MainActivity, R.color.white)
+            badgeGravity = BadgeDrawable.TOP_END
+            isVisible = true
         }
     }
 

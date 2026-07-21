@@ -42,7 +42,7 @@ class MainViewModel @Inject constructor(
 
     val isModeChanging = MutableStateFlow(false)
     val isPlayerModeFlow = MutableStateFlow(false)
-    val hasUnreadChatFlow = MutableStateFlow(false)
+    val unreadChatCountFlow = MutableStateFlow(0)
     private val gson = Gson()
 
     init {
@@ -86,13 +86,13 @@ class MainViewModel @Inject constructor(
     }
 
     fun clearChatUnread() {
-        hasUnreadChatFlow.value = false
+        unreadChatCountFlow.value = 0
     }
 
     fun refreshChatUnread() = viewModelScope.launch {
-        when (val response = chatRepository.getChatRooms()) {
+        when (val response = chatRepository.getChatUnreadCount()) {
             is ResultWrapper.Success -> {
-                hasUnreadChatFlow.value = response.data.any { it.unread_cnt > 0 }
+                unreadChatCountFlow.value = response.data.totalCount
             }
             else -> Unit
         }
@@ -133,7 +133,7 @@ class MainViewModel @Inject constructor(
     }
 
     override fun handleIncomingMessage(sender: String, content: String) {
-        hasUnreadChatFlow.value = true
+        refreshChatUnread()
         if (sender != MqttChatCategory.MSG.topicName && sender != MqttChatCategory.ATTACH.topicName) return
 
         runCatching {

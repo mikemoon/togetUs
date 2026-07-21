@@ -29,7 +29,7 @@ class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: 
     private val _showEmailClearIcon = MutableLiveData<Boolean>(false)
     val showEmailClearIcon: LiveData<Boolean> = _showEmailClearIcon
 
-    val failMessage = MutableLiveData<String>()
+    val failMessage = SingleLiveEvent<String>()
 
     private val _loginResult = MutableLiveData<JoinResponse>()
     val loginResult : LiveData<JoinResponse> = _loginResult
@@ -50,9 +50,12 @@ class LoginEmailViewModel @Inject constructor(baseViewModelDependenciesFactory: 
                 dataStoreRepository.putString(DataStoreKey.KEY_LOGIN_EMAIL, email)
                 _loginResult.value = response.data
             }
-            else ->{
-                Timber.d("error : ${response.toString()}")
-                failMessage.value  = "로그인에 실패하였습니다."
+            is ResultWrapper.GenericError -> {
+                Timber.d("login error : ${response}")
+                failMessage.value = response.message?.ifBlank { null } ?: "오류가 발생했습니다.\n잠시 후 다시 시도해 주세요."
+            }
+            is ResultWrapper.NetworkError -> {
+                failMessage.value = "오류가 발생했습니다.\n잠시 후 다시 시도해 주세요."
             }
         }
     }

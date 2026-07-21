@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.login
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.accounts.Account
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -24,6 +25,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -33,9 +35,11 @@ import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
@@ -240,26 +244,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential
                             .createFrom(credential.data)
-                        Timber.d("data.type : ${googleIdTokenCredential.idToken}")
-                        Timber.d("data.type : ${googleIdTokenCredential.id}")
-                        Timber.d("data.type : ${googleIdTokenCredential.displayName}")
-                        Timber.d("data.type : ${googleIdTokenCredential.profilePictureUri.toString()}")
-                        viewModel.loginGoogle(googleIdTokenCredential.idToken){ resultCode, errorData ->
-                            when(resultCode){
-                                200 ->{
-                                    requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
-                                    requireActivity().finish()
-                                }
-                                404 ->{
-                                    findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
-                                        userId = errorData?.user_id?:0,
-                                        verifyCode = errorData?.verify_code?:""
-                                    ))
-                                }
-                            }
-                        }
+                        requestGoogleAccessToken(googleIdTokenCredential.id)
                     } catch (e: GoogleIdTokenParsingException) {
-
+                        Timber.e(e, "Unable to parse Google credential")
                     }
                 } else {
                     // Catch any unrecognized custom credential type here.
@@ -295,6 +282,41 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
             .setMessage(message)
             .setPositiveButton("확인", null)
             .show()
+    }
+
+    private fun requestGoogleAccessToken(accountName: String) {
+        lifecycleScope.launch {
+            val accessToken = runCatching {
+                withContext(Dispatchers.IO) {
+                    GoogleAuthUtil.getToken(
+                        requireContext().applicationContext,
+                        Account(accountName, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE),
+                        "oauth2:openid email profile"
+                    )
+                }
+            }.getOrElse { error ->
+                Timber.e(error, "Unable to get Google OAuth access token")
+                requireContext().toast("구글 인증 정보를 가져오지 못했습니다. 다시 시도해주세요.")
+                return@launch
+            }
+
+            viewModel.loginGoogle(accessToken) { resultCode, errorData ->
+                when (resultCode) {
+                    200 -> {
+                        requireContext().startActivity(Intent(requireActivity(), MainActivity::class.java))
+                        requireActivity().finish()
+                    }
+                    404 -> {
+                        findNavController().navigate(
+                            LoginFragmentDirections.actionLoginFragmentToLoginTermAgreeFragment(
+                                userId = errorData?.user_id ?: 0,
+                                verifyCode = errorData?.verify_code ?: ""
+                            )
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private fun buildGoogleLoginUrl(): String {

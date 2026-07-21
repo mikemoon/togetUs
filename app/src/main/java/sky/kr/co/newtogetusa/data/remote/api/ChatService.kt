@@ -12,6 +12,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatAttachUploadResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatMessageResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchResponseDto
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatUnreadCountDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.Room
 import sky.kr.co.newtogetusa.data.remote.request.chat.ChatRoomSearchRequest
 
@@ -37,6 +38,9 @@ interface ChatService {
 
     @GET("/api/chats/v1/rooms")
     suspend fun getChatRooms(): List<ChatRoomDto>
+
+    @GET("/api/chats/v1/unread")
+    suspend fun getChatUnreadCount(): ChatUnreadCountDto
 
     @GET("/api/chats/v1/rooms/{room_id}")
     suspend fun getChatRoom(

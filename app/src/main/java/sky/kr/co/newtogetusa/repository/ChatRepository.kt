@@ -11,6 +11,7 @@ import sky.kr.co.newtogetusa.data.remote.api.ChatService
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatRoomSearchRoomDto
+import sky.kr.co.newtogetusa.data.remote.dto.chat.ChatUnreadCountDto
 import sky.kr.co.newtogetusa.data.remote.request.chat.ChatRoomSearchRequest
 import sky.kr.co.newtogetusa.di.NetworkModule
 import sky.kr.co.newtogetusa.repository.page.ChatRoomPagingSource
@@ -22,6 +23,10 @@ class ChatRepository @Inject constructor(
 
     suspend fun getChatRooms() = safeApiCall<List<ChatRoomDto>>(Dispatchers.IO){
         apiService.getChatRooms()
+    }
+
+    suspend fun getChatUnreadCount() = safeApiCall<ChatUnreadCountDto>(Dispatchers.IO) {
+        apiService.getChatUnreadCount()
     }
 
     suspend fun getChatRoom(roomId: Long) = safeApiCall<ChatRoomDto>(Dispatchers.IO) {
