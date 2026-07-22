@@ -61,9 +61,13 @@ class ChattingConversationFragment :
 
     // 카메라를 실행한 후 찍은 사진을 저장
     var pictureUri: Uri? = null
-    private val getTakePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-        if (it) {
-            pictureUri?.let(::sendPickedImage)
+    private val getTakePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        val capturedUri = pictureUri
+        pictureUri = null
+        if (success && capturedUri != null) {
+            sendPickedImage(capturedUri, capturedUri)
+        } else {
+            capturedUri?.let(::deleteCapturedImage)
         }
     }
 
@@ -152,7 +156,16 @@ class ChattingConversationFragment :
                         }
                     }
                 }
+                launch {
+                    viewModel.isBlockedFlow.collect { isBlocked ->
+                        setChatInputEnabled(!isBlocked)
+                    }
+                }
             }
+        }
+
+        viewModel.chatInputEnabled.observe(viewLifecycleOwner) { enabled ->
+            setChatInputEnabled(enabled)
         }
 
         viewModel.event.observe(viewLifecycleOwner) { event ->
@@ -240,10 +253,12 @@ class ChattingConversationFragment :
                 }
                 ChattingConversationViewModel.Event.ChatRoomBlocked -> {
                     requireContext().toast("채팅방이 차단되었습니다.")
+                    ChatRoomListUpdateBus.notifyRoomUpdated(args.roomId)
                     findNavController().popBackStack()
                 }
                 ChattingConversationViewModel.Event.ChatRoomExited -> {
                     requireContext().toast("채팅방을 나갔습니다.")
+                    ChatRoomListUpdateBus.notifyRoomUpdated(args.roomId)
                     findNavController().popBackStack()
                 }
             }
@@ -289,6 +304,24 @@ class ChattingConversationFragment :
             regist_date_text = ""
         ).apply {
             setStatusText()
+        }
+    }
+
+    private fun setChatInputEnabled(enabled: Boolean) {
+        dataBinding.textInputLayout.isEnabled = enabled
+        dataBinding.editTextMessage.isEnabled = enabled
+        dataBinding.textInputLayout.hint = if (enabled) "메시지 입력" else "상대방과 대화가 불가능합니다."
+        dataBinding.editTextMessage.hint = if (enabled) "메시지 입력" else "상대방과 대화가 불가능합니다."
+        dataBinding.buttonSend.isEnabled = enabled
+        dataBinding.buttonSend.isVisible = enabled
+        dataBinding.ivPlus.isEnabled = enabled
+        dataBinding.ivPlus.isVisible = enabled
+        if (!enabled) {
+            dataBinding.editTextMessage.clearFocus()
+            dataBinding.editTextMessage.text = null
+            isInputToolsOpen = false
+            dataBinding.clInputTools.isVisible = false
+            requireContext().hideKeyboard(dataBinding.editTextMessage)
         }
     }
 
@@ -431,20 +464,36 @@ class ChattingConversationFragment :
         return layoutManager.findLastCompletelyVisibleItemPosition() >= lastItemPosition
     }
 
-    private fun sendPickedImage(uri: Uri) {
+    private fun sendPickedImage(uri: Uri, capturedUri: Uri? = null) {
         viewLifecycleOwner.lifecycleScope.launch {
             val encodedImage = withContext(Dispatchers.IO) {
                 ImageUtil.uriToJpegBase64(requireContext(), uri)
             }
 
             when {
-                encodedImage == null -> requireContext().toast("이미지를 불러오지 못했습니다.")
-                encodedImage.byteSize > MAX_CHAT_IMAGE_BYTES -> requireContext().toast("이미지 용량이 너무 큽니다.")
+                encodedImage == null -> {
+                    capturedUri?.let(::deleteCapturedImage)
+                    requireContext().toast("이미지를 불러오지 못했습니다.")
+                }
+                encodedImage.byteSize > MAX_CHAT_IMAGE_BYTES -> {
+                    capturedUri?.let(::deleteCapturedImage)
+                    requireContext().toast("이미지 용량이 너무 큽니다.")
+                }
                 else -> {
                     setInputToolsOpen(open = false, showKeyboard = false)
-                    viewModel.sendImage(encodedImage.base64, encodedImage.mime)
+                    viewModel.sendImage(encodedImage.base64, encodedImage.mime) {
+                        capturedUri?.let(::deleteCapturedImage)
+                    }
                 }
             }
+        }
+    }
+
+    private fun deleteCapturedImage(uri: Uri) {
+        runCatching {
+            requireContext().contentResolver.delete(uri, null, null)
+        }.onFailure { error ->
+            Timber.w(error, "Failed to delete temporary chat camera image")
         }
     }
 

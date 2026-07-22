@@ -13,7 +13,9 @@ object TextConvertUtil {
         return "${formatter.format(amount)}원"
     }
 
-    fun formatPickupDateTime(date: String, time: String?): String {
+    fun formatPickupDateTime(date: String, time: String?, isImmediately: Boolean = false): String {
+        if (isImmediately) return "즉시 요청"
+
         val normalizedDate = date.trim()
         if (normalizedDate.isBlank() || normalizedDate.equals("null", ignoreCase = true)) {
             return "-"

@@ -19,7 +19,7 @@ class BottomLocationAlarmDialog :
 
     override fun init() {
         super.init()
-        val title = if (isOn) "현위치 동행 알림 ON" else "현위치 동행 알림 OFF"
+        val title = if (isOn) "내 주변 동행 ON" else "내 주변 동행 OFF"
         val message = if (isOn) {
             "스위치를 켜면 내 위치(5분 주기)에서 현재 설정된 도착 가능지역 방면의 동행요청을 추가 수신합니다.\n\n※ 앱을 종료해도 마지막 위치를 기준으로 알림을 계속 받습니다."
         } else {
@@ -32,6 +32,7 @@ class BottomLocationAlarmDialog :
         }
 
         dataBinding.tvTitle.text = title
+        dataBinding.tvSetting.text = "동행 예약"
         dataBinding.tvDescription.text = message
         dataBinding.layoutDescription.background =
             ContextCompat.getDrawable(requireContext(), descBackground)

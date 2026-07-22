@@ -31,6 +31,7 @@ import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
+import sky.kr.co.newtogetusa.ui.main.chat.ChatRoomListUpdateBus
 import javax.inject.Inject
 
 @HiltViewModel
@@ -197,7 +198,11 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     fun blockPlayer() = viewModelScope.launch {
         val playerId = profileDto.value?.user?.player_id ?: return@launch
         when (playerRepository.postBlockPlayer(playerId, hashMapOf("block_cd" to "BLOCK"))) {
-            is ResultWrapper.Success -> _profileActionMessage.emit("차단되었습니다.")
+            is ResultWrapper.Success -> {
+                // 차단 후 이 상대와 연결된 모든 채팅방 상태가 변경될 수 있다.
+                ChatRoomListUpdateBus.notifyAllRoomsUpdated()
+                _profileActionMessage.emit("차단되었습니다.")
+            }
             else -> _profileActionMessage.emit("차단 처리에 실패했습니다.")
         }
     }

@@ -93,9 +93,14 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         ensureNotificationChannel(manager)
 
+        val isChatPush = roomId != null && roomId > 0L
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(MainActivity.EXTRA_OPEN_HOME_FROM_PUSH, true)
+            if (isChatPush) {
+                putExtra(MainActivity.EXTRA_PUSH_TYPE, MainActivity.PUSH_TYPE_CHAT)
+                putExtra(MainActivity.EXTRA_PUSH_ROOM_ID, roomId)
+            }
         }
 
         val pendingIntent = PendingIntent.getActivity(

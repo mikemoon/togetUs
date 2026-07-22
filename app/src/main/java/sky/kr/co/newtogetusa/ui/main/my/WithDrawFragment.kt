@@ -34,6 +34,7 @@ import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.ui.login.LoginViewModel
 import sky.kr.co.newtogetusa.utils.toast
+import sky.kr.co.newtogetusa.utils.CacheCleanup
 import timber.log.Timber
 import kotlin.jvm.java
 
@@ -264,6 +265,7 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                 else ->{
                     this@WithDrawFragment.viewModel.withDraw{
                         if(it){
+                            CacheCleanup.clearGlideCache(requireContext())
                             requireContext().toast("탈퇴가 완료되었습니다.\n" +
                                     "그동안 이용해 주셔서 감사합니다.")
                             lifecycleScope.launch {

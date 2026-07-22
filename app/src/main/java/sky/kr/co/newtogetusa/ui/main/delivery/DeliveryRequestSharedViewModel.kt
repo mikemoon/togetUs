@@ -1,19 +1,24 @@
 package sky.kr.co.newtogetusa.ui.main.delivery
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import sky.kr.co.newtogetusa.utils.CacheCleanup
 import javax.inject.Inject
 
 @HiltViewModel
-class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
+class DeliveryRequestSharedViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context
+) : ViewModel() {
 
     val attachImagesUrl = MutableStateFlow<List<Uri>>(emptyList())
     private val _state = MutableStateFlow(DeliveryRequestState())
@@ -112,7 +117,12 @@ class DeliveryRequestSharedViewModel @Inject constructor() : ViewModel() {
     }
 
     fun clearState(){
+        clearAttachImages()
         _state.value = DeliveryRequestState()
+    }
+
+    fun clearAttachImages() {
+        CacheCleanup.deleteCacheUris(appContext, attachImagesUrl.value)
         attachImagesUrl.value = emptyList()
     }
 

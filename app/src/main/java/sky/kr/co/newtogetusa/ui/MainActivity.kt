@@ -35,6 +35,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseActivity
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.utils.toast
+import sky.kr.co.newtogetusa.utils.CacheCleanup
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.jvm.java
@@ -141,6 +142,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
                 authSessionManager.sessionExpiredFlow.collect {
                     viewModel.clearSessionData()
+                    CacheCleanup.clearGlideCache(this@MainActivity)
                     startActivity(Intent(this@MainActivity, LoginActivity::class.java).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     })
@@ -257,18 +259,43 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         val openHomeFromPush = intent?.getBooleanExtra(EXTRA_OPEN_HOME_FROM_PUSH, false) == true
         val pushType = intent?.getStringExtra(EXTRA_PUSH_TYPE).orEmpty()
         val roomId = intent?.getLongExtra(EXTRA_PUSH_ROOM_ID, -1L) ?: -1L
-        val isLegacyChatPush = pushType == PUSH_TYPE_CHAT && roomId > 0L
-        if (!openHomeFromPush && !isLegacyChatPush) return
+        if (!openHomeFromPush) return
 
         intent?.removeExtra(EXTRA_OPEN_HOME_FROM_PUSH)
         intent?.removeExtra(EXTRA_PUSH_TYPE)
         intent?.removeExtra(EXTRA_PUSH_ROOM_ID)
 
-        runCatching {
+        val isChatPush = pushType == PUSH_TYPE_CHAT && roomId > 0L
+        if (isChatPush) {
             navigateToHomeTabRoot()
-        }.onFailure {
-            Timber.e(it, "Failed to navigate home from push")
+            dataBinding.bottomNavigation.postDelayed({
+                navigateToChatRoom(roomId)
+            }, 400)
+        } else {
+            runCatching {
+                navigateToHomeTabRoot()
+            }.onFailure {
+                Timber.e(it, "Failed to navigate home from push")
+            }
         }
+    }
+
+    private fun navigateToChatRoom(roomId: Long) {
+        if (roomId <= 0L) return
+        selectMainTab(R.id.chat)
+        dataBinding.bottomNavigation.postDelayed({
+            runCatching {
+                navController.navigate(
+                    R.id.action_global_chattingConversationFragment,
+                    android.os.Bundle().apply {
+                        putLong("roomId", roomId)
+                        putBoolean("isPlayerRoom", viewModel.isPlayerModeFlow.value)
+                    }
+                )
+            }.onFailure {
+                Timber.e(it, "Failed to navigate to chat room $roomId")
+            }
+        }, 300)
     }
 
     private fun checkAppNotificationSettingsIfNeeded() {
@@ -325,7 +352,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         const val EXTRA_OPEN_HOME_FROM_PUSH = "extra_open_home_from_push"
         const val EXTRA_PUSH_TYPE = "extra_push_type"
         const val EXTRA_PUSH_ROOM_ID = "extra_push_room_id"
-        private const val PUSH_TYPE_CHAT = "chat"
+        const val PUSH_TYPE_CHAT = "chat"
         private const val NOTIFICATION_SETTINGS_DIALOG_TAG = "NotificationSettingsDialog"
     }
 

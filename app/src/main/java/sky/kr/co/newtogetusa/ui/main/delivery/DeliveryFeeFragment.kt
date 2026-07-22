@@ -28,6 +28,7 @@ import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.ImageUtil
 import sky.kr.co.newtogetusa.utils.hideLoading
 import sky.kr.co.newtogetusa.utils.showLoading
+import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 import kotlin.getValue
 
@@ -231,8 +232,13 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
                             maxSize = 1024
                         )
 
-                        viewModel.registerPhoto(photos) {
-                            registerDeliveryAction()
+                        viewModel.registerPhoto(photos) { uploaded ->
+                            sharedViewModel.clearAttachImages()
+                            if (uploaded) {
+                                registerDeliveryAction()
+                            } else {
+                                requireContext().toast("물품 사진 등록에 실패했습니다.")
+                            }
                         }
 
                     } else {

@@ -28,6 +28,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     override fun init() {
         super.init()
+        // 화면의 기본 문구뿐 아니라 실제 검색 조건도 국내 전체로 초기화한다.
+        // 빈 코드 목록은 API에서 전체 지역을 의미한다.
+        departCd = emptyList()
+        destCd = emptyList()
+        isDomestic = true
+        dataBinding.tvStart.text = DEFAULT_ALL_AREA_TEXT
+        dataBinding.tvDestination.text = DEFAULT_ALL_AREA_TEXT
+        viewModel.setDepartAreaSelected(true)
+        viewModel.setDestinationAreaSelected(true)
     }
 
     override fun initObserver() {
@@ -129,4 +138,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, SearchViewModel>() {
 
     private fun RegionDto.isAllRegion(): Boolean =
         name == "전체" || code.isBlank()
+
+    private companion object {
+        const val DEFAULT_ALL_AREA_TEXT = "국내 > 전체"
+    }
 }

@@ -38,6 +38,7 @@ import sky.kr.co.newtogetusa.ui.main.delivery.product.HorizontalSpaceItemDecorat
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ItemMoveCallback
 import sky.kr.co.newtogetusa.ui.main.delivery.product.ProductPickImageAdapter
 import sky.kr.co.newtogetusa.utils.FileUtil.copyUriToTempFile
+import sky.kr.co.newtogetusa.utils.CacheCleanup
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.hideKeyboard
@@ -74,6 +75,8 @@ class DeliveryProductFragment :
         if (success && !path.isNullOrBlank()) {
             viewModel.addAttachImages(listOf(path))
             refreshAttachedImages()
+        } else if (!path.isNullOrBlank()) {
+            CacheCleanup.deleteCacheFile(requireContext(), File(path))
         }
         currentPhotoUri = null
         currentPhotoPath = null
@@ -126,6 +129,7 @@ class DeliveryProductFragment :
         }
 
         rvAdapter = ProductPickImageAdapter(requireContext(), viewModel) { removeUri, position ->
+            CacheCleanup.deleteCacheUri(requireContext(), removeUri)
             selectedUris.remove(removeUri)
             rvAdapter.removeItem(position)
             sharedViewModel.attachImagesUrl.value = sharedViewModel.attachImagesUrl.value - removeUri

@@ -27,7 +27,6 @@ import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatWon
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.ceil
 
 @HiltViewModel
 class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
@@ -221,7 +220,8 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
             estimatedTimeText = formatExpectedTimeInMinutes(detail.expected.expected_time),
             pickupDateText = formatPickupDateTime(
                 detail.pickup.date,
-                detail.pickup.time
+                detail.pickup.time,
+                detail.pickup.is_immediately
             ),
             pickupAddressText = detail.displayAddress(
                 detail.depart.address,
@@ -282,9 +282,8 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         }
     }
 
-    private fun formatExpectedTimeInMinutes(expectedTimeSeconds: Int): String {
-        val expectedMinutes = ceil(expectedTimeSeconds / 60.0).toInt().coerceAtLeast(1)
-        return "${expectedMinutes}분"
+    private fun formatExpectedTimeInMinutes(expectedTimeMinutes: Int): String {
+        return "${expectedTimeMinutes.coerceAtLeast(0)}분"
     }
 
     private fun formatPayMethod(type: String?): String =

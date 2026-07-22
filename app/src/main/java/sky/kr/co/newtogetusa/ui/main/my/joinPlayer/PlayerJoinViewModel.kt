@@ -455,7 +455,10 @@ class PlayerJoinViewModel @Inject constructor(
     fun requestPlayerApply(playerId: Int, result: (Boolean) -> Unit) =
         viewModelScope.launch {
 
+            val pendingFiles = listOfNotNull(profileFile.value, criminalFile.value)
+
             if (getApplyValidationMessage() != null) {
+                cleanupPendingFiles(pendingFiles)
                 result(false)
                 return@launch
             }
@@ -539,8 +542,16 @@ class PlayerJoinViewModel @Inject constructor(
             } catch (e: Exception) {
                 loadingState.value = false
                 result(false)
+            } finally {
+                cleanupPendingFiles(pendingFiles)
             }
         }
+
+    private fun cleanupPendingFiles(files: List<File>) {
+        files.forEach { it.delete() }
+        profileFile.value = null
+        criminalFile.value = null
+    }
 
     fun saveSecondaryAreaIfReady(result: (Boolean) -> Unit) = viewModelScope.launch {
         val playerId = playerApplyedInfo.value?.player_id
@@ -783,6 +794,7 @@ class PlayerJoinViewModel @Inject constructor(
         when (val res = playerRepository.cancelPlayerApplication(playerId)) {
             is ResultWrapper.Success -> {
                 loadingState.value = false
+                cleanupPendingFiles(listOfNotNull(profileFile.value, criminalFile.value))
                 result(true, null)
             }
             is ResultWrapper.GenericError -> {

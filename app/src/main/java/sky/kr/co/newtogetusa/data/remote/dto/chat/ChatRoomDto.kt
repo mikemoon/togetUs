@@ -10,11 +10,14 @@ data class ChatRoomDto(
     val unread_cnt: Int,
     val delivery: ChatRoomDeliveryDto?,
     val last_msg: ChatRoomLastMessageDto?,
-    val is_blocked: Boolean = false,
     @SerializedName("noti_yn")
     val noti_yn: String? = null,
+    @SerializedName("blocked_yn")
+    val blocked_yn: String? = null,
     @SerializedName("is_noti_on")
     val is_noti_on: Boolean? = null,
+    @SerializedName("is_cancel")
+    val is_cancel: Boolean = false,
     val is_reported: Boolean = false
 ) {
     // 채팅방 상세 API의 실제 상태값은 noti_yn(Y/N)이며, 이전 응답의 Boolean 필드도 호환한다.
@@ -24,6 +27,9 @@ data class ChatRoomDto(
             "N" -> false
             else -> is_noti_on ?: true
         }
+
+    val is_blocked: Boolean
+        get() = blocked_yn?.uppercase() == "Y"
 }
 
 data class ChatRoomDeliveryDto(

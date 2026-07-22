@@ -24,7 +24,6 @@ import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatPickupDateTime
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.formatWon
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.ceil
 
 @HiltViewModel
 class PlayerHistoryDetailViewModel @Inject constructor(
@@ -314,7 +313,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             estimatedTimeText = formatExpectedTimeInMinutes(detail.expected.expected_time),
             pickupDateText = formatPickupDateTime(
                 detail.pickup.date,
-                detail.pickup.time
+                detail.pickup.time,
+                detail.pickup.is_immediately
             ),
             pickupAddressText = formatMaskedAddress(detail.depart.address, detail.depart.address2),
             destinationAddressText = formatMaskedAddress(detail.dest.address, detail.dest.address2),
@@ -368,9 +368,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     fun productVolumeLabel(code: String): String =
         findConfigLabel(productVolumes.value, code, PRODUCT_VOLUME_FALLBACKS)
 
-    private fun formatExpectedTimeInMinutes(expectedTimeSeconds: Int): String {
-        val expectedMinutes = ceil(expectedTimeSeconds / 60.0).toInt().coerceAtLeast(1)
-        return "${expectedMinutes}분"
+    private fun formatExpectedTimeInMinutes(expectedTimeMinutes: Int): String {
+        return "${expectedTimeMinutes.coerceAtLeast(0)}분"
     }
 
     private fun formatMaskedAddress(address: String, address2: String?): String {

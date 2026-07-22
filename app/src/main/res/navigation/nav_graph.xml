@@ -267,4 +267,18 @@
         app:destination="@id/deliveryAddressMapFragment" />
 
 
+    <action
+        android:id="@+id/action_global_chattingConversationFragment"
+        app:destination="@id/chattingConversationFragment"
+        app:launchSingleTop="true">
+        <argument
+            android:name="roomId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="isPlayerRoom"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </action>
+
 </navigation>

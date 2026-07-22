@@ -69,6 +69,7 @@ class ChattingConversationViewModel @Inject constructor(
     val isBlockedFlow = MutableStateFlow(false)
     val isNotificationOnFlow = MutableStateFlow(true)
     val isReportedFlow = MutableStateFlow(false)
+    val chatInputEnabled = MutableLiveData(true)
 
     init {
         callbackManager.registerCallback(this)
@@ -155,6 +156,7 @@ class ChattingConversationViewModel @Inject constructor(
                 isBlockedFlow.value = room.data.is_blocked
                 isNotificationOnFlow.value = room.data.isNotificationOn
                 isReportedFlow.value = room.data.is_reported
+                chatInputEnabled.value = !room.data.is_blocked
                 // 내 read_msg_id가 아니라 상대방의 읽음 위치만 송신 메시지의 읽음 여부에 사용한다.
                 partnerReadMessageId = room.data.partner_read_msg_id.toLong()
                 deliveryTitleFlow.value = room.data.room_name
@@ -223,6 +225,7 @@ class ChattingConversationViewModel @Inject constructor(
 
     fun sendMessage(content: String) {
         if (content.isBlank() || currentRoomId <= 0) return
+        if (isBlockedFlow.value) return
 
         viewModelScope.launch {
             val messagePointerId = System.currentTimeMillis()
@@ -247,14 +250,18 @@ class ChattingConversationViewModel @Inject constructor(
         }
     }
 
-    fun sendImage(base64: String, mimeType: String) {
-        if (base64.isBlank() || currentRoomId <= 0) return
+    fun sendImage(base64: String, mimeType: String, onComplete: (Boolean) -> Unit = {}) {
+        if (base64.isBlank() || currentRoomId <= 0 || isBlockedFlow.value) {
+            onComplete(false)
+            return
+        }
 
         viewModelScope.launch {
             val localMessageId = System.currentTimeMillis()
             val attach = uploadAttach(base64, mimeType, localMessageId)
             if (attach == null || attach.url.isBlank()) {
                 _event.value = Event.ChatActionFailed("이미지 전송에 실패했습니다.")
+                onComplete(false)
                 return@launch
             }
             addMessage(
@@ -270,6 +277,7 @@ class ChattingConversationViewModel @Inject constructor(
                     isUnread = true
                 )
             )
+            onComplete(true)
         }
     }
 

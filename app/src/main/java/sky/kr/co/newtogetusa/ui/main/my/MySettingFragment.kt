@@ -15,6 +15,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.login.LoginActivity
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
+import sky.kr.co.newtogetusa.utils.CacheCleanup
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -113,6 +114,7 @@ class MySettingFragment : BaseFragment<FragmentMySettingBinding, MySettingViewMo
                         leftBtn = "취소"
                     ).onRightBtn {
                         viewModel.logout {
+                            CacheCleanup.clearGlideCache(requireContext())
                             requireContext().startActivity(Intent(requireContext(), LoginActivity::class.java))
                             requireActivity().finish()
                         }

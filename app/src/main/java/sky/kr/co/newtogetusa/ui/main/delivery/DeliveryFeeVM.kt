@@ -85,7 +85,7 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
         loadingState.value = false
     }
 
-    fun registerPhoto(photos: List<DeliveryRegPhoto>, resultCallback: () -> Unit) = viewModelScope.launch {
+    fun registerPhoto(photos: List<DeliveryRegPhoto>, resultCallback: (Boolean) -> Unit) = viewModelScope.launch {
         loadingState.value = true
         val res = if (photos.size == 1) {
             deliveryRepository.postDeliveryPicture(deliveryIdFlow.value?:return@launch,photos.first())
@@ -94,8 +94,8 @@ class DeliveryFeeVM @Inject constructor(baseViewModelDependenciesFactory: BaseVi
         }
 
         when (res) {
-            is ResultWrapper.Success -> resultCallback.invoke()
-            else -> { /* error 처리 */ }
+            is ResultWrapper.Success -> resultCallback(true)
+            else -> resultCallback(false)
         }
         loadingState.value = false
     }

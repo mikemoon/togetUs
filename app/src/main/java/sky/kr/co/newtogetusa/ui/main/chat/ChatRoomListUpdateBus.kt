@@ -22,6 +22,10 @@ object ChatRoomListUpdateBus {
         _updates.tryEmit(ChatRoomListUpdate(roomId = roomId))
     }
 
+    fun notifyAllRoomsUpdated() {
+        _updates.tryEmit(ChatRoomListUpdate(roomId = 0L))
+    }
+
     fun notifyMessageReceived(
         roomId: Long,
         message: String,
