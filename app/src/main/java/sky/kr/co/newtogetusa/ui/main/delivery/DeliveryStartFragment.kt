@@ -7,7 +7,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
@@ -23,7 +23,7 @@ class DeliveryStartFragment : BaseFragment<FragmentDeliveryStartBinding, Deliver
         get() = R.layout.fragment_delivery_start
     override val viewModel: DeliveryStartViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
     private val args : DeliveryStartFragmentArgs by navArgs()
 
     override fun init() {

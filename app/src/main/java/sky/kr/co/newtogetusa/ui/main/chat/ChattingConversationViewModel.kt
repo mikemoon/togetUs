@@ -57,6 +57,7 @@ class ChattingConversationViewModel @Inject constructor(
     private var currentRoomId: Long = -1
     private var myUserId: Long = 0
     private var partnerReadMessageId: Long = 0
+    private var hasShownUnavailableNotice = false
 
     val sendMessageEnable = MutableStateFlow(false)
     val roomNameFlow = MutableStateFlow("")
@@ -67,6 +68,7 @@ class ChattingConversationViewModel @Inject constructor(
     val deliveryImageFlow = MutableStateFlow<String?>(null)
     val deliveryIdFlow = MutableStateFlow(0L)
     val isBlockedFlow = MutableStateFlow(false)
+    val isChatUnavailableFlow = MutableStateFlow(false)
     val isNotificationOnFlow = MutableStateFlow(true)
     val isReportedFlow = MutableStateFlow(false)
     val chatInputEnabled = MutableLiveData(true)
@@ -98,6 +100,7 @@ class ChattingConversationViewModel @Inject constructor(
 
     fun loadRoomMessages(roomId: Long, sinceId: Long = 1, count: Int = 100) {
         if (roomId <= 0) return
+        if (currentRoomId != roomId) hasShownUnavailableNotice = false
         currentRoomId = roomId
 
         viewModelScope.launch {
@@ -154,9 +157,14 @@ class ChattingConversationViewModel @Inject constructor(
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
                 isBlockedFlow.value = room.data.is_blocked
+                isChatUnavailableFlow.value = room.data.is_chat_disabled
                 isNotificationOnFlow.value = room.data.isNotificationOn
                 isReportedFlow.value = room.data.is_reported
-                chatInputEnabled.value = !room.data.is_blocked
+                chatInputEnabled.value = !room.data.is_chat_disabled
+                if (room.data.is_chat_disabled && !hasShownUnavailableNotice) {
+                    hasShownUnavailableNotice = true
+                    _event.value = Event.ChatUnavailable(room.data.chat_disabled_message)
+                }
                 // 내 read_msg_id가 아니라 상대방의 읽음 위치만 송신 메시지의 읽음 여부에 사용한다.
                 partnerReadMessageId = room.data.partner_read_msg_id.toLong()
                 deliveryTitleFlow.value = room.data.room_name
@@ -224,8 +232,7 @@ class ChattingConversationViewModel @Inject constructor(
     }
 
     fun sendMessage(content: String) {
-        if (content.isBlank() || currentRoomId <= 0) return
-        if (isBlockedFlow.value) return
+        if (content.isBlank() || currentRoomId <= 0 || isChatUnavailableFlow.value) return
 
         viewModelScope.launch {
             val messagePointerId = System.currentTimeMillis()
@@ -251,7 +258,7 @@ class ChattingConversationViewModel @Inject constructor(
     }
 
     fun sendImage(base64: String, mimeType: String, onComplete: (Boolean) -> Unit = {}) {
-        if (base64.isBlank() || currentRoomId <= 0 || isBlockedFlow.value) {
+        if (base64.isBlank() || currentRoomId <= 0 || isChatUnavailableFlow.value) {
             onComplete(false)
             return
         }
@@ -484,6 +491,7 @@ class ChattingConversationViewModel @Inject constructor(
         object ChatRoomNotificationOff : Event()
         object ChatRoomBlocked : Event()
         object ChatRoomExited : Event()
+        data class ChatUnavailable(val message: String) : Event()
     }
 
     private fun ChatMessageDto.toChatMessage(): ChatMessage {

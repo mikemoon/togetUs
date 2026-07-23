@@ -31,6 +31,7 @@ import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.MainViewModel
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomChatMoreDialog
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.ImageUtil
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
@@ -157,8 +158,8 @@ class ChattingConversationFragment :
                     }
                 }
                 launch {
-                    viewModel.isBlockedFlow.collect { isBlocked ->
-                        setChatInputEnabled(!isBlocked)
+                    viewModel.isChatUnavailableFlow.collect { isUnavailable ->
+                        setChatInputEnabled(!isUnavailable)
                     }
                 }
             }
@@ -260,6 +261,14 @@ class ChattingConversationFragment :
                     requireContext().toast("채팅방을 나갔습니다.")
                     ChatRoomListUpdateBus.notifyRoomUpdated(args.roomId)
                     findNavController().popBackStack()
+                }
+                is ChattingConversationViewModel.Event.ChatUnavailable -> {
+                    if (childFragmentManager.findFragmentByTag(CHAT_UNAVAILABLE_DIALOG_TAG) == null) {
+                        MessageDialog.newInstance(
+                            msg = event.message,
+                            rightBtn = "확인"
+                        ).show(childFragmentManager, CHAT_UNAVAILABLE_DIALOG_TAG)
+                    }
                 }
             }
         }
@@ -553,6 +562,7 @@ class ChattingConversationFragment :
         const val MAX_CHAT_IMAGE_BYTES = 100 * 1024 * 1024
         const val READ_REFRESH_DELAY_MS = 500L
         const val PLUS_BUTTON_ANIMATION_MS = 300L
+        const val CHAT_UNAVAILABLE_DIALOG_TAG = "chat_unavailable"
     }
 
     private enum class PendingMediaType {

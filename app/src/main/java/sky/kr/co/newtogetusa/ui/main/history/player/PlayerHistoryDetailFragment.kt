@@ -20,7 +20,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -66,7 +66,7 @@ class PlayerHistoryDetailFragment :
     override val layoutId: Int = R.layout.fragment_history_delivery_detail
     override val viewModel: PlayerHistoryDetailViewModel by viewModels()
 
-    private val deliverySharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val deliverySharedViewModel: DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
 
     private val args: PlayerHistoryDetailFragmentArgs by navArgs()
     private var kakaoMap: KakaoMap? = null

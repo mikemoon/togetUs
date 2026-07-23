@@ -22,7 +22,7 @@ android {
         applicationId = "sky.kr.co.newtogetusa"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
+        versionCode = 11
         versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -110,6 +110,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$rootProject.glide_version"
 
     implementation libs.hilt.android
+    implementation libs.androidx.hilt.navigation.fragment
     kapt "com.google.dagger:hilt-android-compiler:$rootProject.hilt_version"
 
     implementation libs.retrofit

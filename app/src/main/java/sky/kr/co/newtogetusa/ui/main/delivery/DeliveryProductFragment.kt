@@ -21,7 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
@@ -54,7 +54,7 @@ class DeliveryProductFragment :
         get() = R.layout.fragment_delivery_product
     override val viewModel: DeliveryProductViewModel by viewModels()
 
-    private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val sharedViewModel: DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
 
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>

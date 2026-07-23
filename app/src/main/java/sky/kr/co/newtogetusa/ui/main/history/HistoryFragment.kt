@@ -12,7 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,7 +43,7 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
     private var savedState: Parcelable? = null
 
     private val deliverySharedViewModel: DeliveryRequestSharedViewModel
-            by navGraphViewModels(R.id.nav_graph)
+            by hiltNavGraphViewModels(R.id.nav_graph)
 
     private lateinit var historyAdapter: HistoryAdapter
     override fun init() {

@@ -22,7 +22,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -70,7 +70,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
     override val viewModel: HistoryDetailViewModel by viewModels()
 
     private val deliverySharedViewModel: DeliveryRequestSharedViewModel
-            by navGraphViewModels(R.id.nav_graph)
+            by hiltNavGraphViewModels(R.id.nav_graph)
 
     private val args: HistoryDetailFragmentArgs by navArgs()
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001

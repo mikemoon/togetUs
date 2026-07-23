@@ -25,7 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -73,7 +73,7 @@ class DeliveryMapFragment : BaseFragment<FragmentDeliveryMapBinding, DeliveryMap
         get() = R.layout.fragment_delivery_map
     override val viewModel: DeliveryMapViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private var googleMap: GoogleMap? = null

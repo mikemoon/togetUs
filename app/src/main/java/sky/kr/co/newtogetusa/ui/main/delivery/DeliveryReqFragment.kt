@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
@@ -49,7 +49,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
     override val viewModel: DeliveryReqViewModel by viewModels()
     private val args: DeliveryReqFragmentArgs by navArgs()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
 
     override fun init() {
         super.init()

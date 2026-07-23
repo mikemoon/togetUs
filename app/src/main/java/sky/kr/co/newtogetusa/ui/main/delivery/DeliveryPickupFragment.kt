@@ -9,7 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
@@ -34,7 +34,7 @@ class DeliveryPickupFragment :
         get() = R.layout.fragment_delivery_pickup
     override val viewModel: DeliveryPickupViewModel by viewModels()
 
-    private val sharedViewModel : DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val sharedViewModel : DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
 
     override fun init() {
         super.init()

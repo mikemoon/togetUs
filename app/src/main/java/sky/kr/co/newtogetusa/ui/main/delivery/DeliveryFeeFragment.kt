@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
@@ -40,7 +40,7 @@ class DeliveryFeeFragment : BaseFragment<FragmentDeliveryFeeBinding, DeliveryFee
 
     override val viewModel: DeliveryFeeVM by viewModels()
 
-    private val sharedViewModel: DeliveryRequestSharedViewModel by navGraphViewModels(R.id.nav_graph)
+    private val sharedViewModel: DeliveryRequestSharedViewModel by hiltNavGraphViewModels(R.id.nav_graph)
 
     private var isEditMode = false
     private var editDeliveryId = -1L

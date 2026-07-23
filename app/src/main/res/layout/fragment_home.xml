@@ -170,7 +170,7 @@
                     android:visibility="@{viewModel.isModePlayer? View.GONE : View.VISIBLE}"
                     app:layout_constraintTop_toBottomOf="@id/tvMainTitle" />
 
-                <FrameLayout
+                <sky.kr.co.newtogetusa.ui.custom.DisallowInterceptFrameLayout
                     android:id="@+id/frMap"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -263,7 +263,7 @@
                                 android:textSize="12dp" />
                         </LinearLayout>
                     </FrameLayout>
-                </FrameLayout>
+                </sky.kr.co.newtogetusa.ui.custom.DisallowInterceptFrameLayout>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvReqDelivery"

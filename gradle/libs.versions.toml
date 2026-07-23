@@ -22,6 +22,7 @@ fragmentKtx = "1.8.9"
 glide = "5.0.5"
 gradle = "9.1.0"
 hiltAndroid = "2.57.1"
+hiltNavigationFragment = "1.2.0"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -99,6 +100,7 @@ google-firebase-firestore-ktx = { module = "com.google.firebase:firebase-firesto
 google-firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltNavigationFragment" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
