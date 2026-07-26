@@ -74,7 +74,9 @@ class MyViewModel @Inject constructor(
         val approvedPlayerProfile = getApprovedPlayerProfile(playerId)
         if (approvedPlayerProfile != null) {
             val displayProfile = userProfile.withPlayerProfile(approvedPlayerProfile)
-            profileDto.value = displayProfile
+            if (displayProfile != null) {
+                profileDto.value = displayProfile
+            }
             result.invoke(displayProfile)
         } else {
             dataStoreRepository.putBoolean(DataStoreKey.KEY_IS_MODE_PLAYER, false)
@@ -284,7 +286,7 @@ class MyViewModel @Inject constructor(
         object ProfileManage : Event()
         object UseHistory : Event()
         object Settle : Event()
-        object FavorPlayer : Event()
+        object LikePlayer : Event()
         object Favor : Event()
         object Notice : Event()
         object FAQ : Event()

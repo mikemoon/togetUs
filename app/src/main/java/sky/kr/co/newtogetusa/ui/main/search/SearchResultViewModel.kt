@@ -41,12 +41,15 @@ class SearchResultViewModel @Inject constructor(baseViewModelDependenciesFactory
         isDomestic: Boolean,
         sortType: String
     ) {
-        searchCondition.value = SearchCondition(
+        val newCondition = SearchCondition(
             departCd = departCd,
             destCd = destCd,
             isDomestic = isDomestic,
             sortType = sortType
         )
+        // 동일한 조건으로 중복 업데이트 방지 (프로필 화면 복귀 시 재검색 방지)
+        if (searchCondition.value == newCondition) return
+        searchCondition.value = newCondition
     }
 
     private val _event = SingleLiveEvent<Event>()

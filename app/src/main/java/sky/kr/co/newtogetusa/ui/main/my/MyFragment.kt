@@ -135,6 +135,10 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                     findNavController().navigate(R.id.action_myFragment_to_settleFragment)
                 }
 
+                MyViewModel.Event.LikePlayer -> {
+                    findNavController().navigate(R.id.action_myFragment_to_likePlayerFragment)
+                }
+
                 MyViewModel.Event.Favor -> {
                     findNavController().navigate(R.id.action_myFragment_to_likeOrderFragment)
                 }
@@ -146,7 +150,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                         return@observe
                     }
 
-                    if (viewModel.hasPlayerApplyRequest.value) { //플레이어 신청 있는 상태
+                    if (viewModel.hasPlayerApplyRequest.value) {
                         MessageDialog.newInstance(
                             msg = "신청 중인 내역이 있어요. 이어서 진행하시겠어요?",
                             rightBtn = "예",
@@ -190,10 +194,6 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                             "fromMySubMenu" to true
                         )
                     )
-                }
-
-                MyViewModel.Event.FavorPlayer -> {
-                    findNavController().navigate(R.id.action_myFragment_to_favorPlayerFragment)
                 }
 
                 is MyViewModel.Event.StartIdentityVerification -> {

@@ -35,51 +35,7 @@
                 android:visibility="@{viewModel.mapShowState == MapShow.GOOGLE_MAP ? View.VISIBLE : View.GONE}" />
         </FrameLayout>
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@color/white"
-            android:visibility="gone">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivToolbarBack"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/left_l" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/Paragraph16B"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@{viewModel.deliveryData.title}"
-                android:textColor="@color/black_80"
-                tools:text="노트북 좀 전달해주세요." />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivToolbarHeart"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="end"
-                android:layout_marginEnd="56dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_heart" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ivToolbarMore"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="end"
-                android:layout_marginEnd="20dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/more_vertical" />
-        </androidx.appcompat.widget.Toolbar>
-
+        <!-- iOS borderedTopView 대응: 지도 위 플로팅 버튼 (항상 보임, 흰 툴�바가 위에서 덮음) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clTop"
             android:layout_width="match_parent"
@@ -119,6 +75,54 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- iOS commonTopView 대응: 흰색 툴�바 (clTop 위에 배치, 페이드 인되며 덮음) -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/white"
+            android:visibility="gone">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivToolbarBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{viewModel.deliveryData.title}"
+                android:textColor="@color/black_80"
+                tools:text="노트북 좀 전달해주세요." />
+
+            <!-- Toolbar는 end gravity 자식을 선언 순서대로 오른쪽부터 쌓음.
+                 더보기를 먼저 선언해 최우측에 두고, 하트를 그 왼쪽에 둔다 (iOS와 동일한 하트-더보기 순서). -->
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivToolbarMore"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/more_vertical" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivToolbarHeart"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_heart" />
+        </androidx.appcompat.widget.Toolbar>
 
         <LinearLayout
             android:id="@+id/bottomSheet"

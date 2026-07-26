@@ -11,6 +11,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.PlayerGpsResponseDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryFinalReq
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryRegPhoto
@@ -37,11 +38,15 @@ class DeliveryRepository @Inject constructor(
     }
 
     suspend fun editDelivery(deliveryId: Long, req: DeliveryRequest) = safeApiCall<Boolean>(Dispatchers.IO) {
-        apiService.editDelivery(deliveryId, req).boolValue
+        apiService.editDelivery(deliveryId, req)
     }
 
     suspend fun getDeliveryDetail(deliveryId: Long) = safeApiCall<DeliveryDetailResponse>(Dispatchers.IO){
         apiService.getDeliveryDetail(deliveryId)
+    }
+
+    suspend fun getPlayerGps(deliveryId: Long) = safeApiCall<PlayerGpsResponseDto>(Dispatchers.IO) {
+        apiService.getPlayerGps(deliveryId)
     }
 
     suspend fun getDeliveryFee(deliveryId: Long) = safeApiCall<DeliveryFeeResponse>(Dispatchers.IO){

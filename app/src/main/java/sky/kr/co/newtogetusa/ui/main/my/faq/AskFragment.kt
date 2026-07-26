@@ -15,6 +15,7 @@ import android.text.style.UnderlineSpan
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
@@ -23,13 +24,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentAskBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.utils.CacheCleanup
 import sky.kr.co.newtogetusa.utils.ImageUtil
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
+import java.io.File
+import java.util.UUID
 
 @AndroidEntryPoint
 class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
@@ -39,16 +45,37 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
 
     private var selectedImageUri: Uri? = null
+    private var currentPhotoUri: Uri? = null
+    private var currentPhotoPath: String? = null
 
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            currentPhotoUri?.let { uri ->
+                selectedImageUri = uri
+                dataBinding.ivSelectedImage.loadImage(uri.toString(), roundedCorner = 4.dpToPx())
+                dataBinding.ivCamera.isVisible = false
+                dataBinding.tvAddImage.isVisible = false
+                dataBinding.clImage.background = null
+                updateSubmitState()
+            }
+        } else {
+            currentPhotoPath?.let { path ->
+                CacheCleanup.deleteCacheFile(requireContext(), File(path))
+            }
+        }
+        currentPhotoUri = null
+        currentPhotoPath = null
+    }
 
     @SuppressLint("TimberArgCount")
     override fun init() {
         super.init()
         setupForm()
 
-        // 권한 요청 런처
+        // 권한 요청 런처 (갤러리용)
         permissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { result ->
@@ -57,6 +84,17 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
                 openGallery()
             } else {
                 requireContext().toast("이미지 접근 권한이 필요합니다.")
+            }
+        }
+
+        // 카메라 권한 런처
+        cameraPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                openCamera()
+            } else {
+                requireContext().toast("카메라 권한이 필요합니다.")
             }
         }
 
@@ -91,10 +129,43 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
                     showPrivacyDialog()
                 }
                 AskViewModel.Event.AttachImage ->{
-                    requestImagePick()
+                    showPictureTypeDialog()
                 }
             }
         }
+    }
+
+    private fun showPictureTypeDialog() {
+        dialogFragmentShow(
+            childFragmentManager,
+            BottomPictureTypeDialog().apply {
+                pictureTypeSelectCallback = { pictureType ->
+                    when (pictureType) {
+                        PictureType.TYPE_CAMERA -> openCamera()
+                        PictureType.TYPE_GALLERY -> requestImagePick()
+                    }
+                }
+            }
+        )
+    }
+
+    private fun openCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            return
+        }
+
+        val imageDir = File(requireContext().cacheDir, "images").apply {
+            if (!exists()) mkdirs()
+        }
+        val photoFile = File(imageDir, "ask_${System.currentTimeMillis()}_${UUID.randomUUID()}.jpg")
+        currentPhotoPath = photoFile.absolutePath
+        currentPhotoUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            photoFile
+        )
+        cameraLauncher.launch(currentPhotoUri)
     }
 
     fun requestImagePick() {

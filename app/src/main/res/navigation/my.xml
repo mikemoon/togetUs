@@ -43,11 +43,8 @@
             android:id="@+id/action_myFragment_to_settleFragment"
             app:destination="@id/settleFragment" />
         <action
-            android:id="@+id/action_myFragment_to_favorPlayerFragment"
-            app:destination="@id/favorPlayerFragment" />
-        <action
-            android:id="@+id/action_myFragment_to_likeOrderFragment"
-            app:destination="@id/likeOrderFragment" />
+            android:id="@+id/action_myFragment_to_likePlayerFragment"
+            app:destination="@id/likePlayerFragment" />
         <action
             android:id="@+id/action_myFragment_to_playerJoinFragment2"
             app:destination="@id/playerJoinFragment2" />
@@ -60,6 +57,9 @@
         <action
             android:id="@+id/action_myFragment_to_accompanyCreditFragment"
             app:destination="@id/accompanyCreditFragment" />
+        <action
+            android:id="@+id/action_myFragment_to_likeOrderFragment"
+            app:destination="@id/likeOrderFragment" />
     </fragment>
     <fragment
         android:id="@+id/modifyProfileFragment"
@@ -210,13 +210,30 @@
             app:destination="@id/accountInfoFragment" />
     </fragment>
     <fragment
-        android:id="@+id/favorPlayerFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.my.favor.FavorPlayerFragment"
-        android:label="FavorPlayerFragment" />
-    <fragment
-        android:id="@+id/likeOrderFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.my.likeorder.LikeOrderFragment"
-        android:label="LikeOrderFragment" />
+        android:id="@+id/likePlayerFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.likeplayer.LikePlayerFragment"
+        android:label="LikePlayerFragment" >
+        <action
+            android:id="@+id/action_likePlayerFragment_to_profileManagementFragment"
+            app:destination="@id/profileManagementFragment" >
+            <argument
+                android:name="profileDto"
+                app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+                app:nullable="true" />
+            <argument
+                android:name="isPlayer"
+                app:argType="boolean"
+                android:defaultValue="false" />
+            <argument
+                android:name="isFromSearchResult"
+                app:argType="boolean"
+                android:defaultValue="false" />
+            <argument
+                android:name="deliveryId"
+                app:argType="long"
+                android:defaultValue="-1L" />
+        </action>
+    </fragment>
     <fragment
         android:id="@+id/accountInfoFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.settle.AccountInfoFragment"
@@ -306,6 +323,10 @@
         android:id="@+id/blockManagementFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.block.BlockManagementFragment"
         android:label="BlockManagementFragment" />
+    <fragment
+        android:id="@+id/likeOrderFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.likeorder.LikeOrderFragment"
+        android:label="LikeOrderFragment" />
     <fragment
         android:id="@+id/accompanyCreditFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.AccompanyCreditFragment"

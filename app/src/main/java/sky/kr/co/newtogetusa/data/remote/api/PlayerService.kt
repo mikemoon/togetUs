@@ -81,6 +81,9 @@ interface PlayerService {
     @GET("/api/players/v1/blocks")
     suspend fun getBlockedPlayers(): PlayerSearchResponse
 
+    @GET("/api/players/v1/likes")
+    suspend fun getPlayerLikes(): PlayerSearchResponse
+
     @POST("/api/players/v1/{player_id}/req_delivery") //배송요청 제안
     suspend fun postReqDelivery(
         @Path("player_id") playerId: Int,

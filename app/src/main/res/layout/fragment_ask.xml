@@ -102,6 +102,8 @@
                 android:textColorHint="@color/black_40"
                 android:hint="휴대폰 번호 입력(선택)"
                 android:textColor="@color/black_80"
+                android:inputType="phone"
+                android:maxLines="1"
                 style="@style/Paragraph14R"
                 />
 

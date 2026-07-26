@@ -41,6 +41,14 @@
                 app:layout_constraintBottom_toTopOf="@id/llBottomPanel"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- iOS mapTapButton과 동일하게 지도 위 터치 영역: 탭 시 큰지도(길찾기) 화면으로 이동 -->
+            <View
+                android:id="@+id/vMapTapOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:clickable="true"
+                android:focusable="true" />
+
         </FrameLayout>
 
         <androidx.appcompat.widget.Toolbar
@@ -265,6 +273,16 @@
                             android:text="아직 협의중인 플레이어가 없어요."
                             android:textColor="@color/black_40"
                             android:visibility="@{viewModel.deliveryData.showChatEmptyText ? View.VISIBLE : View.GONE}" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph14R"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center"
+                            android:text="채팅을 통해 협의를 완료하세요."
+                            android:textColor="@color/black_40"
+                            android:visibility="@{viewModel.deliveryData.showChatGuideText ? View.VISIBLE : View.GONE}" />
                     </LinearLayout>
 
                     <!-- 이동 경로 -->

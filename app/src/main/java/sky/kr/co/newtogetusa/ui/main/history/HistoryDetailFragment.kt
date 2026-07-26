@@ -115,6 +115,30 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
         } else {
             setupKakaoMap()
         }
+
+        // iOS onMapTapped 대응: 지도 탭 시 큰지도(길찾기) 화면으로 이동
+        dataBinding.vMapTapOverlay.setOnClickListener {
+            val detail = viewModel.deliveryDetail.value ?: return@setOnClickListener
+            val navController = findNavController()
+            if (navController.currentDestination?.id != R.id.historyDetailFragment) {
+                return@setOnClickListener
+            }
+            navController.navigate(
+                R.id.action_historyDetailFragment_to_mapDetailFragment,
+                bundleOf(
+                    "startLat" to detail.depart.latitude.toFloat(),
+                    "startLng" to detail.depart.longitude.toFloat(),
+                    "endLat" to detail.dest.latitude.toFloat(),
+                    "endLng" to detail.dest.longitude.toFloat(),
+                    "startAddress" to detail.depart.address,
+                    "endAddress" to detail.dest.address,
+                    "deliveryId" to detail.delivery_id,
+                    "statusCd" to detail.status_cd,
+                    "playerNickname" to detail.player_profile?.nickname,
+                    "playerProfileImage" to detail.player_profile?.profile_image
+                )
+            )
+        }
         val sheet = dataBinding.bottomSheet
         val behavior = BottomSheetBehavior.from(sheet)
         behavior.isFitToContents = false

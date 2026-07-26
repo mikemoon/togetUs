@@ -32,8 +32,15 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
         dataBinding.rv.adapter = searchResultAdapter
 
         searchResultAdapter.addLoadStateListener { loadState ->
-            val isEmpty = loadState.refresh is LoadState.NotLoading && searchResultAdapter.itemCount == 0
-            dataBinding.llEmpty.isVisible = isEmpty
+            if (loadState.refresh is LoadState.NotLoading) {
+                // 페이지네이션이 완전히 끝났고 아이템이 없을 때만 빈 화면 표시
+                val isEmpty = searchResultAdapter.itemCount == 0
+                        && loadState.append.endOfPaginationReached
+                dataBinding.llEmpty.isVisible = isEmpty
+            } else {
+                // 로딩 중에는 빈 화면 숨김
+                dataBinding.llEmpty.isVisible = false
+            }
         }
 
         lifecycleScope.launch {

@@ -108,6 +108,9 @@ class PlayerRepository @Inject constructor(
         apiService.getBlockedPlayers()
     }
 
+    suspend fun getPlayerLikes() = safeApiCall(Dispatchers.IO) {
+        apiService.getPlayerLikes()
+    }
 
     suspend fun postReqDelivery(playerId: Int, request: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
         apiService.postReqDelivery(playerId, request)
@@ -132,7 +135,6 @@ class PlayerRepository @Inject constructor(
     suspend fun getPlayers() = safeApiCall(Dispatchers.IO){
         apiService.getPlayers()
     }
-
 
     suspend fun postPlayerApplyBatch(playerId: Int, dataRequestBody: RequestBody, profilePart: MultipartBody.Part?, criminalPart: MultipartBody.Part?) = safeApiCall(Dispatchers.IO){
         apiService.postPlayerApplyBatch(

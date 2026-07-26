@@ -78,8 +78,11 @@ class PlayerHistoryDetailFragment :
     private var destStyles: LabelStyles? = null
     private lateinit var photoAdapter: HistoryDetailPhotoAdapter
 
-    private val fadeStartY by lazy { 120.dpToPx() }
-    private val fadeEndY = 0
+    // iOS 대응: 툴�바 페이드는 시트 확장 직전 구간(60dp)에서만 진행하고,
+    // 완전히 펼쳐지는 지점(expandedOffset)에서 정확히 alpha=1이 되도록 한다.
+    private val expandedOffsetY by lazy { 60.dpToPx() }
+    private val fadeStartY by lazy { expandedOffsetY + 60.dpToPx() }
+    private val fadeEndY by lazy { expandedOffsetY }
 
     @Inject
     lateinit var directionsRepo: DirectionsRepository
@@ -380,7 +383,7 @@ class PlayerHistoryDetailFragment :
     private fun setupBottomSheet() {
         val behavior = BottomSheetBehavior.from(dataBinding.bottomSheet)
         behavior.isFitToContents = false
-        behavior.expandedOffset = 60.dpToPx()
+        behavior.expandedOffset = expandedOffsetY
         behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -388,14 +391,21 @@ class PlayerHistoryDetailFragment :
                 val progress = ((fadeStartY - top).toFloat() / (fadeStartY - fadeEndY))
                     .coerceIn(0f, 1f)
 
-                dataBinding.toolbar.apply {
-                    alpha = progress
-                    isVisible = true
+                // iOS 대응: 플로팅 버튼(clTop)은 항상 유지하고,
+                // 불투명 흰색 툴�바(toolbar)가 위에서 페이드 인되며 덮는다.
+                // alpha=0일 때는 INVISIBLE로 두어 잔상/터치 간섭을 방지한다.
+                if (progress > 0f) {
+                    dataBinding.toolbar.apply {
+                        if (!isVisible) isVisible = true
+                        alpha = progress
+                    }
+                } else {
+                    dataBinding.toolbar.apply {
+                        alpha = 0f
+                        if (isVisible) isVisible = false
+                    }
                 }
-                dataBinding.clTop.apply {
-                    alpha = 1f - progress
-                    isVisible = true
-                }
+                dataBinding.clTop.alpha = 1f
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -405,12 +415,10 @@ class PlayerHistoryDetailFragment :
                             alpha = 1f
                             isVisible = true
                         }
-                        dataBinding.clTop.apply {
-                            alpha = 0f
-                            isVisible = false
-                        }
+                        dataBinding.clTop.alpha = 1f
                     }
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                    BottomSheetBehavior.STATE_COLLAPSED,
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
                         dataBinding.toolbar.apply {
                             alpha = 0f
                             isVisible = false

@@ -24,6 +24,9 @@
         <action
             android:id="@+id/action_historyDetailFragment_to_deliveryFeeEditFragment"
             app:destination="@id/deliveryFeeEditFragment" />
+        <action
+            android:id="@+id/action_historyDetailFragment_to_mapDetailFragment"
+            app:destination="@id/mapDetailFragment" />
     </fragment>
 
     <action
@@ -280,5 +283,56 @@
             app:argType="boolean"
             android:defaultValue="false" />
     </action>
+
+    <fragment
+        android:id="@+id/mapDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.MapDetailFragment"
+        android:label="MapDetailFragment">
+        <argument
+            android:name="startLat"
+            app:argType="float"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="startLng"
+            app:argType="float"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="endLat"
+            app:argType="float"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="endLng"
+            app:argType="float"
+            android:defaultValue="0.0" />
+        <argument
+            android:name="startAddress"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="endAddress"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="statusCd"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="playerNickname"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="playerProfileImage"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>

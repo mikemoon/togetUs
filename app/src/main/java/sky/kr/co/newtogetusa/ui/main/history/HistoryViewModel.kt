@@ -15,9 +15,11 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.remote.ResultWrapper
+import sky.kr.co.newtogetusa.data.remote.dto.BaseCommonDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryDetailResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DataStoreKey
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
@@ -25,15 +27,57 @@ import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
 import javax.inject.Inject
 
 @HiltViewModel
-class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-                                           private val deliveryRepo : DeliveryRepository) :
-    BaseViewModel(baseViewModelDependenciesFactory.create()) {
+class HistoryViewModel @Inject constructor(
+    baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
+    private val deliveryRepo: DeliveryRepository,
+    private val configRepository: ConfigRepository,
+) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
     val menuAll = TopMenu.All
     val menuDoing = TopMenu.Doing
     val menuEnd = TopMenu.End
 
     val deliveryDetail = MutableStateFlow<DeliveryDetailResponse?>(null)
+
+    val productTypes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
+    val productWeights = MutableStateFlow<List<BaseCommonDto>>(emptyList())
+    val productVolumes = MutableStateFlow<List<BaseCommonDto>>(emptyList())
+
+    init {
+        getConfigProductType()
+        getConfigProductWeight()
+        getConfigProductVolume()
+    }
+
+    fun productTypeLabel(code: String): String =
+        findConfigLabel(productTypes.value, code, PRODUCT_TYPE_FALLBACKS)
+
+    fun productWeightLabel(code: String): String =
+        findConfigLabel(productWeights.value, code, PRODUCT_WEIGHT_FALLBACKS)
+
+    fun productVolumeLabel(code: String): String =
+        findConfigLabel(productVolumes.value, code, PRODUCT_VOLUME_FALLBACKS)
+
+    private fun getConfigProductType() = viewModelScope.launch {
+        when (val res = configRepository.getProductTypeList()) {
+            is ResultWrapper.Success -> productTypes.value = res.data
+            else -> {}
+        }
+    }
+
+    private fun getConfigProductWeight() = viewModelScope.launch {
+        when (val res = configRepository.getProductWeightList()) {
+            is ResultWrapper.Success -> productWeights.value = res.data
+            else -> {}
+        }
+    }
+
+    private fun getConfigProductVolume() = viewModelScope.launch {
+        when (val res = configRepository.getProductVolumeList()) {
+            is ResultWrapper.Success -> productVolumes.value = res.data
+            else -> {}
+        }
+    }
 
     val isModePlayer = MutableStateFlow<Boolean?>(null)
     init {
@@ -96,6 +140,8 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
         _menuButtonLiveData.value = menuAction
     }
 
+    suspend fun fetchDeliveryDetail(deliveryId: Long) = deliveryRepo.getDeliveryDetail(deliveryId)
+
     fun confirmRequesterPickup(item: DeliverySummaryDto) = viewModelScope.launch {
         when (deliveryRepo.putRequesterPickup(item.delivery_id)) {
             is ResultWrapper.Success -> _menuButtonLiveData.value = MenuButton.MenuRefresh("수령 확인이 완료되었어요.")
@@ -103,11 +149,34 @@ class HistoryViewModel @Inject constructor(baseViewModelDependenciesFactory: Bas
         }
     }
 
+    companion object {
+        private val PRODUCT_TYPE_FALLBACKS = mapOf(
+            "type_1" to "전자기기"
+        )
+        private val PRODUCT_WEIGHT_FALLBACKS = mapOf(
+            "small" to "가벼움 (~3KG)",
+            "medium" to "가벼움 (~3KG)",
+            "big" to "무거움 (3KG~)"
+        )
+        private val PRODUCT_VOLUME_FALLBACKS = mapOf(
+            "small" to "작음 (작은 상자/에코백 수준)",
+            "medium" to "보통",
+            "big" to "큼"
+        )
+
+        private fun findConfigLabel(
+            configs: List<BaseCommonDto>,
+            code: String,
+            fallback: Map<String, String>
+        ): String =
+            configs.firstOrNull { it.code == code }?.name?.takeIf { it.isNotBlank() }
+                ?: fallback[code].orEmpty()
+    }
+
     sealed class TopMenu {
         object All : TopMenu()
         object Doing : TopMenu()
         object End : TopMenu()
-
     }
 
     sealed class MenuButton{

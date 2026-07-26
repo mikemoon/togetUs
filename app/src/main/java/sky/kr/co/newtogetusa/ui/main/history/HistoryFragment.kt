@@ -1,7 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.history
 
 import android.content.Context
-import android.os.Message
 import android.os.Parcelable
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
@@ -14,26 +13,25 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
+import sky.kr.co.newtogetusa.data.remote.ResultWrapper
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliverySearchReq
 import sky.kr.co.newtogetusa.databinding.FragmentHistoryBinding
-import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.ReceiveConfirmDialog
 import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRequestSharedViewModel
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.hideLoading
+import sky.kr.co.newtogetusa.utils.showLoading
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
-import kotlin.getValue
 
 @AndroidEntryPoint
 class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>() {
@@ -64,8 +62,6 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             adapter = historyAdapter
             addItemDecoration(VerticalSpaceItemDecoration(20.dpToPx()))
         }
-        //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
-
     }
 
     override fun initObserver() {
@@ -83,6 +79,17 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
         dataBinding.ivSearch.setOnClickListener {
             if (!dataBinding.etSearch.isEnabled) return@setOnClickListener
             viewModel.setKeyword(dataBinding.etSearch.text.toString())
+        }
+
+        dataBinding.etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                if (!dataBinding.etSearch.isEnabled) return@setOnEditorActionListener false
+                viewModel.setKeyword(dataBinding.etSearch.text.toString())
+                clearSearchFocus()
+                true
+            } else {
+                false
+            }
         }
 
         lifecycleScope.launch {
@@ -121,26 +128,35 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             dialogFragmentShow(
                 childFragmentManager,
                 ReceiveConfirmDialog()
-                /*MessageDialog.newInstance(
-                    msg = "배송요청을 취소하시겠어요?",
-                    leftBtn = "아니요",
-                    rightBtn = "예"
-                ).onRightBtn {
-
-                }*/
             )
         }
 
         viewModel.menuButtonLiveData.observe(viewLifecycleOwner){ menuAction ->
             when(menuAction){
                 is HistoryViewModel.MenuButton.MenuModify -> {
-                    findNavController().navigate(
-                        R.id.action_global_to_home_for_delivery,
-                        bundleOf(
-                            "openDeliveryReq" to true,
-                            "returnToHistory" to true
-                        )
-                    )
+                    lifecycleScope.launch {
+                        showLoading()
+                        val item = menuAction.item
+                        when (val res = viewModel.fetchDeliveryDetail(item.delivery_id)) {
+                            is ResultWrapper.Success -> {
+                                viewModel.deliveryDetail.value = res.data
+                                populateDeliverySharedState()
+                                findNavController().navigate(
+                                    R.id.action_global_to_home_for_delivery,
+                                    bundleOf(
+                                        "openDeliveryReq" to true,
+                                        "returnToHistory" to true,
+                                        "isEdit" to true,
+                                        "deliveryId" to item.delivery_id
+                                    )
+                                )
+                            }
+                            else -> {
+                                requireContext().toast("동행요청 정보를 불러올 수 없습니다.")
+                            }
+                        }
+                        hideLoading()
+                    }
                 }
                 is HistoryViewModel.MenuButton.MenuDeliveryStatus -> {
                     findNavController().navigate(
@@ -173,24 +189,6 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                 }
             }
         }
-
-        /*viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.historyFlow.collectLatest{
-                    val adapter = (dataBinding.rvHistory.adapter as HistoryAdapter)
-                    adapter.addLoadStateListener { loadState ->
-                        if (loadState.refresh is LoadState.NotLoading) {
-                            if (savedState != null) {
-                                dataBinding.rvHistory.layoutManager?.onRestoreInstanceState(savedState)
-                            } else {
-                                savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
-                            }
-                        }
-                    }
-                    //adapter.submitData(it)
-                }
-            }
-        }*/
     }
 
     private fun setSelectedTopMenu(topMenu: HistoryViewModel.TopMenu){
@@ -252,8 +250,12 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             description = detail.product.descript,
             type = detail.product.type_cd,
             weight = detail.product.weight_cd,
-            volume = detail.product.volume_cd
+            volume = detail.product.volume_cd,
+            typeLabel = viewModel.productTypeLabel(detail.product.type_cd),
+            weightLabel = viewModel.productWeightLabel(detail.product.weight_cd),
+            volumeLabel = viewModel.productVolumeLabel(detail.product.volume_cd)
         )
+        deliverySharedViewModel.updateProductImages(detail.product.pictures)
 
         deliverySharedViewModel.updateUser(
             name = detail.depart_contact.name.orEmpty(),

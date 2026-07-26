@@ -13,6 +13,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryFeeResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryItemDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryPlayerChatDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryReviewDto
+import sky.kr.co.newtogetusa.data.remote.dto.delivery.PlayerGpsResponseDto
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliveryStatusLogDto
@@ -106,7 +107,7 @@ interface DeliveryService {
     suspend fun editDelivery(
         @Path("delivery_id") delivery_id: Long,
         @Body body: DeliveryRequest
-    ): CommonBoolDto
+    ): Boolean
 
     @GET("api/deliverys/v1") //배송요청 목록 보기
     suspend fun getDeliveryList(
@@ -116,6 +117,11 @@ interface DeliveryService {
     suspend fun getDeliveryDetail(
         @Path("delivery_id") delivery_id: Long,
     ): DeliveryDetailResponse
+
+    @GET("api/deliverys/v1/{delivery_id}/gps") //플레이어 GPS 조회
+    suspend fun getPlayerGps(
+        @Path("delivery_id") delivery_id: Long,
+    ): PlayerGpsResponseDto
 
     @GET("api/deliverys/v1/{delivery_id}/fee") //요금확인
     suspend fun getDeliveryFee(

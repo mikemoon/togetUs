@@ -191,7 +191,7 @@
                             style="@style/Paragraph14B"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0건"
+                            android:text='@{String.valueOf(profile.evaluation.cancel_count) + "건"}'
                             android:textColor="@color/white"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"

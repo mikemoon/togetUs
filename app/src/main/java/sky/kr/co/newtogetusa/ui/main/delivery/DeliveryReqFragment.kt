@@ -62,28 +62,40 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
 
         dataBinding.tvReservation.apply {
             isSelected = true
-            //setTextColor(requireContext().getColor(R.color.white))
             setOnClickListener {
                 moveIndicatorTo(dataBinding.tvReservation)
                 setSelectPickupType(true)
             }
         }
-        dataBinding.tvImmediate.apply { //해외
+        dataBinding.tvImmediate.apply {
             setOnClickListener {
-                viewModel.onAbroadDeliveryClick{ isAgree ->
+                viewModel.onAbroadDeliveryClick { isAgree ->
                     Timber.d("isAgreeCallback : $isAgree")
-                    if(!isAgree){
+                    if (!isAgree) {
                         AbroadGuideDialog().apply {
                             isAgreeCallback = {
                                 moveIndicatorTo(this@DeliveryReqFragment.dataBinding.tvImmediate)
                                 setSelectPickupType(false)
                             }
                         }.show(childFragmentManager, "")
-                    }else{
+                    } else {
                         moveIndicatorTo(dataBinding.tvImmediate)
                         setSelectPickupType(false)
                     }
                 }
+            }
+        }
+
+        // Edit mode에서 History 화면을 통해 진입한 경우 shared state가 이미 채워져 있을 수 있다.
+        // collect 시작 전에 현재 state를 미리 반영해 요약 정보가 누락되지 않도록 한다.
+        dataBinding.root.post {
+            val state = sharedViewModel.state.value
+            applySummaryFromState(state)
+            if (state.isInternational) {
+                dataBinding.tvImmediate.isSelected = true
+                dataBinding.tvReservation.isSelected = false
+                moveIndicatorTo(dataBinding.tvImmediate)
+                setSelectPickupType(false)
             }
         }
 
@@ -117,46 +129,7 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 sharedViewModel.state.collect { state ->
-                    val hasLocationSummary = !state.startAddress.isNullOrBlank() && !state.destinationAddress.isNullOrBlank()
-                    dataBinding.layoutLocationSummary.isVisible = hasLocationSummary
-                    dataBinding.ivLocation.setImageResource(
-                        if (hasLocationSummary) R.drawable.pin_fill_primary else R.drawable.pin_fill_gray
-                    )
-                    if (hasLocationSummary) {
-                        dataBinding.tvStartAddress.text = state.startAddress.orEmpty()
-                        dataBinding.tvDestinationAddress.text = state.destinationAddress.orEmpty()
-                    }
-
-                    // 즉시 요청은 날짜/시간을 비워서 저장하므로, 픽업 방식 자체를 선택 완료 상태로 본다.
-                    val hasPickupSummary = state.pickupIsImmediately ||
-                        (!state.pickupDate.isNullOrBlank() && !state.pickupTime.isNullOrBlank())
-                    dataBinding.layoutDateSummary.isVisible = hasPickupSummary
-                    dataBinding.ivDate.setImageResource(
-                        if (hasPickupSummary) R.drawable.calendar_fill_primary else R.drawable.calendar_fill_gray
-                    )
-                    if (hasPickupSummary) {
-                        dataBinding.tvPickupDateSummary.text = if (state.pickupIsImmediately) {
-                            "즉시 요청"
-                        } else {
-                            "${formatKoreanDate(state.pickupDate.orEmpty())} ${formatTimeToKorean(state.pickupTime.orEmpty())}"
-                        }
-                        dataBinding.tvPickupMethodSummary.text = "픽업 전달 방식  ${if (state.pickupIsFaceToFace) "대면" else "비대면"}"
-                    }
-
-                    val hasProductSummary = !state.productTitle.isNullOrBlank() && !state.productType.isNullOrBlank() && !state.productWeight.isNullOrBlank() && !state.productVolume.isNullOrBlank()
-                    dataBinding.layoutProductSummary.isVisible = hasProductSummary
-                    dataBinding.ivProduct.setImageResource(
-                        if (hasProductSummary) R.drawable.box_fill_primary else R.drawable.box_fill_gray
-                    )
-                    if (hasProductSummary) {
-                        dataBinding.tvProductTitleSummary.text = state.productTitle.orEmpty()
-                        dataBinding.tvProductTypeSummary.text =
-                            state.productTypeLabel?.takeIf { it.isNotBlank() } ?: state.productType.orEmpty()
-                        dataBinding.tvProductWeightSummary.text =
-                            state.productWeightLabel?.takeIf { it.isNotBlank() } ?: state.productWeight.orEmpty()
-                        dataBinding.tvProductVolumeSummary.text =
-                            state.productVolumeLabel?.takeIf { it.isNotBlank() } ?: state.productVolume.orEmpty()
-                    }
+                    applySummaryFromState(state)
                 }
             }
         }
@@ -300,17 +273,57 @@ class DeliveryReqFragment : BaseFragment<FragmentDeliveryReqBinding, DeliveryReq
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun setSelectPickupType(isReservation: Boolean){
+    private fun setSelectPickupType(isReservation: Boolean) {
         viewModel.isInternationalDelivery.value = !isReservation
         dataBinding.tvReservation.apply {
             isSelected = isReservation
-            //background = if(isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
-            setTextColor(requireContext().getColor(if(isReservation) R.color.white else R.color.black_80))
+            setTextColor(requireContext().getColor(if (isReservation) R.color.white else R.color.black_80))
         }
         dataBinding.tvImmediate.apply {
             isSelected = !isReservation
-            //background = if(!isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
-            setTextColor(requireContext().getColor(if(!isReservation) R.color.white else R.color.black_80))
+            setTextColor(requireContext().getColor(if (!isReservation) R.color.white else R.color.black_80))
+        }
+    }
+
+    private fun applySummaryFromState(state: DeliveryRequestState) {
+        val hasLocationSummary = !state.startAddress.isNullOrBlank() && !state.destinationAddress.isNullOrBlank()
+        dataBinding.layoutLocationSummary.isVisible = hasLocationSummary
+        dataBinding.ivLocation.setImageResource(
+            if (hasLocationSummary) R.drawable.pin_fill_primary else R.drawable.pin_fill_gray
+        )
+        if (hasLocationSummary) {
+            dataBinding.tvStartAddress.text = state.startAddress.orEmpty()
+            dataBinding.tvDestinationAddress.text = state.destinationAddress.orEmpty()
+        }
+
+        val hasPickupSummary = state.pickupIsImmediately ||
+            (!state.pickupDate.isNullOrBlank() && !state.pickupTime.isNullOrBlank())
+        dataBinding.layoutDateSummary.isVisible = hasPickupSummary
+        dataBinding.ivDate.setImageResource(
+            if (hasPickupSummary) R.drawable.calendar_fill_primary else R.drawable.calendar_fill_gray
+        )
+        if (hasPickupSummary) {
+            dataBinding.tvPickupDateSummary.text = if (state.pickupIsImmediately) {
+                "즉시 요청"
+            } else {
+                "${formatKoreanDate(state.pickupDate.orEmpty())} ${formatTimeToKorean(state.pickupTime.orEmpty())}"
+            }
+            dataBinding.tvPickupMethodSummary.text = "픽업 전달 방식  ${if (state.pickupIsFaceToFace) "대면" else "비대면"}"
+        }
+
+        val hasProductSummary = !state.productTitle.isNullOrBlank() && !state.productType.isNullOrBlank() && !state.productWeight.isNullOrBlank() && !state.productVolume.isNullOrBlank()
+        dataBinding.layoutProductSummary.isVisible = hasProductSummary
+        dataBinding.ivProduct.setImageResource(
+            if (hasProductSummary) R.drawable.box_fill_primary else R.drawable.box_fill_gray
+        )
+        if (hasProductSummary) {
+            dataBinding.tvProductTitleSummary.text = state.productTitle.orEmpty()
+            dataBinding.tvProductTypeSummary.text =
+                state.productTypeLabel?.takeIf { it.isNotBlank() } ?: state.productType.orEmpty()
+            dataBinding.tvProductWeightSummary.text =
+                state.productWeightLabel?.takeIf { it.isNotBlank() } ?: state.productWeight.orEmpty()
+            dataBinding.tvProductVolumeSummary.text =
+                state.productVolumeLabel?.takeIf { it.isNotBlank() } ?: state.productVolume.orEmpty()
         }
     }
 }

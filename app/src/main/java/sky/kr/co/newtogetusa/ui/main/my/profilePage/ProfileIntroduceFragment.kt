@@ -48,6 +48,9 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
         bindBasicArea(profile.areas_basic?.getOrNull(0), tvArea1)
         bindBasicArea(profile.areas_basic?.getOrNull(1), tvArea2)
 
+        val hasAddedArea = !profile.areas_added.isNullOrEmpty()
+        tvAddAreaEmpty.isVisible = !hasAddedArea
+
         bindAddedArea(profile.areas_added?.getOrNull(0), tvAddArea1, tvAddPickupDate1)
         bindAddedArea(profile.areas_added?.getOrNull(1), tvAddArea2, tvAddPickupDate2)
     }
@@ -68,14 +71,13 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
         areaView: TextView,
         dateView: TextView
     ) {
-        val isFromSearchResult = arguments?.getBoolean(ARG_FROM_SEARCH_RESULT, false) ?: false
         val isVisible = area != null
         areaView.isVisible = isVisible
-        dateView.isVisible = isVisible && !isFromSearchResult
+        dateView.isVisible = isVisible
         if (area == null) return
 
         areaView.text = formatRoute(area.depart_address, area.dest_address)
-        dateView.text = "${formatDate(area.start_date)} ~ ${formatDate(area.end_date)}"
+        dateView.text = "픽업 가능일 ${formatDate(area.start_date)} - ${formatDate(area.end_date)}"
     }
 
     private fun formatRoute(departAddress: String?, destAddress: String?): String =
