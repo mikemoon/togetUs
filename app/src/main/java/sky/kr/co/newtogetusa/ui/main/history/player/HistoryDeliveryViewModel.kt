@@ -78,6 +78,20 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     private val _calendarDayDeliveries = MutableStateFlow<List<DeliverySummaryDto>?>(null)
     val calendarDayDeliveries = _calendarDayDeliveries.asStateFlow()
 
+    // iOS 대응: 월별 전체 배송 데이터 (dot 생성 및 날짜 필터링용)
+    private val _calendarDeliveries = MutableStateFlow<List<DeliverySummaryDto>>(emptyList())
+    val calendarDeliveries = _calendarDeliveries.asStateFlow()
+
+    // iOS 대응: 날짜별 dot 데이터 (key: LocalDate, value: DotType)
+    private val _calendarDotData = MutableStateFlow<Map<LocalDate, DeliveryDotType>>(emptyMap())
+    val calendarDotData = _calendarDotData.asStateFlow()
+
+    enum class DeliveryDotType {
+        GRAY,   // 매칭 진행중
+        GREEN,  // 동행 대기중 ~ 동행중
+        NAVY    // 동행 완료
+    }
+
     fun getMonthInfo(year: Int, month: Int) = viewModelScope.launch {
         when(val res = playerRepository.getMonthInfo(year, month)) {
             is ResultWrapper.Success -> {
@@ -85,9 +99,34 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
                     dayInfo.date.takeIf { it.isNotBlank() }?.runCatching { LocalDate.parse(this) }?.getOrNull()
                 }.filter { it.monthValue == month && it.year == year }
                     .toSet()
+
+                // iOS 대응: 월별 전체 배송 데이터로 dot 데이터 생성
+                val allDeliveries = res.data.calender.flatMap { dayInfo ->
+                    dayInfo.deliveries.map { delivery ->
+                        DeliverySummaryDto(
+                            deliveryId = delivery.deliveryId,
+                            requesterId = 0,
+                            playerId = null,
+                            title = "",
+                            statusCd = delivery.status,
+                            prdPicture = null,
+                            departAddress = "",
+                            destAddress = "",
+                            pickupImmediately = false,
+                            pickupDate = delivery.date,
+                            feeFinal = 0,
+                            registDate = null,
+                            applyDate = null
+                        )
+                    }
+                }
+                _calendarDeliveries.value = allDeliveries
+                buildDotData(allDeliveries)
             }
             else -> {
                 _monthDeliveryDates.value = emptySet()
+                _calendarDeliveries.value = emptyList()
+                _calendarDotData.value = emptyMap()
             }
         }
     }
@@ -101,6 +140,49 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
                 _calendarDayDeliveries.value = emptyList()
             }
         }
+    }
+
+    // iOS 대응: 월별 전체 배송 데이터로 dot 데이터 생성
+    fun buildDotData(deliveries: List<DeliverySummaryDto>) {
+        val dotMap = mutableMapOf<LocalDate, DeliveryDotType>()
+        deliveries.forEach { delivery ->
+            val dateKey = delivery.pickupDate.take(8) // "yyyyMMdd"
+            if (dateKey.length == 8) {
+                runCatching {
+                    val date = LocalDate.parse(dateKey, java.time.format.DateTimeFormatter.BASIC_ISO_DATE)
+                    val dotType = getDotType(delivery.statusCd)
+                    val existing = dotMap[date]
+                    dotMap[date] = if (existing != null) higherPriority(existing, dotType) else dotType
+                }
+            }
+        }
+        _calendarDotData.value = dotMap
+    }
+
+    // iOS 대응: 선택된 날짜의 배송 목록 필터링
+    fun filterDeliveriesForDate(date: LocalDate) {
+        val dateKey = date.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE)
+        _calendarDayDeliveries.value = _calendarDeliveries.value.filter { delivery ->
+            delivery.pickupDate.take(8) == dateKey
+        }
+    }
+
+    private fun getDotType(statusCd: String): DeliveryDotType {
+        return when (statusCd) {
+            "MATCH_BEFORE", "MATCH_ING" -> DeliveryDotType.GRAY
+            "DELIVERY_BEFORE", "DELIVERY_START", "DELIVERY_ING" -> DeliveryDotType.GREEN
+            "DELIVERY_END" -> DeliveryDotType.NAVY
+            else -> DeliveryDotType.GRAY
+        }
+    }
+
+    private fun higherPriority(a: DeliveryDotType, b: DeliveryDotType): DeliveryDotType {
+        val priority = mapOf(
+            DeliveryDotType.GREEN to 3,
+            DeliveryDotType.NAVY to 2,
+            DeliveryDotType.GRAY to 1
+        )
+        return if ((priority[a] ?: 0) >= (priority[b] ?: 0)) a else b
     }
 
 

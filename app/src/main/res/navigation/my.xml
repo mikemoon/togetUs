@@ -78,7 +78,8 @@
         <argument
             android:name="profileDto"
             app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
         <argument
             android:name="isPlayer"
             app:argType="boolean"
@@ -109,6 +110,15 @@
         <action
             android:id="@+id/action_profileManagementFragment_to_profileManageSubFragment"
             app:destination="@id/profileManageSubFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_writeIntroductionFragment"
+            app:destination="@id/writeIntroductionFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_playerAreaSettingFragment"
+            app:destination="@id/playerAreaSettingFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_playerAreaAddedSettingFragment"
+            app:destination="@id/playerAreaAddedSettingFragment" />
     </fragment>
     <fragment
         android:id="@+id/passwordSetFragment"
@@ -319,6 +329,10 @@
         android:id="@+id/playerAreaSettingFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaSettingFragment"
         android:label="PlayerAreaSettingFragment" />
+    <fragment
+        android:id="@+id/playerAreaAddedSettingFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaAddedSettingFragment"
+        android:label="PlayerAreaAddedSettingFragment" />
     <fragment
         android:id="@+id/blockManagementFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.my.block.BlockManagementFragment"

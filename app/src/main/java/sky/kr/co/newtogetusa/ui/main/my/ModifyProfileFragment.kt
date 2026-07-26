@@ -24,6 +24,8 @@ import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageReques
 import sky.kr.co.newtogetusa.data.remote.request.user.ProfileImageRequest
 import sky.kr.co.newtogetusa.databinding.FragmentModifyProfileBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.utils.bitmapToBase64
 import sky.kr.co.newtogetusa.utils.loadProfile
 import sky.kr.co.newtogetusa.utils.resizeImageUri
@@ -121,7 +123,7 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
                     }
                 }
                 is ModifyProfileViewModel.Event.ProfileImage -> {
-                    requestImagePick()
+                    showPictureTypeDialog()
                 }
             }
         }
@@ -169,6 +171,23 @@ class ModifyProfileFragment : BaseFragment<FragmentModifyProfileBinding, ModifyP
     private fun saveSuccess(){
         requireContext().toast("수정이 완료되었습니다.")
         findNavController().popBackStack()
+    }
+
+    // iOS 대응: 사진 촬영/사진불러오기 하단 팝업 표시
+    private fun showPictureTypeDialog() {
+        BottomPictureTypeDialog().apply {
+            pictureTypeSelectCallback = { pictureType ->
+                when (pictureType) {
+                    PictureType.TYPE_CAMERA -> openCamera()
+                    PictureType.TYPE_GALLERY -> requestImagePick()
+                }
+            }
+        }.show(parentFragmentManager, "BottomPictureTypeDialog")
+    }
+
+    private fun openCamera() {
+        val intent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+        imagePickerLauncher.launch(intent)
     }
 
     private fun requestImagePick() {

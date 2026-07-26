@@ -33,6 +33,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
                 android:visibility="@{viewModel.mapShowState == MapShow.GOOGLE_MAP ? View.VISIBLE : View.GONE}" />
+
+            <!-- iOS 대응: 지도 클릭 시 맵 크게보기 화면으로 이동하는 투명 오버레이 -->
+            <View
+                android:id="@+id/vMapClickOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true" />
         </FrameLayout>
 
         <!-- iOS borderedTopView 대응: 지도 위 플로팅 버튼 (항상 보임, 흰 툴�바가 위에서 덮음) -->

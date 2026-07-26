@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -354,6 +355,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         }
         val color = ContextCompat.getColor(requireContext(), colorRes)
         dataBinding.llLocationAlarm.background = ContextCompat.getDrawable(requireContext(), bgRes)
+        // iOS 대응: 내 주변 동행 ON/OFF 문구 표시
+        dataBinding.tvLocationAlarm.text = if (isOn) "내 주변 동행 ON" else "내 주변 동행 OFF"
         dataBinding.tvLocationAlarm.setTextColor(color)
         dataBinding.ivLocationAlarm.setColorFilter(color)
     }
@@ -362,7 +365,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         BottomLocationAlarmDialog().apply {
             this.isOn = isOn
             onSettingClick = {
-                findNavController().navigate(R.id.action_global_playerAreaSettingFragment)
+                // iOS 대응: 동행 예약 선택 시 프로필 화면으로 이동
+                findNavController().navigate(
+                    R.id.action_homeTabFragment_to_profileManagementFragment,
+                    bundleOf("isPlayer" to true)
+                )
             }
         }.show(parentFragmentManager, "LocationAlarmDialog")
     }

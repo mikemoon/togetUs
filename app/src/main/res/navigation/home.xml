@@ -57,6 +57,9 @@
         <action
             android:id="@+id/action_homeTabFragment_to_homeNotificationFragment"
             app:destination="@id/homeNotificationFragment" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_profileManagementFragment"
+            app:destination="@id/profileManagementFragment" />
     </fragment>
     <fragment
         android:id="@+id/homeNotificationFragment"
@@ -175,5 +178,109 @@
             app:argType="boolean"
             android:defaultValue="false" />
     </fragment>
+
+    <fragment
+        android:id="@+id/profileManagementFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManagementFragment"
+        android:label="ProfileManagementFragment" >
+        <argument
+            android:name="profileDto"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="isFromSearchResult"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="deliveryId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_modifyProfileFragment"
+            app:destination="@id/modifyProfileFragment" >
+            <argument
+                android:name="profileDto"
+                app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+                app:nullable="true" />
+            <argument
+                android:name="isPlayer"
+                app:argType="boolean"
+                android:defaultValue="false" />
+        </action>
+        <action
+            android:id="@+id/action_profileManagementFragment_to_passwordSetFragment"
+            app:destination="@id/passwordSetFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_profileManageSubFragment"
+            app:destination="@id/profileManageSubFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_writeIntroductionFragment"
+            app:destination="@id/writeIntroductionFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_playerAreaSettingFragment"
+            app:destination="@id/playerAreaSettingFragment" />
+        <action
+            android:id="@+id/action_profileManagementFragment_to_playerAreaAddedSettingFragment"
+            app:destination="@id/playerAreaAddedSettingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/modifyProfileFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ModifyProfileFragment"
+        android:label="ModifyProfileFragment" >
+        <argument
+            android:name="profileDto"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+            app:nullable="true" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/passwordSetFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.PasswordSetFragment"
+        android:label="PasswordSetFragment" />
+
+    <fragment
+        android:id="@+id/profileManageSubFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.ProfileManageSubFragment"
+        android:label="ProfileManageSubFragment" >
+        <argument
+            android:name="profileDto"
+            app:argType="sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/writeIntroductionFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.WriteIntroductionFragment"
+        android:label="WriteIntroductionFragment">
+        <argument
+            android:name="playerId"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <argument
+            android:name="introduction"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/playerAreaSettingFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaSettingFragment"
+        android:label="PlayerAreaSettingFragment" />
+
+    <fragment
+        android:id="@+id/playerAreaAddedSettingFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.PlayerAreaAddedSettingFragment"
+        android:label="PlayerAreaAddedSettingFragment" />
 
 </navigation>

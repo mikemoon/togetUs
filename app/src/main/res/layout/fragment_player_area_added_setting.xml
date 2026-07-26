@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:id="@+id/layoutTop"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/left_l" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="추가 지역 설정"
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="false"
+            app:layout_constraintBottom_toTopOf="@id/tvDone"
+            app:layout_constraintTop_toBottomOf="@id/layoutTop">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="20dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/HeadLine20B"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="20dp"
+                    android:text="추가 동행 범위를 설정해 주세요."
+                    android:textColor="@color/black_80" />
+
+                <include
+                    android:id="@+id/area1"
+                    layout="@layout/layout_player_area_added_card" />
+
+                <include
+                    android:id="@+id/area2"
+                    layout="@layout/layout_player_area_added_card"
+                    android:visibility="gone" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAdd"
+                    style="@style/Paragraph16B"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp"
+                    android:drawableStart="@drawable/plus_gray"
+                    android:drawablePadding="4dp"
+                    android:text="추가하기"
+                    android:textColor="@color/black_60" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="28dp"
+                    android:background="@drawable/background_s_b5_r4"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="· 추가 동행지는 최대 2개까지 등록 가능합니다."
+                        android:textColor="@color/black_40" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="· 추가 동행 설정한 기간에는 추가 동행 픽업/도착 지역 조건에 일치하는 동행요청에 대해서만 알림을 받으실 수 있습니다."
+                        android:textColor="@color/black_40" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDone"
+            style="@style/HeadLine18B"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/bottom_cta_height"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/selector_p40_p100_r4"
+            android:enabled="false"
+            android:gravity="center"
+            android:text="설정 완료"
+            android:textColor="@color/selector_wopa40_wopa100"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -149,7 +149,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:text="4.3 (10)"
+                            android:text="@{viewModel.ratingText}"
                             android:textColor="@color/primary_100" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout

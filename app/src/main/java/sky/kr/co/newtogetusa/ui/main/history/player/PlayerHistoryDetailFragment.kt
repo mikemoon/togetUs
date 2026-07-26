@@ -122,6 +122,25 @@ class PlayerHistoryDetailFragment :
         dataBinding.ivToolbarMore.setOnClickListener {
             showMoreDialog()
         }
+
+        // iOS 대응: 지도 클릭 시 맵 크게보기 화면으로 이동
+        dataBinding.vMapClickOverlay.setOnClickListener {
+            openMapDetail()
+        }
+    }
+
+    private fun openMapDetail() {
+        val detail = viewModel.deliveryDetail.value ?: return
+        findNavController().navigate(
+            PlayerHistoryDetailFragmentDirections.actionPlayerHistoryDetailFragmentToMapDetailFragment(
+                startLat = detail.depart.latitude.toFloat(),
+                startLng = detail.depart.longitude.toFloat(),
+                endLat = detail.dest.latitude.toFloat(),
+                endLng = detail.dest.longitude.toFloat(),
+                startAddress = detail.depart.address,
+                endAddress = detail.dest.address
+            )
+        )
     }
 
     override fun initObserver() {

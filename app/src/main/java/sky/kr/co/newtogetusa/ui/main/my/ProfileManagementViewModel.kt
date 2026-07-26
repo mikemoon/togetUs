@@ -110,6 +110,17 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     private val _profileActionMessage = MutableSharedFlow<String>()
     val profileActionMessage = _profileActionMessage.asSharedFlow()
 
+    // iOS 대응: 평점 텍스트 (정수면 소수점 없이, 아니면 소수점 1자리)
+    val ratingText = MutableStateFlow("")
+    fun updateRatingText(rating: Double, reviewCount: Int) {
+        val ratingString = if (rating % 1 == 0.0) {
+            String.format("%.0f", rating)
+        } else {
+            String.format("%.1f", rating)
+        }
+        ratingText.value = "$ratingString ($reviewCount)"
+    }
+
     private val _topMenu = MutableStateFlow<TopMenu>(TopMenu.All)
     private val _topMenuLiveData = SingleLiveEvent<TopMenu>()
     val topMenuLiveData: LiveData<TopMenu> = _topMenuLiveData
@@ -222,6 +233,71 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
             else -> _areaAddResult.value = false
         }
     }
+
+    // iOS SettingAreaOtherViewModel 대응: 추가 지역 일괄 저장 (삭제 후 추가/수정)
+    fun savePlayerAddedAreas(
+        areas: List<PlayerAddedAreaEdit>,
+        removedAreaIds: List<Int>,
+        result: (Boolean) -> Unit = {}
+    ) = viewModelScope.launch {
+        val playerId = profileDto.value?.user?.player_id ?: return@launch result(false)
+        loadingState.value = true
+
+        for (areaId in removedAreaIds) {
+            if (playerRepository.deletePlayerArea(playerId, areaId) !is ResultWrapper.Success) {
+                loadingState.value = false
+                result(false)
+                return@launch
+            }
+        }
+
+        for (area in areas) {
+            val depart = area.depart ?: continue
+            val dest = area.dest ?: continue
+            val addResult = playerRepository.postPlayerAreaAdded(
+                playerId,
+                PlayerAreaAddedRequest(
+                    area_id = area.areaId,
+                    start = area.start,
+                    end = area.end,
+                    enable = area.enable,
+                    depart = PlayerAreaLocationRequest(
+                        address = depart.name,
+                        address2 = depart.roadAddress.orEmpty(),
+                        latitude = depart.lat ?: 0.0,
+                        longitude = depart.lng ?: 0.0,
+                        range = area.departRadius ?: 3
+                    ),
+                    dest = PlayerAreaLocationRequest(
+                        address = dest.name,
+                        address2 = dest.roadAddress.orEmpty(),
+                        latitude = dest.lat ?: 0.0,
+                        longitude = dest.lng ?: 0.0,
+                        range = area.destRadius ?: 3
+                    )
+                )
+            )
+            if (addResult !is ResultWrapper.Success) {
+                loadingState.value = false
+                result(false)
+                return@launch
+            }
+        }
+
+        loadingState.value = false
+        result(true)
+    }
+
+    data class PlayerAddedAreaEdit(
+        val areaId: Int?,
+        val enable: Boolean,
+        val start: String,
+        val end: String,
+        val depart: KakaoSearchModel?,
+        val departRadius: Int?,
+        val dest: KakaoSearchModel?,
+        val destRadius: Int?
+    )
 
     fun setPlayerGpsEnable(enable: Boolean, result: (Boolean) -> Unit = {}) = viewModelScope.launch {
         val playerId = profileDto.value?.user?.player_id ?: return@launch result(false)

@@ -48,12 +48,11 @@
                         android:id="@+id/tvTopAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
-                        android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuAll)}"
+                        android:background="@drawable/background_st_b10_s_w_r24"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="8dp"
                         android:text="전체"
-                        android:textColor="@color/selector_b40_white"
+                        android:textColor="@color/black_40"
                         android:textSize="12dp"
                         android:textStyle="bold" />
 
@@ -62,12 +61,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
-                        android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuDoing)}"
+                        android:background="@drawable/background_st_b10_s_w_r24"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="8dp"
                         android:text="거래진행"
-                        android:textColor="@color/selector_b40_white"
+                        android:textColor="@color/black_40"
                         android:textSize="12dp"
                         android:textStyle="bold" />
 
@@ -76,23 +74,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/selector_bg_st_b10_b80_s_w_r24"
-                        android:onClick="@{()-> viewModel.onTopMenuSelect(viewModel.menuEnd)}"
+                        android:background="@drawable/background_st_b10_s_w_r24"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="8dp"
                         android:text="거래종료"
-                        android:textColor="@color/selector_b40_white"
+                        android:textColor="@color/black_40"
                         android:textSize="12dp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
+                <!-- iOS 대응: 제목 검색란 제거 -->
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clSearch"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginHorizontal="20dp"
                     android:background="@drawable/background_st_b10_s_w_r4"
-                    android:visibility="@{viewModel.isShowCalendar? View.GONE : View.VISIBLE}"
+                    android:visibility="gone"
                     app:layout_constraintTop_toBottomOf="@id/llTab">
 
                     <androidx.appcompat.widget.AppCompatEditText
@@ -142,6 +140,34 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/topContentBarrier" />
+
+                <!-- iOS 대응: 리스트 없음 UI -->
+                <LinearLayout
+                    android:id="@+id/llEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/topContentBarrier">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:src="@drawable/no_chat" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph16R"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="동행내역이 존재하지 않아요"
+                        android:textColor="@color/black_40" />
+                </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

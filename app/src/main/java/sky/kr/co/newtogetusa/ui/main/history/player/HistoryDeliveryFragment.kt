@@ -56,7 +56,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
     override fun init() {
         super.init()
         dataBinding.viewModel = viewModel
-        dataBinding.tvTopAll.isSelected = true
+        setupChipFilter()
         historyAdapter = HistoryDeliverAdapter(viewModel) { selectedItem ->
             val navController = findNavController()
             if (navController.currentDestination?.id == R.id.historyDeliveryFragment) {
@@ -89,6 +89,35 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
         initBottomSheet()
         initCalendar()
         //savedState = dataBinding.rvHistory.layoutManager?.onSaveInstanceState()
+    }
+
+    private fun setupChipFilter() {
+        updateChipUI(dataBinding.tvTopAll)
+
+        dataBinding.tvTopAll.setOnClickListener {
+            updateChipUI(dataBinding.tvTopAll)
+            viewModel.onTopMenuSelect(viewModel.menuAll)
+        }
+        dataBinding.tvTopDoing.setOnClickListener {
+            updateChipUI(dataBinding.tvTopDoing)
+            viewModel.onTopMenuSelect(viewModel.menuDoing)
+        }
+        dataBinding.tvTopEnd.setOnClickListener {
+            updateChipUI(dataBinding.tvTopEnd)
+            viewModel.onTopMenuSelect(viewModel.menuEnd)
+        }
+    }
+
+    private fun updateChipUI(selectedChip: android.widget.TextView) {
+        // 모든 칩 초기화
+        listOf(dataBinding.tvTopAll, dataBinding.tvTopDoing, dataBinding.tvTopEnd).forEach { chip ->
+            chip.setBackgroundResource(R.drawable.background_st_b10_s_w_r24)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black_40))
+        }
+
+        // 선택된 칩만 활성화
+        selectedChip.setBackgroundResource(R.drawable.background_s_b80_r24)
+        selectedChip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
     }
 
     private fun initBottomSheet() {
@@ -159,14 +188,14 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 container.day = data
                 val isSelectedDay = data.date == selectedDate
                 val isToday = data.date == todayDate
-                val deliveryDots = getDeliveryDots(data.date, data.position == DayPosition.MonthDate)
+                val dotType = getDeliveryDotType(data.date, data.position == DayPosition.MonthDate)
 
                 container.binding.tvDay.apply {
                     text = data.date.dayOfMonth.toString()
                     visibility =
                         if (data.position == DayPosition.MonthDate) android.view.View.VISIBLE else android.view.View.INVISIBLE
                     background = when {
-                        isSelectedDay -> context.getDrawable(R.drawable.background_s_p100_r20)
+                        isSelectedDay -> context.getDrawable(R.drawable.background_s_b80_r20)
                         isToday -> context.getDrawable(R.drawable.background_s_p10_r20)
                         else -> null
                     }
@@ -183,7 +212,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                         )
                     )
                 }
-                bindDeliveryDots(container.binding, deliveryDots)
+                bindDeliveryDots(container.binding, dotType)
             }
         }
 
@@ -202,6 +231,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             currentMonth = month.yearMonth
             dataBinding.icCalendar.tvYearMonth.text = "${month.yearMonth.year}년 ${month.yearMonth.month.getDisplayName(
                 TextStyle.FULL, Locale.KOREAN)}"
+            // iOS 대응: 월 변경 시 월별 데이터 로드
             viewModel.getMonthInfo(month.yearMonth.year, month.yearMonth.monthValue)
             dataBinding.calendarBottomSheet.post { updateBottomSheetLayout() }
         }
@@ -237,14 +267,25 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 }
 
                 launch {
+                    historyAdapter.loadStateFlow.collectLatest { loadStates ->
+                        val isEmpty = historyAdapter.itemCount == 0 &&
+                            loadStates.refresh is androidx.paging.LoadState.NotLoading
+                        dataBinding.llEmpty.visibility =
+                            if (isEmpty && !viewModel.isShowCalendar.value) android.view.View.VISIBLE else android.view.View.GONE
+                    }
+                }
+
+                launch {
                     viewModel.isShowCalendar
                         .collectLatest { isShowCalendar ->
                         if (isShowCalendar) {
+                            // iOS 대응: 캘린더 모드 진입 시 월별 전체 데이터 로드
                             viewModel.getMonthInfo(currentMonth.year, currentMonth.monthValue)
                             val targetDate = selectedDate ?: todayDate
                             selectedDate = targetDate
                             dataBinding.icCalendar.calendarView.notifyDateChanged(targetDate)
-                            viewModel.getDayInfo(targetDate.year, targetDate.monthValue, targetDate.dayOfMonth)
+                            // iOS 대응: 선택된 날짜로 필터링
+                            viewModel.filterDeliveriesForDate(targetDate)
                             dataBinding.calendarBottomSheet.post {
                                 updateBottomSheetLayout()
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -258,6 +299,12 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
                 launch {
                     viewModel.monthDeliveryDates.collectLatest {
+                        dataBinding.icCalendar.calendarView.notifyCalendarChanged()
+                    }
+                }
+
+                launch {
+                    viewModel.calendarDotData.collectLatest {
                         dataBinding.icCalendar.calendarView.notifyCalendarChanged()
                     }
                 }
@@ -292,7 +339,8 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
                 selectedDate = day.date
                 dataBinding.icCalendar.calendarView.notifyDateChanged(day.date)
-                viewModel.getDayInfo(day.date.year, day.date.monthValue, day.date.dayOfMonth)
+                // iOS 대응: 선택된 날짜로 필터링
+                viewModel.filterDeliveriesForDate(day.date)
                 previousSelection?.let { dataBinding.icCalendar.calendarView.notifyDateChanged(it) }
             }
         }
@@ -353,31 +401,23 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
     private fun bindDeliveryDots(
         binding: CalendarDayLayoutBinding,
-        dots: Set<DeliveryDotType>
+        dotType: HistoryDeliveryViewModel.DeliveryDotType?
     ) {
         binding.llDeliveryDots.visibility =
-            if (dots.isEmpty()) android.view.View.INVISIBLE else android.view.View.VISIBLE
-        binding.vDeliveryDotRed.visibility =
-            if (dots.contains(DeliveryDotType.RED)) android.view.View.VISIBLE else android.view.View.GONE
+            if (dotType == null) android.view.View.INVISIBLE else android.view.View.VISIBLE
+        binding.vDeliveryDotRed.visibility = android.view.View.GONE
         binding.vDeliveryDotGreen.visibility =
-            if (dots.contains(DeliveryDotType.GREEN)) android.view.View.VISIBLE else android.view.View.GONE
+            if (dotType == HistoryDeliveryViewModel.DeliveryDotType.GREEN) android.view.View.VISIBLE else android.view.View.GONE
         binding.vDeliveryDotGray.visibility =
-            if (dots.contains(DeliveryDotType.GRAY)) android.view.View.VISIBLE else android.view.View.GONE
+            if (dotType == HistoryDeliveryViewModel.DeliveryDotType.GRAY) android.view.View.VISIBLE else android.view.View.GONE
     }
 
-    private fun getDeliveryDots(
+    private fun getDeliveryDotType(
         date: LocalDate,
         isMonthDate: Boolean
-    ): Set<DeliveryDotType> {
-        if (!isMonthDate) return emptySet()
-        if (!viewModel.monthDeliveryDates.value.contains(date)) return emptySet()
-        return setOf(
-            when {
-                date < todayDate -> DeliveryDotType.GRAY
-                date == todayDate -> DeliveryDotType.GREEN
-                else -> DeliveryDotType.RED
-            }
-        )
+    ): HistoryDeliveryViewModel.DeliveryDotType? {
+        if (!isMonthDate) return null
+        return viewModel.calendarDotData.value[date]
     }
 
     private fun clearCalendarBottomSheet() {
@@ -386,11 +426,5 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                 calendarBottomSheetAdapter.submitData(PagingData.empty())
             }
         }
-    }
-
-    private enum class DeliveryDotType {
-        RED,
-        GREEN,
-        GRAY
     }
 }

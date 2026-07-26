@@ -55,8 +55,25 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
             }
 
         if (isPlayerMode) {
-            viewModel.getPlayerProfile {
-                applyPlayerProfile(it)
+            // iOS 대응: 내 프로필인 경우 getMyProfile로 기본 정보 로드 후 getPlayerProfile로 상세 정보 로드
+            if (!isFromSearchResult) {
+                viewModel.getMyProfile { myProfile ->
+                    val displayProfile = myProfile.withFallbackProfileImage(profileDto)
+                    viewModel.profileDto.value = displayProfile
+                    dataBinding.profile = displayProfile
+                    profileDto = displayProfile
+                    viewModel.updateRatingText(displayProfile.evaluation.start_average.toDouble(), displayProfile.review_count)
+
+                    // 플레이어 상세 정보 로드
+                    viewModel.getPlayerProfile {
+                        applyPlayerProfile(it)
+                    }
+                }
+            } else {
+                // 다른 사람 프로필
+                viewModel.getPlayerProfile {
+                    applyPlayerProfile(it)
+                }
             }
         } else if (!isFromSearchResult) {
             viewModel.getMyProfile {
@@ -64,11 +81,13 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
                 viewModel.profileDto.value = displayProfile
                 dataBinding.profile = displayProfile
                 profileDto = displayProfile
-                dataBinding.tvScore.text = "${displayProfile.evaluation.start_average} (${displayProfile.review_count})"
+                // iOS 대응: 평점 텍스트 업데이트
+                viewModel.updateRatingText(displayProfile.evaluation.start_average.toDouble(), displayProfile.review_count)
             }
         } else {
             profileDto?.let {
-                dataBinding.tvScore.text = "${it.evaluation.start_average} (${it.review_count})"
+                // iOS 대응: 평점 텍스트 업데이트
+                viewModel.updateRatingText(it.evaluation.start_average.toDouble(), it.review_count)
             }
         }
 
@@ -266,7 +285,8 @@ class ProfileManagementFragment : BaseFragment<FragmentProfileManagementBinding,
         viewModel.setPlayerLiked(playerProfile.is_like == true)
         profileDto = updatedProfile
         dataBinding.profile = updatedProfile
-        dataBinding.tvScore.text = "$starAverage ($reviewCount)"
+        // iOS 대응: 평점 텍스트 업데이트
+        viewModel.updateRatingText(starAverage.toDouble(), reviewCount)
     }
 
     private fun ProfileDto.withFallbackProfileImage(fallback: ProfileDto?): ProfileDto {
