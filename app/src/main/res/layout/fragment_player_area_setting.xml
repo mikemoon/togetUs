@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="동행지 설정"
+                android:text="매일 동행 설정"
                 android:textColor="@color/black_80" />
         </LinearLayout>
 
@@ -93,7 +93,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:lineSpacingExtra="3dp"
-                        android:text="스위치를 켜면 내 위치(5분 주기)에서 설정한 각 도착 가능 지역 방면의 동행요청을 추가 수신합니다.\n\n※ 앱을 종료해도 마지막 위치를 기준으로 알림을 계속 받습니다."
+                        android:text="스위치를 켜면 내 위치(5분 주기)에서 설정한 각 도착 가능 지역 반경의 동행요청을 추가 수신합니다.\n\n※ 앱을 종료해도 마지막 위치를 기준으로 알림을 계속 받습니다."
                         android:textColor="@color/black_40" />
                 </LinearLayout>
 
@@ -131,7 +131,7 @@
                         style="@style/Paragraph17R"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="· 기본 동행지는 최대 2개까지 등록 가능합니다."
+                        android:text="· 매일 동행은 최대 2개까지 등록 가능합니다."
                         android:textColor="@color/black_40" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -139,7 +139,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="· 설정하신 픽업/도착 지역 조건에 일치되는 동행요청건 등록 시 알림을 수신할 수 있습니다."
+                        android:text="· 설정하신 픽업/도착 지역 조건에 일치하는 동행 요청 등록 시 알림을 수신할 수 있습니다."
                         android:textColor="@color/black_40" />
                 </LinearLayout>
             </LinearLayout>

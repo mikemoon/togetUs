@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="추가 동행 범위 1"
+            android:text="여행 동행 ① 코스"
             android:textColor="@color/black_80"
             app:layout_constraintEnd_toStartOf="@id/ivDelete"
             app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="픽업 가능일"
+                    android:text="여행 일정"
                     android:textColor="@color/black_80" />
             </LinearLayout>
 
@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="픽업 가능"
+                    android:text="픽업 지역"
                     android:textColor="@color/black_80" />
             </LinearLayout>
 
@@ -209,7 +209,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="도착 가능"
+                    android:text="도착 지역"
                     android:textColor="@color/black_80" />
             </LinearLayout>
 

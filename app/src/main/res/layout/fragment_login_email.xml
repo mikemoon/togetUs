@@ -85,6 +85,7 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/background_st_b10_s_w_r4"
             android:hint="비밀번호 입력"
+            android:importantForAutofill="no"
             android:inputType="textPassword"
             android:maxLines="1"
             android:imeOptions="actionDone"

@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.local.model.GoogleMapSearchModel
+import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryAddressMapBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.utils.KakaoMapSupport
@@ -66,6 +67,14 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
 
     private var googleMap: GoogleMap? = null
     private var googleCurrentLocationMarker: Marker? = null
+
+    // 검색 화면에서 전달된 초기 주소 (있으면 내 위치 대신 해당 위치 중심으로 표시)
+    private val initialLatLng: LatLng? by lazy {
+        val address = arguments?.getParcelable<KakaoSearchModel>("initialAddress")
+        val lat = address?.lat
+        val lng = address?.lng
+        if (lat != null && lng != null && lat > 0 && lng > 0) LatLng(lat, lng) else null
+    }
 
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(requireActivity()) }
 
@@ -187,11 +196,19 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
             map.setOnMapClickListener { latLng ->
                 onMapTapped(latLng)
             }
-            maybeInitMapWithLocation()
+
+            val initial = initialLatLng
+            if (initial != null) {
+                // 검색 화면에서 선택한 주소 위치로 마커 + 카메라 이동
+                onMapTapped(initial)
+            } else {
+                maybeInitMapWithLocation()
+            }
         }
     }
 
     private fun maybeInitMapWithLocation() {
+        if (initialLatLng != null) return
         if (googleMap != null && lastKnownLocation != null) {
             val latLng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
             showGoogleCurrentLocation(lastKnownLocation!!)
@@ -265,7 +282,17 @@ class DeliveryAddressMapFragment : BaseFragment<FragmentDeliveryAddressMapBindin
                         LabelStyle.from(R.drawable.pin_fill_primary_png)
                     )
                 )
-                showMyLocation()
+                val initial = initialLatLng
+                if (initial != null) {
+                    // 검색 화면에서 선택한 주소 위치로 핀 + 카메라 이동
+                    kakaoMap?.trackingManager?.stopTracking()
+                    isFollowMode = false
+                    val latLng = com.kakao.vectormap.LatLng.from(initial.latitude, initial.longitude)
+                    showTapPin(latLng)
+                    viewModel.reverseGeocode(latLng.latitude, latLng.longitude)
+                } else {
+                    showMyLocation()
+                }
                 kakaoMap?.setOnMapClickListener { _, latLng, _, _ ->
                     // 팔로우 자동 해제(카메라가 다시 내 위치로 튀는 것 방지)
                     kakaoMap?.trackingManager?.stopTracking()

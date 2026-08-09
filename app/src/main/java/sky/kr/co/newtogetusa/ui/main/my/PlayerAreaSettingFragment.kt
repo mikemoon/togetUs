@@ -40,9 +40,15 @@ class PlayerAreaSettingFragment :
 
         bindCard(dataBinding.area1, index = 0)
         bindCard(dataBinding.area2, index = 1)
-        areas.add(AreaEditUiModel())
-        render()
-        reloadProfile()
+        // 주소 검색 화면에서 돌아올 때 뷰만 재생성되므로(Fragment 인스턴스 유지),
+        // 최초 진입 시에만 프로필을 다시 불러온다. 재조회하면 선택한 주소가 서버 값으로 덮어씌워진다.
+        if (areas.isEmpty()) {
+            areas.add(AreaEditUiModel())
+            render()
+            reloadProfile()
+        } else {
+            render()
+        }
     }
 
     override fun initObserver() {
@@ -58,7 +64,7 @@ class PlayerAreaSettingFragment :
             }
         }
 
-        parentFragmentManager.setFragmentResultListener(
+        requireActivity().supportFragmentManager.setFragmentResultListener(
             "fromPlayerJoinSearch",
             viewLifecycleOwner
         ) { _, bundle ->
@@ -130,11 +136,21 @@ class PlayerAreaSettingFragment :
 
     private fun openSearch(index: Int, isStart: Boolean) {
         if (index >= areas.size) return
+        val area = areas[index]
+        val existingAddress = if (isStart) area.depart else area.dest
+        val existingRadius = if (isStart) area.departRadius else area.destRadius
+
         findNavController().navigate(
             R.id.action_global_playerJoinSearchFragment,
             Bundle().apply {
                 putBoolean("isStart", isStart)
                 putBoolean("isSecondary", index == 1)
+                // iOS와 동일: 기존 주소가 있으면 바로 반경설정 모드로 진입
+                if (existingAddress != null && existingAddress.lat != null && existingAddress.lat > 0
+                    && existingAddress.lng != null && existingAddress.lng > 0) {
+                    putParcelable("existingAddress", existingAddress)
+                    putInt("existingRadius", existingRadius ?: 3)
+                }
             }
         )
     }
@@ -222,13 +238,13 @@ class PlayerAreaSettingFragment :
         index: Int
     ) {
         if (area == null) {
-            binding.tvTitle.text = "동행범위 ${index + 1}"
+            binding.tvTitle.text = "매일 동행 ${if (index == 0) "①" else "②"} 코스"
             binding.tvOn.isSelected = false
             binding.tvOn.text = "OFF"
             return
         }
 
-        binding.tvTitle.text = "동행범위 ${index + 1}"
+        binding.tvTitle.text = "매일 동행 ${if (index == 0) "①" else "②"} 코스"
         binding.ivDelete.isVisible = index > 0
         binding.tvOn.isSelected = area.enable
         binding.tvOn.text = if (area.enable) "ON" else "OFF"

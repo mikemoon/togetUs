@@ -27,21 +27,20 @@ class DeliveryStartKakaoSearchResultAdapter(
 
     inner class VH(private val binding: ItemSearchResultBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(doc: KakaoSearchModel) {
+            // iOS 스타일: placeName이 있으면 placeName, 없으면 addressName을 제목으로
+            // subtitle이 있으면 subtitle (place name), 없으면 name (address name)
             binding.tvSearchAddress.text = doc.subtitle ?: doc.name
-            binding.tvRoadAddress.text = if(doc.roadAddress == "") doc.name else doc.roadAddress
-            binding.tvJibun.text = doc.name
-            binding.tvDistance.text = doc.distance?.let { "${it}m" }.orEmpty()
-            val hasDistance = !doc.distance.isNullOrBlank()
-            binding.vDot.isVisible = hasDistance
-            binding.tvDistance.isVisible = hasDistance
 
+            // iOS 스타일: 주소는 항상 addressName 표시
+            // roadAddress가 있으면 roadAddress, 없으면 name
+            binding.tvRoadAddress.text = if (doc.roadAddress.isNullOrEmpty()) doc.name else doc.roadAddress
 
-            // 좌표가 필요하면 여기서 변환
-            val lat = doc.lat
-            val lng = doc.lng
+            // iOS에서는 사용하지 않는 필드들 - 숨김
+            binding.tvJibun.isVisible = false
+            binding.vDot.isVisible = false
+            binding.tvDistance.isVisible = false
 
             binding.root.setOnClickListener {
-                // Kakao 응답에는 placeId가 없음
                 onClick(doc)
             }
         }
@@ -50,7 +49,6 @@ class DeliveryStartKakaoSearchResultAdapter(
     companion object {
         private val diff = object : DiffUtil.ItemCallback<KakaoSearchModel>() {
             override fun areItemsTheSame(old: KakaoSearchModel, new: KakaoSearchModel): Boolean {
-                // 주소 문자열 + 좌표로 동일성 판단(필요 시 더 엄격하게)
                 return old.name == new.name && old.lat == new.lat && old.lng == new.lng
             }
             override fun areContentsTheSame(old: KakaoSearchModel, new: KakaoSearchModel) = old == new

@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="추가 지역 설정"
+                android:text="여행 동행 설정"
                 android:textColor="@color/black_80" />
         </LinearLayout>
 
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="추가 동행 범위를 설정해 주세요."
+                    android:text="여행 동행 범위를 설정해 주세요."
                     android:textColor="@color/black_80" />
 
                 <include
@@ -91,7 +91,7 @@
                         style="@style/Paragraph17R"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="· 추가 동행지는 최대 2개까지 등록 가능합니다."
+                        android:text="· 여행 동행은 최대 2개까지 등록 가능합니다."
                         android:textColor="@color/black_40" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -99,7 +99,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="· 추가 동행 설정한 기간에는 추가 동행 픽업/도착 지역 조건에 일치하는 동행요청에 대해서만 알림을 받으실 수 있습니다."
+                        android:text="· 각 여행 시작일 7일 전부터 하루 전날까지 일상 출발지에서 해당 여행지 방면 알림을 추가로 수신할 수 있습니다."
+                        android:textColor="@color/black_40" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="· 여행 기간 중에는 현위치 알림이 무조건 ON 상태로 강제 유지되며, 일정에 맞춰 다음 여행지 또는 귀가 방면으로 전환됩니다."
                         android:textColor="@color/black_40" />
                 </LinearLayout>
             </LinearLayout>

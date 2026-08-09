@@ -5,6 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 import sky.kr.co.newtogetusa.data.remote.dto.BaseResponse
 import sky.kr.co.newtogetusa.data.remote.dto.ChangeEmailPasswordResponse
@@ -19,8 +20,10 @@ interface APiService {
         @Body body: HashMap<String, Any>
     ):JoinResponse
 
-    @PATCH("/auths/email/verify")
+    // iOS 대응: 회원가입 인증번호 발송(join) / 비밀번호 찾기 인증번호 발송(pw) 분리
+    @PATCH("/auths/email/verify/{type}")
     suspend fun verifyEmail(
+        @Path("type") type: String,
         @Body body: HashMap<String, String>
     ):Boolean
 

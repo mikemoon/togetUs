@@ -8,55 +8,48 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="20dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:background="@color/white">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSearchAddress"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvSearchAddress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black_80"
-                android:textSize="16dp"
-                tools:text="다이소 염창역점" />
-            <View
-                android:id="@+id/vDot"
-                android:layout_width="4dp"
-                android:layout_height="4dp"
-                android:layout_marginHorizontal="8dp"
-                android:background="@drawable/background_s_b10_r4"
-                />
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12dp"
-                android:textColor="@color/black_60"
-                tools:text="320m"
-                />
-        </LinearLayout>
+            style="@style/Paragraph16R"
+            android:textColor="@color/black_80"
+            android:maxLines="2"
+            tools:text="다이소 염창역점" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvRoadAddress"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            style="@style/Paragraph17R"
             android:textColor="@color/black_80"
-            android:textSize="14dp"
+            android:maxLines="2"
             tools:text="서울 강서구 공항대로"
             />
 
+        <!-- iOS에서는 사용하지 않는 뷰들 - 숨김 처리 -->
+        <View
+            android:id="@+id/vDot"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:visibility="gone"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:text="320m"
+            />
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvJibun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14dp"
-            android:textColor="@color/black_40"
+            android:visibility="gone"
             tools:text="서울 강서구 염창동"
             />
 

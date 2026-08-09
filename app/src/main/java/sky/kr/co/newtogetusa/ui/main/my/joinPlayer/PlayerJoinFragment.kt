@@ -300,7 +300,7 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
             viewModel.setDepositorName(it?.toString().orEmpty())
         }
 
-        parentFragmentManager.setFragmentResultListener(
+        requireActivity().supportFragmentManager.setFragmentResultListener(
             "fromPlayerJoinSearch",
             viewLifecycleOwner
         ) { _, bundle ->

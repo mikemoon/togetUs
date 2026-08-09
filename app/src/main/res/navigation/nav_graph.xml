@@ -131,6 +131,15 @@
     </fragment>
 
     <action
+        android:id="@+id/action_global_selectDateRangeFragment"
+        app:destination="@id/globalSelectDateRangeFragment" />
+
+    <fragment
+        android:id="@+id/globalSelectDateRangeFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.SelectDateRangeFragment"
+        android:label="SelectDateRangeFragment" />
+
+    <action
         android:id="@+id/action_global_to_home_for_delivery"
         app:destination="@id/home"
         app:popUpTo="@id/historyDetailFragment"

@@ -32,7 +32,7 @@ class BottomLocationAlarmDialog :
         }
 
         dataBinding.tvTitle.text = title
-        dataBinding.tvSetting.text = "동행 예약"
+        dataBinding.tvSetting.text = "여정 등록"
         dataBinding.tvDescription.text = message
         dataBinding.layoutDescription.background =
             ContextCompat.getDrawable(requireContext(), descBackground)

@@ -15,7 +15,6 @@ import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.databinding.FragmentPlayerAreaAddedSettingBinding
 import sky.kr.co.newtogetusa.databinding.LayoutPlayerAreaAddedCardBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
-import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomDateRangeDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.hideLoading
 import sky.kr.co.newtogetusa.utils.showLoading
@@ -31,7 +30,6 @@ class PlayerAreaAddedSettingFragment :
     override val viewModel: ProfileManagementViewModel by viewModels()
 
     private val areas = mutableListOf<AddedAreaEditUiModel>()
-    private val removedAreaIds = mutableListOf<Int>()
     private val displayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
     private val saveFormatter: DateTimeFormatter = DateTimeFormatter.BASIC_ISO_DATE
 
@@ -44,9 +42,15 @@ class PlayerAreaAddedSettingFragment :
 
         bindCard(dataBinding.area1, index = 0)
         bindCard(dataBinding.area2, index = 1)
-        areas.add(AddedAreaEditUiModel())
-        render()
-        reloadProfile()
+        // 주소/날짜 선택 화면에서 돌아올 때 뷰만 재생성되므로(Fragment 인스턴스 유지),
+        // 최초 진입 시에만 프로필을 다시 불러온다. 재조회하면 선택한 값이 서버 값으로 덮어씌워진다.
+        if (areas.isEmpty()) {
+            areas.add(AddedAreaEditUiModel())
+            render()
+            reloadProfile()
+        } else {
+            render()
+        }
     }
 
     override fun initObserver() {
@@ -62,7 +66,7 @@ class PlayerAreaAddedSettingFragment :
             }
         }
 
-        parentFragmentManager.setFragmentResultListener(
+        requireActivity().supportFragmentManager.setFragmentResultListener(
             "fromPlayerJoinSearch",
             viewLifecycleOwner
         ) { _, bundle ->
@@ -82,9 +86,22 @@ class PlayerAreaAddedSettingFragment :
                 area.destRadius = areaRadius
             }
             area.addressChanged = true
-            if (areas.size == 1 && area.isComplete()) {
+            // iOS와 동일: 영역이 1개뿐이고 출발/도착지가 모두 있으면 자동 ON (날짜는 조건 아님)
+            if (areas.size == 1 && area.depart != null && area.dest != null) {
                 area.enable = true
             }
+            render()
+        }
+
+        // 픽업 가능일 선택 화면(SelectDateRangeFragment) 결과
+        requireActivity().supportFragmentManager.setFragmentResultListener(
+            "fromSelectDateRange",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val index = bundle.getInt("areaIndex", 0)
+            val area = areas.getOrNull(index) ?: return@setFragmentResultListener
+            area.startDate = parseDate(bundle.getString("startDate"))
+            area.endDate = parseDate(bundle.getString("endDate"))
             render()
         }
     }
@@ -93,14 +110,12 @@ class PlayerAreaAddedSettingFragment :
         viewModel.getMyProfile {
             viewModel.getPlayerProfile { profile ->
                 areas.clear()
-                removedAreaIds.clear()
                 profile.areas_added.orEmpty()
                     .take(2)
                     .mapTo(areas) { it.toEditUiModel() }
                 if (areas.isEmpty()) {
                     areas.add(AddedAreaEditUiModel())
                 }
-                normalizeEnabledAreas()
                 render()
             }
         }
@@ -118,50 +133,52 @@ class PlayerAreaAddedSettingFragment :
     }
 
     private fun openDateRangePicker(index: Int) {
-        val area = areas.getOrNull(index) ?: return
-        BottomDateRangeDialog().apply {
-            startDate = area.startDate
-            endDate = area.endDate
-            rangeSelectCallback = { start, end ->
-                area.startDate = start
-                area.endDate = end
-                if (areas.size == 1 && area.isComplete()) {
-                    area.enable = true
-                }
-                render()
+        if (index >= areas.size) return
+        val area = areas[index]
+
+        // iOS와 동일: 픽업 가능일 선택은 풀스크린 캘린더 화면으로 이동
+        findNavController().navigate(
+            R.id.action_global_selectDateRangeFragment,
+            Bundle().apply {
+                putInt("areaIndex", index)
+                area.startDate?.let { putString("startDate", it.format(saveFormatter)) }
+                area.endDate?.let { putString("endDate", it.format(saveFormatter)) }
             }
-        }.show(parentFragmentManager, "BottomDateRangeDialog")
+        )
     }
 
     private fun openSearch(index: Int, isStart: Boolean) {
         if (index >= areas.size) return
+        val area = areas[index]
+        val existingAddress = if (isStart) area.depart else area.dest
+        val existingRadius = if (isStart) area.departRadius else area.destRadius
+
         findNavController().navigate(
             R.id.action_global_playerJoinSearchFragment,
             Bundle().apply {
                 putBoolean("isStart", isStart)
                 putBoolean("isSecondary", index == 1)
+                // iOS와 동일: 기존 주소가 있으면 바로 반경설정 모드로 진입
+                if (existingAddress != null && existingAddress.lat != null && existingAddress.lat > 0
+                    && existingAddress.lng != null && existingAddress.lng > 0) {
+                    putParcelable("existingAddress", existingAddress)
+                    putInt("existingRadius", existingRadius ?: 3)
+                }
             }
         )
     }
 
     private fun toggleArea(index: Int) {
         val area = areas.getOrNull(index) ?: return
-        if (areas.size == 1) {
-            area.enable = true
-        } else {
-            if (!area.enable) {
-                area.enable = true
-                areas.forEachIndexed { i, item ->
-                    if (i != index) item.enable = false
-                }
-            }
-        }
+        // 각 동행 범위는 독립적으로 ON/OFF 가능 (둘 다 ON 가능)
+        area.enable = !area.enable
         render()
     }
 
     private fun addSecondaryArea() {
         if (areas.size >= 2 || !areas.first().isComplete()) return
         areas.add(AddedAreaEditUiModel())
+        ensureAtLeastOneAreaIsOn()
         render()
     }
 
@@ -174,10 +191,25 @@ class PlayerAreaAddedSettingFragment :
             leftBtn = "아니오",
             rightBtn = "예"
         ).onRightBtn {
-            area.areaId?.let { removedAreaIds.add(it) }
-            areas.removeAt(index)
-            normalizeEnabledAreas()
-            render()
+            // iOS와 동일: 서버 등록 항목은 즉시 삭제 API 호출, 미등록 항목은 로컬에서만 제거
+            val areaId = area.areaId
+            if (areaId == null || areaId <= 0) {
+                areas.removeAt(index)
+                ensureAtLeastOneAreaIsOn()
+                render()
+                requireContext().toast("삭제가 완료되었습니다.")
+            } else {
+                viewModel.deletePlayerArea(areaId) { success ->
+                    if (success) {
+                        areas.removeAt(index)
+                        ensureAtLeastOneAreaIsOn()
+                        render()
+                        requireContext().toast("삭제가 완료되었습니다.")
+                    } else {
+                        requireContext().toast("삭제에 실패했습니다.")
+                    }
+                }
+            }
         }.show(childFragmentManager, "DeleteAddedAreaDialog")
     }
 
@@ -196,7 +228,8 @@ class PlayerAreaAddedSettingFragment :
                     destRadius = it.destRadius
                 )
             },
-            removedAreaIds = removedAreaIds
+            // iOS와 동일하게 삭제는 즉시 처리되므로 저장 시 삭제할 항목 없음
+            removedAreaIds = emptyList()
         ) { success ->
             if (success) {
                 requireContext().toast("추가 지역이 설정되었습니다.")
@@ -223,13 +256,13 @@ class PlayerAreaAddedSettingFragment :
         index: Int
     ) {
         if (area == null) {
-            binding.tvTitle.text = "추가 동행 범위 ${index + 1}"
+            binding.tvTitle.text = "여행 동행 ${if (index == 0) "①" else "②"} 코스"
             binding.tvOn.isSelected = false
             binding.tvOn.text = "OFF"
             return
         }
 
-        binding.tvTitle.text = "추가 동행 범위 ${index + 1}"
+        binding.tvTitle.text = "여행 동행 ${if (index == 0) "①" else "②"} 코스"
         binding.ivDelete.isVisible = index > 0
         binding.tvOn.isSelected = area.enable
         binding.tvOn.text = if (area.enable) "ON" else "OFF"
@@ -256,11 +289,11 @@ class PlayerAreaAddedSettingFragment :
         binding.tvArriveRange.text = "${area.destRadius ?: 3}KM"
     }
 
-    private fun normalizeEnabledAreas() {
+    // iOS ensureAtLeastOneAreaIsOn 대응: 1개면 항상 ON, 2개면 최소 1개 ON 유지
+    private fun ensureAtLeastOneAreaIsOn() {
         if (areas.size == 1) {
-            return
-        }
-        if (areas.none { it.enable }) {
+            areas[0].enable = true
+        } else if (areas.size >= 2 && areas.none { it.enable }) {
             areas.firstOrNull()?.enable = true
         }
     }
@@ -268,7 +301,7 @@ class PlayerAreaAddedSettingFragment :
     private fun canSave(): Boolean {
         if (areas.any { !it.isComplete() }) return false
         if (areas.none { it.enable }) return false
-        return removedAreaIds.isNotEmpty() || areas.any {
+        return areas.any {
             it.areaId == null || it.addressChanged || it.dateChanged ||
                 it.originalEnable != it.enable
         }

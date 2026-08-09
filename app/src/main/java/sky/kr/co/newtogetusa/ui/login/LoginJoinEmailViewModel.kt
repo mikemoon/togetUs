@@ -66,7 +66,10 @@ class LoginJoinEmailViewModel @Inject constructor(baseViewModelDependenciesFacto
     fun requestVerifyEmail(email: String, isResend: Boolean = false) = viewModelScope.launch {
         if (loadingState.value) return@launch
         loadingState.value = true
+        // iOS 대응: 가입(join) / 비밀번호 찾기(pw) 엔드포인트 분리
+        val type = if (isPasswordFindModeStateFlow.value) "pw" else "join"
         val response:ResultWrapper<Boolean> = authRepository.verifyEmail(
+            type,
             hashMapOf(
                 "email" to email,
                 "os" to "A"

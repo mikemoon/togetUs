@@ -11,11 +11,9 @@
             type="sky.kr.co.newtogetusa.ui.main.my.joinPlayer.PlayerJoinSearchVM" />
     </data>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:layout_height="match_parent">
 
         <!-- Topbar start-->
         <LinearLayout
@@ -23,7 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="24dp"
@@ -44,55 +43,78 @@
         </LinearLayout>
         <!-- Topbar end-->
 
+        <!-- ===== 검색 모드 (iOS SearchAddressViewController) ===== -->
+
+        <!-- 주소검색 start -->
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSearch"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_margin="20dp"
-            >
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/clTop"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clEdit"
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/etSearch"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginEnd="12dp"
                 android:background="@drawable/selector_bg_st_b10_b80_s_w_r4"
-                android:padding="16dp"
+                android:hint="주소 검색"
+                android:onTextChanged="@{viewModel::onTextChanged}"
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:textColor="@color/black_80"
+                android:textColorHint="@color/black_40"
+                style="@style/Paragraph17R"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/ivVoiceSearch"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivDelete"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{()-> viewModel.onDeleteSearchText()}"
+                android:src="@drawable/fillcircle_close_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/etSearch"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivVoiceSearch"
+                android:layout_width="32dp"
+                android:layout_height="52dp"
+                android:contentDescription="음성 검색"
+                android:onClick="@{()-> viewModel.onEventClick(Event.VoiceSearch.INSTANCE)}"
+                android:paddingVertical="10dp"
+                android:src="@drawable/ic_voice_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp"
-                app:layout_goneMarginEnd="0dp"
-                >
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 주소검색 end -->
 
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    style="@style/Paragraph17R"
-                    android:textColor="@color/black_80"
-                    android:background="@null"
-                    android:hint="주소 검색"
-                    android:onTextChanged="@{viewModel::onTextChanged}"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/ivDelete"
-                    android:layout_marginEnd="8dp"
-                    />
+        <!-- ===== 반경설정 모드 (iOS ChooseRouteViewController) ===== -->
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/ivDelete"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:onClick="@{()-> viewModel.onDeleteSearchText()}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:src="@drawable/fillcircle_close_gray"
-                    />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 선택된 주소 표시 (읽기전용 + 수정 버튼) start -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSelectedAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/clTop"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvSearchResult"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="52dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvModify"
@@ -101,41 +123,100 @@
                 style="@style/Paragraph17R"
                 android:textColor="@color/black_80"
                 android:background="@drawable/selector_bg_st_b10_b80_s_w_r4"
-                android:visibility="gone"
+                android:gravity="center_vertical"
                 />
-            
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvModify"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:background="@drawable/background_s_b5_r4"
                 android:paddingHorizontal="20dp"
-                android:paddingVertical="16dp"
+                android:gravity="center"
                 android:textColor="@color/black_80"
                 android:text="수정"
                 android:onClick="@{()-> viewModel.onModifyClick()}"
                 style="@style/Paragraph17B"
-                android:visibility="gone"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 선택된 주소 표시 end -->
 
+        <!-- 구분선 (검색모드: clSearch 아래 / 반경설정모드: clSelectedAddress 아래) -->
         <View
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:background="@color/black_2"
+            app:layout_constraintTop_toBottomOf="@id/clSearch"
+            android:layout_marginTop="20dp"
             />
 
+        <!-- 최근 검색 start-->
+        <LinearLayout
+            android:id="@+id/llRecent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="52dp">
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="20dp"
+                    android:text="최근 검색"
+                    style="@style/Paragraph17R"
+                    android:textColor="@color/black_60"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDeleteAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="20dp"
+                    android:text="전체삭제"
+                    style="@style/Paragraph15B"
+                    android:textColor="@color/black_20"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black_5"
+                />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRecently"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                />
+        </LinearLayout>
+        <!-- 최근 검색 end-->
+
+        <!-- 검색 결과 start -->
         <LinearLayout
             android:id="@+id/llSearch"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone"
+            >
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
-                android:layout_height="56dp"
+                android:layout_height="52dp"
                 style="@style/Paragraph17R"
                 android:textColor="@color/black_60"
                 android:text="검색 결과"
@@ -156,11 +237,15 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 />
         </LinearLayout>
+        <!-- 검색 결과 end -->
 
+        <!-- 반경 설정 영역 start (iOS ChooseRouteViewController의 rangeView + mapButton + confirmButton) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clArea2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="gone"
             >
 
@@ -202,7 +287,7 @@
                 app:tickVisible="false"
                 app:labelBehavior="gone"
                 android:valueFrom="1"
-                android:valueTo="10"
+                android:valueTo="5"
                 android:stepSize="1"
                 android:value="3"
                 />
@@ -220,6 +305,7 @@
                 />
 
             <LinearLayout
+                android:id="@+id/llMapSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -262,7 +348,7 @@
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 반경 설정 영역 end -->
 
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

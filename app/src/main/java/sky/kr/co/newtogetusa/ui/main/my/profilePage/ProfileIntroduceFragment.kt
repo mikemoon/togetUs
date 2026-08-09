@@ -77,8 +77,8 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
 
         val hasBasicArea = !profile.areas_basic.isNullOrEmpty()
         tvAreaEmpty.isVisible = !hasBasicArea
-        bindBasicArea(profile.areas_basic?.getOrNull(0), tvArea1)
-        bindBasicArea(profile.areas_basic?.getOrNull(1), tvArea2)
+        bindBasicArea(profile.areas_basic?.getOrNull(0), tvArea1, 0)
+        bindBasicArea(profile.areas_basic?.getOrNull(1), tvArea2, 1)
 
         // 추가 지역 설정 (iOS SettingAreaOtherViewController 대응)
         btnEditAddArea.setOnClickListener {
@@ -89,37 +89,63 @@ class ProfileIntroduceFragment : BaseFragment<FragmentProfileIntroduceBinding, P
         tvAddAreaEmpty.isVisible = !hasAddedArea
         btnEditAddArea.text = if (hasAddedArea) "설정" else "추가"
 
-        bindAddedArea(profile.areas_added?.getOrNull(0), tvAddArea1, tvAddPickupDate1)
-        bindAddedArea(profile.areas_added?.getOrNull(1), tvAddArea2, tvAddPickupDate2)
+        bindAddedArea(profile.areas_added?.getOrNull(0), tvAddArea1, tvAddPickupDate1, 0)
+        bindAddedArea(profile.areas_added?.getOrNull(1), tvAddArea2, tvAddPickupDate2, 1)
     }
 
     private fun bindBasicArea(
         area: PlayerProfileDto.PlayerArea?,
-        areaView: TextView
+        areaView: TextView,
+        index: Int
     ) {
         val isVisible = area != null
         areaView.isVisible = isVisible
         if (area == null) return
 
-        areaView.text = formatRoute(area.depart_address, area.dest_address)
+        areaView.text = "• 코스 ${index + 1}: ${formatRoute(area.depart_address, area.dest_address)}"
     }
 
     private fun bindAddedArea(
         area: PlayerProfileDto.PlayerArea?,
         areaView: TextView,
-        dateView: TextView
+        dateView: TextView,
+        index: Int
     ) {
         val isVisible = area != null
         areaView.isVisible = isVisible
         dateView.isVisible = isVisible
         if (area == null) return
 
-        areaView.text = formatRoute(area.depart_address, area.dest_address)
+        areaView.text = "• 코스 ${index + 1}: ${formatRoute(area.depart_address, area.dest_address)}"
         dateView.text = "픽업 가능일 ${formatDate(area.start_date)} - ${formatDate(area.end_date)}"
     }
 
     private fun formatRoute(departAddress: String?, destAddress: String?): String =
-        "${departAddress.orEmpty()} > ${destAddress.orEmpty()}"
+        "${toShortAddress(departAddress)} → ${toShortAddress(destAddress)}"
+
+    // 기획서: 상세주소(동/번지/도로명 이하)는 표시하지 않고 시/군/구까지만 노출
+    // 예: "서울특별시 강서구 화곡동 123" → "서울 강서구", "경기도 하남시 ..." → "경기 하남시"
+    private fun toShortAddress(address: String?): String {
+        val tokens = address.orEmpty().trim().split("\\s+".toRegex())
+            .filter { it.isNotBlank() }
+        if (tokens.isEmpty()) return ""
+
+        val sido = tokens[0]
+            .replace("특별자치시", "")
+            .replace("특별자치도", "")
+            .replace("특별시", "")
+            .replace("광역시", "")
+            .removeSuffix("도")
+
+        if (tokens.size < 2) return sido
+
+        val sigungu = tokens[1]
+        return if (sigungu.endsWith("시") || sigungu.endsWith("군") || sigungu.endsWith("구")) {
+            "$sido $sigungu"
+        } else {
+            sido
+        }
+    }
 
     private fun formatDate(rawDate: String?): String {
         val raw = rawDate.orEmpty().substringBefore(" ")

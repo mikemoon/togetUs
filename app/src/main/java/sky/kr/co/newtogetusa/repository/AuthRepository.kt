@@ -18,8 +18,8 @@ class AuthRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ): BaseNetRepo() {
 
-    suspend fun verifyEmail(requestBody: HashMap<String, String>) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO) {
-        apiService.verifyEmail(requestBody.withOs())
+    suspend fun verifyEmail(type: String, requestBody: HashMap<String, String>) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO) {
+        apiService.verifyEmail(type, requestBody.withOs())
     }
 
     suspend fun verifyAccount(token: String, requestBody: HashMap<String, String>) =
