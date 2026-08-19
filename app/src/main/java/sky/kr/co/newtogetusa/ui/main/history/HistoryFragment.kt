@@ -81,6 +81,15 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
             viewModel.setKeyword(dataBinding.etSearch.text.toString())
         }
 
+        // 동행 푸시 수신 시 목록 갱신 (iOS refreshDeliveryList 대응)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus.listEvents.collect {
+                    historyAdapter.refresh()
+                }
+            }
+        }
+
         dataBinding.etSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
                 if (!dataBinding.etSearch.isEnabled) return@setOnEditorActionListener false

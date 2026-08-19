@@ -17,7 +17,7 @@ data class PlayerAreaAddedRequest(
     val start: String,
     val end: String,
     val enable: Boolean = true,
-    val depart: PlayerAreaLocationRequest,
+    val is_domestic: Boolean = true,
     val dest: PlayerAreaLocationRequest,
 )
 

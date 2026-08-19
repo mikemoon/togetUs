@@ -31,6 +31,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.week
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus
 import timber.log.Timber
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -263,6 +264,13 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
                         if (!viewModel.isShowCalendar.value) {
                             historyAdapter.submitData(pagingData)
                         }
+                    }
+                }
+
+                // 동행 푸시 수신 시 목록 갱신 (iOS refreshDeliveryList 대응)
+                launch {
+                    DeliveryRefreshBus.listEvents.collect {
+                        historyAdapter.refresh()
                     }
                 }
 

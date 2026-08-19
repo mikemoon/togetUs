@@ -78,6 +78,10 @@ class PlayerRepository @Inject constructor(
         )
     }
 
+    suspend fun setPlayerAreaEnableBatch(playerId: Int, areas: List<HashMap<String, Any>>): ResultWrapper<Boolean> = safeApiCall(Dispatchers.IO) {
+        apiService.setPlayerAreaEnableBatch(playerId, areas)
+    }
+
     suspend fun refreshPlayerGps(playerId: Int, latitude: Double, longitude: Double) = safeApiCall(Dispatchers.IO) {
         apiService.refreshPlayerGps(
             playerId,

@@ -162,6 +162,13 @@ interface PlayerService {
         @Body request: HashMap<String, Any>
     ): Boolean
 
+    // iOS 대응: 서버는 배열 [{area_id, enable}, ...]로 한 번에 받아 처리한다 (단건 객체 전송 시 400)
+    @POST("/api/players/v1/{player_id}/area_enable")
+    suspend fun setPlayerAreaEnableBatch(
+        @Path("player_id") playerId: Int,
+        @Body request: List<HashMap<String, Any>>
+    ): Boolean
+
     @POST("/api/players/v1/{player_id}/area/gps_refresh")
     suspend fun refreshPlayerGps(
         @Path("player_id") playerId: Int,

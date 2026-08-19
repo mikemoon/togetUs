@@ -254,14 +254,17 @@ class TakePhotoFragment : BaseFragment<FragmentTakePhotoBinding, TakePhotoVM>() 
             return
         }
 
-        runCatching {
-            @Suppress("DEPRECATION")
-            geocoder.getFromLocation(location.latitude, location.longitude, 1)
-        }.onSuccess { addresses ->
-            callback(addresses?.firstOrNull()?.getAddressLine(0))
-        }.onFailure {
-            callback(null)
-        }
+        // API 33 미만 동기 API는 네트워크/디스크 I/O 블로킹 가능 → 백그라운드에서 호출
+        Thread {
+            runCatching {
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            }.onSuccess { addresses ->
+                callback(addresses?.firstOrNull()?.getAddressLine(0))
+            }.onFailure {
+                callback(null)
+            }
+        }.start()
     }
 
     private fun writeExifMeta(photoFile: File, location: Location?, address: String?) {

@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="매일 동행 ① 코스"
+            android:text="매일 동행 코스 1"
             android:textColor="@color/black_80"
             app:layout_constraintEnd_toStartOf="@id/ivDelete"
             app:layout_constraintStart_toStartOf="parent"
@@ -102,7 +102,7 @@
                     style="@style/Paragraph17B"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="출발지"
+                    android:text="주소"
                     android:textColor="@color/black_80"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -192,7 +192,7 @@
                     style="@style/Paragraph17B"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="출발지"
+                    android:text="주소"
                     android:textColor="@color/black_80"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

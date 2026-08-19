@@ -74,11 +74,11 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvAreaTitleSub"
-                    style="@style/Paragraph16R"
+                    style="@style/Paragraph14R"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="(출・퇴근 일상 이동)"
-                    android:textColor="@color/black_80"
+                    android:text="(출·퇴근 일상 이동)"
+                    android:textColor="@color/black_40"
                     app:layout_constraintBaseline_toBaselineOf="@id/tvAreaTitle"
                     app:layout_constraintStart_toEndOf="@id/tvAreaTitle" />
 
@@ -95,12 +95,12 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvAreaEmpty"
-                style="@style/Paragraph16R"
+                style="@style/Paragraph15R"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                android:text="동행 가능지역이 없습니다"
+                android:text="등록된 매일 동행이 없어요.\n자주 다니는 경로를 등록하면 맞는 동행을 추천해드려요."
                 android:textColor="@color/black_40"
                 android:visibility="gone" />
 
@@ -149,11 +149,11 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvAddAreaTitleSub"
-                    style="@style/Paragraph16R"
+                    style="@style/Paragraph14R"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="(여행・출장・휴가 이동)"
-                    android:textColor="@color/black_80"
+                    android:text="(여행·출장·휴가 이동)"
+                    android:textColor="@color/black_40"
                     app:layout_constraintBaseline_toBaselineOf="@id/tvAddAreaTitle"
                     app:layout_constraintStart_toEndOf="@id/tvAddAreaTitle" />
 
@@ -169,23 +169,13 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvAddAreaDesc"
+                android:id="@+id/tvAddAreaEmpty"
                 style="@style/Paragraph15R"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="4dp"
-                android:text="여행처럼 잠깐 다른 지역에 갈 때도 동행할 수 있어요.\n날짜와 경로를 등록해두면 맞는 동행을 추천해드려요."
-                android:textColor="@color/black_60" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvAddAreaEmpty"
-                style="@style/Paragraph16R"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                android:text="추가 지역이 없습니다"
+                android:text="등록된 여행 동행이 없어요.\n여행·출장 일정을 등록하면 맞는 동행을 추천해드려요."
                 android:textColor="@color/black_40"
                 android:visibility="gone" />
 

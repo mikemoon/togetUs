@@ -23,6 +23,7 @@ import sky.kr.co.newtogetusa.repository.DataStoreRepository
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.main.chat.ChatRoomForegroundTracker
 import sky.kr.co.newtogetusa.ui.main.chat.ChatRoomListUpdateBus
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -51,9 +52,19 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
         val data = message.data
         val roomId = extractRoomId(data)
         val isChatPush = isChatPush(data, roomId)
+        val deliveryId = extractDeliveryId(data)
 
         if (isChatPush && roomId > 0L) {
             ChatRoomListUpdateBus.notifyRoomUpdated(roomId)
+        }
+
+        // 동행(배송) 푸시: 포그라운드 수신 시 열린 상세/목록 화면 갱신 (iOS handlePushReceived 대응)
+        if (deliveryId > 0L) {
+            serviceScope.launch {
+                if (!dataStoreRepository.getString(DataStoreKey.KEY_TOKEN).isNullOrBlank()) {
+                    DeliveryRefreshBus.notifyDeliveryUpdated(deliveryId)
+                }
+            }
         }
 
         if (isChatPush && roomId > 0L && ChatRoomForegroundTracker.activeRoomId == roomId) {
@@ -64,7 +75,8 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
         showNotification(
             title = message.notification?.title ?: data["title"] ?: getString(R.string.app_name),
             body = message.notification?.body ?: data["body"] ?: data["message"].orEmpty(),
-            roomId = roomId.takeIf { isChatPush && it > 0L }
+            roomId = roomId.takeIf { isChatPush && it > 0L },
+            deliveryId = deliveryId.takeIf { isDeliveryDetailPush(data) && it > 0L }
         )
     }
 
@@ -89,23 +101,41 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
             ?: data["roomId"]?.toLongOrNull()
             ?: -1L
 
-    private fun showNotification(title: String, body: String, roomId: Long?) {
+    // 동행상세 푸시 여부 (landing_type == "DELIVERY_DETAIL")
+    private fun isDeliveryDetailPush(data: Map<String, String>): Boolean =
+        data["landing_type"]?.equals("DELIVERY_DETAIL", ignoreCase = true) == true
+
+    // delivery_id ?? landing_id (숫자 문자열 허용)
+    private fun extractDeliveryId(data: Map<String, String>): Long =
+        data["delivery_id"]?.toLongOrNull()
+            ?: data["landing_id"]?.toLongOrNull()
+            ?: -1L
+
+    private fun showNotification(title: String, body: String, roomId: Long?, deliveryId: Long? = null) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         ensureNotificationChannel(manager)
 
         val isChatPush = roomId != null && roomId > 0L
+        val isDeliveryPush = deliveryId != null && deliveryId > 0L
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(MainActivity.EXTRA_OPEN_HOME_FROM_PUSH, true)
             if (isChatPush) {
                 putExtra(MainActivity.EXTRA_PUSH_TYPE, MainActivity.PUSH_TYPE_CHAT)
                 putExtra(MainActivity.EXTRA_PUSH_ROOM_ID, roomId)
+            } else if (isDeliveryPush) {
+                putExtra(MainActivity.EXTRA_PUSH_TYPE, MainActivity.PUSH_TYPE_DELIVERY_DETAIL)
+                putExtra(MainActivity.EXTRA_PUSH_DELIVERY_ID, deliveryId)
             }
         }
 
+        val notificationId = roomId?.hashCode()
+            ?: deliveryId?.hashCode()
+            ?: System.currentTimeMillis().toInt()
+
         val pendingIntent = PendingIntent.getActivity(
             this,
-            roomId?.hashCode() ?: System.currentTimeMillis().toInt(),
+            notificationId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -120,7 +150,7 @@ class TogetUsFirebaseMessagingService : FirebaseMessagingService(){
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        manager.notify(roomId?.hashCode() ?: System.currentTimeMillis().toInt(), notification)
+        manager.notify(notificationId, notification)
     }
 
     private fun ensureNotificationChannel(manager: NotificationManager) {

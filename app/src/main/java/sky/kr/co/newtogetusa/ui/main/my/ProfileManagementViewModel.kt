@@ -252,7 +252,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         }
 
         for (area in areas) {
-            val depart = area.depart ?: continue
+            // 여행 동행은 도착지(여행지)만 등록. 출발지는 서버가 산출한다.
             val dest = area.dest ?: continue
             val addResult = playerRepository.postPlayerAreaAdded(
                 playerId,
@@ -261,13 +261,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
                     start = area.start,
                     end = area.end,
                     enable = area.enable,
-                    depart = PlayerAreaLocationRequest(
-                        address = depart.name,
-                        address2 = depart.roadAddress.orEmpty(),
-                        latitude = depart.lat ?: 0.0,
-                        longitude = depart.lng ?: 0.0,
-                        range = area.departRadius ?: 3
-                    ),
+                    is_domestic = true,
                     dest = PlayerAreaLocationRequest(
                         address = dest.name,
                         address2 = dest.roadAddress.orEmpty(),
@@ -293,8 +287,6 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         val enable: Boolean,
         val start: String,
         val end: String,
-        val depart: KakaoSearchModel?,
-        val departRadius: Int?,
         val dest: KakaoSearchModel?,
         val destRadius: Int?
     )
@@ -323,6 +315,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
         val playerId = profileDto.value?.user?.player_id ?: return@launch result(false)
         loadingState.value = true
 
+        // 1. 사라진 코스 삭제 (iOS와 동일하게 삭제는 즉시 처리되므로 보통 비어있음)
         for (areaId in removedAreaIds) {
             if (playerRepository.deletePlayerArea(playerId, areaId) !is ResultWrapper.Success) {
                 loadingState.value = false
@@ -331,6 +324,10 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
             }
         }
 
+        // 2. 추가/수정 (417 동일 API. area_id null이면 신규, 값 있으면 수정)
+        val enableItems = mutableListOf<HashMap<String, Any>>()
+        var isEnableChanged = false
+
         for (area in areas) {
             val depart = area.depart ?: continue
             val dest = area.dest ?: continue
@@ -338,50 +335,50 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
             val destRadius = area.destRadius ?: continue
             val areaId = area.areaId
 
-            if (areaId != null && area.addressChanged) {
-                if (playerRepository.deletePlayerArea(playerId, areaId) !is ResultWrapper.Success) {
-                    loadingState.value = false
-                    result(false)
-                    return@launch
-                }
+            if (areaId != null) {
+                // 기존 코스 → 사용여부는 아래 일괄 API로 전송
+                enableItems.add(hashMapOf("area_id" to areaId, "enable" to area.enable))
+                if (area.originalEnable != area.enable) isEnableChanged = true
+
+                // 주소가 그대로면 호출 생략
+                if (!area.addressChanged) continue
             }
 
-            if (areaId != null && !area.addressChanged) {
-                if (area.enableChanged) {
-                    if (playerRepository.setPlayerAreaEnable(playerId, areaId, area.enable) !is ResultWrapper.Success) {
-                        loadingState.value = false
-                        result(false)
-                        return@launch
-                    }
-                }
-            } else {
-                val addResult = playerRepository.postPlayerArea(
-                    playerId,
-                    PlayerAreaAddRequest(
-                        area_id = null,
-                        is_domestic = true,
-                        enable = area.enable,
-                        depart = PlayerAreaLocationRequest(
-                            address = depart.name,
-                            address2 = depart.roadAddress.orEmpty(),
-                            latitude = depart.lat ?: 0.0,
-                            longitude = depart.lng ?: 0.0,
-                            range = departRadius
-                        ),
-                        dest = PlayerAreaLocationRequest(
-                            address = dest.name,
-                            address2 = dest.roadAddress.orEmpty(),
-                            latitude = dest.lat ?: 0.0,
-                            longitude = dest.lng ?: 0.0,
-                            range = destRadius
-                        )
+            val addResult = playerRepository.postPlayerArea(
+                playerId,
+                PlayerAreaAddRequest(
+                    area_id = areaId,   // 값이 있으면 수정, null이면 신규 추가
+                    is_domestic = true,
+                    enable = area.enable,
+                    depart = PlayerAreaLocationRequest(
+                        address = depart.name,
+                        address2 = depart.roadAddress.orEmpty(),
+                        latitude = depart.lat ?: 0.0,
+                        longitude = depart.lng ?: 0.0,
+                        range = departRadius
+                    ),
+                    dest = PlayerAreaLocationRequest(
+                        address = dest.name,
+                        address2 = dest.roadAddress.orEmpty(),
+                        latitude = dest.lat ?: 0.0,
+                        longitude = dest.lng ?: 0.0,
+                        range = destRadius
                     )
                 )
-                if (addResult !is ResultWrapper.Success) {
-                    loadingState.value = false
-                    result(false)
-                    return@launch
-                }
+            )
+            if (addResult !is ResultWrapper.Success) {
+                loadingState.value = false
+                result(false)
+                return@launch
+            }
+        }
+
+        // 3. 기존 코스 사용여부 변경분이 있으면 배열로 일괄 전송 (서버가 "최소 1개 ON" 검증)
+        if (isEnableChanged && enableItems.isNotEmpty()) {
+            if (playerRepository.setPlayerAreaEnableBatch(playerId, enableItems) !is ResultWrapper.Success) {
+                loadingState.value = false
+                result(false)
+                return@launch
             }
         }
 
@@ -414,7 +411,7 @@ class ProfileManagementViewModel @Inject constructor(baseViewModelDependenciesFa
     data class PlayerBasicAreaEdit(
         val areaId: Int?,
         val addressChanged: Boolean,
-        val enableChanged: Boolean,
+        val originalEnable: Boolean,
         val enable: Boolean,
         val depart: KakaoSearchModel?,
         val departRadius: Int?,

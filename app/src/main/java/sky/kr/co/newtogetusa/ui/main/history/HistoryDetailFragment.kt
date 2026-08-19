@@ -73,6 +73,10 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
             by hiltNavGraphViewModels(R.id.nav_graph)
 
     private val args: HistoryDetailFragmentArgs by navArgs()
+
+    // 목록에서 진입하면 delivery parcelable, 푸시 딥링크면 deliveryId만 전달된다
+    private val detailDeliveryId: Long
+        get() = args.delivery?.delivery_id ?: args.deliveryId
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
     //카카오
@@ -107,7 +111,18 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
 
         Timber.d("delInfo ${args.delivery}")
 
-        viewModel.getDeliveryDetailInfo(args.delivery.delivery_id)
+        viewModel.getDeliveryDetailInfo(detailDeliveryId)
+
+        // 동행 푸시 수신 시 같은 건을 보고 있으면 상세 재조회 (iOS refreshDeliveryInfo 대응)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus.detailEvents.collect { id ->
+                    if (id == detailDeliveryId) {
+                        viewModel.getDeliveryDetailInfo(id)
+                    }
+                }
+            }
+        }
 
         checkLocationPermission()
         if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
@@ -251,7 +266,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 }
                 "Chatting" -> {
                     val deliveryId = viewModel.deliveryDetail.value?.delivery_id
-                        ?: args.delivery.delivery_id
+                        ?: detailDeliveryId
                     findNavController().navigate(
                         R.id.action_global_chatInProgressFragment,
                         bundleOf(
@@ -332,7 +347,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
 
     private fun openChatInProgress(isSelectMode: Boolean) {
         val deliveryId = viewModel.deliveryDetail.value?.delivery_id
-            ?: args.delivery.delivery_id
+            ?: detailDeliveryId
         findNavController().navigate(
             R.id.action_global_chatInProgressFragment,
             bundleOf(
@@ -720,7 +735,7 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
 
     override fun onResume() {
         super.onResume()
-        viewModel.getDeliveryDetailInfo(args.delivery.delivery_id)
+        viewModel.getDeliveryDetailInfo(detailDeliveryId)
         if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
             dataBinding.googleMap.onResume()
         } else {

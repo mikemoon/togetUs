@@ -53,7 +53,7 @@
                         style="@style/HeadLine18B"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="동행범위1"
+                        android:text="매일 동행 코스 1"
                         android:textColor="@color/black_80"
                         app:layout_constraintBottom_toBottomOf="@id/tvOn"
                         app:layout_constraintStart_toStartOf="parent"
@@ -65,8 +65,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_bg_b5_st_p60_p10_r4"
+                        android:onClick="@{()-> viewModel.onAreaOnToggle(1)}"
                         android:padding="12dp"
-                        android:text="ON"
+                        android:text="@{viewModel.area1On ? `ON` : `OFF`}"
                         android:selected="@{viewModel.area1On}"
                         android:textColor="@color/selector_b40_p100"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -96,7 +97,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="픽업 가능"
+                                android:text="픽업지역"
                                 android:textColor="@color/black_80" />
                         </LinearLayout>
 
@@ -127,7 +128,7 @@
                                 android:layout_height="wrap_content"
                                 style="@style/Paragraph17B"
                                 android:textColor="@color/black_80"
-                                android:text="출발지"
+                                android:text="주소"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
                                 />
@@ -187,7 +188,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="도착 가능"
+                                android:text="도착지역"
                                 android:textColor="@color/black_80" />
                         </LinearLayout>
 
@@ -218,7 +219,7 @@
                                 android:layout_height="wrap_content"
                                 style="@style/Paragraph17B"
                                 android:textColor="@color/black_80"
-                                android:text="출발지"
+                                android:text="주소"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
                                 />
@@ -279,7 +280,7 @@
                         style="@style/HeadLine18B"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="동행범위2"
+                        android:text="매일 동행 코스 2"
                         android:textColor="@color/black_80"
                         app:layout_constraintBottom_toBottomOf="@id/tvOn2"
                         app:layout_constraintStart_toStartOf="parent"
@@ -302,9 +303,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_bg_b5_st_p60_p10_r4"
+                        android:onClick="@{()-> viewModel.onAreaOnToggle(2)}"
                         android:padding="12dp"
                         android:selected="@{viewModel.area2On}"
-                        android:text="ON"
+                        android:text="@{viewModel.area2On ? `ON` : `OFF`}"
                         android:textColor="@color/selector_b40_p100"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -333,7 +335,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="픽업 가능"
+                                android:text="픽업지역"
                                 android:textColor="@color/black_80" />
                         </LinearLayout>
 
@@ -365,7 +367,7 @@
                                 android:layout_height="wrap_content"
                                 style="@style/Paragraph17B"
                                 android:textColor="@color/black_80"
-                                android:text="출발지"
+                                android:text="주소"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
                                 />
@@ -425,7 +427,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="도착 가능"
+                                android:text="도착지역"
                                 android:textColor="@color/black_80" />
                         </LinearLayout>
 
@@ -456,7 +458,7 @@
                                 android:layout_height="wrap_content"
                                 style="@style/Paragraph17B"
                                 android:textColor="@color/black_80"
-                                android:text="출발지"
+                                android:text="주소"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
                                 />

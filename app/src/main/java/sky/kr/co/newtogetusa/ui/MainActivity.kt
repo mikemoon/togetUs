@@ -259,17 +259,25 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         val openHomeFromPush = intent?.getBooleanExtra(EXTRA_OPEN_HOME_FROM_PUSH, false) == true
         val pushType = intent?.getStringExtra(EXTRA_PUSH_TYPE).orEmpty()
         val roomId = intent?.getLongExtra(EXTRA_PUSH_ROOM_ID, -1L) ?: -1L
+        val deliveryId = intent?.getLongExtra(EXTRA_PUSH_DELIVERY_ID, -1L) ?: -1L
         if (!openHomeFromPush) return
 
         intent?.removeExtra(EXTRA_OPEN_HOME_FROM_PUSH)
         intent?.removeExtra(EXTRA_PUSH_TYPE)
         intent?.removeExtra(EXTRA_PUSH_ROOM_ID)
+        intent?.removeExtra(EXTRA_PUSH_DELIVERY_ID)
 
         val isChatPush = pushType == PUSH_TYPE_CHAT && roomId > 0L
+        val isDeliveryPush = pushType == PUSH_TYPE_DELIVERY_DETAIL && deliveryId > 0L
         if (isChatPush) {
             navigateToHomeTabRoot()
             dataBinding.bottomNavigation.postDelayed({
                 navigateToChatRoom(roomId)
+            }, 400)
+        } else if (isDeliveryPush) {
+            navigateToHomeTabRoot()
+            dataBinding.bottomNavigation.postDelayed({
+                navigateToDeliveryDetail(deliveryId)
             }, 400)
         } else {
             runCatching {
@@ -278,6 +286,33 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
                 Timber.e(it, "Failed to navigate home from push")
             }
         }
+    }
+
+    // iOS openDeliveryDetail 대응: 내역 탭 선택 후 동행상세로 이동
+    private fun navigateToDeliveryDetail(deliveryId: Long) {
+        if (deliveryId <= 0L) return
+        selectMainTab(R.id.history)
+        dataBinding.bottomNavigation.postDelayed({
+            runCatching {
+                if (viewModel.isPlayerModeFlow.value) {
+                    navController.navigate(
+                        R.id.action_global_playerHistoryDetailFragment,
+                        android.os.Bundle().apply {
+                            putLong("deliveryId", deliveryId)
+                        }
+                    )
+                } else {
+                    navController.navigate(
+                        R.id.action_global_historyDetailFragment,
+                        android.os.Bundle().apply {
+                            putLong("deliveryId", deliveryId)
+                        }
+                    )
+                }
+            }.onFailure {
+                Timber.e(it, "Failed to navigate to delivery detail $deliveryId")
+            }
+        }, 300)
     }
 
     private fun navigateToChatRoom(roomId: Long) {
@@ -352,7 +387,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
         const val EXTRA_OPEN_HOME_FROM_PUSH = "extra_open_home_from_push"
         const val EXTRA_PUSH_TYPE = "extra_push_type"
         const val EXTRA_PUSH_ROOM_ID = "extra_push_room_id"
+        const val EXTRA_PUSH_DELIVERY_ID = "extra_push_delivery_id"
         const val PUSH_TYPE_CHAT = "chat"
+        const val PUSH_TYPE_DELIVERY_DETAIL = "DELIVERY_DETAIL"
         private const val NOTIFICATION_SETTINGS_DIALOG_TAG = "NotificationSettingsDialog"
     }
 

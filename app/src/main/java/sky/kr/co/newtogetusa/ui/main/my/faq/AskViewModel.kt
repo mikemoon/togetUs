@@ -19,18 +19,15 @@ class AskViewModel @Inject constructor(baseViewModelDependenciesFactory: BaseVie
         fun postOneOnOne(
             content:String,
             phone:String,
-            imageBase64: String? = null,
+            imageBytes: ByteArray? = null,
             resultCallback:(Boolean) -> Unit
         ) = viewModelScope.launch {
-            when(val res = myRepository.postOneOnOne(hashMapOf(
-                "inquiry" to content,
-                "phone" to phone,
-            ).apply {
-                if(!imageBase64.isNullOrEmpty()) {
-                    put("attach_base64", imageBase64)
-                    put("attach_mime", "image/png")
-                }
-            })){
+            // iOS 대응: multipart 전송 (base64 대비 전송량 약 33% 감소)
+            when(val res = myRepository.postOneOnOne(
+                inquiry = content,
+                phone = phone,
+                imageBytesList = listOfNotNull(imageBytes)
+            )){
                 is ResultWrapper.Success -> {
                     resultCallback(res.data)
                 }

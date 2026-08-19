@@ -1,10 +1,6 @@
 package sky.kr.co.newtogetusa.ui.main.home
 
 import android.Manifest
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -321,23 +317,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     }
 
     private fun setupMapTypeToggle() {
-        dataBinding.tvIndicator.post {
-            val params = dataBinding.tvIndicator.layoutParams
-            params.width = dataBinding.tvMap.width
-            dataBinding.tvIndicator.layoutParams = params
-        }
-        dataBinding.tvMap.apply {
-            isSelected = true
-            setOnClickListener {
-                moveIndicatorTo(dataBinding.tvMap)
-                setSelectMapType(true)
-            }
-        }
-        dataBinding.tvSettle.apply {
-            setOnClickListener {
-                moveIndicatorTo(dataBinding.tvSettle)
-                setSelectMapType(false)
-            }
+        dataBinding.ivMapType.setOnClickListener {
+            setSelectMapType(!isNormalMapType)
         }
         setSelectMapType(isNormalMapType)
     }
@@ -403,16 +384,6 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setSelectMapType(isMap: Boolean) {
         isNormalMapType = isMap
-        dataBinding.tvMap.apply {
-            isSelected = isMap
-            //background = if(isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
-            setTextColor(requireContext().getColor(if (isMap) R.color.white else R.color.black_80))
-        }
-        dataBinding.tvSettle.apply {
-            isSelected = !isMap
-            //background = if(!isReservation)requireContext().getDrawable(R.drawable.background_s_b80_r24) else null
-            setTextColor(requireContext().getColor(if (!isMap) R.color.white else R.color.black_80))
-        }
         when (viewModel.mapShowState.value) {
             HomeTabViewModel.MapShow.GOOGLE_MAP -> {
                 googleMap?.mapType = if (isMap) GoogleMap.MAP_TYPE_NORMAL else GoogleMap.MAP_TYPE_SATELLITE
@@ -422,14 +393,6 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
             }
             HomeTabViewModel.MapShow.LOCAL_IMAGE -> Unit
         }
-    }
-
-    //구글맵
-    private fun moveIndicatorTo(target: View) {
-        val animator =
-            ObjectAnimator.ofFloat(dataBinding.tvIndicator, "translationX", target.x - 4.dpToPx())
-        animator.duration = 250
-        animator.start()
     }
 
     //구글맵

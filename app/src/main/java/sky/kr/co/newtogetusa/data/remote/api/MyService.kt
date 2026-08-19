@@ -1,10 +1,14 @@
 package sky.kr.co.newtogetusa.data.remote.api
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 import sky.kr.co.newtogetusa.data.remote.dto.my.NotificationResponseDto
@@ -61,9 +65,13 @@ interface MyService {
     suspend fun putOneOnOne(
     ):List<InquiryDto>
 
+    // iOS 대응: 1:1 문의 등록 (multipart — 첨부는 attaches 파일 파트 반복)
+    @Multipart
     @POST("/api/mys/v1/1n1")
     suspend fun postOneOnOne(
-        @Body request: HashMap<String, String>
+        @Part("inquiry") inquiry: RequestBody,
+        @Part("phone") phone: RequestBody,
+        @Part attaches: List<MultipartBody.Part>
     ): Boolean
 
     @DELETE("api/mys/v1/withdraw")

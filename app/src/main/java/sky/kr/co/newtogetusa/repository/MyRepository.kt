@@ -1,6 +1,9 @@
 package sky.kr.co.newtogetusa.repository
 
 import kotlinx.coroutines.Dispatchers
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import sky.kr.co.newtogetusa.data.remote.BaseNetRepo
 import sky.kr.co.newtogetusa.data.remote.api.MyService
 import sky.kr.co.newtogetusa.di.NetworkModule
@@ -50,8 +53,20 @@ class MyRepository @Inject constructor(
         apiService.putOneOnOne()
     }
 
-    suspend fun postOneOnOne(hashMap: HashMap<String, String>) = safeApiCall(Dispatchers.IO){
-        apiService.postOneOnOne(hashMap)
+    suspend fun postOneOnOne(inquiry: String, phone: String, imageBytesList: List<ByteArray>) = safeApiCall(Dispatchers.IO){
+        val textMime = "text/plain".toMediaType()
+        val attaches = imageBytesList.mapIndexed { index, bytes ->
+            MultipartBody.Part.createFormData(
+                "attaches",
+                "inquiry_$index.jpg",
+                bytes.toRequestBody("image/jpeg".toMediaType())
+            )
+        }
+        apiService.postOneOnOne(
+            inquiry = inquiry.toRequestBody(textMime),
+            phone = phone.toRequestBody(textMime),
+            attaches = attaches
+        )
     }
 
     suspend fun deleteWithdraw() = safeApiCall(Dispatchers.IO){

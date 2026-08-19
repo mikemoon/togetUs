@@ -28,7 +28,6 @@ class PlayerAreaSettingFragment :
     override val viewModel: ProfileManagementViewModel by viewModels()
 
     private val areas = mutableListOf<AreaEditUiModel>()
-    private val removedAreaIds = mutableListOf<Int>()
     private var originalGpsAlarmOn = false
 
     override fun init() {
@@ -83,8 +82,10 @@ class PlayerAreaSettingFragment :
                 area.dest = result
                 area.destRadius = areaRadius
             }
+            val wasIncomplete = area.areaId == null && !area.isComplete()
             area.addressChanged = true
-            if (areas.size == 1 && area.isComplete()) {
+            // 신규 코스는 출발지/도착지가 모두 채워지는 시점에 자동 ON (동시 ON 허용)
+            if (wasIncomplete && area.isComplete()) {
                 area.enable = true
             }
             render()
@@ -113,7 +114,6 @@ class PlayerAreaSettingFragment :
                 }
 
                 areas.clear()
-                removedAreaIds.clear()
                 profile.areas_basic.orEmpty()
                     .take(2)
                     .mapTo(areas) { it.toEditUiModel() }
@@ -157,15 +157,16 @@ class PlayerAreaSettingFragment :
 
     private fun toggleArea(index: Int) {
         val area = areas.getOrNull(index) ?: return
-        if (areas.size == 1) {
-            area.enable = true
-        } else {
-            if (!area.enable) {
-                area.enable = true
-                areas.forEachIndexed { i, item ->
-                    if (i != index) item.enable = false
-                }
+        // 여러 코스를 동시에 ON 할 수 있고, 최소 1개는 ON을 유지해야 한다
+        if (area.enable) {
+            val onCount = areas.count { it.enable }
+            if (onCount <= 1) {
+                requireContext().toast("매일 동행 코스는 최소 1개를 ON으로 유지해야 해요.")
+                return
             }
+            area.enable = false
+        } else {
+            area.enable = true
         }
         render()
     }
@@ -173,6 +174,7 @@ class PlayerAreaSettingFragment :
     private fun addSecondaryArea() {
         if (areas.size >= 2 || !areas.first().isComplete()) return
         areas.add(AreaEditUiModel())
+        ensureAtLeastOneAreaIsOn()
         render()
     }
 
@@ -180,19 +182,30 @@ class PlayerAreaSettingFragment :
         val area = areas.getOrNull(index) ?: return
         if (index == 0) return
 
-        fun removeLocalArea() {
-            area.areaId?.let { removedAreaIds.add(it) }
-            areas.removeAt(index)
-            normalizeEnabledAreas()
-            render()
-        }
-
         MessageDialog.newInstance(
             msg = "정말 삭제하시겠어요?",
             leftBtn = "아니오",
             rightBtn = "예"
         ).onRightBtn {
-            removeLocalArea()
+            // iOS와 동일: 서버 등록 항목은 즉시 삭제 API 호출, 미등록 항목은 로컬에서만 제거
+            val areaId = area.areaId
+            if (areaId == null || areaId <= 0) {
+                areas.removeAt(index)
+                ensureAtLeastOneAreaIsOn()
+                render()
+                requireContext().toast("삭제가 완료되었습니다.")
+            } else {
+                viewModel.deletePlayerArea(areaId) { success ->
+                    if (success) {
+                        areas.removeAt(index)
+                        ensureAtLeastOneAreaIsOn()
+                        render()
+                        requireContext().toast("삭제가 완료되었습니다.")
+                    } else {
+                        requireContext().toast("삭제에 실패했습니다.")
+                    }
+                }
+            }
         }.show(childFragmentManager, "DeleteAreaDialog")
     }
 
@@ -203,7 +216,7 @@ class PlayerAreaSettingFragment :
                 ProfileManagementViewModel.PlayerBasicAreaEdit(
                     areaId = it.areaId,
                     addressChanged = it.addressChanged,
-                    enableChanged = it.originalEnable != it.enable,
+                    originalEnable = it.originalEnable,
                     enable = it.enable,
                     depart = it.depart,
                     departRadius = it.departRadius,
@@ -211,13 +224,14 @@ class PlayerAreaSettingFragment :
                     destRadius = it.destRadius
                 )
             },
-            removedAreaIds = removedAreaIds
+            // iOS와 동일하게 삭제는 즉시 처리되므로 저장 시 삭제할 항목 없음
+            removedAreaIds = emptyList()
         ) { success ->
             if (success) {
-                requireContext().toast("동행 가능지역이 설정되었습니다.")
+                requireContext().toast("매일 동행이 설정되었습니다.")
                 findNavController().popBackStack()
             } else {
-                requireContext().toast("동행 가능지역 설정에 실패했습니다.")
+                requireContext().toast("매일 동행 설정에 실패했습니다.")
             }
         }
     }
@@ -238,13 +252,13 @@ class PlayerAreaSettingFragment :
         index: Int
     ) {
         if (area == null) {
-            binding.tvTitle.text = "매일 동행 ${if (index == 0) "①" else "②"} 코스"
+            binding.tvTitle.text = "매일 동행 코스 ${index + 1}"
             binding.tvOn.isSelected = false
             binding.tvOn.text = "OFF"
             return
         }
 
-        binding.tvTitle.text = "매일 동행 ${if (index == 0) "①" else "②"} 코스"
+        binding.tvTitle.text = "매일 동행 코스 ${index + 1}"
         binding.ivDelete.isVisible = index > 0
         binding.tvOn.isSelected = area.enable
         binding.tvOn.text = if (area.enable) "ON" else "OFF"
@@ -260,11 +274,9 @@ class PlayerAreaSettingFragment :
         binding.tvArriveRange.text = "${area.destRadius ?: 3}KM"
     }
 
-    private fun normalizeEnabledAreas() {
-        if (areas.size == 1) {
-            return
-        }
-        if (areas.none { it.enable }) {
+    // iOS ensureAtLeastOneAreaIsOn 대응: 전부 OFF가 되는 것만 막는다 (최소 1개 ON)
+    private fun ensureAtLeastOneAreaIsOn() {
+        if (areas.isNotEmpty() && areas.none { it.enable }) {
             areas.firstOrNull()?.enable = true
         }
     }
@@ -272,8 +284,9 @@ class PlayerAreaSettingFragment :
     private fun canSave(): Boolean {
         if (areas.any { !it.isComplete() }) return false
         if (areas.none { it.enable }) return false
-        return removedAreaIds.isNotEmpty() || areas.any {
-            it.areaId == null || it.addressChanged || it.originalEnable != it.enable
+        return areas.any {
+            (it.areaId == null && (it.depart != null || it.dest != null)) ||
+                it.addressChanged || it.originalEnable != it.enable
         }
     }
 
@@ -281,7 +294,7 @@ class PlayerAreaSettingFragment :
         AreaEditUiModel(
             areaId = player_area_id,
             originalEnable = use_yn == "Y",
-            enable = false,
+            enable = use_yn == "Y",
             depart = KakaoSearchModel(
                 name = depart_address.orEmpty(),
                 lat = depart_latitude,

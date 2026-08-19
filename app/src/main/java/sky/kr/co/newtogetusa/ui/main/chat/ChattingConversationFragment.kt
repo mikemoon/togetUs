@@ -160,6 +160,8 @@ class ChattingConversationFragment :
                 launch {
                     viewModel.isChatUnavailableFlow.collect { isUnavailable ->
                         setChatInputEnabled(!isUnavailable)
+                        // 거래가 굳은 방은 상단 거래상태 영역을 흐리게 표시 (iOS 대응)
+                        dataBinding.clProductInfo.alpha = if (isUnavailable) 0.4f else 1f
                     }
                 }
             }
@@ -275,6 +277,12 @@ class ChattingConversationFragment :
     }
 
     private fun openDeliveryDetail() {
+        // 거래가 굳은 방에서는 배송상세 진입 차단 (iOS 대응)
+        if (viewModel.isChatUnavailableFlow.value) {
+            requireContext().toast("거래가 종료되어 확인할 수 없어요.")
+            return
+        }
+
         val deliveryId = viewModel.deliveryIdFlow.value
         if (deliveryId <= 0L) {
             requireContext().toast("동행요청 정보를 확인할 수 없습니다.")

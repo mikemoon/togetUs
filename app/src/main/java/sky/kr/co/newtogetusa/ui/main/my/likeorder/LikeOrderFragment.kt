@@ -16,6 +16,7 @@ import sky.kr.co.newtogetusa.NavGraphDirections
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLikeOrderBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dpToPx
 
@@ -56,6 +57,12 @@ class LikeOrderFragment : BaseFragment<FragmentLikeOrderBinding, LikeOrderViewMo
                 launch {
                     viewModel.deliveryPagingData.collectLatest { pagingData ->
                         likeOrderAdapter.submitData(pagingData)
+                    }
+                }
+                // 동행 푸시 수신 시 목록 갱신 (iOS refreshDeliveryList 대응)
+                launch {
+                    DeliveryRefreshBus.listEvents.collect {
+                        likeOrderAdapter.refresh()
                     }
                 }
                 launch {

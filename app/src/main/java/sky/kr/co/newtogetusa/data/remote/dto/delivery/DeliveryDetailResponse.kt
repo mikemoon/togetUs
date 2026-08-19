@@ -29,7 +29,26 @@ data class DeliveryDetailResponse(
     val pay: List<PayDto>,
 
     val regist_date: String,
-    val apply_date: String?
+    val apply_date: String?,
+
+    // 유저 수령확인 여부
+    val is_confirm: Boolean = false,
+    val user_review: DeliveryReviewDto? = null,
+    val player_review: DeliveryReviewDto? = null,
+    val complete_picture: DeliveryProofPictureDto? = null
+) {
+    /** 동행완료 증빙이 존재하는지 (완료 촬영 URL 또는 촬영불가 사유코드).
+     *  false면 유저가 먼저 배송완료 처리한 케이스라 [동행 완료 촬영] 버튼을 노출해야 한다. */
+    val hasCompleteProof: Boolean
+        get() = !complete_picture?.complete_picture.isNullOrEmpty() ||
+            !complete_picture?.no_picture_cd.isNullOrEmpty()
+}
+
+// 픽업/동행완료 증빙 촬영 정보
+data class DeliveryProofPictureDto(
+    val pickup_picture: String? = null,
+    val complete_picture: String? = null,
+    val no_picture_cd: String? = null
 )
 
 data class AddressDto(

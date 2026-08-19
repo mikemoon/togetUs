@@ -17,6 +17,7 @@ import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomFilterDialog
 import sky.kr.co.newtogetusa.utils.VerticalSpaceItemDecoration
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -64,6 +65,15 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.deliveryRequestPagingData.collectLatest { pagingData ->
                     deliveryRequestSearchAdapter.submitData(pagingData)
+                }
+            }
+        }
+
+        // 동행 푸시 수신 시 목록 갱신 (iOS refreshDeliveryList 대응)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                DeliveryRefreshBus.listEvents.collect {
+                    deliveryRequestSearchAdapter.refresh()
                 }
             }
         }

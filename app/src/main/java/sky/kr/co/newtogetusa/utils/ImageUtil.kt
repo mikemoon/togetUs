@@ -37,6 +37,58 @@ object ImageUtil {
         )
     }
 
+    /**
+     * iOS uploadJpegData 공통 규격 대응:
+     * 장변 1280px (극단 비율 이미지는 단변 최소 720px 보장), JPEG 품질 0.7
+     * 모든 업로드 경로(증빙/채팅/문의/상품/프로필/계좌/플레이어신청)에서 사용.
+     */
+    fun uriToUploadJpeg(
+        context: Context,
+        uri: Uri,
+        maxSize: Int = 1280,
+        minShortSide: Int = 720,
+        quality: Int = 70
+    ): ByteArray? {
+        val bitmap = uriToBitmap(context, uri) ?: return null
+        val resized = resizeForUpload(bitmap, maxSize, minShortSide)
+        val output = ByteArrayOutputStream()
+        resized.compress(Bitmap.CompressFormat.JPEG, quality, output)
+        return output.toByteArray()
+    }
+
+    fun bitmapToUploadJpeg(
+        bitmap: Bitmap,
+        maxSize: Int = 1280,
+        minShortSide: Int = 720,
+        quality: Int = 70
+    ): ByteArray {
+        val resized = resizeForUpload(bitmap, maxSize, minShortSide)
+        val output = ByteArrayOutputStream()
+        resized.compress(Bitmap.CompressFormat.JPEG, quality, output)
+        return output.toByteArray()
+    }
+
+    private fun resizeForUpload(bitmap: Bitmap, maxSize: Int, minShortSide: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val longSide = maxOf(width, height)
+        if (longSide <= maxSize) return bitmap
+
+        val shortSide = minOf(width, height)
+        var scale = maxSize.toFloat() / longSide
+        // 극단 비율: 축소 후 단변이 720px 미만이면 단변 720px 기준으로 스케일 상향
+        if (shortSide * scale < minShortSide) {
+            scale = minShortSide.toFloat() / shortSide
+        }
+
+        return Bitmap.createScaledBitmap(
+            bitmap,
+            (width * scale).toInt().coerceAtLeast(1),
+            (height * scale).toInt().coerceAtLeast(1),
+            true
+        )
+    }
+
     fun uriListToPhotos(
         context: Context,
         uris: List<Uri>,

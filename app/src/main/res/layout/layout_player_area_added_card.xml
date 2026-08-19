@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="여행 동행 ① 코스"
+            android:text="여행 동행 코스 1"
             android:textColor="@color/black_80"
             app:layout_constraintEnd_toStartOf="@id/ivDelete"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,26 +56,13 @@
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
-            <!-- 픽업 가능일 -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- 여행 일정 -->
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph17B"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/calendar" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Paragraph17B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="여행 일정"
-                    android:textColor="@color/black_80" />
-            </LinearLayout>
+                android:text="여행 일정"
+                android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvDateSelect"
@@ -100,118 +87,14 @@
                 android:visibility="gone"
                 tools:text="2026.08.01 - 2026.08.15" />
 
-            <!-- 픽업 가능 (출발지) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/pin_fill_primary" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Paragraph17B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="픽업 지역"
-                    android:textColor="@color/black_80" />
-            </LinearLayout>
-
+            <!-- 여행 지역 (도착지). 출발지는 입력받지 않음 — 서버가 산출 -->
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvDepartSelect"
-                style="@style/Paragraph17R"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:gravity="center"
-                android:text="선택"
+                style="@style/Paragraph17B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="여행 지역"
                 android:textColor="@color/black_80" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clDepart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/background_s_b5_r4"
-                android:padding="12dp"
-                android:visibility="gone">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvDepartTitle"
-                    style="@style/Paragraph17B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="출발지"
-                    android:textColor="@color/black_80"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvDepartValue"
-                    style="@style/Paragraph17R"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:gravity="end"
-                    android:textColor="@color/black_80"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvDepartTitle"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="서울 강서구 공항대로 지하 631" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvDepartRangeTitle"
-                    style="@style/Paragraph17B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="서비스 반경"
-                    android:textColor="@color/black_80"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvDepartTitle" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvDepartRange"
-                    style="@style/Paragraph17R"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:gravity="end"
-                    android:textColor="@color/black_80"
-                    app:layout_constraintBottom_toBottomOf="@id/tvDepartRangeTitle"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvDepartRangeTitle"
-                    app:layout_constraintTop_toTopOf="@id/tvDepartRangeTitle"
-                    tools:text="3KM" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 도착 가능 (도착지) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/pin_fill_primary40" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Paragraph17B"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="도착 지역"
-                    android:textColor="@color/black_80" />
-            </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvArriveSelect"
@@ -238,7 +121,7 @@
                     style="@style/Paragraph17B"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="출발지"
+                    android:text="주소"
                     android:textColor="@color/black_80"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

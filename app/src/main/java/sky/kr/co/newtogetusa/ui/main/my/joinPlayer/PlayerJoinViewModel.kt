@@ -200,7 +200,8 @@ class PlayerJoinViewModel @Inject constructor(
         startAreaRadius2.value = null
         destArea2.value = null
         destAreaRadius2.value = null
-        updateArea2On()
+        area2On.value = false
+        area2Complete = false
     }
 
     private fun updateStep1NextButtonState() {
@@ -209,11 +210,11 @@ class PlayerJoinViewModel @Inject constructor(
     }
 
     private fun updateStep2NextButtonState() {
+        // 기획: 다음 버튼 활성 조건 = 은행 선택 & 계좌번호 숫자 7자리 이상 (예금주는 조건에 포함하지 않음)
         val bankOk = selectedBank.value != null
-        val accountOk = !accountNumber.value.isNullOrBlank()
-        val nameOk = !depositorName.value.isNullOrBlank()
+        val accountDigits = accountNumber.value?.count { it.isDigit() } ?: 0
 
-        enableStep2Next.value = bankOk && accountOk && nameOk
+        enableStep2Next.value = bankOk && accountDigits >= 7
     }
 
 
@@ -294,21 +295,39 @@ class PlayerJoinViewModel @Inject constructor(
     }
 
     fun updateArea1On(){
-        area1On.value = (
-            startArea.value != null &&
-                startAreaRadius.value != null &&
-                destArea.value != null &&
-                destAreaRadius.value != null
-            )
+        val complete = startArea.value != null &&
+            startAreaRadius.value != null &&
+            destArea.value != null &&
+            destAreaRadius.value != null
+        // 코스가 완성되는 시점에 자동으로 ON (동시 ON 허용)
+        if (complete && !area1Complete) area1On.value = true
+        area1Complete = complete
     }
 
     fun updateArea2On(){
-        area2On.value = (
-            startArea2.value != null &&
-                startAreaRadius2.value != null &&
-                destArea2.value != null &&
-                destAreaRadius2.value != null
-            )
+        val complete = startArea2.value != null &&
+            startAreaRadius2.value != null &&
+            destArea2.value != null &&
+            destAreaRadius2.value != null
+        if (complete && !area2Complete) area2On.value = true
+        area2Complete = complete
+    }
+
+    private var area1Complete = false
+    private var area2Complete = false
+
+    // 여러 코스를 동시에 ON 할 수 있고, 최소 1개는 ON을 유지해야 한다
+    fun onAreaOnToggle(index: Int) {
+        val current = if (index == 1) area1On.value else area2On.value
+        if (current) {
+            val onCount = (if (area1On.value) 1 else 0) +
+                (if (addArea.value == true && area2On.value) 1 else 0)
+            if (onCount <= 1) {
+                _event.value = Event.ShowMessage("매일 동행 코스는 최소 1개를 ON으로 유지해야 해요.")
+                return
+            }
+        }
+        if (index == 1) area1On.value = !current else area2On.value = !current
     }
 
 
@@ -384,9 +403,9 @@ class PlayerJoinViewModel @Inject constructor(
     }
 
     private fun restoreAreas(areas: List<AreaDto>) {
-        val enabledAreas = areas.filter { it.use_yn != "N" }
-        restorePrimaryArea(enabledAreas.getOrNull(0))
-        restoreSecondaryArea(enabledAreas.getOrNull(1))
+        // OFF 코스도 복원한다 (사용자가 끈 상태 그대로)
+        restorePrimaryArea(areas.getOrNull(0))
+        restoreSecondaryArea(areas.getOrNull(1))
     }
 
     private fun PlayerApplyedInfoDto.resumeStep(): Int {
@@ -408,8 +427,9 @@ class PlayerJoinViewModel @Inject constructor(
         destArea.value = area.toDestSearchModel()
         destAreaRadius.value = area.dest_range
         area1Changed.value = false
+        area1Complete = true
+        area1On.value = area.use_yn == "Y"
         updateAddAreaBtn()
-        updateArea1On()
     }
 
     private fun restoreSecondaryArea(area: AreaDto?) {
@@ -422,7 +442,8 @@ class PlayerJoinViewModel @Inject constructor(
         destArea2.value = area.toDestSearchModel()
         destAreaRadius2.value = area.dest_range
         area2Changed.value = false
-        updateArea2On()
+        area2Complete = true
+        area2On.value = area.use_yn == "Y"
     }
 
     private fun AreaDto.toDepartSearchModel(): KakaoSearchModel =
@@ -595,7 +616,6 @@ class PlayerJoinViewModel @Inject constructor(
         return when {
             selectedBank.value == null -> "은행을 선택해 주세요."
             accountNumber.value.isNullOrBlank() -> "계좌번호를 입력해 주세요."
-            depositorName.value.isNullOrBlank() -> "예금주를 입력해 주세요."
             profileFile.value == null && !hasStoredProfileImage() -> "프로필 사진을 등록해 주세요."
             introduceText.value.isNullOrBlank() -> "자기소개를 입력해 주세요."
             criminalFile.value == null && !hasStoredCriminalRecord() -> "범죄경력회보서를 등록해 주세요."
@@ -617,6 +637,7 @@ class PlayerJoinViewModel @Inject constructor(
 
     private fun createAreaRequest(
         areaId: Int? = null,
+        enable: Boolean = true,
         start: KakaoSearchModel,
         startRadius: Int,
         dest: KakaoSearchModel,
@@ -625,7 +646,7 @@ class PlayerJoinViewModel @Inject constructor(
         PlayerAreaAddRequest(
             area_id = areaId,
             is_domestic = true,
-            enable = true,
+            enable = enable,
             depart = PlayerAreaLocationRequest(
                 address = start.name,
                 address2 = start.roadAddress.orEmpty(),
@@ -643,14 +664,12 @@ class PlayerJoinViewModel @Inject constructor(
         )
 
     private suspend fun savePrimaryArea(playerId: Int): Boolean {
-        val currentAreaId = areaId1.value
-        if (currentAreaId != null && !area1Changed.value) return true
-
-        if (currentAreaId != null && !deleteArea(playerId, currentAreaId)) return false
-
+        // iOS와 동일: area_id가 있으면 수정(417), 삭제 후 재등록하지 않는다. enable도 함께 전송.
         val areaResult = playerRepository.postPlayerArea(
             playerId = playerId,
             request = createAreaRequest(
+                areaId = areaId1.value,
+                enable = area1On.value,
                 start = startArea.value ?: return false,
                 startRadius = startAreaRadius.value ?: return false,
                 dest = destArea.value ?: return false,
@@ -670,14 +689,11 @@ class PlayerJoinViewModel @Inject constructor(
     private suspend fun saveSecondaryAreaIfNeeded(playerId: Int): Boolean {
         if (addArea.value != true || startArea2.value == null || destArea2.value == null) return true
 
-        val currentAreaId = areaId2.value
-        if (currentAreaId != null && !area2Changed.value) return true
-
-        if (currentAreaId != null && !deleteArea(playerId, currentAreaId)) return false
-
         val areaResult = playerRepository.postPlayerArea(
             playerId = playerId,
             request = createAreaRequest(
+                areaId = areaId2.value,
+                enable = area2On.value,
                 start = startArea2.value ?: return false,
                 startRadius = startAreaRadius2.value ?: return false,
                 dest = destArea2.value ?: return false,
@@ -829,5 +845,7 @@ class PlayerJoinViewModel @Inject constructor(
 
         object StartArea2 : Event()
         object DestinaitonArea2 : Event()
+
+        data class ShowMessage(val message: String) : Event()
     }
 }

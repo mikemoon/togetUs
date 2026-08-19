@@ -228,14 +228,15 @@ class AskFragment : BaseFragment<FragmentAskBinding, AskViewModel>() {
         dataBinding.tvSubmit.setOnClickListener {
             if (!isFormValid()) return@setOnClickListener
 
-            val imageBase64 = selectedImageUri?.let { uri ->
-                ImageUtil.uriListToPhotos(requireContext(), listOf(uri)).firstOrNull()?.base64
+            // iOS 공통 규격: 장변 1280px, JPEG 0.7
+            val imageBytes = selectedImageUri?.let { uri ->
+                ImageUtil.uriToUploadJpeg(requireContext(), uri)
             }
 
             viewModel.postOneOnOne(
                 content = dataBinding.etContent.text?.toString()?.trim().orEmpty(),
                 phone = dataBinding.etPhone.text?.toString()?.trim().orEmpty(),
-                imageBase64 = imageBase64
+                imageBytes = imageBytes
             ){ result ->
                 if(result){
                     findNavController().popBackStack()

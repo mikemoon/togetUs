@@ -100,6 +100,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             ButtonState.PlayerCancelSupport -> _event.value = Event.ConfirmCancelSupport
             ButtonState.PlayerPickupReady -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "pickup")
             ButtonState.PlayerDeliveryProgress -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
+            ButtonState.PlayerCompleteShooting -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
+            ButtonState.WaitUserConfirm -> Unit   // 유저 수령확인 대기 (비활성)
             ButtonState.PlayerDone -> _event.value = Event.OpenReport(isPlayer = true)
             ButtonState.RequesterRegister -> _event.value = Event.Modify
             ButtonState.RequesterMatchBefore -> _event.value = Event.ModifyFee
@@ -281,7 +283,13 @@ class PlayerHistoryDetailViewModel @Inject constructor(
                 }
                 "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART" -> ButtonState.PlayerPickupReady
                 "DELIVERY_ING" -> ButtonState.PlayerDeliveryProgress
-                "DONE", "DONE_END", "DELIVERY_END" -> ButtonState.PlayerDone
+                "DONE", "DONE_END", "DELIVERY_END" -> when {
+                    // 완료 증빙이 없음 = 유저가 먼저 완료처리한 케이스 → 촬영 버튼
+                    !detail.hasCompleteProof -> ButtonState.PlayerCompleteShooting
+                    // 촬영은 했지만 유저 수령확인 전 → 비활성 안내 버튼
+                    !detail.is_confirm -> ButtonState.WaitUserConfirm
+                    else -> ButtonState.PlayerDone
+                }
                 else -> ButtonState.Hidden
             }
             else -> ButtonState.Hidden
@@ -424,6 +432,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         PlayerCancelSupport(primaryText = "지원 취소", secondaryText = "채팅하기", showSecondary = true),
         PlayerPickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
         PlayerDeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
+        PlayerCompleteShooting(primaryText = "동행 완료 촬영", secondaryText = "채팅하기", showSecondary = true),
+        WaitUserConfirm(primaryText = "유저 수령 확인중", secondaryText = "", showSecondary = false),
         PlayerDone(primaryText = "등록하기", secondaryText = "", showSecondary = false),
         RequesterRegister(primaryText = "수정하기", secondaryText = "삭제하기", showSecondary = true),
         RequesterMatchBefore(primaryText = "추가금액수정", secondaryText = "취소하기", showSecondary = true),

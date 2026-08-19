@@ -92,6 +92,18 @@ class PlayerHistoryDetailFragment :
         dataBinding.viewModel = viewModel
 
         viewModel.getDeliveryDetailInfo(args.deliveryId)
+
+        // 동행 푸시 수신 시 같은 건을 보고 있으면 상세 재조회 (iOS refreshDeliveryInfo 대응)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus.detailEvents.collect { id ->
+                    if (id == args.deliveryId) {
+                        viewModel.getDeliveryDetailInfo(id)
+                    }
+                }
+            }
+        }
+
         setupMap()
         setupBottomSheet()
         setupPhotos()
@@ -184,7 +196,8 @@ class PlayerHistoryDetailFragment :
 
                         if (
                             buttonState == PlayerHistoryDetailViewModel.ButtonState.PlayerDone ||
-                            buttonState == PlayerHistoryDetailViewModel.ButtonState.RequesterDone
+                            buttonState == PlayerHistoryDetailViewModel.ButtonState.RequesterDone ||
+                            buttonState == PlayerHistoryDetailViewModel.ButtonState.WaitUserConfirm
                         ) {
                             dataBinding.tvBottomPrimaryButton.setBackgroundResource(R.drawable.background_s_b5_r4)
                             dataBinding.tvBottomPrimaryButton.setTextColor(
@@ -196,6 +209,10 @@ class PlayerHistoryDetailFragment :
                                 ContextCompat.getColor(requireContext(), R.color.white)
                             )
                         }
+
+                        // 유저 수령확인 대기 버튼은 비활성
+                        dataBinding.tvBottomPrimaryButton.isEnabled =
+                            buttonState != PlayerHistoryDetailViewModel.ButtonState.WaitUserConfirm
                     }
                 }
             }

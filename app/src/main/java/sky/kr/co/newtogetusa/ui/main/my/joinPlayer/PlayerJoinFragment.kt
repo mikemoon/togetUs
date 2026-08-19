@@ -425,6 +425,9 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                         PlayerJoinFragmentDirections.actionPlayerJoinFragment2ToPlayerJoinSearchFragment(false, true)
                     findNavController().navigate(action)
                 }
+                is PlayerJoinViewModel.Event.ShowMessage ->{
+                    requireContext().toast(it.message)
+                }
                 PlayerJoinViewModel.Event.Complete ->{
                     val playerId = viewModel.playerApplyedInfo.value?.player_id
                     if (playerId == null) {
