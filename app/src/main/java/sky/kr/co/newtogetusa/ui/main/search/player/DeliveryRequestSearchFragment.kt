@@ -1,11 +1,13 @@
 package sky.kr.co.newtogetusa.ui.main.search.player
 
 import android.net.Uri
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -65,6 +67,17 @@ class DeliveryRequestSearchFragment : BaseFragment<FragmentDeliveryRequestSearch
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.deliveryRequestPagingData.collectLatest { pagingData ->
                     deliveryRequestSearchAdapter.submitData(pagingData)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                deliveryRequestSearchAdapter.loadStateFlow.collectLatest { loadStates ->
+                    val isEmpty = deliveryRequestSearchAdapter.itemCount == 0 &&
+                        loadStates.refresh is LoadState.NotLoading
+                    dataBinding.llEmpty.isVisible = isEmpty
+                    dataBinding.rv.isVisible = !isEmpty
                 }
             }
         }
