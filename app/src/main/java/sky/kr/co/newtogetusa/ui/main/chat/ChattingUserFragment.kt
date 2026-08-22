@@ -3,6 +3,7 @@ package sky.kr.co.newtogetusa.ui.main.chat
 import android.graphics.Typeface
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -38,8 +39,10 @@ class ChattingUserFragment @Inject constructor(
         setupFilterTabs()
         chatAdapter = ChattingPlayerAdapter { item ->
             findNavController().navigate(
-                ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment(
-                    item.roomId.toLong()
+                R.id.action_global_chattingConversationFragment,
+                bundleOf(
+                    "roomId" to item.roomId.toLong(),
+                    "isPlayerRoom" to false
                 )
             )
         }

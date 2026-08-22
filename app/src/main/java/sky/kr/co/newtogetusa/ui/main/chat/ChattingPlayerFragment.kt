@@ -2,6 +2,7 @@ package sky.kr.co.newtogetusa.ui.main.chat
 
 import android.graphics.Typeface
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -60,9 +61,10 @@ class ChattingPlayerFragment : BaseFragment<FragmentChattingPlayerBinding, Chatt
                 is ChattingPlayerViewModel.Event.ChattingSelect ->{
                     Timber.d("ChattingSel")
                     findNavController().navigate(
-                        ChattingTabFragmentDirections.actionChattingTabFragmentToChattingConversationFragment(
-                            event.item.roomId.toLong(),
-                            true
+                        R.id.action_global_chattingConversationFragment,
+                        bundleOf(
+                            "roomId" to event.item.roomId.toLong(),
+                            "isPlayerRoom" to true
                         )
                     )
                 }

@@ -34,10 +34,48 @@ class TakePhotoVM @Inject constructor(
         val address: String?
     )
 
+    data class TargetLocation(
+        val latitude: Double,
+        val longitude: Double
+    )
+
     val showRetakeButtons = MutableLiveData(false)
     val capturedPhotoMeta = MutableLiveData<CapturedPhotoMeta?>(null)
+    val overlayText = MutableLiveData(DEFAULT_NOTICE)
+    val targetLocation = MutableLiveData<TargetLocation?>(null)
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
+
+    fun loadDeliveryInfo(deliveryId: Long, proofType: String) = viewModelScope.launch {
+        if (deliveryId <= 0L) return@launch
+
+        when (val res = deliveryRepository.getDeliveryDetail(deliveryId)) {
+            is ResultWrapper.Success -> {
+                val detail = res.data
+                val target = if (proofType == PROOF_PICKUP) detail.depart else detail.dest
+                targetLocation.value = TargetLocation(
+                    latitude = target.latitude,
+                    longitude = target.longitude
+                )
+                val targetAddress = if (proofType == PROOF_PICKUP) {
+                    listOf(detail.depart.address, detail.depart.address2)
+                } else {
+                    listOf(detail.dest.address, detail.dest.address2)
+                }.mapNotNull { it?.trim()?.takeIf(String::isNotBlank) }
+                    .joinToString(" ")
+
+                overlayText.value = if (targetAddress.isBlank()) {
+                    DEFAULT_NOTICE
+                } else {
+                    "$DEFAULT_NOTICE\n$targetAddress"
+                }
+            }
+            else -> {
+                targetLocation.value = null
+                overlayText.value = DEFAULT_NOTICE
+            }
+        }
+    }
 
     fun setRetakeMode(enable: Boolean) {
         showRetakeButtons.value = enable
@@ -51,6 +89,15 @@ class TakePhotoVM @Inject constructor(
             address = address
         )
         showRetakeButtons.value = true
+    }
+
+    fun updateCapturedLocation(latitude: Double?, longitude: Double?, address: String?) {
+        val current = capturedPhotoMeta.value ?: return
+        capturedPhotoMeta.value = current.copy(
+            latitude = latitude,
+            longitude = longitude,
+            address = address
+        )
     }
 
     fun uploadCapturedPhoto(deliveryId: Long, proofType: String) = viewModelScope.launch {
@@ -102,5 +149,6 @@ class TakePhotoVM @Inject constructor(
     companion object {
         const val PROOF_PICKUP = "pickup"
         const val PROOF_COMPLETE = "complete"
+        private const val DEFAULT_NOTICE = "상품과 동행자가 잘 보이게 촬영해 주세요."
     }
 }

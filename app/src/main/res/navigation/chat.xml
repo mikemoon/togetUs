@@ -14,6 +14,9 @@
     </fragment>
 
 
+    <!-- Conversation and its detail destinations are declared in nav_graph.xml so
+         they can be opened from history and push navigation as well. -->
+    <!--
     <fragment
         android:id="@+id/chattingConversationFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationFragment"
@@ -70,14 +73,5 @@
             <argument android:name="reason" app:argType="string" />
         </action>
     </fragment>
-    <fragment
-        android:id="@+id/chattingReportDetailFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportDetailFragment"
-        android:label="ChattingReportDetailFragment" >
-        <argument android:name="roomId" app:argType="long" />
-        <argument android:name="reasonType" app:argType="integer" />
-        <argument android:name="reason" app:argType="string" />
-    </fragment>
-
-
+    -->
 </navigation>

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentChatInProgressBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -23,7 +24,17 @@ class ChatInProgressFragment : BaseFragment<FragmentChatInProgressBinding, ChatI
     private val args: ChatInProgressFragmentArgs by navArgs()
     private val chatAdapter = ChatInProgressAdapter(
         onClick = { viewModel.onRoomClick(it.roomId) },
-        onSelect = { viewModel.selectPlayer(args.deliveryId, it.playerId) },
+        onSelect = { item ->
+            // iOS와 동일: 선택 확인 팝업 후 결제화면으로 이동
+            MessageDialog.newInstance(
+                msgTitle = "플레이어 선택",
+                msg = "${item.playerProfile?.nickname.orEmpty()}님을 플레이어로 선택하시겠어요?\n확인 버튼 클릭 시 결제화면으로 이동합니다.",
+                leftBtn = "취소",
+                rightBtn = "확인"
+            ).onRightBtn {
+                viewModel.selectPlayer(args.deliveryId, item.playerId)
+            }.show(childFragmentManager, "SelectPlayerDialog")
+        },
         onReject = { viewModel.rejectApply(args.deliveryId, it.playerId) },
         onCancelSuggest = { viewModel.cancelSuggest(args.deliveryId, it.playerId) }
     )

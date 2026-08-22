@@ -169,9 +169,8 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                 }
                 is HistoryViewModel.MenuButton.MenuDeliveryStatus -> {
                     findNavController().navigate(
-                        HistoryFragmentDirections.actionHistoryFragmentToDeliveryStatusFragment(
-                            menuAction.item.delivery_id
-                        )
+                        R.id.action_global_deliveryStatusFragment,
+                        bundleOf("deliveryId" to menuAction.item.delivery_id)
                     )
                 }
                 is HistoryViewModel.MenuButton.MenuChat -> {
@@ -188,6 +187,22 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding, HistoryViewModel>()
                             false
                         )
                     )
+                }
+                is HistoryViewModel.MenuButton.MenuReceivedReview -> {
+                    findNavController().navigate(
+                        R.id.sentReviewFragment,
+                        bundleOf(
+                            "deliveryId" to menuAction.item.delivery_id,
+                            "isPlayer" to false
+                        )
+                    )
+                }
+                is HistoryViewModel.MenuButton.MenuConfirmReceipt -> {
+                    ReceiveConfirmDialog()
+                        .onConfirm {
+                            viewModel.confirmRequesterReceipt(menuAction.item)
+                        }
+                        .show(childFragmentManager, "ConfirmReceiptDialog")
                 }
                 is HistoryViewModel.MenuButton.MenuRefresh -> {
                     requireContext().toast(menuAction.message)

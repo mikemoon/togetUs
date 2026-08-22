@@ -40,6 +40,7 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     val unreadNotificationCount = MutableStateFlow(0)
     val unreadNotificationText = MutableStateFlow("")
     val locationAlarmOn = MutableStateFlow(false)
+    val isHomeRefreshing = MutableStateFlow(false)
     private var hasHomeRefreshStarted = false
 
     init {
@@ -76,7 +77,34 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     val doingDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
     val registeredDeliveryList = MutableStateFlow<List<DeliverySummaryDto>?>(null)
 
-    fun postDeliverySearch(deliverySearchReq: DeliverySearchReq) = viewModelScope.launch {
+    private suspend fun postUserDeliverySearch(type: String): List<DeliverySummaryDto>? {
+        val res = deliveryRepo.postDeliverySearch(
+            DeliverySearchReq(
+                type = type,
+                title = "",
+                page_no = 0
+            )
+        )
+        return when (res) {
+            is ResultWrapper.Success -> res.data.deliveries.map { it.apply { setUiValue() } }
+            else -> null
+        }
+    }
+
+    private suspend fun postDeliverySearch() {
+        val deliveryList = postUserDeliverySearch("DELIVERY")
+        val matchList = postUserDeliverySearch("MATCH")
+
+        if (deliveryList != null) {
+            doingDeliveryList.value = deliveryList.filter { it.status_cd in USER_HOME_PROGRESS_STATUSES }
+        }
+
+        if (matchList != null) {
+            registeredDeliveryList.value = matchList.filter { it.status_cd.startsWith("MATCH") }
+        }
+    }
+
+    private suspend fun postDeliverySearchLegacy(deliverySearchReq: DeliverySearchReq) {
         val res = deliveryRepo.postDeliverySearch(deliverySearchReq)
         when(res){
             is ResultWrapper.Success ->{
@@ -85,7 +113,7 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
                 }
 
                 val deliveryList = res.data.deliveries.filter {
-                    it.status_cd.startsWith("DELIVERY")
+                    it.status_cd in USER_HOME_PROGRESS_STATUSES
                 }
 
                 registeredDeliveryList.value = matchList.map { it.apply { setUiValue() }}
@@ -101,10 +129,10 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
     val doingPlayerDeliveryHasMore = MutableStateFlow(false)
     val applyDeliveryHasMore = MutableStateFlow(false)
 
-    private fun postPlayerDeliverySearch(
+    private suspend fun postPlayerDeliverySearch(
         type: String,
         onSuccess: (List<DeliverySummaryDto>, Boolean) -> Unit
-    ) = viewModelScope.launch {
+    ) {
         val deliverySearchReq = DeliverySearchReq(
             type = type,
             title = "",
@@ -123,50 +151,47 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
                     .map { it.apply { setUiValue() } }
                 onSuccess(deliveries, res.data.has_more)
             }
-            is ResultWrapper.NetworkError ->{
-                onSuccess(emptyList(), false)
-            }
-            is ResultWrapper.GenericError ->{
-                onSuccess(emptyList(), false)
-            }
+            is ResultWrapper.NetworkError -> Unit
+            is ResultWrapper.GenericError -> Unit
         }
     }
 
     fun refreshHome() = viewModelScope.launch {
+        if (isHomeRefreshing.value) return@launch
+        isHomeRefreshing.value = true
         hasHomeRefreshStarted = true
-        val isPlayerMode = dataStoreRepository.getBoolean(DataStoreKey.KEY_IS_MODE_PLAYER) ?: false
-        isModePlayer.value = isPlayerMode
+        try {
+            val isPlayerMode = dataStoreRepository.getBoolean(DataStoreKey.KEY_IS_MODE_PLAYER) ?: false
+            isModePlayer.value = isPlayerMode
 
-        val request = DeliverySearchReq(
-            type = "DELIVERY|MATCH",
-            title = "",
-            page_no = 0
-        )
-        if (isPlayerMode) {
-            doingDeliveryList.value = emptyList()
-            registeredDeliveryList.value = emptyList()
-            syncLocationAlarmState()
-            postPlayerDeliverySearch("DELIVERY") { list, hasMore ->
-                doingPlayerDeliveryHasMore.value = hasMore
-                doingPlayerDeliveryList.value = list
+            if (isPlayerMode) {
+                doingDeliveryList.value = emptyList()
+                registeredDeliveryList.value = emptyList()
+                syncLocationAlarmState()
+                postPlayerDeliverySearch("DELIVERY") { list, hasMore ->
+                    doingPlayerDeliveryHasMore.value = hasMore
+                    doingPlayerDeliveryList.value = list
+                }
+                postPlayerDeliverySearch("MATCH") { list, hasMore ->
+                    applyDeliveryHasMore.value = hasMore
+                    applyDeliveryList.value = list
+                }
+                postPlayerDeliverySearch("ENABLE") { list, _ ->
+                    availableDeliveryList.value = list
+                }
+            } else {
+                doingPlayerDeliveryList.value = emptyList()
+                applyDeliveryList.value = emptyList()
+                availableDeliveryList.value = emptyList()
+                doingPlayerDeliveryHasMore.value = false
+                applyDeliveryHasMore.value = false
+                postDeliverySearch()
             }
-            postPlayerDeliverySearch("MATCH") { list, hasMore ->
-                applyDeliveryHasMore.value = hasMore
-                applyDeliveryList.value = list
-            }
-            postPlayerDeliverySearch("ENABLE") { list, _ ->
-                availableDeliveryList.value = list
-            }
-        } else {
-            doingPlayerDeliveryList.value = emptyList()
-            applyDeliveryList.value = emptyList()
-            availableDeliveryList.value = emptyList()
-            doingPlayerDeliveryHasMore.value = false
-            applyDeliveryHasMore.value = false
-            postDeliverySearch(request)
+            getBanners()
+            getNotificationUnreadCount()
+        } finally {
+            isHomeRefreshing.value = false
         }
-        getBanners()
-        getNotificationUnreadCount()
     }
 
     private fun syncLocationAlarmState() = viewModelScope.launch {
@@ -286,5 +311,19 @@ class HomeTabViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDe
         LOCAL_IMAGE,
         KAKAO_MAP,
         GOOGLE_MAP
+    }
+
+    private companion object {
+        private val USER_HOME_PROGRESS_STATUSES = setOf(
+            "DELIVERY_BEFORE",
+            "DELIVERY_WAIT",
+            "DELIVERY_START",
+            "PICKUP_START",
+            "DELIVERY_DEPART",
+            "DELIVERY_ING",
+            "ING",
+            "ING_START",
+            "ING_DELIVERY"
+        )
     }
 }

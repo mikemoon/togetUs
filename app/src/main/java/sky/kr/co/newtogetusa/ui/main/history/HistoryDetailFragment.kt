@@ -13,7 +13,10 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -53,6 +56,7 @@ import sky.kr.co.newtogetusa.repository.DirectionsRepository
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomMoreDialog
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.dialog.message.ReceiveConfirmDialog
 import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRequestSharedViewModel
 import sky.kr.co.newtogetusa.ui.main.home.HomeTabViewModel
 import sky.kr.co.newtogetusa.utils.HorizontalItemSpacingDecoration
@@ -125,6 +129,9 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
         }
 
         checkLocationPermission()
+        dataBinding.tvDeliveryStatusButton.setOnClickListener {
+            openDeliveryStatus()
+        }
         if (viewModel.mapShowState.value == HomeTabViewModel.MapShow.GOOGLE_MAP) {
             setupGoogleMap()
         } else {
@@ -154,6 +161,8 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 )
             )
         }
+        setupScrollInsets()
+
         val sheet = dataBinding.bottomSheet
         val behavior = BottomSheetBehavior.from(sheet)
         behavior.isFitToContents = false
@@ -243,6 +252,16 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 )
             )
         }
+    }
+
+    private fun setupScrollInsets() {
+        val baseBottomPadding = 76.dpToPx()
+        ViewCompat.setOnApplyWindowInsetsListener(dataBinding.scrollContent) { view, insets ->
+            val navigationBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            view.updatePadding(bottom = baseBottomPadding + navigationBottom)
+            insets
+        }
+        ViewCompat.requestApplyInsets(dataBinding.scrollContent)
     }
 
     override fun initObserver() {
@@ -338,11 +357,31 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                     openDeliveryFeeEdit(viewModel.deliveryDetail.value?.delivery_id ?: return@observe)
                 }
 
+                is HistoryDetailViewModel.Event.OpenChatRoom -> {
+                    findNavController().navigate(
+                        R.id.action_global_chattingConversationFragment,
+                        bundleOf("roomId" to event.roomId, "isPlayerRoom" to event.isPlayerRoom)
+                    )
+                }
+
+                HistoryDetailViewModel.Event.ChatOpenFailed -> {
+                    requireContext().toast("채팅방을 불러오지 못했습니다.")
+                }
+
                 HistoryDetailViewModel.Event.ChatInProgress -> {
                     openChatInProgress(isSelectMode = false)
                 }
+
             }
         }
+    }
+
+    private fun openDeliveryStatus() {
+        val deliveryId = viewModel.deliveryDetail.value?.delivery_id ?: return
+        findNavController().navigate(
+            R.id.action_historyDetailFragment_to_deliveryStatusFragment,
+            bundleOf("deliveryId" to deliveryId)
+        )
     }
 
     private fun openChatInProgress(isSelectMode: Boolean) {
@@ -542,7 +581,62 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                         marginStart = 0
                     }
                     setOnClickListener {
-                        openChatInProgress(isSelectMode = false)
+                        // 플레이어 선택 모드로 진입 (거절/선택 버튼 표시)
+                        openChatInProgress(isSelectMode = true)
+                    }
+                }
+            }
+
+            "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_ING" -> {
+                llBottomButtonContainer.visibility = View.VISIBLE
+                vBottomDivider.visibility = View.VISIBLE
+                tvBottomSecondaryButton.visibility = View.GONE
+
+                tvBottomPrimaryButton.apply {
+                    text = "채팅하기"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    setBackgroundResource(R.drawable.background_s_p100_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = ViewGroup.LayoutParams.MATCH_PARENT
+                        weight = 0f
+                        marginStart = 0
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.openChat()
+                    }
+                }
+            }
+
+            "DELIVERY_START" -> {
+                llBottomButtonContainer.visibility = View.VISIBLE
+                vBottomDivider.visibility = View.VISIBLE
+
+                tvBottomSecondaryButton.apply {
+                    visibility = View.VISIBLE
+                    text = "채팅하기"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black_80))
+                    setBackgroundResource(R.drawable.background_s_b5_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = 0
+                        weight = 1f
+                        marginEnd = 0
+                    }
+                    setOnClickListener {
+                        this@HistoryDetailFragment.viewModel.openChat()
+                    }
+                }
+
+                tvBottomPrimaryButton.apply {
+                    text = "픽업확인"
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    setBackgroundResource(R.drawable.background_s_p100_r4)
+                    (layoutParams as LinearLayout.LayoutParams).apply {
+                        width = 0
+                        weight = 2f
+                        marginStart = 12.dpToPx()
+                    }
+                    setOnClickListener {
+                        confirmPickup()
                     }
                 }
             }
@@ -568,10 +662,123 @@ class HistoryDetailFragment : BaseFragment<FragmentHistoryDetailBinding, History
                 }
             }
 
+            "DELIVERY_END", "DONE", "DONE_END", "DONE_DELIVERY" -> {
+                val detail = this@HistoryDetailFragment.viewModel.deliveryDetail.value
+                when {
+                    detail?.is_confirm == false -> {
+                        showSingleBottomButton("수령확인") {
+                            confirmReceipt()
+                        }
+                    }
+
+                    detail?.user_review == null -> {
+                        showSingleBottomButton("후기 작성하기") {
+                            openDeliveryReview()
+                        }
+                    }
+
+                    else -> {
+                        showSingleBottomButton("보낸 후기 보기") {
+                            openSentReview()
+                        }
+                    }
+                }
+            }
+
             else -> {
                 llBottomButtonContainer.visibility = View.GONE
                 vBottomDivider.visibility = View.GONE
             }
+        }
+    }
+
+    private fun showSingleBottomButton(text: String, action: () -> Unit) = with(dataBinding) {
+        llBottomButtonContainer.visibility = View.VISIBLE
+        vBottomDivider.visibility = View.VISIBLE
+        tvBottomSecondaryButton.visibility = View.GONE
+
+        tvBottomPrimaryButton.apply {
+            this.text = text
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            setBackgroundResource(R.drawable.background_s_p100_r4)
+            (layoutParams as LinearLayout.LayoutParams).apply {
+                width = ViewGroup.LayoutParams.MATCH_PARENT
+                weight = 0f
+                marginStart = 0
+            }
+            setOnClickListener { action() }
+        }
+    }
+
+    private fun openDeliveryReview() {
+        val deliveryId = viewModel.deliveryDetail.value?.delivery_id ?: return
+        findNavController().navigate(
+            R.id.action_historyDetailFragment_to_deliveryReviewFragment,
+            bundleOf(
+                "deliveryId" to deliveryId,
+                "isPlayer" to false
+            )
+        )
+    }
+
+    private fun openReceivedReview() {
+        val deliveryId = viewModel.deliveryDetail.value?.delivery_id ?: return
+        findNavController().navigate(
+            R.id.action_historyDetailFragment_to_receivedReviewFragment,
+            bundleOf(
+                "deliveryId" to deliveryId,
+                "isPlayer" to false
+            )
+        )
+    }
+
+    private fun openSentReview() {
+        val deliveryId = viewModel.deliveryDetail.value?.delivery_id ?: return
+        findNavController().navigate(
+            R.id.sentReviewFragment,
+            bundleOf(
+                "deliveryId" to deliveryId,
+                "isPlayer" to false
+            )
+        )
+    }
+
+    private fun confirmReceipt() {
+        ReceiveConfirmDialog()
+            .onConfirm {
+            viewModel.confirmReceipt { success ->
+                if (success) {
+                    requireContext().toast("수령을 확인하여 거래가 완료되었어요.")
+                } else {
+                    requireContext().toast("수령 확인에 실패했습니다.")
+                }
+            }
+        }.show(childFragmentManager, "ConfirmReceiptDialog")
+    }
+
+    private fun confirmPickup() {
+        val isFaceToFace = viewModel.deliveryDetail.value?.pickup?.is_face2face == true
+        if (isFaceToFace) {
+            MessageDialog.newInstance(
+                msg = "플레이어에게 물품을 전달하셨나요?\n\n※ 문제 발생 시 반드시 '고객센터' 선택 후  문의해주세요.",
+                rightBtn = "확인",
+                leftBtn = "고객센터",
+                msgTitle = "픽업확인"
+            ).onRightBtn {
+                viewModel.confirmPickup { success ->
+                    if (success) {
+                        requireContext().toast("픽업 확인이 완료되었어요.")
+                    } else {
+                        requireContext().toast("픽업 확인에 실패했습니다.")
+                    }
+                }
+            }.show(childFragmentManager, "ConfirmPickupDialog")
+        } else {
+            MessageDialog.newInstance(
+                msg = "플레이어가 곧 픽업지에 도착해요.\n픽업이 완료되면, 픽업완료 알림이 발송됩니다.",
+                rightBtn = "확인",
+                msgTitle = "픽업확인"
+            ).show(childFragmentManager, "ConfirmPickupNoticeDialog")
         }
     }
 

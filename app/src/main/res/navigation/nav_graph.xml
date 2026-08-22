@@ -33,6 +33,69 @@
         <action
             android:id="@+id/action_historyDetailFragment_to_mapDetailFragment"
             app:destination="@id/mapDetailFragment" />
+        <action
+            android:id="@+id/action_historyDetailFragment_to_deliveryStatusFragment"
+            app:destination="@id/deliveryStatusFragment" />
+        <action
+            android:id="@+id/action_historyDetailFragment_to_deliveryReviewFragment"
+            app:destination="@id/deliveryReviewFragment" />
+        <action
+            android:id="@+id/action_historyDetailFragment_to_receivedReviewFragment"
+            app:destination="@id/receivedReviewFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deliveryStatusFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.status.DeliveryStatusFragment"
+        android:label="DeliveryStatusFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deliveryReviewFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.review.DeliveryReviewFragment"
+        android:label="DeliveryReviewFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_deliveryReviewFragment_to_receivedReviewFragment"
+            app:destination="@id/receivedReviewFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/sentReviewFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.review.SentReviewFragment"
+        android:label="SentReviewFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_sentReviewFragment_to_receivedReviewFragment"
+            app:destination="@id/receivedReviewFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/receivedReviewFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.review.ReceivedReviewFragment"
+        android:label="ReceivedReviewFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
 
     <action
@@ -65,6 +128,14 @@
             android:name="isSelectMode"
             app:argType="boolean"
             android:defaultValue="true" />
+    </action>
+
+    <action
+        android:id="@+id/action_global_deliveryStatusFragment"
+        app:destination="@id/deliveryStatusFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
     </action>
 
     <fragment
@@ -298,6 +369,65 @@
             app:argType="boolean"
             android:defaultValue="false" />
     </action>
+
+    <fragment
+        android:id="@+id/chattingConversationFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.ChattingConversationFragment"
+        android:label="ChattingConversationFragment">
+        <deepLink app:uri="togetus://chat-room/{roomId}" />
+        <argument android:name="roomId" app:argType="long" android:defaultValue="-1L" />
+        <argument android:name="isPlayerRoom" app:argType="boolean" android:defaultValue="false" />
+        <action
+            android:id="@+id/action_chattingConversationFragment_to_chattingImageDetailFragment"
+            app:destination="@id/chattingImageDetailFragment">
+            <argument android:name="imageUrl" app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/action_chattingConversationFragment_to_chattingVideoDetailFragment"
+            app:destination="@id/chattingVideoDetailFragment">
+            <argument android:name="videoUrl" app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/action_chattingConversationFragment_to_chattingReportFragment"
+            app:destination="@id/chattingReportFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chattingImageDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingImageDetailFragment"
+        android:label="ChattingImageDetailFragment">
+        <argument android:name="imageUrl" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chattingVideoDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingVideoDetailFragment"
+        android:label="ChattingVideoDetailFragment">
+        <argument android:name="videoUrl" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chattingReportFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportFragment"
+        android:label="ChattingReportFragment">
+        <argument android:name="roomId" app:argType="long" android:defaultValue="-1L" />
+        <action
+            android:id="@+id/action_chattingReportFragment_to_chattingReportDetailFragment"
+            app:destination="@id/chattingReportDetailFragment">
+            <argument android:name="roomId" app:argType="long" />
+            <argument android:name="reasonType" app:argType="integer" />
+            <argument android:name="reason" app:argType="string" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/chattingReportDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.chat.detail.ChattingReportDetailFragment"
+        android:label="ChattingReportDetailFragment">
+        <argument android:name="roomId" app:argType="long" />
+        <argument android:name="reasonType" app:argType="integer" />
+        <argument android:name="reason" app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/mapDetailFragment"

@@ -144,7 +144,14 @@ class HistoryViewModel @Inject constructor(
 
     fun confirmRequesterPickup(item: DeliverySummaryDto) = viewModelScope.launch {
         when (deliveryRepo.putRequesterPickup(item.delivery_id)) {
-            is ResultWrapper.Success -> _menuButtonLiveData.value = MenuButton.MenuRefresh("수령 확인이 완료되었어요.")
+            is ResultWrapper.Success -> _menuButtonLiveData.value = MenuButton.MenuRefresh("픽업 확인이 완료되었어요.")
+            else -> _menuButtonLiveData.value = MenuButton.MenuError("픽업 확인에 실패했습니다.")
+        }
+    }
+
+    fun confirmRequesterReceipt(item: DeliverySummaryDto) = viewModelScope.launch {
+        when (deliveryRepo.confirmDeliveryRequester(item.delivery_id)) {
+            is ResultWrapper.Success -> _menuButtonLiveData.value = MenuButton.MenuRefresh("수령을 확인하여 거래가 완료되었어요.")
             else -> _menuButtonLiveData.value = MenuButton.MenuError("수령 확인에 실패했습니다.")
         }
     }
@@ -184,6 +191,8 @@ class HistoryViewModel @Inject constructor(
         data class MenuDeliveryStatus(val item: DeliverySummaryDto) : MenuButton()
         data class MenuChat(val item: DeliverySummaryDto) : MenuButton()
         data class MenuReview(val item: DeliverySummaryDto) : MenuButton()
+        data class MenuReceivedReview(val item: DeliverySummaryDto) : MenuButton()
+        data class MenuConfirmReceipt(val item: DeliverySummaryDto) : MenuButton()
         data class MenuRefresh(val message: String) : MenuButton()
         data class MenuError(val message: String) : MenuButton()
     }

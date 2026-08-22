@@ -11,5 +11,10 @@ data class PlayerDeliveryHistoryReq(
     val pageNo: Int,
 
     @SerializedName("page_size")
-    val pageSize: Int
+    val pageSize: Int,
+
+    @SerializedName("year_month")
+    val yearMonth: String? = null,
+
+    val os: String = "A"
 )

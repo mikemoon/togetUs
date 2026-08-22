@@ -51,7 +51,7 @@ class DeliveryRequestSearchAdapter(
                 "MATCH_BEFORE" -> "매칭 대기중"
                 "MATCH_ING" -> "매칭 진행중"
                 "DELIVERY_BEFORE" -> "동행 대기중"
-                "DELIVERY_START" -> "픽업 출발"
+                "DELIVERY_START" -> "동행 시작"
                 "DELIVERY_ING" -> "동행중"
                 "DELIVERY_END" -> "동행 완료"
                 "CANCEL" -> "취소완료"

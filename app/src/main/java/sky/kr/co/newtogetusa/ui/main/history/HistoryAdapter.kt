@@ -117,6 +117,21 @@ class HistoryAdapter(
                     HistoryViewModel.MenuButton.MenuDeliveryStatus(item)
                 )
             }
+            val openReviewWrite: (DeliverySummaryDto) -> Unit = { item ->
+                this@HistoryAdapter.viewModel.onMenuBottonClick(
+                    HistoryViewModel.MenuButton.MenuReview(item)
+                )
+            }
+            val openReviewView: (DeliverySummaryDto) -> Unit = { item ->
+                this@HistoryAdapter.viewModel.onMenuBottonClick(
+                    HistoryViewModel.MenuButton.MenuReceivedReview(item)
+                )
+            }
+            val isDoneStatus = item.status_cd == "DELIVERY_END" ||
+                    item.status_cd == "DONE" ||
+                    item.status_cd == "DONE_END" ||
+                    item.status_cd == "DONE_DELIVERY" ||
+                    item.status_cd.startsWith("DONE")
 
             when {
                 item.status_cd == "REGISTER_ING" -> setDualButtons(
@@ -159,14 +174,28 @@ class HistoryAdapter(
                     primaryAction = { openDeliveryStatus(item) }
                 )
 
-                item.status_cd.startsWith("DONE") -> setSinglePrimaryButton(
-                    primaryText = "후기작성",
-                    primaryAction = {
-                        this@HistoryAdapter.viewModel.onMenuBottonClick(
-                            HistoryViewModel.MenuButton.MenuReview(item)
+                isDoneStatus -> {
+                    when {
+                        item.has_confirm_status && !item.is_confirmed -> setSinglePrimaryButton(
+                            primaryText = "수령확인",
+                            primaryAction = {
+                                this@HistoryAdapter.viewModel.onMenuBottonClick(
+                                    HistoryViewModel.MenuButton.MenuConfirmReceipt(item)
+                                )
+                            }
+                        )
+
+                        item.user_review == null -> setSinglePrimaryButton(
+                            primaryText = "후기 작성하기",
+                            primaryAction = { openReviewWrite(item) }
+                        )
+
+                        else -> setSinglePrimaryButton(
+                            primaryText = "보낸 후기 보기",
+                            primaryAction = { openReviewView(item) }
                         )
                     }
-                )
+                }
 
                 item.status_cd.startsWith("CANCEL") -> hideButtons()
 

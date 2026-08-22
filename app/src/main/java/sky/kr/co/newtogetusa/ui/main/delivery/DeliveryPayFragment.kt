@@ -14,7 +14,9 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryPayBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomCalendarDialog
+import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPaymentAgreeDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomTimeDialog
+import sky.kr.co.newtogetusa.ui.main.delivery.DeliveryRefreshBus
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 import java.util.UUID
@@ -63,12 +65,19 @@ class DeliveryPayFragment : BaseFragment<FragmentDeliveryPayBinding, DeliveryPay
                 DeliveryPayViewModel.Event.Back -> findNavController().popBackStack()
                 DeliveryPayViewModel.Event.SelectPickupDate -> showPickupDateDialog()
                 DeliveryPayViewModel.Event.SelectPickupTime -> showPickupTimeDialog()
+                DeliveryPayViewModel.Event.ShowAgreePopup -> showPaymentAgreeDialog()
                 is DeliveryPayViewModel.Event.StartPortOnePayment -> {
                     startPortOnePayment(event.config.storeId, event.config.channelKey, event.amount)
                 }
                 DeliveryPayViewModel.Event.PaymentSuccess -> {
                     requireContext().toast("결제가 완료되었습니다.")
-                    findNavController().popBackStack()
+                    // iOS는 결제 완료 후 플레이어 선택 화면이 아닌 주문 상세로 복귀한다.
+                    // 상세 화면이 백스택에 있으면 해당 화면을 유지해 최신 상태를 재조회한다.
+                    DeliveryRefreshBus.notifyDeliveryUpdated(args.deliveryId)
+                    val navController = findNavController()
+                    if (!navController.popBackStack(R.id.historyDetailFragment, false)) {
+                        navController.popBackStack()
+                    }
                 }
                 is DeliveryPayViewModel.Event.ShowMessage -> requireContext().toast(event.message)
             }
@@ -109,5 +118,11 @@ class DeliveryPayFragment : BaseFragment<FragmentDeliveryPayBinding, DeliveryPay
                 this@DeliveryPayFragment.viewModel.setPickupTime(hour, minute)
             }
         }.show(parentFragmentManager, "pickupTime")
+    }
+
+    private fun showPaymentAgreeDialog() {
+        BottomPaymentAgreeDialog().apply {
+            onAgreeAll = this@DeliveryPayFragment.viewModel::onAgreeAll
+        }.show(parentFragmentManager, "paymentAgree")
     }
 }

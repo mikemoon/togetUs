@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
         <import type="sky.kr.co.newtogetusa.ui.main.delivery.DeliveryPayViewModel.Event" />
 
         <variable
@@ -37,6 +38,21 @@
                 android:layout_marginStart="12dp"
                 android:text="동행 요금 결제"
                 android:textColor="@color/black_80" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph16B"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="20dp"
+                android:gravity="center"
+                android:onClick="@{()-> viewModel.onEventClick(Event.Back.INSTANCE)}"
+                android:text="취소"
+                android:textColor="@color/black_60" />
         </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
@@ -58,92 +74,26 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- 픽업일 지정 -->
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/Paragraph16B"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="동행 요금"
+                        android:text="픽업일 지정"
                         android:textColor="@color/black_80" />
-
-                    <include
-                        layout="@layout/item_delivery_pay_row"
-                        app:title="@{@string/delivery_pay_distance}"
-                        app:value="@{viewModel.distanceText}" />
-
-                    <include
-                        layout="@layout/item_delivery_pay_row"
-                        app:title="@{@string/delivery_pay_weight}"
-                        app:value="@{viewModel.weightText}" />
-
-                    <include
-                        layout="@layout/item_delivery_pay_row"
-                        app:title="@{@string/delivery_pay_base_fee}"
-                        app:value="@{viewModel.feeText}" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        style="@style/Paragraph16B"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:text="추가 요금"
-                        android:textColor="@color/black_80" />
-
-                    <EditText
-                        android:id="@+id/etAdjustFee"
-                        style="@style/Paragraph17R"
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/background_s_w_st_b10_r4"
-                        android:gravity="end|center_vertical"
-                        android:hint="0"
-                        android:inputType="number"
-                        android:onTextChanged="@{viewModel::onAdjustFeeChanged}"
-                        android:paddingHorizontal="14dp"
-                        android:textColor="@color/black_80"
-                        android:textColorHint="@color/black_40" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        style="@style/Paragraph12R"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="추가요금은 1,000원 단위로 입력해 주세요."
-                        android:textColor="@color/black_40" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="12dp"
                         android:background="@color/black_10" />
-
-                    <include
-                        layout="@layout/item_delivery_pay_row"
-                        app:title="@{@string/delivery_pay_total_fee}"
-                        app:value="@{viewModel.totalFeeText}" />
-                </LinearLayout>
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Paragraph16B"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="픽업일"
-                    android:textColor="@color/black_80" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/background_s_b5_r4"
-                    android:orientation="vertical"
-                    android:padding="16dp">
 
                     <LinearLayout
                         android:id="@+id/llPickupDate"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        android:background="@drawable/background_s_w_st_b10_r4"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/selector_delivery_pay_pickup_background"
                         android:clickable="@{viewModel.pickupDateEnabled}"
                         android:enabled="@{viewModel.pickupDateEnabled}"
                         android:focusable="@{viewModel.pickupDateEnabled}"
@@ -164,13 +114,14 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:text="@{viewModel.pickupDateText}"
-                            android:textColor="@color/black_80"
+                            android:textColor="@color/selector_delivery_pay_pickup_text"
                             tools:text="2026년 6월 26일 금요일" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/right_gray" />
+                            android:src="@drawable/right_gray"
+                            android:visibility="@{viewModel.pickupDateEnabled ? View.VISIBLE : View.GONE}" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -178,7 +129,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
                         android:layout_marginTop="10dp"
-                        android:background="@drawable/background_s_w_st_b10_r4"
+                        android:background="@drawable/selector_delivery_pay_pickup_background"
                         android:clickable="@{viewModel.pickupTimeEnabled}"
                         android:enabled="@{viewModel.pickupTimeEnabled}"
                         android:focusable="@{viewModel.pickupTimeEnabled}"
@@ -199,99 +150,265 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:text="@{viewModel.pickupTimeText}"
-                            android:textColor="@color/black_80"
+                            android:textColor="@color/selector_delivery_pay_pickup_text"
                             tools:text="오후 7:30" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/right_gray" />
+                            android:src="@drawable/right_gray"
+                            android:visibility="@{viewModel.pickupTimeEnabled ? View.VISIBLE : View.GONE}" />
                     </LinearLayout>
-                </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Paragraph16B"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="결제 동의"
-                    android:textColor="@color/black_80" />
+                    <!-- 동행 요금 -->
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph16B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="동행 요금"
+                        android:textColor="@color/black_80" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/background_s_b5_r4"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@color/black_10" />
+
+                    <include
+                        layout="@layout/item_delivery_pay_row"
+                        app:title="@{@string/delivery_pay_distance}"
+                        app:value="@{viewModel.distanceText}" />
+
+                    <include
+                        layout="@layout/item_delivery_pay_row"
+                        app:title="@{@string/delivery_pay_weight}"
+                        app:value="@{viewModel.weightText}" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@color/black_10" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/Paragraph15R"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="한 번만 동의하시면, 이후 결제부터는 별도의 동의 절차가 필요하지 않습니다."
+                        android:layout_marginTop="12dp"
+                        android:gravity="end"
+                        android:text="거리 및 무게를 합산한 투겟어스 기본 요금입니다."
+                        android:textColor="@color/black_60" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/HeadLine18B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="end"
+                        android:text="@{viewModel.feeText}"
+                        android:textColor="@color/black_80"
+                        tools:text="10,000원" />
+
+                    <!-- 추가 요금 설정 -->
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph16B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="추가 요금 설정"
                         android:textColor="@color/black_80" />
 
-                    <CheckBox
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:button="@drawable/checkbox_selector"
-                        android:checked="@{viewModel.agreeTerm1}"
-                        android:onClick="@{()-> viewModel.toggleTerm(1)}"
-                        android:paddingStart="8dp"
-                        android:text="[필수] 전자금융거래 이용약관 동의"
-                        android:textColor="@color/black_80"
-                        android:textSize="15sp" />
+                        android:layout_height="52dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/background_s_w_st_b10_r4"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="14dp">
 
-                    <CheckBox
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:button="@drawable/checkbox_selector"
-                        android:checked="@{viewModel.agreeTerm2}"
-                        android:onClick="@{()-> viewModel.toggleTerm(2)}"
-                        android:paddingStart="8dp"
-                        android:text="[필수] 개인정보 수집 및 이용에 대한 동의"
-                        android:textColor="@color/black_80"
-                        android:textSize="15sp" />
+                        <EditText
+                            android:id="@+id/etAdjustFee"
+                            style="@style/Paragraph17R"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:gravity="end|center_vertical"
+                            android:hint="0"
+                            android:inputType="number"
+                            android:maxLength="6"
+                            android:onTextChanged="@{viewModel::onAdjustFeeChanged}"
+                            android:padding="0dp"
+                            android:textColor="@color/black_80"
+                            android:textColorHint="@color/black_40" />
 
-                    <CheckBox
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph17R"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="원"
+                            android:textColor="@color/black_80" />
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:button="@drawable/checkbox_selector"
-                        android:checked="@{viewModel.agreeTerm3}"
-                        android:onClick="@{()-> viewModel.toggleTerm(3)}"
-                        android:paddingStart="8dp"
-                        android:text="[필수] 개인정보 제3자 제공 약관 동의"
-                        android:textColor="@color/black_80"
-                        android:textSize="15sp" />
+                        android:layout_marginTop="8dp"
+                        android:text="천원 단위로만 입력 가능해요."
+                        android:textColor="@color/black_40"
+                        android:textSize="13sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/background_s_red5_r4"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/error_red" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph17R"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="결제 후에는 추가 요금 변경이 불가합니다."
+                            android:textColor="@color/red_100" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@color/black_10" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/Paragraph16B"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="합계"
+                            android:textColor="@color/black_80" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{viewModel.totalFeeText}"
+                            android:textColor="@color/primary_100"
+                            tools:text="12,000원" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Paragraph15R"
+                <!-- 주의사항 / 취소·환불 안내 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:lineSpacingExtra="4dp"
-                    android:text="결제 완료 후에는 추가 요금 변경이 불가합니다. 결제 실패 시 요금과 약관 동의 상태를 확인해 주세요."
-                    android:textColor="@color/red_100" />
+                    android:layout_marginTop="32dp"
+                    android:background="@drawable/background_s_b2_r4"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="주의사항"
+                        android:textColor="@color/black_80" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="고가의 물품 또는 비대면 요청 시 주의해 주세요.\n분쟁 또는 사고 발생 시 거래 당사자 간의 협의를 우선하며, 필요 시 플랫폼은 중재를 위한 정보 제공만 지원합니다.\n국내 및 각 국가별 규정 미확인으로 인한 문제(세관 반입 불가, 압류, 지연, 벌금 등)는 해당 거래 당사자 간(유저–플레이어) 책임이며, 플랫폼은 이에 대한 책임을 지지 않습니다."
+                        android:textColor="@color/black_60" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="취소 및 환불 안내"
+                        android:textColor="@color/black_80" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/Paragraph17R"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="[취소 수수료 부과]\n취소 가능 시점: 플레이어가 물건을 픽업 완료하기 전까지 취소할 수 있습니다. 단, 플레이어의 픽업 출발 이후 취소할 경우, 결제 금액의 20%가 수수료로 부과됩니다. 픽업 출발 이후 취소 시 회원님의 취소 이력이 다른 회원들에게 공개됩니다.\n\n[자동 취소 안내]\n플레이어가 픽업 요청일까지 '픽업 출발'을 하지 않으면, 거래는 자동으로 취소되며 결제 금액은 전액 환불됩니다.\n\n[환불 시점]\n취소가 완료되면 남은 금액은 즉시 환불 처리되며, 실제 카드사 승인 취소 완료까지는 영업일 기준 3~5일 정도 소요될 수 있습니다. (카드사 정책에 따라 다름)"
+                        android:textColor="@color/black_60" />
+                </LinearLayout>
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvPay"
-            style="@style/HeadLine18B"
+        <!-- 하단 고정: 정책 동의 체크 + 결제하기 -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/bottom_cta_height"
-            android:layout_margin="20dp"
-            android:background="@drawable/selector_p40_p100_r4"
-            android:enabled="@{viewModel.payEnabled}"
-            android:gravity="center"
-            android:onClick="@{()-> viewModel.onPayClick()}"
-            android:text="@{viewModel.totalFeeText + ` 결제하기`}"
-            android:textColor="@color/selector_wopa40_wopa100"
-            tools:enabled="true"
-            tools:text="10,000원 결제하기" />
+            android:layout_height="wrap_content"
+            android:background="@color/black_5"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/payment_checkbox_selector"
+                    android:button="@null"
+                    android:checked="@{viewModel.policyAgree}"
+                    android:onClick="@{()-> viewModel.togglePolicy()}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph15R"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:onClick="@{()-> viewModel.togglePolicy()}"
+                    android:text="위 주문 내용을 확인하였으며 회원 본인은 개인정보 이용·제공 및 결제에 동의합니다."
+                    android:textColor="@color/black_60" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPay"
+                style="@style/HeadLine18B"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/selector_p40_p100_r4"
+                android:enabled="@{viewModel.payEnabled}"
+                android:gravity="center"
+                android:onClick="@{()-> viewModel.onPayClick()}"
+                android:text="@{viewModel.totalFeeText + ` 결제하기`}"
+                android:textColor="@color/selector_wopa40_wopa100"
+                tools:enabled="true"
+                tools:text="10,000원 결제하기" />
+        </LinearLayout>
     </LinearLayout>
 </layout>

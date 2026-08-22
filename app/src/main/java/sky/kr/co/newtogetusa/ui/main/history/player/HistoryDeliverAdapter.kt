@@ -8,6 +8,7 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.player.DeliverySummaryDto
 import sky.kr.co.newtogetusa.databinding.ItemHistoryDeliveryBinding
 import sky.kr.co.newtogetusa.ui.base.BaseViewHolder
+import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
 import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.formatPickupDateTime
@@ -38,6 +39,7 @@ class HistoryDeliverAdapter(
             binding.tvTitle.text = item.title
             binding.tvPrice.text = item.feeFinal.toWon()
             binding.tvPickupDate.text = formatPickupDateTime(item.pickupDate)
+            DeliveryStatusBadgeUtil.apply(binding.tvStatus, item.statusCd)
             binding.ivProduct.loadImage(
                 item.prdPicture,
                 placeholder = R.drawable.no_img,

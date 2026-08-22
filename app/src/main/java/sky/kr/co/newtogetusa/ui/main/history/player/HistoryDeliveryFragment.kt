@@ -261,9 +261,7 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
 
                 launch {
                     viewModel.deliveryPagingFlow.collectLatest { pagingData ->
-                        if (!viewModel.isShowCalendar.value) {
-                            historyAdapter.submitData(pagingData)
-                        }
+                        historyAdapter.submitData(pagingData)
                     }
                 }
 
@@ -418,6 +416,8 @@ class HistoryDeliveryFragment : BaseFragment<FragmentHistoryDeliveryBinding, His
             if (dotType == HistoryDeliveryViewModel.DeliveryDotType.GREEN) android.view.View.VISIBLE else android.view.View.GONE
         binding.vDeliveryDotGray.visibility =
             if (dotType == HistoryDeliveryViewModel.DeliveryDotType.GRAY) android.view.View.VISIBLE else android.view.View.GONE
+        binding.vDeliveryDotRed.visibility =
+            if (dotType == HistoryDeliveryViewModel.DeliveryDotType.NAVY) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     private fun getDeliveryDotType(

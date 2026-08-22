@@ -194,11 +194,12 @@ class PlayerHistoryDetailFragment :
                             dataBinding.tvBottomSecondaryButton.visibility = View.GONE
                         }
 
-                        if (
-                            buttonState == PlayerHistoryDetailViewModel.ButtonState.PlayerDone ||
-                            buttonState == PlayerHistoryDetailViewModel.ButtonState.RequesterDone ||
-                            buttonState == PlayerHistoryDetailViewModel.ButtonState.WaitUserConfirm
-                        ) {
+                        if (buttonState == PlayerHistoryDetailViewModel.ButtonState.WaitUserConfirm) {
+                            dataBinding.tvBottomPrimaryButton.setBackgroundResource(R.drawable.background_s_p100_r4)
+                            dataBinding.tvBottomPrimaryButton.setTextColor(
+                                ContextCompat.getColor(requireContext(), R.color.white)
+                            )
+                        } else if (buttonState == PlayerHistoryDetailViewModel.ButtonState.RequesterDone) {
                             dataBinding.tvBottomPrimaryButton.setBackgroundResource(R.drawable.background_s_b5_r4)
                             dataBinding.tvBottomPrimaryButton.setTextColor(
                                 ContextCompat.getColor(requireContext(), R.color.black_60)
@@ -246,6 +247,7 @@ class PlayerHistoryDetailFragment :
                 is PlayerHistoryDetailViewModel.Event.CancelReq -> cancelRequest()
                 is PlayerHistoryDetailViewModel.Event.ConfirmReport -> confirmReport()
                 is PlayerHistoryDetailViewModel.Event.ConfirmCancelSupport -> confirmCancelSupport()
+                is PlayerHistoryDetailViewModel.Event.ShowPickupStartGuide -> showPickupStartGuide()
                 is PlayerHistoryDetailViewModel.Event.OpenReportReason -> {
                     findNavController().navigate(
                         PlayerHistoryDetailFragmentDirections
@@ -290,6 +292,17 @@ class PlayerHistoryDetailFragment :
                 }
             }
         }
+    }
+
+    private fun showPickupStartGuide() {
+        MessageDialog.newInstance(
+            msgTitle = "픽업 출발하기 및 위치 정보 사용 안내",
+            msg = "동행을 시작하시겠어요?\n\n투겟어스는 동행 수행 중 앱이 닫혀 있거나 사용 중이 아닐 때에도 회원님의 위치 데이터를 수집하여 유저에게 실시간 경로를 공유합니다.\n\n원활한 동행 인증을 위해 GPS 설정을 유지해 주세요.",
+            rightBtn = "동의 후 시작",
+            leftBtn = "취소"
+        ).onRightBtn {
+            viewModel.confirmPickupStart()
+        }.show(childFragmentManager, "PickupStartGuideDialog")
     }
 
     private fun showMoreDialog() {

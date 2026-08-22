@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.ui.main.history.review
 
 import androidx.fragment.app.viewModels
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -10,6 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentReceivedReviewBinding
+import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.utils.loadProfile
 import sky.kr.co.newtogetusa.utils.toast
@@ -32,6 +34,7 @@ class ReceivedReviewFragment : BaseFragment<FragmentReceivedReviewBinding, Deliv
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.receivedReview.collect { review ->
                     if (review == null) return@collect
+                    dataBinding.reviewContent.isVisible = true
                     dataBinding.ivProfile.loadProfile(review.profileImage)
                     dataBinding.tvName.text = review.nickname.orEmpty()
                     dataBinding.tvDate.text = review.regDate.orEmpty()
@@ -43,6 +46,15 @@ class ReceivedReviewFragment : BaseFragment<FragmentReceivedReviewBinding, Deliv
         viewModel.event.observe(viewLifecycleOwner) { event ->
             when (event) {
                 DeliveryReviewViewModel.Event.Back -> findNavController().popBackStack()
+                is DeliveryReviewViewModel.Event.ReceivedReviewNotFound -> {
+                    dataBinding.reviewContent.isVisible = false
+                    MessageDialog.newInstance(
+                        msg = event.message,
+                        rightBtn = "확인",
+                    ).onRightBtn {
+                        findNavController().popBackStack()
+                    }.show(childFragmentManager, "ReceivedReviewNotFoundDialog")
+                }
                 DeliveryReviewViewModel.Event.LoadFailed -> requireContext().toast("받은 후기를 불러오지 못했습니다.")
                 else -> Unit
             }

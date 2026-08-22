@@ -99,7 +99,10 @@ data class FeeDto(
 
 data class PayDto(
     val type: String? = null,
-    val amount: Int? = null
+    val amount: Int? = null,
+    val pay_status_cd: String? = null,
+    val pay_card_name: String? = null,
+    val pay_date: String? = null
 )
 
 data class PlayerProfileDto(

@@ -1,17 +1,21 @@
 package sky.kr.co.newtogetusa.ui.main.history.review
 
+import android.content.res.ColorStateList
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentDeliveryReviewBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
+import sky.kr.co.newtogetusa.utils.dpToPx
 import sky.kr.co.newtogetusa.utils.toast
 
 @AndroidEntryPoint
@@ -20,6 +24,7 @@ class DeliveryReviewFragment : BaseFragment<FragmentDeliveryReviewBinding, Deliv
     override val layoutId: Int = R.layout.fragment_delivery_review
     override val viewModel: DeliveryReviewViewModel by viewModels()
     private val args: DeliveryReviewFragmentArgs by navArgs()
+    private val reasonButtons = mutableMapOf<String, AppCompatTextView>()
 
     override fun init() {
         super.init()
@@ -35,8 +40,10 @@ class DeliveryReviewFragment : BaseFragment<FragmentDeliveryReviewBinding, Deliv
         super.initObserver()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { viewModel.titleFlow.collect { dataBinding.tvTitle.text = it } }
                 launch { viewModel.scoreFlow.collect { updateStars(it) } }
                 launch { viewModel.reasonOptions.collect { bindReasons(it) } }
+                launch { viewModel.selectedCodes.collect { updateReasonSelection(it) } }
                 launch {
                     viewModel.canSubmitFlow.collect { enabled ->
                         dataBinding.btnSubmit.isEnabled = enabled
@@ -60,6 +67,7 @@ class DeliveryReviewFragment : BaseFragment<FragmentDeliveryReviewBinding, Deliv
                     )
                 }
                 DeliveryReviewViewModel.Event.LoadFailed -> Unit
+                is DeliveryReviewViewModel.Event.ReceivedReviewNotFound -> Unit
                 is DeliveryReviewViewModel.Event.ReviewBlocked -> requireContext().toast(event.message)
             }
         }
@@ -78,17 +86,36 @@ class DeliveryReviewFragment : BaseFragment<FragmentDeliveryReviewBinding, Deliv
     }
 
     private fun bindReasons(items: List<Pair<String, String>>) {
-        dataBinding.cgReasons.removeAllViews()
-        items.forEach { (code, name) ->
-            val chip = Chip(requireContext()).apply {
+        dataBinding.llReasonOptions.removeAllViews()
+        reasonButtons.clear()
+        items.forEachIndexed { index, (code, name) ->
+            val button = AppCompatTextView(requireContext()).apply {
                 text = name
-                isCheckable = true
-                setEnsureMinTouchTargetSize(false)
-                setChipBackgroundColorResource(R.color.black_5)
-                setTextColor(resources.getColor(R.color.black_80, null))
+                gravity = android.view.Gravity.CENTER
+                setTextAppearance(R.style.Paragraph17R)
+                background = resources.getDrawable(R.drawable.selector_review_option_bg, null)
+                setTextColor(ColorStateList.valueOf(resources.getColor(R.color.black_80, null)))
                 setOnClickListener { viewModel.toggleCode(code) }
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    56.dpToPx()
+                ).apply {
+                    if (index > 0) topMargin = 12.dpToPx()
+                }
             }
-            dataBinding.cgReasons.addView(chip)
+            reasonButtons[code] = button
+            dataBinding.llReasonOptions.addView(button)
+        }
+        updateReasonSelection(viewModel.selectedCodes.value)
+    }
+
+    private fun updateReasonSelection(selectedCodes: Set<String>) {
+        val selectedColor = resources.getColor(R.color.primary_100, null)
+        val normalColor = resources.getColor(R.color.black_80, null)
+        reasonButtons.forEach { (code, button) ->
+            val isSelected = selectedCodes.contains(code)
+            button.isSelected = isSelected
+            button.setTextColor(if (isSelected) selectedColor else normalColor)
         }
     }
 }

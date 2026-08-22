@@ -52,6 +52,13 @@
                 app:implementationMode="compatible"
                 app:scaleType="fillCenter" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivCapturedPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="@{viewModel.showRetakeButtons ? View.VISIBLE : View.GONE}" />
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvOverlay"
                 style="@style/Paragraph14R"
@@ -63,7 +70,7 @@
                 android:lineSpacingExtra="2dp"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="10dp"
-                android:text="상품과 동행자가 잘 보이게 촬영해 주세요.&#10;서울 강서구 공항대로178 36 열승약한강두렉스드포인트빌딩 100호"
+                android:text="@{viewModel.overlayText}"
                 android:textColor="@color/white" />
         </FrameLayout>
 
@@ -89,6 +96,7 @@
                 android:gravity="center"
                 android:text="촬영하기"
                 android:textColor="@color/white"
+                android:enabled="true"
                 android:visibility="@{viewModel.showRetakeButtons ? View.GONE : View.VISIBLE}" />
 
             <LinearLayout

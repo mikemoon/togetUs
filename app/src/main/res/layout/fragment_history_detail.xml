@@ -127,6 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="95dp"
+                android:clipToPadding="false"
                 android:paddingBottom="76dp"
                 android:fillViewport="true">
 
@@ -222,7 +223,7 @@
                         android:paddingHorizontal="20dp"
                         android:paddingTop="20dp"
                         android:paddingBottom="12dp"
-                        android:visibility="@{viewModel.deliveryData.showCompanionInfo ? View.VISIBLE : View.GONE}"
+                        android:visibility="@{viewModel.deliveryData.showCompanionInfo || viewModel.deliveryData.showPlayerProgressInfo ? View.VISIBLE : View.GONE}"
                         app:layout_constraintTop_toBottomOf="@id/llContentTop">
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -240,7 +241,8 @@
                             android:enabled="@{viewModel.deliveryData.hasChatInProgress}"
                             android:gravity="center"
                             android:onClick="@{()-> viewModel.onEventClick(Event.ChatInProgress.INSTANCE)}"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:visibility="@{viewModel.deliveryData.showCompanionInfo ? View.VISIBLE : View.GONE}">
 
                             <androidx.appcompat.widget.AppCompatTextView
                                 style="@style/Paragraph14B"
@@ -272,7 +274,7 @@
                             android:gravity="center"
                             android:text="아직 협의중인 플레이어가 없어요."
                             android:textColor="@color/black_40"
-                            android:visibility="@{viewModel.deliveryData.showChatEmptyText ? View.VISIBLE : View.GONE}" />
+                            android:visibility="@{viewModel.deliveryData.showCompanionInfo &amp;&amp; viewModel.deliveryData.showChatEmptyText ? View.VISIBLE : View.GONE}" />
 
                         <androidx.appcompat.widget.AppCompatTextView
                             style="@style/Paragraph14R"
@@ -282,7 +284,42 @@
                             android:gravity="center"
                             android:text="채팅을 통해 협의를 완료하세요."
                             android:textColor="@color/black_40"
-                            android:visibility="@{viewModel.deliveryData.showChatGuideText ? View.VISIBLE : View.GONE}" />
+                            android:visibility="@{viewModel.deliveryData.showCompanionInfo &amp;&amp; viewModel.deliveryData.showChatGuideText ? View.VISIBLE : View.GONE}" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            style="@style/HeadLine18B"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text="플레이어"
+                            android:textColor="@color/black_80"
+                            android:visibility="@{viewModel.deliveryData.showPlayerProgressInfo ? View.VISIBLE : View.GONE}" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvPlayerId"
+                            style="@style/Paragraph17R"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/background_st_b10_s_w_r4"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="16dp"
+                            android:text="@{viewModel.deliveryData.playerIdText}"
+                            android:textColor="@color/black_80"
+                            android:visibility="@{viewModel.deliveryData.showPlayerProgressInfo ? View.VISIBLE : View.GONE}"
+                            tools:text="홍길동" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvDeliveryStatusButton"
+                            style="@style/Paragraph17B"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/background_s_p100_r4"
+                            android:gravity="center"
+                            android:text="동행현황조회"
+                            android:textColor="@color/white"
+                            android:visibility="@{viewModel.deliveryData.showPlayerProgressInfo ? View.VISIBLE : View.GONE}" />
                     </LinearLayout>
 
                     <!-- 이동 경로 -->
@@ -783,7 +820,7 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 android:layout_marginStart="12dp"
                                 style="@style/Paragraph17R"
-                                android:text="결제수단"
+                                 android:text="카드 간편결제"
                                 android:textColor="@color/black_60"
                                 />
 

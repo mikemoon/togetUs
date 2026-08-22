@@ -61,6 +61,7 @@
             android:layout_marginHorizontal="20dp"
             android:gravity="start|center_vertical">
             <CheckBox
+                android:id="@+id/cbConfirm"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:button="@null"
@@ -89,6 +90,7 @@
             android:orientation="horizontal"
             >
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCustomerCenter"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="고객센터"
@@ -103,6 +105,7 @@
                 android:background="@color/black_10"
                 />
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="확인"

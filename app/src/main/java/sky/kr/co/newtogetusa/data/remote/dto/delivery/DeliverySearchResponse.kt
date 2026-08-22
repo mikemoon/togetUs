@@ -1,6 +1,7 @@
 package sky.kr.co.newtogetusa.data.remote.dto.delivery
 
 import android.os.Parcelable
+import com.google.gson.annotations.JsonAdapter
 import kotlinx.parcelize.Parcelize
 import sky.kr.co.newtogetusa.utils.DeliveryStatusBadgeUtil
 import sky.kr.co.newtogetusa.utils.TextConvertUtil.toWon
@@ -29,6 +30,12 @@ data class DeliverySummaryDto(
     val fee_final: Int,
     val regist_date: String?,      // null 가능
     val apply_date: String? ,       // null
+    val confirm_yn: String? = null,
+    val is_confirm: Boolean? = null,
+    @JsonAdapter(ReviewPresenceAdapter::class)
+    val user_review: ReviewPresence? = null,
+    @JsonAdapter(ReviewPresenceAdapter::class)
+    val player_review: ReviewPresence? = null,
 
     var status_text: String,
     var price_text: String,
@@ -42,6 +49,12 @@ data class DeliverySummaryDto(
 
     val masked_dest_address: String
         get() = maskedAddress(dest_address)
+
+    val has_confirm_status: Boolean
+        get() = is_confirm != null || confirm_yn != null
+
+    val is_confirmed: Boolean
+        get() = is_confirm == true || confirm_yn.equals("Y", ignoreCase = true)
 
     private fun maskedAddress(address: String): String {
         return if (status_cd.startsWith("CANCEL")) "*****" else address
@@ -71,6 +84,10 @@ data class DeliverySummaryDto(
         result = 31 * result + fee_final
         result = 31 * result + regist_date.hashCode()
         result = 31 * result + apply_date.hashCode()
+        result = 31 * result + confirm_yn.hashCode()
+        result = 31 * result + is_confirm.hashCode()
+        result = 31 * result + user_review.hashCode()
+        result = 31 * result + player_review.hashCode()
         result = 31 * result + (status_text as String?).hashCode()
         result = 31 * result + (price_text as String?).hashCode()
         result = 31 * result + (pickup_ui_date as String?).hashCode()

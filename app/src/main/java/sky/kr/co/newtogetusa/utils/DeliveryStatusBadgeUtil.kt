@@ -14,7 +14,11 @@ object DeliveryStatusBadgeUtil {
             "DELIVERY_ING",
             "ING",
             "ING_START",
-            "ING_DELIVERY" -> true
+            "ING_DELIVERY",
+            "DELIVERY_END",
+            "DONE",
+            "DONE_END",
+            "DONE_DELIVERY" -> true
             else -> false
         }
 
@@ -37,9 +41,9 @@ object DeliveryStatusBadgeUtil {
             "MATCH_BEFORE" -> "매칭 대기중"
             "MATCH_ING" -> "매칭 진행중"
             "DELIVERY_BEFORE" -> "동행 대기중"
-            "DELIVERY_START" -> "픽업 출발"
-            "PICKUP_START" -> "픽업 출발"
-            "DELIVERY_DEPART" -> "픽업 출발"
+            "DELIVERY_START" -> "동행 시작"
+            "PICKUP_START" -> "동행 시작"
+            "DELIVERY_DEPART" -> "동행 시작"
             "DELIVERY_WAIT" -> "동행 대기중"
             "DELIVERY_ING" -> "동행중"
             "ING" -> "동행중"
@@ -47,6 +51,7 @@ object DeliveryStatusBadgeUtil {
             "ING_DELIVERY" -> "동행중"
             "DELIVERY_END" -> "동행 완료"
             "DONE" -> "동행 완료"
+            "DONE_END" -> "동행 완료"
             "DONE_DELIVERY" -> "동행 완료"
             "CANCEL" -> "취소완료"
             "CANCEL_DONE" -> "취소완료"

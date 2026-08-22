@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySearchResponse
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
-import sky.kr.co.newtogetusa.databinding.ItemHomeBottomButtonBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeContentsBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeEmptyBinding
 import sky.kr.co.newtogetusa.databinding.ItemHomeTitleBinding
@@ -16,13 +15,11 @@ import sky.kr.co.newtogetusa.utils.loadImage
 class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<DeliverySummaryDto>()
-    private var hasMore = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
             VIEW_TYPE_TITLE -> TitleVH(ItemHomeTitleBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             VIEW_TYPE_EMPTY -> EmptyVH(ItemHomeEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-            VIEW_TYPE_BOTTOM_BUTTON -> BottomButtonVH(ItemHomeBottomButtonBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             else -> ContentsVH(ItemHomeContentsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         }
     }
@@ -30,14 +27,13 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
     fun setItems(list: List<DeliverySummaryDto>, hasMore: Boolean = false){
         items.clear()
         items.addAll(list)
-        this.hasMore = hasMore
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
+        // iOS와 동일: 하단 더보기 버튼은 표시하지 않는다
         return when {
             items.isEmpty() -> 2
-            hasMore -> items.size + 2
             else -> items.size + 1
         }
     }
@@ -47,7 +43,6 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
             if(items.size == 0){
                 VIEW_TYPE_EMPTY
             }else{
-                if(hasMore && position == items.size + 1) VIEW_TYPE_BOTTOM_BUTTON else
                 VIEW_TYPE_CONTENTS
             }
         }
@@ -57,7 +52,6 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
         when(holder.itemViewType){
             VIEW_TYPE_TITLE -> (holder as TitleVH).bind("")
             VIEW_TYPE_EMPTY -> (holder as EmptyVH).bind("")
-            VIEW_TYPE_BOTTOM_BUTTON -> (holder as BottomButtonVH).bind("")
             else -> (holder as ContentsVH).bind(items[position-1])
         }
     }
@@ -91,11 +85,6 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
         }
     }
 
-    inner class BottomButtonVH(private val binding: ItemHomeBottomButtonBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(item: String) {
-        }
-    }
-
     inner class EmptyVH(private val binding: ItemHomeEmptyBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: String) {
             binding.tv.text = "진행중인 동행요청이 없어요."
@@ -105,7 +94,6 @@ class HomeProgressAdapter(private val onSelect:(DeliverySummaryDto) -> Unit) : R
     companion object{
         private const val VIEW_TYPE_TITLE = 0
         private const val VIEW_TYPE_CONTENTS = 1
-        private const val VIEW_TYPE_BOTTOM_BUTTON = 2
         private const val VIEW_TYPE_EMPTY = 3
         private val deliveryStartedStatuses = setOf(
             "DELIVERY_START",

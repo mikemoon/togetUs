@@ -86,6 +86,8 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     private val _calendarDotData = MutableStateFlow<Map<LocalDate, DeliveryDotType>>(emptyMap())
     val calendarDotData = _calendarDotData.asStateFlow()
 
+    private var selectedCalendarDate: LocalDate? = null
+
     enum class DeliveryDotType {
         GRAY,   // 매칭 진행중
         GREEN,  // 동행 대기중 ~ 동행중
@@ -93,40 +95,32 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     }
 
     fun getMonthInfo(year: Int, month: Int) = viewModelScope.launch {
-        when(val res = playerRepository.getMonthInfo(year, month)) {
+        val yearMonth = "%04d%02d".format(year, month)
+        when(val res = playerRepository.postPlayerDeliveryList(
+            PlayerDeliveryHistoryReq(
+                type = "ALL",
+                title = "",
+                pageNo = 0,
+                pageSize = 100,
+                yearMonth = yearMonth
+            )
+        )) {
             is ResultWrapper.Success -> {
-                _monthDeliveryDates.value = res.data.calender.mapNotNull { dayInfo ->
-                    dayInfo.date.takeIf { it.isNotBlank() }?.runCatching { LocalDate.parse(this) }?.getOrNull()
+                val allDeliveries = res.data.deliveries
+                _monthDeliveryDates.value = allDeliveries.mapNotNull { delivery ->
+                    delivery.pickupDate.toCalendarLocalDate()
                 }.filter { it.monthValue == month && it.year == year }
                     .toSet()
 
-                // iOS 대응: 월별 전체 배송 데이터로 dot 데이터 생성
-                val allDeliveries = res.data.calender.flatMap { dayInfo ->
-                    dayInfo.deliveries.map { delivery ->
-                        DeliverySummaryDto(
-                            deliveryId = delivery.deliveryId,
-                            requesterId = 0,
-                            playerId = null,
-                            title = "",
-                            statusCd = delivery.status,
-                            prdPicture = null,
-                            departAddress = "",
-                            destAddress = "",
-                            pickupImmediately = false,
-                            pickupDate = delivery.date,
-                            feeFinal = 0,
-                            registDate = null,
-                            applyDate = null
-                        )
-                    }
-                }
                 _calendarDeliveries.value = allDeliveries
                 buildDotData(allDeliveries)
+                selectedCalendarDate?.let { filterDeliveriesForDate(it) }
             }
             else -> {
                 _monthDeliveryDates.value = emptySet()
                 _calendarDeliveries.value = emptyList()
                 _calendarDotData.value = emptyMap()
+                selectedCalendarDate?.let { _calendarDayDeliveries.value = emptyList() }
             }
         }
     }
@@ -146,25 +140,34 @@ class HistoryDeliveryViewModel @Inject constructor(baseViewModelDependenciesFact
     fun buildDotData(deliveries: List<DeliverySummaryDto>) {
         val dotMap = mutableMapOf<LocalDate, DeliveryDotType>()
         deliveries.forEach { delivery ->
-            val dateKey = delivery.pickupDate.take(8) // "yyyyMMdd"
-            if (dateKey.length == 8) {
-                runCatching {
-                    val date = LocalDate.parse(dateKey, java.time.format.DateTimeFormatter.BASIC_ISO_DATE)
-                    val dotType = getDotType(delivery.statusCd)
-                    val existing = dotMap[date]
-                    dotMap[date] = if (existing != null) higherPriority(existing, dotType) else dotType
-                }
-            }
+            val date = delivery.pickupDate.toCalendarLocalDate() ?: return@forEach
+            val dotType = getDotType(delivery.statusCd)
+            val existing = dotMap[date]
+            dotMap[date] = if (existing != null) higherPriority(existing, dotType) else dotType
         }
         _calendarDotData.value = dotMap
     }
 
     // iOS 대응: 선택된 날짜의 배송 목록 필터링
     fun filterDeliveriesForDate(date: LocalDate) {
+        selectedCalendarDate = date
         val dateKey = date.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE)
         _calendarDayDeliveries.value = _calendarDeliveries.value.filter { delivery ->
-            delivery.pickupDate.take(8) == dateKey
+            delivery.pickupDate.toCalendarDateKey() == dateKey
         }
+    }
+
+    private fun String.toCalendarLocalDate(): LocalDate? {
+        return toCalendarDateKey()?.let { dateKey ->
+            runCatching {
+                LocalDate.parse(dateKey, java.time.format.DateTimeFormatter.BASIC_ISO_DATE)
+            }.getOrNull()
+        }
+    }
+
+    private fun String.toCalendarDateKey(): String? {
+        val digits = filter { it.isDigit() }
+        return digits.takeIf { it.length >= 8 }?.take(8)
     }
 
     private fun getDotType(statusCd: String): DeliveryDotType {

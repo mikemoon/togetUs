@@ -192,6 +192,61 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         }
     }
 
+    /** iOS와 동일하게 진행중 채팅 목록이 아니라 배송의 채팅방으로 바로 진입한다. */
+    fun openChat() = viewModelScope.launch {
+        val detail = deliveryDetail.value ?: return@launch
+        val isRequester = myUserId.value != null && detail.requester_id == myUserId.value
+        loadingState.value = true
+        val result = if (isRequester) {
+            deliveryRepo.getRequesterChat(detail.delivery_id)
+        } else {
+            deliveryRepo.putPlayerChat(detail.delivery_id)
+        }
+        when (result) {
+            is ResultWrapper.Success -> {
+                if (result.data.room_id > 0L) {
+                    _event.value = Event.OpenChatRoom(result.data.room_id, !isRequester)
+                } else {
+                    _event.value = Event.ChatOpenFailed
+                }
+            }
+            else -> _event.value = Event.ChatOpenFailed
+        }
+        loadingState.value = false
+    }
+
+    fun confirmReceipt(resultCallback: (Boolean) -> Unit) = viewModelScope.launch {
+        val deliveryId = deliveryDetail.value?.delivery_id ?: return@launch resultCallback(false)
+        loadingState.value = true
+        val result = deliveryRepo.confirmDeliveryRequester(deliveryId)
+        loadingState.value = false
+        when (result) {
+            is ResultWrapper.Success -> {
+                if (result.data) {
+                    getDeliveryDetailInfo(deliveryId)
+                }
+                resultCallback(result.data)
+            }
+            else -> resultCallback(false)
+        }
+    }
+
+    fun confirmPickup(resultCallback: (Boolean) -> Unit) = viewModelScope.launch {
+        val deliveryId = deliveryDetail.value?.delivery_id ?: return@launch resultCallback(false)
+        loadingState.value = true
+        val result = deliveryRepo.putRequesterPickup(deliveryId)
+        loadingState.value = false
+        when (result) {
+            is ResultWrapper.Success -> {
+                if (result.data) {
+                    getDeliveryDetailInfo(deliveryId)
+                }
+                resultCallback(result.data)
+            }
+            else -> resultCallback(false)
+        }
+    }
+
     val deliveryData = combine(
         detailState,
         productTypes,
@@ -207,7 +262,7 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         val isRequester = state.userId != null && detail.requester_id == state.userId
         val isMatchedPlayer = state.playerId != null && detail.player_id == state.playerId
         val showPaymentInfo = isRequester &&
-            detail.status_cd in PAYMENT_INFO_STATUSES
+            (detail.status_cd in PAYMENT_INFO_STATUSES || detail.pay.isNotEmpty())
         val primaryPay = detail.pay.firstOrNull()
         val additionalPay = detail.pay.drop(1).firstOrNull()
 
@@ -247,6 +302,8 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
             productWeight = weightName,
             productVolume = volumeName,
             showCompanionInfo = isRequester && detail.status_cd in setOf("MATCH_BEFORE", "MATCH_ING"),
+            showPlayerProgressInfo = isRequester && detail.status_cd in USER_PLAYER_PROGRESS_STATUSES,
+            playerIdText = detail.player_profile?.nickname.orEmpty(),
             hasChatInProgress = state.chatCount > 0,
             chatInProgressText = "진행중 채팅",
             chatInProgressCountText = state.chatCount.toString(),
@@ -256,10 +313,10 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
             basePaymentText = formatWon(primaryPay?.amount ?: detail.fee.fee_final),
             basicFeeText = formatWon(detail.fee.fee_basic),
             adjustFeeText = formatWon(detail.fee.fee_adjust),
-            paymentMethodText = formatPayMethod(primaryPay?.type),
+            paymentMethodText = formatPayMethod(primaryPay),
             showAdditionalPaymentInfo = showPaymentInfo && additionalPay?.amount != null,
             additionalPaymentText = formatWon(additionalPay?.amount ?: 0),
-            additionalPaymentMethodText = formatPayMethod(additionalPay?.type),
+            additionalPaymentMethodText = formatPayMethod(additionalPay),
         )
     }.stateIn(
         scope = viewModelScope,
@@ -287,15 +344,23 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         return "${expectedTimeMinutes.coerceAtLeast(0)}분"
     }
 
-    private fun formatPayMethod(type: String?): String =
-        when (type?.uppercase(Locale.getDefault())) {
-            "CARD", "CREDIT_CARD", "CREDITCARD" -> "신용카드"
-            "KAKAO_PAY", "KAKAOPAY" -> "카카오페이"
-            "NAVER_PAY", "NAVERPAY" -> "네이버페이"
+    private fun formatPayMethod(pay: sky.kr.co.newtogetusa.data.remote.dto.delivery.PayDto?): String {
+        pay ?: return "-"
+        val cardName = pay.pay_card_name.orEmpty().trim()
+        if (cardName.isNotBlank()) return "신용카드 ($cardName)"
+
+        return when (pay.type?.uppercase(Locale.getDefault())) {
+            "CARD", "CREDIT_CARD", "CREDITCARD", "CREDIT-CARD", "CREDIT_CARD_GENERAL", "CREDIT_CARD_EASY",
+            "CREDIT_CARD_EASY_PAY", "CREDIT_CARD_SIMPLE", "credit_card".uppercase(Locale.getDefault()) -> "신용카드"
+            "EASY_CARD", "CARD_EASY", "EASY_PAY", "EASYPAY", "SIMPLE_PAY" -> "카드 간편결제"
+            "KAKAO_PAY", "KAKAOPAY", "kakao_pay".uppercase(Locale.getDefault()) -> "카카오페이"
+            "NAVER_PAY", "NAVERPAY", "naver_pay".uppercase(Locale.getDefault()) -> "네이버페이"
+            "SAMSUNG_PAY", "samsung_pay".uppercase(Locale.getDefault()) -> "삼성페이"
             "BANK", "TRANSFER", "VACCOUNT" -> "계좌이체"
-            null, "" -> "-"
-            else -> type
+            null, "" -> "신용카드"
+            else -> pay.type
         }
+    }
 
     private fun DeliveryDetailResponse.displayAddress(
         address: String,
@@ -331,6 +396,8 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         object ModifyFee: Event()
 
         object ChatInProgress: Event()
+        data class OpenChatRoom(val roomId: Long, val isPlayerRoom: Boolean) : Event()
+        object ChatOpenFailed : Event()
 
 
     }
@@ -358,6 +425,13 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         }
 
     companion object {
+        private val USER_PLAYER_PROGRESS_STATUSES = setOf(
+            "DELIVERY_BEFORE",
+            "DELIVERY_WAIT",
+            "DELIVERY_START",
+            "DELIVERY_ING",
+            "DELIVERY_END"
+        )
         private val PAYMENT_INFO_STATUSES = setOf(
             "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "DELIVERY_ING",
             "DELIVERY_END", "DONE", "DONE_END", "DONE_DELIVERY", "CANCEL", "CANCEL_DONE"
@@ -415,6 +489,8 @@ class HistoryDetailViewModel @Inject constructor(baseViewModelDependenciesFactor
         val productWeight : String,
         val productVolume : String,
         val showCompanionInfo: Boolean,
+        val showPlayerProgressInfo: Boolean,
+        val playerIdText: String,
         val hasChatInProgress: Boolean,
         val chatInProgressText: String,
         val chatInProgressCountText: String,

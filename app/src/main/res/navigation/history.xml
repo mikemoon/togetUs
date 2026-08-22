@@ -21,9 +21,6 @@
             android:id="@+id/action_historyFragment_to_historyDeliveryFragment"
             app:destination="@id/historyDeliveryFragment" />
         <action
-            android:id="@+id/action_historyFragment_to_deliveryStatusFragment"
-            app:destination="@id/deliveryStatusFragment" />
-        <action
             android:id="@+id/action_historyFragment_to_chatInProgressFragment"
             app:destination="@id/chatInProgressFragment" />
         <action
@@ -185,15 +182,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/deliveryStatusFragment"
-        android:name="sky.kr.co.newtogetusa.ui.main.history.status.DeliveryStatusFragment"
-        android:label="DeliveryStatusFragment">
-        <argument
-            android:name="deliveryId"
-            app:argType="long" />
-    </fragment>
-
-    <fragment
         android:id="@+id/chatInProgressFragment"
         android:name="sky.kr.co.newtogetusa.ui.main.history.chat.ChatInProgressFragment"
         android:label="ChatInProgressFragment">
@@ -222,6 +210,22 @@
             android:defaultValue="false" />
         <action
             android:id="@+id/action_deliveryReviewFragment_to_receivedReviewFragment"
+            app:destination="@id/receivedReviewFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/sentReviewFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.history.review.SentReviewFragment"
+        android:label="SentReviewFragment">
+        <argument
+            android:name="deliveryId"
+            app:argType="long" />
+        <argument
+            android:name="isPlayer"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_sentReviewFragment_to_receivedReviewFragment"
             app:destination="@id/receivedReviewFragment" />
     </fragment>
 

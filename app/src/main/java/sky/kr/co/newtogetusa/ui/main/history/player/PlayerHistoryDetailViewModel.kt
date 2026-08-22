@@ -86,6 +86,8 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         when (buttonState.value) {
             ButtonState.PlayerSupport -> openChatRoom(detail)
             ButtonState.PlayerCancelSupport -> openChatRoom(detail)
+            ButtonState.PlayerPickupDeparture -> openChatRoom(detail)
+            ButtonState.PlayerPickupReady -> openChatRoom(detail)
             ButtonState.PlayerDeliveryProgress -> openChatRoom(detail)
             ButtonState.RequesterRegister -> _event.value = Event.CancelReq
             ButtonState.RequesterMatchBefore -> _event.value = Event.CancelReq
@@ -98,6 +100,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         when (buttonState.value) {
             ButtonState.PlayerSupport -> _event.value = Event.ShowApplyDialog
             ButtonState.PlayerCancelSupport -> _event.value = Event.ConfirmCancelSupport
+            ButtonState.PlayerPickupDeparture -> _event.value = Event.ShowPickupStartGuide
             ButtonState.PlayerPickupReady -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "pickup")
             ButtonState.PlayerDeliveryProgress -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
             ButtonState.PlayerCompleteShooting -> _event.value = Event.OpenProofPhoto(detail.delivery_id, "complete")
@@ -243,6 +246,21 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         }
     }
 
+    private fun requestPickupStart(deliveryId: Long) = viewModelScope.launch {
+        when (deliveryRepo.putPickupStart(deliveryId)) {
+            is ResultWrapper.Success -> {
+                _event.value = Event.ActionSuccess("픽업 출발 처리되었어요.")
+                getDeliveryDetailInfo(deliveryId)
+            }
+            else -> _event.value = Event.ActionFail
+        }
+    }
+
+    fun confirmPickupStart() {
+        val detail = deliveryDetail.value ?: return
+        requestPickupStart(detail.delivery_id)
+    }
+
     fun cancelReq(deliveryId: Long, resultCallback: (Boolean) -> Unit) = viewModelScope.launch {
         when (deliveryRepo.cancelDelivery(deliveryId)) {
             is ResultWrapper.Success -> {
@@ -281,8 +299,9 @@ class PlayerHistoryDetailViewModel @Inject constructor(
                 "REGISTER_ING", "MATCH_BEFORE", "MATCH_ING" -> {
                     if (detail.is_apply) ButtonState.PlayerCancelSupport else ButtonState.PlayerSupport
                 }
-                "DELIVERY_BEFORE", "DELIVERY_WAIT", "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART" -> ButtonState.PlayerPickupReady
-                "DELIVERY_ING" -> ButtonState.PlayerDeliveryProgress
+                "DELIVERY_BEFORE", "DELIVERY_WAIT" -> ButtonState.PlayerPickupDeparture
+                "DELIVERY_START", "PICKUP_START", "DELIVERY_DEPART" -> ButtonState.PlayerPickupReady
+                "DELIVERY_ING" -> ButtonState.PlayerCompleteShooting
                 "DONE", "DONE_END", "DELIVERY_END" -> when {
                     // 완료 증빙이 없음 = 유저가 먼저 완료처리한 케이스 → 촬영 버튼
                     !detail.hasCompleteProof -> ButtonState.PlayerCompleteShooting
@@ -416,7 +435,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
             "MATCH_BEFORE" -> "매칭 대기중"
             "MATCH_ING" -> "매칭 진행중"
             "DELIVERY_BEFORE" -> "동행 대기중"
-            "DELIVERY_START" -> "픽업 출발"
+            "DELIVERY_START" -> "동행 시작"
             "DELIVERY_ING" -> "동행중"
             "DELIVERY_END" -> "동행 완료"
             "CANCEL" -> "취소완료"
@@ -430,11 +449,12 @@ class PlayerHistoryDetailViewModel @Inject constructor(
     ) {
         PlayerSupport(primaryText = "지원하기", secondaryText = "채팅하기", showSecondary = true),
         PlayerCancelSupport(primaryText = "지원 취소", secondaryText = "채팅하기", showSecondary = true),
-        PlayerPickupReady(primaryText = "픽업완료", secondaryText = "", showSecondary = false),
+        PlayerPickupDeparture(primaryText = "픽업출발하기", secondaryText = "채팅하기", showSecondary = true),
+        PlayerPickupReady(primaryText = "픽업 촬영", secondaryText = "채팅하기", showSecondary = true),
         PlayerDeliveryProgress(primaryText = "동행완료", secondaryText = "채팅하기", showSecondary = true),
         PlayerCompleteShooting(primaryText = "동행 완료 촬영", secondaryText = "채팅하기", showSecondary = true),
         WaitUserConfirm(primaryText = "유저 수령 확인중", secondaryText = "", showSecondary = false),
-        PlayerDone(primaryText = "등록하기", secondaryText = "", showSecondary = false),
+        PlayerDone(primaryText = "후기작성하기", secondaryText = "", showSecondary = false),
         RequesterRegister(primaryText = "수정하기", secondaryText = "삭제하기", showSecondary = true),
         RequesterMatchBefore(primaryText = "추가금액수정", secondaryText = "취소하기", showSecondary = true),
         RequesterCancel(primaryText = "다시등록하기", secondaryText = "", showSecondary = false),
@@ -464,6 +484,7 @@ class PlayerHistoryDetailViewModel @Inject constructor(
         object ModifyFee : Event()
         object ConfirmReport : Event()
         object ConfirmCancelSupport : Event()
+        object ShowPickupStartGuide : Event()
         data class OpenReport(val isPlayer: Boolean) : Event()
         data class OpenReportReason(val userId: Int) : Event()
         object ShowApplyDialog : Event()

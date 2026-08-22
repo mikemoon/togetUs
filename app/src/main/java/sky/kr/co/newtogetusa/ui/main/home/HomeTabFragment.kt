@@ -106,6 +106,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
         checkLocationPermission()
         setupGoogleMap()
         setupMapTypeToggle()
+        dataBinding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshHome()
+        }
 
         prgAdapter = HomeProgressAdapter { selectedItem ->
             if (viewModel.isModePlayer.value) {
@@ -168,6 +171,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 }
                 launch {
                     viewModel.doingDeliveryList.filterNotNull().collectLatest {
+                        if (viewModel.isModePlayer.value) return@collectLatest
                         Timber.d("hometab doingDelivery: ${it.size}")
                         prgAdapter?.setItems(it)
                     }
@@ -180,6 +184,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 }
                 launch {
                     viewModel.doingPlayerDeliveryList.filterNotNull().collectLatest {
+                        if (!viewModel.isModePlayer.value) return@collectLatest
                         prgAdapter?.setItems(it, viewModel.doingPlayerDeliveryHasMore.value)
                     }
                 }
@@ -201,6 +206,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeBinding, HomeTabViewModel>() {
                 launch {
                     viewModel.loadingState.collectLatest { isLoading ->
                         if (isLoading) showLoading() else hideLoading()
+                    }
+                }
+                launch {
+                    viewModel.isHomeRefreshing.collectLatest { isRefreshing ->
+                        dataBinding.swipeRefresh.isRefreshing = isRefreshing
                     }
                 }
 

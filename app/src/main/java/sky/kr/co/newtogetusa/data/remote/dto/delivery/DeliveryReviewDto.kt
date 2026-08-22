@@ -1,6 +1,8 @@
 package sky.kr.co.newtogetusa.data.remote.dto.delivery
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 data class ReviewCheckDto(
     @SerializedName("can_review")
@@ -8,6 +10,7 @@ data class ReviewCheckDto(
     val message: String? = null,
 )
 
+@Parcelize
 data class DeliveryReviewDto(
     @SerializedName("review_id")
     val reviewId: Long = 0,
@@ -21,4 +24,4 @@ data class DeliveryReviewDto(
     val nickname: String? = null,
     @SerializedName("profile_image")
     val profileImage: String? = null,
-)
+) : Parcelable

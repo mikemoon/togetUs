@@ -66,7 +66,7 @@ class DeliveryRepository @Inject constructor(
         deliveryId: Long,
         request: DeliveryPayRequest
     ) = safeApiCall<Boolean>(Dispatchers.IO) {
-        apiService.payDelivery(deliveryId, request).boolValue
+        apiService.payDelivery(deliveryId, request)
     }
 
     suspend fun postDeliverySearch(deliverySearchReq: DeliverySearchReq) = safeApiCall<DeliverySearchResponse>(Dispatchers.IO){
@@ -112,8 +112,16 @@ class DeliveryRepository @Inject constructor(
         apiService.putRequesterPickup(deliveryId)
     }
 
+    suspend fun confirmDeliveryRequester(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.confirmDeliveryRequester(deliveryId)
+    }
+
     suspend fun getChatInProgressList(deliveryId: Long) = safeApiCall(Dispatchers.IO) {
         apiService.getChatInProgressList(deliveryId)
+    }
+
+    suspend fun getRequesterChat(deliveryId: Long) = safeApiCall(Dispatchers.IO) {
+        apiService.getRequesterChat(deliveryId)
     }
 
     suspend fun rejectApply(deliveryId: Long, playerId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
@@ -132,6 +140,10 @@ class DeliveryRepository @Inject constructor(
         if (isPlayer) apiService.writeReviewPlayer(deliveryId, request) else apiService.writeReviewRequester(deliveryId, request)
     }
 
+    suspend fun getReview(deliveryId: Long, isPlayer: Boolean) = safeApiCall(Dispatchers.IO) {
+        if (isPlayer) apiService.getReviewPlayer(deliveryId) else apiService.getReviewRequester(deliveryId)
+    }
+
     suspend fun getReviewed(deliveryId: Long, isPlayer: Boolean) = safeApiCall(Dispatchers.IO) {
         if (isPlayer) apiService.getReviewedPlayer(deliveryId) else apiService.getReviewedRequester(deliveryId)
     }
@@ -146,6 +158,10 @@ class DeliveryRepository @Inject constructor(
 
     suspend fun putApplyCancel(deliveryId: Long) = safeApiCall(Dispatchers.IO) {
         apiService.putApplyCancel(deliveryId)
+    }
+
+    suspend fun putPickupStart(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {
+        apiService.putPickupStart(deliveryId)
     }
 
     suspend fun postLikeDelivery(deliveryId: Long) = safeApiCall<Boolean>(Dispatchers.IO) {

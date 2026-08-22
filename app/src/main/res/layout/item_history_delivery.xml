@@ -23,9 +23,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="매칭대기중"
+                tools:text="동행 완료"
                 android:textColor="@color/black_60"
                 style="@style/Paragraph12B"
                 android:background="@drawable/background_s_b5_r4"

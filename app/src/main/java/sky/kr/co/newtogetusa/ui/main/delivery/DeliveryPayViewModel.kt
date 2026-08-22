@@ -12,6 +12,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.delivery.PickupDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayPickupRequest
 import sky.kr.co.newtogetusa.data.remote.request.delivery.DeliveryPayRequest
+import sky.kr.co.newtogetusa.repository.ConfigRepository
 import sky.kr.co.newtogetusa.repository.DeliveryRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
 import sky.kr.co.newtogetusa.ui.base.BaseViewModelDependenciesFactory
@@ -25,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DeliveryPayViewModel @Inject constructor(
     baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
-    private val deliveryRepository: DeliveryRepository
+    private val deliveryRepository: DeliveryRepository,
+    private val configRepository: ConfigRepository
 ) : BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
     val feeText = MutableLiveData("-")
@@ -41,6 +43,7 @@ class DeliveryPayViewModel @Inject constructor(
     val agreeTerm1 = MutableLiveData(false)
     val agreeTerm2 = MutableLiveData(false)
     val agreeTerm3 = MutableLiveData(false)
+    val policyAgree = MutableLiveData(false)
     val payEnabled = MutableLiveData(false)
 
     private var deliveryId: Long = -1L
@@ -65,6 +68,7 @@ class DeliveryPayViewModel @Inject constructor(
         if (deliveryId <= 0L || this.deliveryId == deliveryId) return
         this.deliveryId = deliveryId
         this.playerId = playerId
+        loadWeightNames()
         viewModelScope.launch {
             loadingState.value = true
             when (val res = deliveryRepository.getDeliveryFee(deliveryId)) {
@@ -95,6 +99,12 @@ class DeliveryPayViewModel @Inject constructor(
         updatePayEnabled()
     }
 
+    // 하단 정책 동의 체크 (iOS policyCheck 대응)
+    fun togglePolicy() {
+        policyAgree.value = policyAgree.value != true
+        updatePayEnabled()
+    }
+
     fun onPayClick() {
         if (deliveryId <= 0L) {
             _event.value = Event.ShowMessage("배송 정보를 확인할 수 없습니다.")
@@ -105,8 +115,8 @@ class DeliveryPayViewModel @Inject constructor(
             return
         }
         if (payEnabled.value != true) return
-        if (adjustFee > 0L && (adjustFee < 1000L || adjustFee % 1000L != 0L)) {
-            _event.value = Event.ShowMessage("추가요금은 1,000원 단위로 입력해 주세요.")
+        if (adjustFee > 0L && (adjustFee < 1000L || adjustFee > 100000L || adjustFee % 1000L != 0L)) {
+            _event.value = Event.ShowMessage("천원 단위로만 입력 가능해요.")
             return
         }
         if (!isPickupComplete()) {
@@ -114,6 +124,13 @@ class DeliveryPayViewModel @Inject constructor(
             return
         }
 
+        // 결제 동의 팝업 → 모두 동의 시 결제 진행 (iOS presentAgreePopup 대응)
+        _event.value = Event.ShowAgreePopup
+    }
+
+    // 결제 동의 팝업에서 모두 동의 시 호출
+    fun onAgreeAll() {
+        if (deliveryId <= 0L || playerId <= 0L) return
         viewModelScope.launch {
             loadingState.value = true
             when (val config = deliveryRepository.getDeliveryPortOneConfig()) {
@@ -157,8 +174,34 @@ class DeliveryPayViewModel @Inject constructor(
     private fun bindFee(data: DeliveryFeeResponse) {
         fee = data
         distanceText.value = "${data.expectedStraight}km"
-        weightText.value = data.expectedWeightCd
+        weightText.value = resolveWeightName(data.expectedWeightCd)
         refreshFeeTexts()
+    }
+
+    // 무게 코드 → UI 명칭 (iOS getDeliveryProductWeightName 대응)
+    private var weightCodeNameMap: Map<String, String> = emptyMap()
+
+    private fun loadWeightNames() = viewModelScope.launch {
+        when (val res = configRepository.getProductWeightList()) {
+            is ResultWrapper.Success -> {
+                weightCodeNameMap = res.data.associate { it.code to it.name }
+                fee?.let { weightText.value = resolveWeightName(it.expectedWeightCd) }
+            }
+            else -> {}
+        }
+    }
+
+    private fun resolveWeightName(code: String): String {
+        val configName = weightCodeNameMap[code]
+        if (!configName.isNullOrBlank() && !configName.equals(code, ignoreCase = true)) {
+            return configName
+        }
+        return when (code.trim().lowercase()) {
+            "light", "small" -> "가벼움(~3KG)"
+            "medium" -> "보통(3~10KG)"
+            "heavy", "big" -> "무거움(10KG~)"
+            else -> "-"
+        }
     }
 
     private fun bindPickup(pickup: PickupDto) {
@@ -218,9 +261,10 @@ class DeliveryPayViewModel @Inject constructor(
     }
 
     private fun updatePayEnabled() {
-        val termsChecked = agreeTerm1.value == true && agreeTerm2.value == true && agreeTerm3.value == true
-        val feeValid = adjustFee == 0L || (adjustFee >= 1000L && adjustFee % 1000L == 0L)
-        payEnabled.value = termsChecked && feeValid && totalAmount() > 0L && isPickupComplete()
+        // iOS: 빈 값(추가요금 0) 허용, 아니면 1,000원 단위 (최소 1,000 ~ 최대 100,000)
+        val feeValid = adjustFee == 0L ||
+            (adjustFee in 1000L..100000L && adjustFee % 1000L == 0L)
+        payEnabled.value = policyAgree.value == true && feeValid && totalAmount() > 0L && isPickupComplete()
     }
 
     private fun isPickupComplete(): Boolean {
@@ -259,6 +303,7 @@ class DeliveryPayViewModel @Inject constructor(
         object Back : Event()
         object SelectPickupDate : Event()
         object SelectPickupTime : Event()
+        object ShowAgreePopup : Event()
         data class StartPortOnePayment(val config: PortOneConfigDto, val amount: Long) : Event()
         object PaymentSuccess : Event()
         data class ShowMessage(val message: String) : Event()

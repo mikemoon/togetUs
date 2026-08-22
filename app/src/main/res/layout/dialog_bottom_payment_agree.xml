@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Paragraph16B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:text="결제 동의"
+            android:textColor="@color/black_80" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/black_10" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/background_s_b5_r4"
+            android:gravity="top"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginTop="3dp"
+                android:src="@drawable/error_dark" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Paragraph17R"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="한 번만 동의하시면, 이후 결제부터는 별도의 동의 절차가 필요하지 않습니다."
+                android:textColor="@color/black_80" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="40dp"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbTerm1"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/payment_checkbox_selector"
+                    android:button="@null" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="[필수] "
+                    android:textColor="@color/red_100" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="전자금융거래 이용약관 동의"
+                    android:textColor="@color/black_80" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/right_gray" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="40dp"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbTerm2"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/payment_checkbox_selector"
+                    android:button="@null" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="[필수] "
+                    android:textColor="@color/red_100" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="개인정보 수집 및 이용에 대한 동의"
+                    android:textColor="@color/black_80" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/right_gray" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="40dp"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbTerm3"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/payment_checkbox_selector"
+                    android:button="@null" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="[필수] "
+                    android:textColor="@color/red_100" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Paragraph17R"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="개인정보 제3자 제공 약관 동의"
+                    android:textColor="@color/black_80" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/right_gray" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="32dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCancel"
+                style="@style/HeadLine18B"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_s_b5_r4"
+                android:gravity="center"
+                android:text="취소"
+                android:textColor="@color/black_60" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAgreeAll"
+                style="@style/HeadLine18B"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="12dp"
+                android:layout_weight="2"
+                android:background="@drawable/selector_p40_p100_r4"
+                android:enabled="false"
+                android:gravity="center"
+                android:text="모두 동의"
+                android:textColor="@color/selector_wopa40_wopa100" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

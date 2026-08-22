@@ -76,7 +76,7 @@ interface DeliveryService {
     suspend fun payDelivery(
         @Path("delivery_id") deliveryId: Long,
         @Body body: DeliveryPayRequest
-    ): CommonBoolDto
+    ): Boolean
 
     @GET("api/deliveries/v1/{delivery_id}/players") //배송요청에 관련된 플레이어 목록
     suspend fun getPlayers(
@@ -134,7 +134,7 @@ interface DeliveryService {
         @Body body: DeliveryFinalReq,
     ): Boolean
 
-    @GET("api/deliverys/v1/{delivery_id}/requester/status_log") //현황조회
+    @GET("api/deliverys/v1/{delivery_id}/status") //현황조회
     suspend fun getDeliveryStatusList(
         @Path("delivery_id") delivery_id: Long,
     ): List<DeliveryStatusLogDto>
@@ -144,10 +144,20 @@ interface DeliveryService {
         @Path("delivery_id") deliveryId: Long,
     ): Boolean
 
+    @PUT("api/deliverys/v1/{delivery_id}/requester/confirm")
+    suspend fun confirmDeliveryRequester(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
     @GET("api/deliverys/v1/{delivery_id}/requester/chatrooms")
     suspend fun getChatInProgressList(
         @Path("delivery_id") deliveryId: Long,
     ): List<ChatInProgressDto>
+
+    @GET("api/deliverys/v1/{delivery_id}/requester/chat")
+    suspend fun getRequesterChat(
+        @Path("delivery_id") deliveryId: Long,
+    ): DeliveryPlayerChatDto
 
     @GET("api/deliverys/v1/{delivery_id}/requester/review/check")
     suspend fun checkReviewRequester(
@@ -159,6 +169,11 @@ interface DeliveryService {
         @Path("delivery_id") deliveryId: Long,
         @Body body: DeliveryReviewRequest,
     ): Boolean
+
+    @GET("api/deliverys/v1/{delivery_id}/requester/review")
+    suspend fun getReviewRequester(
+        @Path("delivery_id") deliveryId: Long,
+    ): DeliveryReviewDto
 
     @GET("api/deliverys/v1/{delivery_id}/requester/reviewed")
     suspend fun getReviewedRequester(
@@ -205,6 +220,11 @@ interface DeliveryService {
         @Body body: DeliveryReviewRequest,
     ): Boolean
 
+    @GET("api/deliverys/v1/{delivery_id}/player/review")
+    suspend fun getReviewPlayer(
+        @Path("delivery_id") deliveryId: Long,
+    ): DeliveryReviewDto
+
     @GET("api/deliverys/v1/{delivery_id}/player/reviewed")
     suspend fun getReviewedPlayer(
         @Path("delivery_id") deliveryId: Long,
@@ -238,6 +258,11 @@ interface DeliveryService {
 
     @PUT("/api/deliverys/v1/{delivery_id}/player/apply_cancel") //지원 취소하기
     suspend fun putApplyCancel(
+        @Path("delivery_id") deliveryId: Long,
+    ): Boolean
+
+    @PUT("api/deliverys/v1/{delivery_id}/player/pickup_start") //픽업 출발하기
+    suspend fun putPickupStart(
         @Path("delivery_id") deliveryId: Long,
     ): Boolean
 
