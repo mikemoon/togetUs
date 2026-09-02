@@ -59,6 +59,8 @@ class ChattingConversationFragment :
     private var lastUnreadRefreshMessageId: Long = 0
     private var isInputToolsOpen = false
     private var keepLatestMessageAnchored = false
+    private var pendingMediaAnchorCount = 0
+    private var mediaAnchorScheduled = false
     private var pendingMediaType: PendingMediaType = PendingMediaType.IMAGE
 
     // 카메라를 실행한 후 찍은 사진을 저장
@@ -99,7 +101,6 @@ class ChattingConversationFragment :
 
     override fun init() {
         super.init()
-        viewModel.connect()
         viewModel.loadRoomMessages(args.roomId)
 
         dataBinding.viewModel = viewModel
@@ -133,10 +134,13 @@ class ChattingConversationFragment :
             hasLoadedInitialMessages = true
             lastDisplayedMessageId = newLastMessage?.id
             if (shouldScrollToBottom) {
+                pendingMediaAnchorCount = messages.count { it.messageType == MESSAGE_TYPE_IMAGE || it.messageType == MESSAGE_TYPE_VIDEO }
+                    .coerceAtMost(MAX_MEDIA_ANCHOR_COUNT)
                 scrollToLatestMessage()
             } else if (shouldShowNewMessagePopup) {
                 showNewMessagePopup(newLastMessage)
             } else {
+                pendingMediaAnchorCount = 0
                 updateScrollToBottomButton()
             }
             refreshUnreadBadgeAfterRead(messages)
@@ -461,7 +465,16 @@ class ChattingConversationFragment :
 
     private fun onChatMediaRendered() {
         if (!keepLatestMessageAnchored || !isAdded) return
-        dataBinding.recyclerViewMessages.post(::scrollToLatestMessage)
+        if (pendingMediaAnchorCount <= 0 || mediaAnchorScheduled) return
+
+        pendingMediaAnchorCount--
+        mediaAnchorScheduled = true
+        dataBinding.recyclerViewMessages.post {
+            mediaAnchorScheduled = false
+            if (!keepLatestMessageAnchored || !isAdded) return@post
+            scrollRecyclerViewToBottom()
+            updateScrollToBottomButton()
+        }
     }
 
     private fun showNewMessagePopup(message: ChatMessage) {
@@ -571,6 +584,9 @@ class ChattingConversationFragment :
         const val MAX_CHAT_IMAGE_BYTES = 100 * 1024 * 1024
         const val READ_REFRESH_DELAY_MS = 500L
         const val PLUS_BUTTON_ANIMATION_MS = 300L
+        const val MESSAGE_TYPE_IMAGE = 1
+        const val MESSAGE_TYPE_VIDEO = 2
+        const val MAX_MEDIA_ANCHOR_COUNT = 8
         const val CHAT_UNAVAILABLE_DIALOG_TAG = "chat_unavailable"
     }
 

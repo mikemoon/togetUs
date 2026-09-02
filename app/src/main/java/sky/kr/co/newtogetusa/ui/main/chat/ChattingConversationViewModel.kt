@@ -104,10 +104,15 @@ class ChattingConversationViewModel @Inject constructor(
         currentRoomId = roomId
 
         viewModelScope.launch {
-            loadRoomHeader(roomId)
-            configureChatSession()
-            if (!chatClient.isConnected()) {
-                withContext(Dispatchers.IO) {
+            val canLoadMessages = loadRoomHeader(roomId)
+            if (!canLoadMessages) {
+                messagesList.clear()
+                _messages.value = emptyList()
+                return@launch
+            }
+            withContext(Dispatchers.IO) {
+                configureChatSession()
+                if (!chatClient.isConnected()) {
                     chatClient.connect()
                 }
             }
@@ -118,7 +123,9 @@ class ChattingConversationViewModel @Inject constructor(
                     _messages.value = messagesList.toList()
 
                     response.data.msgs.maxOfOrNull { it.msg_id }?.let { lastMessageId ->
-                        chatClient.sendRead(roomId, lastMessageId)
+                        withContext(Dispatchers.IO) {
+                            chatClient.sendRead(roomId, lastMessageId)
+                        }
                     }
                 }
                 is ResultWrapper.GenericError -> {
@@ -152,8 +159,8 @@ class ChattingConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadRoomHeader(roomId: Long) {
-        when (val room = chatRepository.getChatRoom(roomId)) {
+    private suspend fun loadRoomHeader(roomId: Long): Boolean {
+        return when (val room = chatRepository.getChatRoom(roomId)) {
             is ResultWrapper.Success -> {
                 roomNameFlow.value = room.data.room_name
                 isBlockedFlow.value = room.data.is_blocked
@@ -170,17 +177,19 @@ class ChattingConversationViewModel @Inject constructor(
                 deliveryTitleFlow.value = room.data.room_name
                 deliveryFeeFlow.value = ""
                 deliveryFeeVisibleFlow.value = false
-                val roomDelivery = room.data.delivery ?: run {
+                val roomDelivery = room.data.delivery
+                if (roomDelivery == null) {
                     deliveryIdFlow.value = 0L
                     deliveryStatusFlow.value = ""
                     deliveryImageFlow.value = null
-                    return
+                } else {
+                    deliveryIdFlow.value = roomDelivery.delivery_id.toLong()
+                    deliveryStatusFlow.value = roomDelivery.status_cd
+                    deliveryImageFlow.value = roomDelivery.prd_picture
                 }
-                deliveryIdFlow.value = roomDelivery.delivery_id.toLong()
-                deliveryStatusFlow.value = roomDelivery.status_cd
-                deliveryImageFlow.value = roomDelivery.prd_picture
+                !room.data.is_chat_disabled
             }
-            else -> {}
+            else -> false
         }
     }
 
