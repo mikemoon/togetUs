@@ -14,6 +14,7 @@ import sky.kr.co.newtogetusa.data.remote.dto.player.PlayerProfileDto
 import sky.kr.co.newtogetusa.data.remote.dto.player.PortOneConfigDto
 import sky.kr.co.newtogetusa.data.remote.dto.users.ProfileDto
 import sky.kr.co.newtogetusa.repository.DataStoreKey
+import sky.kr.co.newtogetusa.repository.MyRepository
 import sky.kr.co.newtogetusa.repository.PlayerRepository
 import sky.kr.co.newtogetusa.repository.UserRepository
 import sky.kr.co.newtogetusa.ui.base.BaseViewModel
@@ -26,6 +27,7 @@ class MyViewModel @Inject constructor(
     baseViewModelDependenciesFactory: BaseViewModelDependenciesFactory,
     private val playerRepository: PlayerRepository,
     private val userRepository: UserRepository,
+    private val myRepository: MyRepository,
 ) :
     BaseViewModel(baseViewModelDependenciesFactory.create()) {
 
@@ -275,6 +277,35 @@ class MyViewModel @Inject constructor(
         isCompanyInfoExpanded.value = !isCompanyInfoExpanded.value
     }
 
+    fun openAccompanyCreditNotice() = viewModelScope.launch {
+        loadingState.value = true
+        when (val res = myRepository.putNoticeList(hashMapOf("device_type" to "A"))) {
+            is ResultWrapper.Success -> {
+                loadingState.value = false
+                val notice = res.data.firstOrNull {
+                    it.title.normalizedNoticeTitle().contains(ACCOMPANY_CREDIT_NOTICE_KEYWORD)
+                }
+                _event.value = if (notice != null) {
+                    Event.NoticeDetail(notice.noticeId)
+                } else {
+                    Event.AccompanyCreditFallback
+                }
+            }
+            is ResultWrapper.GenericError -> {
+                loadingState.value = false
+                _event.value = Event.ShowMessage(res.message ?: "공지사항을 불러오지 못했습니다.")
+            }
+            is ResultWrapper.NetworkError -> {
+                loadingState.value = false
+                _event.value = Event.ShowMessage("네트워크 연결을 확인해 주세요.")
+            }
+        }
+    }
+
+    private fun String.normalizedNoticeTitle(): String {
+        return replace(" ", "")
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event) {
@@ -293,8 +324,14 @@ class MyViewModel @Inject constructor(
         object Term : Event()
         object JoinPlayer : Event()
         object AccompanyCredit : Event()
+        object AccompanyCreditFallback : Event()
+        data class NoticeDetail(val id: Int) : Event()
         object Update : Event()
         data class StartIdentityVerification(val config: PortOneConfigDto) : Event()
         data class ShowMessage(val message: String) : Event()
+    }
+
+    companion object {
+        private const val ACCOMPANY_CREDIT_NOTICE_KEYWORD = "동행크레딧안내"
     }
 }

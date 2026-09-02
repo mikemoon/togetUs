@@ -22,7 +22,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="4dp"
             android:text="본인 명의의 계좌로만 정산이 가능합니다."
-            android:textColor="@color/black_80" />
+            android:textColor="@color/black_40" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -35,7 +35,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvBankName"
-                style="@style/Paragraph14B"
+                style="@style/Paragraph16B"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -44,46 +44,46 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAccountNumber"
-            style="@style/Paragraph16B"
+            style="@style/Paragraph17R"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_margin="20dp"
             android:background="@drawable/background_st_b10_s_b2_r4"
             android:enabled="false"
             android:gravity="center_vertical"
             android:padding="16dp"
             android:text=""
-            android:textColor="@color/black_80" />
+            android:textColor="@color/black_20" />
     
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/bottom_cta_height"
+            android:layout_height="56dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:orientation="horizontal">
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btnReset"
-                android:layout_width="wrap_content"
+                style="@style/HeadLine18B"
+                android:layout_width="107dp"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="20dp"
-                android:text="다시 설정"
-                android:textColor="@color/black_80"
-                style="@style/HeadLine20B"
                 android:background="@drawable/background_s_b5_r4"
-                />
+                android:gravity="center"
+                android:text="다시 설정"
+                android:textColor="@color/black_80" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btnConfirm"
-                android:layout_width="match_parent"
+                style="@style/HeadLine18B"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="20dp"
                 android:layout_marginStart="12dp"
-                android:text="확인 완료"
-                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:background="@drawable/background_s_figma_primary_r4"
                 android:gravity="center"
-                style="@style/HeadLine20B"
-                android:background="@drawable/background_s_p100_r4"
-                />
+                android:text="확인 완료"
+                android:textColor="@color/white" />
         </LinearLayout>
     </LinearLayout>
 </layout>

@@ -46,12 +46,15 @@ class PlayerJoinViewModel @Inject constructor(
     val enableStep2Next = MutableLiveData<Boolean>()
     val accountNumber = MutableLiveData("")
     val depositorName = MutableLiveData("")
+    val depositorNameEnabled = MutableLiveData(true)
 
     //스텝3
     val enableStep3Next = MutableLiveData<Boolean>()
     val introduceText = MutableLiveData("")
     val profileImageUri = MutableLiveData<String?>()
     val crcFileUri = MutableLiveData<String?>()
+    private var profileImageSavedInCurrentSession = false
+    private var criminalRecordSavedInCurrentSession = false
     fun setIntroduceText(text: String) {
         introduceText.value = text
         updateStep3NextButtonState()
@@ -59,11 +62,13 @@ class PlayerJoinViewModel @Inject constructor(
 
     fun setProfileImage(uri: Uri?) {
         profileImageUri.value = uri?.toString()
+        profileImageSavedInCurrentSession = false
         updateStep3NextButtonState()
     }
 
     fun setCrcFile(uri: Uri?) {
         crcFileUri.value = uri?.toString()
+        criminalRecordSavedInCurrentSession = false
         updateStep3NextButtonState()
     }
 
@@ -373,7 +378,10 @@ class PlayerJoinViewModel @Inject constructor(
     }
 
     private fun restoreBank(info: PlayerApplyedInfoDto) {
-        val bank = info.bank ?: return
+        val bank = info.bank ?: run {
+            depositorNameEnabled.value = true
+            return
+        }
         val bankCd = bank.bank_cd.orEmpty()
         selectedBank.value = bankList.value.firstOrNull { it.code == bankCd }
             ?: BaseDto(
@@ -384,6 +392,7 @@ class PlayerJoinViewModel @Inject constructor(
             )
         accountNumber.value = bank.account_number.orEmpty()
         depositorName.value = bank.account_depositor.orEmpty()
+        depositorNameEnabled.value = !(info.verify_phone && !bank.account_depositor.isNullOrBlank())
         updateStep2NextButtonState()
     }
 
@@ -473,20 +482,14 @@ class PlayerJoinViewModel @Inject constructor(
     val documentFileName = MutableStateFlow("")
 
 
-    fun requestPlayerApply(playerId: Int, result: (Boolean) -> Unit) =
+    fun submitPlayerProfile(playerId: Int, result: (Boolean, String?) -> Unit) =
         viewModelScope.launch {
-
             val pendingFiles = listOfNotNull(profileFile.value, criminalFile.value)
 
             if (getApplyValidationMessage() != null) {
-                cleanupPendingFiles(pendingFiles)
-                result(false)
+                result(false, getApplyValidationMessage())
                 return@launch
             }
-
-            val start = startArea.value ?: return@launch
-            val dest = destArea.value ?: return@launch
-            val bank = selectedBank.value ?: return@launch
 
             val profileFile = profileFile.value
             val criminalFile = criminalFile.value
@@ -494,22 +497,6 @@ class PlayerJoinViewModel @Inject constructor(
             loadingState.value = true
 
             try {
-
-                val bankResult = playerRepository.postPlayerBank(
-                    playerId = playerId,
-                    request = BankRequestDto(
-                        term_cds = terms.value?.map { it.code } ?: listOf("terms_1", "terms_2", "terms_3"),
-                        account_number = accountNumber.value.orEmpty(),
-                        account_depositor = depositorName.value.orEmpty(),
-                        bank_cd = bank.code
-                    )
-                )
-                if (bankResult !is ResultWrapper.Success) {
-                    loadingState.value = false
-                    result(false)
-                    return@launch
-                }
-
                 if (profileFile != null) {
                     val profileResult = playerRepository.postProfileImage(
                         playerId = playerId,
@@ -517,9 +504,10 @@ class PlayerJoinViewModel @Inject constructor(
                     )
                     if (profileResult !is ResultWrapper.Success) {
                         loadingState.value = false
-                        result(false)
+                        result(false, profileResult.errorMessage("프로필 사진 저장에 실패했습니다."))
                         return@launch
                     }
+                    profileImageSavedInCurrentSession = true
                 }
 
                 val introduceResult = playerRepository.postIntroduction(
@@ -528,7 +516,7 @@ class PlayerJoinViewModel @Inject constructor(
                 )
                 if (introduceResult !is ResultWrapper.Success) {
                     loadingState.value = false
-                    result(false)
+                    result(false, introduceResult.errorMessage("자기소개 저장에 실패했습니다."))
                     return@launch
                 }
 
@@ -539,32 +527,60 @@ class PlayerJoinViewModel @Inject constructor(
                     )
                     if (criminalResult !is ResultWrapper.Success) {
                         loadingState.value = false
-                        result(false)
+                        result(false, criminalResult.errorMessage("범죄경력회보서 저장에 실패했습니다."))
                         return@launch
                     }
+                    criminalRecordSavedInCurrentSession = true
                 }
 
+                loadingState.value = false
+                cleanupPendingFiles(pendingFiles)
+                result(true, null)
+            } catch (e: Exception) {
+                loadingState.value = false
+                Timber.e(e, "Failed to submit player profile")
+                result(false, "플레이어 정보를 저장하지 못했습니다.")
+            }
+        }
+
+    fun requestPlayerApply(playerId: Int, result: (Boolean, String?) -> Unit) =
+        viewModelScope.launch {
+            val validationMessage = getApplyValidationMessage()
+            if (validationMessage != null) {
+                result(false, validationMessage)
+                return@launch
+            }
+
+            loadingState.value = true
+
+            try {
                 if (!savePrimaryArea(playerId)) {
                     loadingState.value = false
-                    result(false)
+                    result(false, "동행범위1 저장에 실패했습니다.")
                     return@launch
                 }
 
                 if (!saveSecondaryAreaIfNeeded(playerId)) {
                     loadingState.value = false
-                    result(false)
+                    result(false, "동행범위2 저장에 실패했습니다.")
                     return@launch
                 }
 
-                val applyResult = playerRepository.postPlayerApply(playerId)
-                loadingState.value = false
-                result(applyResult is ResultWrapper.Success)
+                when (val applyResult = playerRepository.postPlayerApply(playerId)) {
+                    is ResultWrapper.Success -> {
+                        loadingState.value = false
+                        result(true, null)
+                    }
+                    else -> {
+                        loadingState.value = false
+                        result(false, applyResult.errorMessage("플레이어 신청 제출에 실패했습니다."))
+                    }
+                }
 
             } catch (e: Exception) {
                 loadingState.value = false
-                result(false)
-            } finally {
-                cleanupPendingFiles(pendingFiles)
+                Timber.e(e, "Failed to request player apply")
+                result(false, "플레이어 신청 제출에 실패했습니다.")
             }
         }
 
@@ -714,10 +730,17 @@ class PlayerJoinViewModel @Inject constructor(
         playerRepository.deletePlayerArea(playerId, areaId) is ResultWrapper.Success
 
     private fun hasStoredProfileImage(): Boolean =
-        !playerApplyedInfo.value?.profile_image.isNullOrBlank()
+        profileImageSavedInCurrentSession || !playerApplyedInfo.value?.profile_image.isNullOrBlank()
 
     private fun hasStoredCriminalRecord(): Boolean =
-        !playerApplyedInfo.value?.criminalrecord_file_name.isNullOrBlank()
+        criminalRecordSavedInCurrentSession || !playerApplyedInfo.value?.criminalrecord_file_name.isNullOrBlank()
+
+    private fun ResultWrapper<*>.errorMessage(defaultMessage: String): String =
+        when (this) {
+            is ResultWrapper.GenericError -> message?.takeIf { it.isNotBlank() } ?: defaultMessage
+            is ResultWrapper.NetworkError -> "네트워크 상태를 확인해 주세요."
+            is ResultWrapper.Success -> defaultMessage
+        }
 
     private fun ResultWrapper<*>.isAreaLimitExceeded(): Boolean =
         this is ResultWrapper.GenericError &&
@@ -761,6 +784,23 @@ class PlayerJoinViewModel @Inject constructor(
             }
             else -> {}
         }
+    }
+
+    fun onTermDetailClick(index: Int) {
+        val fallback = fallbackPlayerTerms.getOrNull(index) ?: return
+        val term = findPlayerTerm(index, fallback)
+        val title = term?.name?.takeIf { it.isNotBlank() } ?: fallback.title
+        val content = term?.description?.takeIf { it.isNotBlank() } ?: fallback.content
+        _event.value = Event.TermDetail(title, content)
+    }
+
+    private fun findPlayerTerm(index: Int, fallback: FallbackPlayerTerm): TermMeta? {
+        val termList = terms.value.orEmpty()
+        return termList.firstOrNull { term ->
+            fallback.keywords.any { keyword ->
+                term.name.contains(keyword) || term.code.contains(keyword, ignoreCase = true)
+            }
+        } ?: termList.getOrNull(index)
     }
 
     fun postPlayerProfileImage(playerId: Int, file: MultipartBody.Part, result: (Boolean) -> Unit) = viewModelScope.launch {
@@ -839,6 +879,7 @@ class PlayerJoinViewModel @Inject constructor(
         object Bank : Event()
         object CheckBankAccount : Event()
 
+        object ProfileNext : Event()
         object Complete : Event()
         object StartArea : Event()
         object DestinaitonArea : Event()
@@ -847,5 +888,42 @@ class PlayerJoinViewModel @Inject constructor(
         object DestinaitonArea2 : Event()
 
         data class ShowMessage(val message: String) : Event()
+        data class TermDetail(val title: String, val content: String) : Event()
+    }
+
+    private data class FallbackPlayerTerm(
+        val title: String,
+        val content: String,
+        val keywords: List<String>,
+    )
+
+    companion object {
+        private val fallbackPlayerTerms = listOf(
+            FallbackPlayerTerm(
+                title = "만 19세 이상입니다.",
+                content = "만 19세 이상임에 동의합니다.",
+                keywords = listOf("19", "성인", "age")
+            ),
+            FallbackPlayerTerm(
+                title = "업무위수탁약관",
+                content = "업무위수탁약관",
+                keywords = listOf("업무", "위수탁", "business")
+            ),
+            FallbackPlayerTerm(
+                title = "위치정보 이용 동의",
+                content = "위치정보 이용 동의",
+                keywords = listOf("위치", "location")
+            ),
+            FallbackPlayerTerm(
+                title = "고유식별정보 수집 및 이용 동의",
+                content = "고유식별정보 수집 및 이용 동의",
+                keywords = listOf("고유", "식별", "unique")
+            ),
+            FallbackPlayerTerm(
+                title = "개인 정보의 제3자 제공에 대한 동의",
+                content = "개인 정보의 제3자 제공에 대한 동의",
+                keywords = listOf("개인", "제3자", "personal")
+            )
+        )
     }
 }

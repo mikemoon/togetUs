@@ -45,16 +45,6 @@
                 tools:text="홍길동" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="12dp"
-                android:src="@drawable/call"
-                android:onClick="@{()-> viewModel.onEventClick(Event.PhoneCall.INSTANCE)}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/ivMore"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/ivMore"
                 android:layout_width="24dp"
                 android:layout_height="24dp"

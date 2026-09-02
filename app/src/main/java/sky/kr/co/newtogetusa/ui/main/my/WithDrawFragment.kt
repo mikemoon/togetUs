@@ -79,6 +79,19 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                                 }
                             }
 
+                            LoginViewModel.APPLE -> {
+                                dataBinding.llSns.isVisible = true
+                                dataBinding.llSns.background = ContextCompat.getDrawable(
+                                    requireContext(),
+                                    R.drawable.background_s_black_r4
+                                )
+                                dataBinding.ivSns.setImageResource(R.drawable.login_apple)
+                                dataBinding.tvSns.apply {
+                                    text = "Apple로 인증하기"
+                                    setTextColor(ContextCompat.getColor(context, R.color.white))
+                                }
+                            }
+
                             LoginViewModel.EMAIL -> {
                                 dataBinding.tvEmailVerify.isVisible = true
                             }
@@ -110,6 +123,7 @@ class WithDrawFragment : BaseFragment<FragmentWithdrawBinding, WithDrawViewModel
                 LoginViewModel.KAKAO -> verifyKakao()
                 LoginViewModel.NAVER -> verifyNaver()
                 LoginViewModel.GOOGLE -> verifyGoogle()
+                LoginViewModel.APPLE -> requireContext().toast("Apple 인증은 로그인 화면에서 진행해 주세요.")
             }
         }
 

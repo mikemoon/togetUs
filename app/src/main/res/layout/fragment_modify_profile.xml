@@ -88,11 +88,11 @@
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/etName"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="56dp"
                 android:padding="16dp"
                 android:maxLines="1"
                 android:singleLine="true"
-                style="@style/Paragraph14R"
+                style="@style/Paragraph17R"
                 android:textColor="@color/black_80"
                 android:text="@{profile.user.nickname}"
                 android:background="@drawable/background_st_b10_s_w_r4"
@@ -101,7 +101,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Description10R"
+                style="@style/Description13R"
                 android:textColor="@color/black_40"
                 android:text="· 닉네임은 한글, 영문, 숫자만 가능해요. (10자 이하)"
                 android:layout_marginTop="8dp"
@@ -110,9 +110,17 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Description10R"
+                style="@style/Description13R"
                 android:textColor="@color/black_40"
                 android:text="· 닉네임은 1년(년도 기준)에 한 번만 변경 가능해요."
+                android:includeFontPadding="false"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Description13R"
+                android:textColor="@color/black_40"
+                android:text="· 닉네임은 플레이어/유저 공통으로 사용해요."
                 android:includeFontPadding="false"
                 />
             

@@ -63,6 +63,14 @@ class LoginTermAgreeFragment :
                         ))
                     }
                 }
+                is LoginTermAgreeViewModel.Event.TermDetail -> {
+                    findNavController().navigate(
+                        LoginTermAgreeFragmentDirections.actionLoginTermAgreeFragmentToTermDetailFragment(
+                            title = event.title,
+                            content = event.content
+                        )
+                    )
+                }
 
             }
         }

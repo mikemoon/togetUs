@@ -75,6 +75,7 @@ class ProfileManageSubFragment : BaseFragment<FragmentProfileMangeSubBinding, Pr
                             "카카오" -> R.drawable.login_kakao
                             "네이버" -> R.drawable.login_naver
                             "구글" -> R.drawable.login_google
+                            "애플" -> R.drawable.login_apple
                             "이메일" -> R.drawable.login_mail
                             else -> R.drawable.login_mail
                         }

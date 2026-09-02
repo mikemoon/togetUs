@@ -12,6 +12,7 @@ import android.os.Environment
 import android.widget.ArrayAdapter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.bundleOf
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
@@ -28,20 +29,16 @@ import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.local.model.KakaoSearchModel
 import sky.kr.co.newtogetusa.data.remote.request.player.BankRequestDto
-import sky.kr.co.newtogetusa.data.remote.request.player.PlayerProfileImageRequest
 import sky.kr.co.newtogetusa.databinding.FragmentJoinPlayerBinding
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAccountInfoDialog
-import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomAreaSelectDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.BottomPictureTypeDialog
 import sky.kr.co.newtogetusa.ui.dialog.bottom.PictureType
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
-import sky.kr.co.newtogetusa.utils.FileUtil.copyUriToTempFile
-import sky.kr.co.newtogetusa.utils.FileUtil.createFilePart
-import sky.kr.co.newtogetusa.utils.FileUtil.createImagePart
 import sky.kr.co.newtogetusa.utils.FileUtil.uriToFile
 import sky.kr.co.newtogetusa.utils.dialogFragmentShow
 import sky.kr.co.newtogetusa.utils.dpToPx
+import sky.kr.co.newtogetusa.utils.hideKeyboard
 import sky.kr.co.newtogetusa.utils.loadImage
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
@@ -334,36 +331,6 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
             }
         }
 
-        viewModel.step.observe(viewLifecycleOwner){ step ->
-            when(step){
-                4 ->{
-                    val playerId = viewModel.playerApplyedInfo.value?.player_id ?: return@observe
-                    viewModel.profileFile.value?.let { profileFile ->
-                        viewModel.postPlayerProfileImage(
-                            playerId = playerId,
-                            file = createImagePart(profileFile)
-                        ){ result ->
-                            Timber.d("saved profile image phase $result")
-                        }
-                    }
-                    viewModel.postPlayerIntroduce(
-                        playerId = playerId,
-                        introduceText = viewModel.introduceText.value.orEmpty()
-                    )
-                    Timber.d("criminal size = ${viewModel.criminalFile.value?.length()?:0 / 1024} KB")
-                    viewModel.criminalFile.value?.let { criminalFile ->
-                        viewModel.postPlayerCriminalRecord(
-                            playerId = playerId,
-                            file = createFilePart(
-                                partName = "file",//viewModel.documentFileName.value,
-                                file = criminalFile
-                            )
-                        )
-                    }
-                }
-            }
-        }
-
         viewModel.event.observe(viewLifecycleOwner){
             when(it){
                 PlayerJoinViewModel.Event.Back ->{
@@ -428,6 +395,36 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                 is PlayerJoinViewModel.Event.ShowMessage ->{
                     requireContext().toast(it.message)
                 }
+                is PlayerJoinViewModel.Event.TermDetail -> {
+                    findNavController().navigate(
+                        R.id.termDetailFragment,
+                        bundleOf(
+                            "title" to it.title,
+                            "content" to it.content
+                        )
+                    )
+                }
+                PlayerJoinViewModel.Event.ProfileNext -> {
+                    val playerId = viewModel.playerApplyedInfo.value?.player_id
+                    if (playerId == null) {
+                        requireContext().toast("플레이어 신청 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.")
+                        viewModel.getPlayers()
+                        return@observe
+                    }
+
+                    viewModel.getApplyValidationMessage()?.let { message ->
+                        requireContext().toast(message)
+                        return@observe
+                    }
+
+                    viewModel.submitPlayerProfile(playerId) { success, message ->
+                        if (success) {
+                            viewModel.onClickStepNext(4)
+                        } else {
+                            requireContext().toast(message ?: "플레이어 정보를 저장하지 못했습니다.")
+                        }
+                    }
+                }
                 PlayerJoinViewModel.Event.Complete ->{
                     val playerId = viewModel.playerApplyedInfo.value?.player_id
                     if (playerId == null) {
@@ -441,12 +438,12 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                         return@observe
                     }
 
-                    viewModel.requestPlayerApply(playerId){ result ->
-                        if(result){
+                    viewModel.requestPlayerApply(playerId){ success, message ->
+                        if(success){
                             val action = PlayerJoinFragmentDirections.actionPlayerJoinFragment2ToPlayerJoinCompleteFragment()
                             findNavController().navigate(action)
                         } else {
-                            requireContext().toast("플레이어 신청 제출에 실패했습니다.")
+                            requireContext().toast(message ?: "플레이어 신청 제출에 실패했습니다.")
                         }
                     }
                 }
@@ -485,8 +482,15 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
             return
         }
 
-        dialogFragmentShow(
-            childFragmentManager,
+        hideStep2Keyboard()
+        dataBinding.root.postDelayed({
+            if (!isAdded || !viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                return@postDelayed
+            }
+            if (childFragmentManager.findFragmentByTag(BANK_ACCOUNT_CONFIRM_DIALOG_TAG) != null) {
+                return@postDelayed
+            }
+
             BottomAccountInfoDialog().apply {
                 bankName = bank.name
                 bankCode = bank.code
@@ -510,8 +514,16 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
                         }
                     }
                 }
-            }
-        )
+            }.show(childFragmentManager, BANK_ACCOUNT_CONFIRM_DIALOG_TAG)
+        }, KEYBOARD_DISMISS_DELAY_MS)
+    }
+
+    private fun hideStep2Keyboard() {
+        val focusedView = requireActivity().currentFocus ?: dataBinding.root.findFocus() ?: dataBinding.icStep2.etName
+        focusedView.clearFocus()
+        dataBinding.icStep2.etAccountNumber.clearFocus()
+        dataBinding.icStep2.etName.clearFocus()
+        requireContext().hideKeyboard(focusedView)
     }
 
     private fun openCrcFilePicker() {
@@ -643,5 +655,10 @@ class PlayerJoinFragment : BaseFragment<FragmentJoinPlayerBinding, PlayerJoinVie
             inputStream?.close()
             android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
         }.getOrDefault("")
+    }
+
+    companion object {
+        private const val BANK_ACCOUNT_CONFIRM_DIALOG_TAG = "bankAccountConfirmDialog"
+        private const val KEYBOARD_DISMISS_DELAY_MS = 220L
     }
 }

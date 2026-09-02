@@ -91,7 +91,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->viewModel.onTermDetailClick(0)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
@@ -139,7 +142,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->viewModel.onTermDetailClick(1)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
@@ -187,7 +193,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->viewModel.onTermDetailClick(2)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
@@ -235,7 +244,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->viewModel.onTermDetailClick(3)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
@@ -283,7 +295,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->viewModel.onTermDetailClick(4)}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"

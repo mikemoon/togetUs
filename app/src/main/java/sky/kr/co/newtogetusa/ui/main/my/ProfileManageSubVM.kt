@@ -41,6 +41,7 @@ class ProfileManageSubVM  @Inject constructor(
                 LoginViewModel.KAKAO -> "카카오"
                 LoginViewModel.NAVER -> "네이버"
                 LoginViewModel.GOOGLE -> "구글"
+                LoginViewModel.APPLE -> "애플"
                 LoginViewModel.EMAIL -> "이메일"
                 else -> "-"
             }

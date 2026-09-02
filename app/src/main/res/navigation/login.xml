@@ -35,6 +35,20 @@
             <argument android:name="isFindPassword" app:argType="boolean" android:defaultValue="false"/>
             <argument android:name="termsList" app:argType="string[]" />
         </action>
+        <action
+            android:id="@+id/action_loginTermAgreeFragment_to_termDetailFragment"
+            app:destination="@id/termDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/termDetailFragment"
+        android:name="sky.kr.co.newtogetusa.ui.main.my.term.TermDetailFragment"
+        android:label="TermDetailFragment">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="content"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/loginNicknameFragment"

@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.NavGraphDirections
+import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.data.remote.dto.delivery.DeliverySummaryDto
 import sky.kr.co.newtogetusa.data.remote.ChatMessage
 import sky.kr.co.newtogetusa.databinding.FragmentChattingConversationBinding
@@ -178,10 +179,6 @@ class ChattingConversationFragment :
                     findNavController().popBackStack()
                 }
 
-                ChattingConversationViewModel.Event.PhoneCall ->{
-                    requireContext().toast("전화번호 정보가 없습니다.")
-                }
-
                 ChattingConversationViewModel.Event.More -> {
                     dialogFragmentShow(
                         childFragmentManager,
@@ -289,14 +286,18 @@ class ChattingConversationFragment :
             return
         }
 
-        if (args.isPlayerRoom || mainViewModel.isPlayerModeFlow.value) {
-            findNavController().navigate(
-                NavGraphDirections.actionGlobalPlayerHistoryDetailFragment(deliveryId)
-            )
-        } else {
-            findNavController().navigate(
-                NavGraphDirections.actionGlobalHistoryDetailFragment(createDeliverySummary(deliveryId))
-            )
+        val isPlayerDetail = args.isPlayerRoom || mainViewModel.isPlayerModeFlow.value
+        (activity as? MainActivity)?.navigateToDeliveryDetail(deliveryId, isPlayerDetail)
+            ?: run {
+                if (isPlayerDetail) {
+                    findNavController().navigate(
+                        NavGraphDirections.actionGlobalPlayerHistoryDetailFragment(deliveryId)
+                    )
+                } else {
+                    findNavController().navigate(
+                        NavGraphDirections.actionGlobalHistoryDetailFragment(createDeliverySummary(deliveryId))
+                    )
+                }
         }
     }
 

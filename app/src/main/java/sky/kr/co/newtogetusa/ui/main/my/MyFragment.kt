@@ -26,6 +26,7 @@ import sky.kr.co.newtogetusa.databinding.FragmentMyBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
 import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
+import sky.kr.co.newtogetusa.ui.dialog.message.PlayerApplyCompletedDialog
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
 import java.util.UUID
@@ -146,7 +147,7 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 MyViewModel.Event.JoinPlayer -> {
                     val dto = viewModel.playerApplyedInfoDto.value
                     if (!dto?.certi_req_date.isNullOrEmpty() && dto.certi_res_date.isNullOrEmpty()) {
-                        findNavController().navigate(R.id.action_myFragment_to_playerJoinCompleteFragment)
+                        PlayerApplyCompletedDialog().show(childFragmentManager, "PlayerApplyCompletedDialog")
                         return@observe
                     }
 
@@ -176,7 +177,18 @@ class MyFragment : BaseFragment<FragmentMyBinding, MyViewModel>() {
                 }
 
                 MyViewModel.Event.AccompanyCredit -> {
+                    viewModel.openAccompanyCreditNotice()
+                }
+
+                MyViewModel.Event.AccompanyCreditFallback -> {
                     findNavController().navigate(R.id.action_myFragment_to_accompanyCreditFragment)
+                }
+
+                is MyViewModel.Event.NoticeDetail -> {
+                    findNavController().navigate(
+                        R.id.noticeDetailFragment,
+                        bundleOf("id" to it.id)
+                    )
                 }
 
                 MyViewModel.Event.Update -> {

@@ -63,6 +63,11 @@ interface APiService {
         @Body body: HashMap<String, String>
     ): JoinResponse
 
+    @POST("/auths/apple")
+    suspend fun loginApple(
+        @Body body: HashMap<String, String>
+    ): JoinResponse
+
     @GET("/auths/join/check_dup")
     suspend fun checkNickname(
         @Query("nickname") nickname:String

@@ -20,19 +20,19 @@ import sky.kr.co.newtogetusa.data.remote.dto.my.InquiryDto
 import sky.kr.co.newtogetusa.data.remote.dto.my.NoticeDto
 
 interface MyService {
-    @GET("http://www.togetus.net/api/mys/v1/notifications")
+    @GET("https://www.togetus.net/api/mys/v1/notifications")
     suspend fun getNotifications(
         @Query("page_no") pageNo: Int,
         @Query("page_size") pageSize: Int
     ): NotificationResponseDto
 
-    @GET("http://www.togetus.net/api/mys/v1/notifications/unread")
+    @GET("https://www.togetus.net/api/mys/v1/notifications/unread")
     suspend fun getNotificationUnreadCount(): NotificationUnreadDto
 
-    @PUT("http://www.togetus.net/api/mys/v1/notifications/read_all")
+    @PUT("https://www.togetus.net/api/mys/v1/notifications/read_all")
     suspend fun putNotificationsReadAll(): Boolean
 
-    @PUT("http://www.togetus.net/api/mys/v1/notifications/{noti_id}/read")
+    @PUT("https://www.togetus.net/api/mys/v1/notifications/{noti_id}/read")
     suspend fun putNotificationRead(
         @Path("noti_id") notificationId: Long
     ): Boolean

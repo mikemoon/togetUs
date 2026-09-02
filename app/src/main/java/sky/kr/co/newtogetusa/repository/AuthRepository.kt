@@ -55,6 +55,10 @@ class AuthRepository @Inject constructor(
         apiService.loginGoogle(requestBody.withDeviceInfo())
     }
 
+    suspend fun loginApple(requestBody: HashMap<String, String>) = safeApiCall<JoinResponse>(dispatcher = Dispatchers.IO){
+        apiService.loginApple(requestBody.withDeviceInfo())
+    }
+
     suspend fun checkNickname(nickname:String) = safeApiCall<Boolean>(dispatcher = Dispatchers.IO){
         apiService.checkNickname(nickname)
     }

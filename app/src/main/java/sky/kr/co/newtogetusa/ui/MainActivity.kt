@@ -289,12 +289,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(){
     }
 
     // iOS openDeliveryDetail 대응: 내역 탭 선택 후 동행상세로 이동
-    private fun navigateToDeliveryDetail(deliveryId: Long) {
+    fun navigateToDeliveryDetail(
+        deliveryId: Long,
+        isPlayerDetail: Boolean = viewModel.isPlayerModeFlow.value
+    ) {
         if (deliveryId <= 0L) return
         selectMainTab(R.id.history)
         dataBinding.bottomNavigation.postDelayed({
             runCatching {
-                if (viewModel.isPlayerModeFlow.value) {
+                if (isPlayerDetail) {
                     navController.navigate(
                         R.id.action_global_playerHistoryDetailFragment,
                         android.os.Bundle().apply {

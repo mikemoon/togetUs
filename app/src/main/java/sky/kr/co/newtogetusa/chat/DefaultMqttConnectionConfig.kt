@@ -12,7 +12,7 @@ data class DefaultMqttConnectionConfig(
         "$PUB_PREFIX/$userNumber/${category.topicName}/"
 
     companion object {
-        const val BROKER_URL = "tcp://www.togetus.net:1883"
+        const val BROKER_URL = "tcp://chat.togetus.net:1833"
         private const val PUB_PREFIX = "togetus-pub"
         private const val SUB_PREFIX = "togetus-sub"
         private const val DEFAULT_QOS = 1

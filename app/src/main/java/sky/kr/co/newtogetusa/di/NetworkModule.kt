@@ -130,7 +130,7 @@ class NetworkModule {
 
     @DeliveryApiUrl
     @Provides
-    fun provideDeliveryApiUrl() = "http://www.togetus.net/"
+    fun provideDeliveryApiUrl() = "https://www.togetus.net/"
 
     @AddressApiServer
     @Provides
@@ -202,9 +202,9 @@ class NetworkModule {
     @ApiServer
     @Provides
     fun provideApiUrl()= if(BuildConfig.DEBUG){
-        "http://www.togetus.net/"
+        "https://www.togetus.net/"
     }else{
-        "http://www.togetus.net/"
+        "https://www.togetus.net/"
     }
 
     @ApiOkHttpClient

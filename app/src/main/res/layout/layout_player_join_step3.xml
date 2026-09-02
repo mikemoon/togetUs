@@ -302,7 +302,7 @@
             android:background="@drawable/selector_b20_p100_r4"
             android:gravity="center"
             android:enabled="@{viewModel.enableStep3Next}"
-            android:onClick="@{()-> viewModel.onClickStepNext(4)}"
+            android:onClick="@{()-> viewModel.onEventClick(Event.ProfileNext.INSTANCE)}"
             android:text="다음"
             android:textColor="@color/selector_wopa40_wopa100"
             app:layout_constraintBottom_toBottomOf="parent" />

@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sky.kr.co.newtogetusa.BuildConfig
 import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.databinding.FragmentLoginBinding
 import sky.kr.co.newtogetusa.ui.MainActivity
@@ -47,6 +48,7 @@ import sky.kr.co.newtogetusa.ui.base.BaseFragment
 import sky.kr.co.newtogetusa.ui.dialog.message.MessageDialog
 import sky.kr.co.newtogetusa.utils.toast
 import timber.log.Timber
+import java.util.UUID
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
@@ -193,6 +195,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                         }
                     }
                 }
+                is LoginViewModel.Event.AppleLogin -> {
+                    launchAppleLogin()
+                }
                 is LoginViewModel.Event.EmailLogin -> {
                     findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToLoginEmailFragment())
                 }
@@ -330,6 +335,32 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>() {
                 "&redirect_uri=$redirectUri" +
                 "&response_type=$responseType" +
                 "&scope=$scope"
+    }
+
+    private fun launchAppleLogin() {
+        val clientId = BuildConfig.APPLE_SERVICE_ID
+        val redirectUri = BuildConfig.APPLE_REDIRECT_URI
+        if (clientId.isBlank() || redirectUri.isBlank()) {
+            Timber.e("Apple login is not configured. serviceId=$clientId redirectUri=$redirectUri")
+            return
+        }
+
+        val authUri = Uri.Builder()
+            .scheme("https")
+            .authority("appleid.apple.com")
+            .path("auth/authorize")
+            .appendQueryParameter("client_id", clientId)
+            .appendQueryParameter("redirect_uri", redirectUri)
+            .appendQueryParameter("response_type", "code id_token")
+            .appendQueryParameter("response_mode", "form_post")
+            .appendQueryParameter("scope", "name email")
+            .appendQueryParameter("state", UUID.randomUUID().toString())
+            .build()
+
+        CustomTabsIntent.Builder()
+            .setShowTitle(true)
+            .build()
+            .launchUrl(requireContext(), authUri)
     }
 
 }

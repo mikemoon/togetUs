@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sky.kr.co.newtogetusa.BuildConfig
 import sky.kr.co.newtogetusa.base.SingleLiveEvent
 import sky.kr.co.newtogetusa.data.TokenStore
 import sky.kr.co.newtogetusa.data.remote.ErrorData
@@ -30,6 +31,8 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
 
     var recentLoginType = MutableStateFlow(-1)
     var refreshToken = MutableStateFlow("")
+    val isAppleLoginAvailable: Boolean =
+        BuildConfig.APPLE_SERVICE_ID.isNotBlank() && BuildConfig.APPLE_REDIRECT_URI.isNotBlank()
 
     var uiErrorMsg = MutableStateFlow("")
 
@@ -153,6 +156,29 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
 
     }
 
+    fun loginApple(token:String, callback:(resultCode:Int, errorData: ErrorData?)-> Unit) = viewModelScope.launch {
+        val response = authRepository.loginApple(hashMapOf(
+            "access_token" to token
+        ))
+        when(response){
+            is ResultWrapper.Success -> {
+                tokenStore.setTokens(response.data.accessToken, response.data.refreshToken)
+                dataStoreRepository.clearString(DataStoreKey.KEY_PROFILE)
+                dataStoreRepository.putString(DataStoreKey.KEY_TOKEN, response.data.accessToken)
+                dataStoreRepository.putString(DataStoreKey.KEY_REFRESH_TOKEN, response.data.refreshToken)
+                dataStoreRepository.putInt(DataStoreKey.RECENT_LOGIN_TYPE, APPLE)
+                dataStoreRepository.putString(DataStoreKey.KEY_LOGIN_EMAIL, "")
+                callback.invoke(200, null)
+            }
+            is ResultWrapper.GenericError -> {
+                callback.invoke(response.code?.toInt()?:0, response.errorData)
+            }
+            else -> {
+                Timber.d("apple login fail $response")
+            }
+        }
+    }
+
     private val _event = SingleLiveEvent<Event>()
     val event: LiveData<Event> = _event
     fun onEventClick(event: Event){
@@ -163,6 +189,7 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
         object KakaoLogin: Event()
         object NaverLogin: Event()
         object GoogleLogin: Event()
+        object AppleLogin: Event()
         object EmailLogin: Event()
     }
 
@@ -171,5 +198,6 @@ class LoginViewModel @Inject constructor(baseViewModelFactory: BaseViewModelDepe
         const val NAVER = 2
         const val GOOGLE = 3
         const val EMAIL = 4
+        const val APPLE = 5
     }
 }

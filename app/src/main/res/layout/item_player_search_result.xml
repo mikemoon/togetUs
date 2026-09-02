@@ -30,14 +30,6 @@
                 android:maxLines="2"
                 android:text="홍영희"
                 android:textColor="@color/black_80" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/Paragraph12R"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="3.5km"
-                android:textColor="@color/black_40" />
         </LinearLayout>
 
         <LinearLayout

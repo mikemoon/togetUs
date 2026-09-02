@@ -473,7 +473,6 @@ class ChattingConversationViewModel @Inject constructor(
 
     sealed class Event {
         object Back : Event()
-        object PhoneCall : Event()
         object More : Event()
         object DeliveryDetail : Event()
         data class MessageImageSelect(val url: String) : Event()

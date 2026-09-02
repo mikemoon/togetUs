@@ -16,6 +16,8 @@ import sky.kr.co.newtogetusa.R
 import sky.kr.co.newtogetusa.data.remote.dto.search.RegionDto
 import sky.kr.co.newtogetusa.databinding.DialogBottomAreaBinding
 import sky.kr.co.newtogetusa.utils.dpToPx
+import java.text.Collator
+import java.util.Locale
 
 @AndroidEntryPoint
 class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>, List<RegionDto>) -> Unit) : BottomBaseDialog<DialogBottomAreaBinding, BottomAreaSelectViewModel>() {
@@ -117,13 +119,16 @@ class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>
 
     private fun subRegionItems(region: RegionDto): List<RegionDto> =
         withAllRegion(if (viewModel.isLocal.value) {
-            viewModel.domesticSubAddressList.value.filter { it.cate == region.code }
+            viewModel.domesticSubAddressList.value.filter { it.cate == region.code }.sortedByKoreanName()
         } else {
             viewModel.domesticSubAddressList.value
         })
 
     private fun withAllRegion(items: List<RegionDto>): List<RegionDto> =
         listOf(ALL_REGION) + items.filterNot { it.isAllRegion() }
+
+    private fun List<RegionDto>.sortedByKoreanName(): List<RegionDto> =
+        sortedWith { left, right -> KOREAN_COLLATOR.compare(left.name, right.name) }
 
     private fun RegionDto.isAllRegion(): Boolean =
         name == ALL_REGION.name || code.isBlank()
@@ -154,5 +159,6 @@ class BottomAreaSelectDialog(private val selectedRegionCallback:(List<RegionDto>
 
     companion object {
         private val ALL_REGION = RegionDto(cate = "", code = "", name = "전체", description = null)
+        private val KOREAN_COLLATOR: Collator = Collator.getInstance(Locale.KOREAN)
     }
 }

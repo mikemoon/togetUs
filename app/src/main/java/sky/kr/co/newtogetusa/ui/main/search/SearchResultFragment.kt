@@ -8,6 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import sky.kr.co.newtogetusa.R
@@ -26,21 +27,22 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
 
     private val args: SearchResultFragmentArgs by navArgs()
     private val searchResultAdapter = SearchResultAdapter(::navigateToProfileManagement)
+    private var canShowEmpty = false
+    private val adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
+        override fun onChanged() = updateEmptyView()
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = updateEmptyView()
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = updateEmptyView()
+    }
 
     override fun init() {
         super.init()
         dataBinding.rv.adapter = searchResultAdapter
+        searchResultAdapter.registerAdapterDataObserver(adapterDataObserver)
 
         searchResultAdapter.addLoadStateListener { loadState ->
-            if (loadState.refresh is LoadState.NotLoading) {
-                // 페이지네이션이 완전히 끝났고 아이템이 없을 때만 빈 화면 표시
-                val isEmpty = searchResultAdapter.itemCount == 0
-                        && loadState.append.endOfPaginationReached
-                dataBinding.llEmpty.isVisible = isEmpty
-            } else {
-                // 로딩 중에는 빈 화면 숨김
-                dataBinding.llEmpty.isVisible = false
-            }
+            canShowEmpty = loadState.refresh is LoadState.NotLoading
+                    && loadState.append.endOfPaginationReached
+            updateEmptyView()
         }
 
         lifecycleScope.launch {
@@ -55,6 +57,11 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             isDomestic = args.isDomestic,
             sortType = SORT_STAR_RATING
         )
+    }
+
+    override fun onDestroyView() {
+        searchResultAdapter.unregisterAdapterDataObserver(adapterDataObserver)
+        super.onDestroyView()
     }
 
     override fun initObserver() {
@@ -118,6 +125,10 @@ class SearchResultFragment  : BaseFragment<FragmentSearchResultBinding, SearchRe
             isFromSearchResult = true
         )
         findNavController().navigate(action)
+    }
+
+    private fun updateEmptyView() {
+        dataBinding.llEmpty.isVisible = canShowEmpty && searchResultAdapter.itemCount == 0
     }
 
     companion object {
